@@ -7,8 +7,8 @@
 //
 
 #import "ZWTagListView.h"
-#define HORIZONTAL_PADDING 20.f
-#define VERTICAL_PADDING   8.0f
+#define HORIZONTAL_PADDING 15.0
+#define VERTICAL_PADDING   7.5f
 static const CGFloat XMGDefaultColumnMargin = 10;
 static const CGFloat XMGDefaultRowMargin = 10;
 static const UIEdgeInsets XMGDefaultEdgeInsets = {10, 10, 10, 10};
@@ -96,7 +96,7 @@ static const UIEdgeInsets XMGDefaultEdgeInsets = {10, 10, 10, 10};
             tag.backgroundColor = self->_signalTagColor;
             tag.layer.borderColor = tag.backgroundColor.CGColor;
             tag.layer.borderWidth = 1.f;
-            tag.layer.cornerRadius = 16.f;
+            tag.layer.cornerRadius = 14.f;
             tag.layer.masksToBounds = YES;
         }else{
             tag.backgroundColor = [UIColor colorWithRed:random()%255/255.0 green:random()%255/255.0 blue:random()%255/255.0 alpha:1];

@@ -7,12 +7,8 @@
 //
 
 #import "CTabBarVC.h"
-//#import "ShopAssetsHomeVC.h"
-//#import "MallHomePageVC.h"
-//#import "ShopPersonHomeVC.h"
-//#import "DNBrowserVC.h"
-//
-//#import "MyIncomeAssetVC.h"
+#import "HomePageVC.h"
+#import "MyTabBar.h"
 
 @interface CTabBarVC ()
 
@@ -24,16 +20,31 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     
-//    ShopAssetsHomeVC *shopAssetVc = [[ShopAssetsHomeVC alloc] init];
-//    [self controller:shopAssetVc Title:NSLocalizedString(@"资产", nil) tabBarItemImage:@"mall_asset_unselect" tabBarItemSelectedImage:@"mall_asset_select"];
-//
-//    MallHomePageVC *mallVC = [[MallHomePageVC alloc] init];
-//    [self controller:mallVC Title:NSLocalizedString(@"商城", nil) tabBarItemImage:@"mall_shop_unselect" tabBarItemSelectedImage:@"mall_shop_select"];
-//    
-//    ShopPersonHomeVC *personVc = [[ShopPersonHomeVC alloc] init];
-//    [self controller:personVc Title:NSLocalizedString(@"我的", nil) tabBarItemImage:@"mall_mine_unselect" tabBarItemSelectedImage:@"mall_mine_select"];
-//
-//    self.viewControllers = @[shopAssetVc,mallVC,personVc];
+    [self setValue:[MyTabBar new] forKey:@"tabBar"];
+
+
+    //去掉线
+    if (@available(iOS 13.0, *)) {
+        UITabBarAppearance *standardAppearance = [[UITabBarAppearance alloc] init];
+        standardAppearance.backgroundColor = [UIColor clearColor];//根据自己的情况设置
+        standardAppearance.shadowColor = [UIColor clearColor];//也可以设置为白色或任何颜色
+        self.tabBar.standardAppearance = standardAppearance;
+    }else{
+        [[UITabBar appearance] setBackgroundImage:[[UIImage alloc]init]];
+        [[UITabBar appearance] setShadowImage:[[UIImage alloc]init]];
+        [UITabBar appearance].backgroundColor = [UIColor whiteColor];//根据自己的情况设置
+    }
+
+    HomePageVC *homeVC = [[HomePageVC alloc] init];
+    [self controller:homeVC Title:NSLocalizedString(@"首页", nil) tabBarItemImage:@"home_n" tabBarItemSelectedImage:@"home_n"];
+    HomePageVC *homeVC1 = [[HomePageVC alloc] init];
+    [self controller:homeVC1 Title:NSLocalizedString(@"商家", nil) tabBarItemImage:@"mer_n" tabBarItemSelectedImage:@"home_n"];
+    
+    HomePageVC *homeVC2 = [[HomePageVC alloc] init];
+    [self controller:homeVC2 Title:NSLocalizedString(@"消息", nil) tabBarItemImage:@"message_n" tabBarItemSelectedImage:@"home_n"];
+    HomePageVC *homeVC3 = [[HomePageVC alloc] init];
+    [self controller:homeVC3 Title:NSLocalizedString(@"我的", nil) tabBarItemImage:@"my_n" tabBarItemSelectedImage:@"home_n"];
+    self.viewControllers = @[homeVC,homeVC1,homeVC2,homeVC3];
     
 }
 
@@ -45,33 +56,22 @@
     UIImage *imageHome = [UIImage imageNamed:selectedImage];
     imageHome = [imageHome imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
     [controller.tabBarItem setSelectedImage:imageHome];
+ 
 //    // 设置 tabbarItem 选中状态下的文字颜色(不被系统默认渲染,显示文字自定义颜色)
 //    NSDictionary *dictHome = [NSDictionary dictionaryWithObject:[UIColor colorWithRGBHex:@"#5151F0"] forKey:NSForegroundColorAttributeName];
 //    [controller.tabBarItem setTitleTextAttributes:dictHome forState:UIControlStateSelected];
-    self.tabBar.tintColor = [UIColor colorWithRGBHex:@"#2982FF"];
+    self.tabBar.tintColor = [UIColor colorWithRGBHex:@"#333333"];
     
     if (@available(iOS 10.0, *)) {
-        self.tabBar.unselectedItemTintColor = [UIColor colorWithRGBHex:@"#9999A3"];
+        self.tabBar.unselectedItemTintColor = [UIColor colorWithRGBHex:@"#333333"];
     } else {
         // Fallback on earlier versions
     }
 }
 
-
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.
 }
-
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
 
 @end

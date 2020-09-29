@@ -27,6 +27,7 @@
 #define navBarHeight ((IS_IPHONEX == YES)? 88.0f:64.0f)
 #define tabbarHeight ((IS_IPHONEX == YES) ? (49.f+34.f) : 49.f)
 #define bottomY ((IS_IPHONEX == YES)?30.0f:0.0f)
+#define statusHeight ((IS_IPHONEX == YES)? 44.0f:20.0f)
 
     //系统版本
 #define IOSVer [[[UIDevice currentDevice] systemVersion]floatValue]

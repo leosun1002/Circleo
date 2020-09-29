@@ -20,7 +20,6 @@
 -(void)alipayFun:(NSURL *)url;//alipay
 -(BOOL)wxpayFun:(NSURL *)url;//alipay
 
--(void)upVerFun;
 -(void)selectFPS;
 
 -(void)setFontAndColor;
