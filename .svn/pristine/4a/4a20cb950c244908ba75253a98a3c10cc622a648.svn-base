@@ -1,0 +1,23 @@
+//
+//  PersonHomeVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PersonHomeVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UICollectionView *collection;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowOut;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *botConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIView *topView;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,25 @@
+//
+//  DNSBindModel.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSBindModel.h"
+
+@implementation PivotModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"pivotid":@"id"};
+}
+
+@end
+
+@implementation DNSBindModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"bindid":@"id"};
+}
+
+@end

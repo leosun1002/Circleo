@@ -1,0 +1,116 @@
+//
+//  MallMyFuelChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallMyFuelChildVC.h"
+#import "MallMyFuelTableViewCell.h"
+#import "ShopAssetNewChargeVC.h"
+#import "MyFuelRecordModel.h"
+#import "ShopAssetsTradeDetailVC.h"
+
+@interface MallMyFuelChildVC ()<UITableViewDelegate,UITableViewDataSource>{
+    int page;
+    BOOL ifFirst;
+}
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property(nonatomic,strong) NSMutableArray *datas;
+
+@end
+
+@implementation MallMyFuelChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallMyFuelTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallMyFuelTableViewCell"];
+}
+
+- (IBAction)chargeClick:(id)sender {
+    ShopAssetNewChargeVC *chargeVC = [[ShopAssetNewChargeVC alloc] init];
+    [self.navigation pushViewController:chargeVC animated:YES];
+}
+
+-(void)getData{
+    //判断是不是第一次
+    if (!ifFirst) {
+        [self.tableview.mj_header beginRefreshing];
+        ifFirst = YES;
+    }
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"in_or_out":self.selectedPage == 0?@"":[NSString stringWithFormat:@"%ld",(long)self.selectedPage],@"page":[NSString stringWithFormat:@"%d",page]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:FuelRecordIndex param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<MyFuelRecordModel*> *applicationList = [MyFuelRecordModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    ShopEmptyView *view = [ShopEmptyView flagView];
+    view.backgroundColor = [UIColor clearColor];
+    view.contentLabel.text = @"暂无数据";
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallMyFuelTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallMyFuelTableViewCell"];
+    cell.model = self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    MyFuelRecordModel *model = self.datas[indexPath.row];
+    ShopAssetsTradeDetailVC *detail = [[ShopAssetsTradeDetailVC alloc] init];
+    detail.fuel_id = model.fuel_id;
+    [self.navigationController pushViewController:detail animated:YES];
+
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

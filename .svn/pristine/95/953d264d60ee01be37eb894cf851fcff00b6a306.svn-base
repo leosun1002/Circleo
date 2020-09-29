@@ -1,0 +1,29 @@
+//
+//  ShopHomeListModel.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/22.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopHomeListModel.h"
+
+@implementation ShopHomeSecondListModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"secondId":@"id"};
+}
+
+@end
+
+@implementation ShopHomeListModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"listId":@"id"};
+}
+
++(NSDictionary *)mj_objectClassInArray{
+    return @{@"good_two_categorys":@"ShopHomeSecondListModel"};
+}
+
+@end

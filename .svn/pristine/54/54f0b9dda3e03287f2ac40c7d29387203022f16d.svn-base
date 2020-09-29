@@ -1,0 +1,22 @@
+//
+//  AddressManageVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AddressManageVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heiConst;
+@property (strong, nonatomic) RACSubject *subject;
+@property (strong, nonatomic) NSString *currencyName;
+
+@end
+
+NS_ASSUME_NONNULL_END

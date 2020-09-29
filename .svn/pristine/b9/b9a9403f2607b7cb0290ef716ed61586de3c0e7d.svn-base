@@ -1,0 +1,28 @@
+//
+//  DNSDetailChildHeader.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSDetailModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSDetailChildHeader : UIView
+
+@property(nonatomic,strong)DNSDetailModel *model;
+
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *usdtLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cnyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *buyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *endLabel;
+@property (weak, nonatomic) IBOutlet UILabel *unitLabel;
+
+-(void)getData:(NSString *)manageid;
+@end
+
+NS_ASSUME_NONNULL_END

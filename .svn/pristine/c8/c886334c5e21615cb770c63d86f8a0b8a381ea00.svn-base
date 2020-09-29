@@ -1,0 +1,122 @@
+function createaddress(chainid,words){
+    var cointype = 1;
+    if (chainid == 1){
+        cointype = 60;//以太坊
+    }else if (chainid == 2){
+        cointype = 0;//比特币
+    }else if (chainid == 3){
+        cointype = 999;//元界
+    }else if (chainid == 4){
+        cointype = 888;//VSYS
+    }else if (chainid == 5){
+        cointype = 2;//莱特币
+    }else if (chainid == 6){
+        cointype = 145;//比特现金
+    }else if (chainid == 13){
+        cointype = 666;//本体
+    }else if (chainid == 14){
+        cointype = 777;//维基链
+    }
+    if ((cointype == 60) || (cointype == 145) || (cointype == 0) || ( cointype == 2)){
+        //币种
+        var network;
+        if((cointype == 60) || (cointype == 145) || (cointype == 0)){
+            network = bitcoinjs.bitcoin.networks.bitcoin;
+        }else if( cointype == 2){
+            network = bitcoinjs.bitcoin.networks.litecoin;
+        }
+        //初始化助几词
+        var mnemonics = { "english": new Mnemonic("english") };
+        var mnemonic = mnemonics["english"];
+        //生成种子
+        var seed = mnemonic.toSeed(words, '');
+        console.log('seed...'+seed);
+        var bip32RootKey = bitcoinjs.bitcoin.HDNode.fromSeedHex(seed, network);
+        for(var j=0;j<1;j++){
+            var derivationPath = "m/44'/"+cointype+"'/0'/0";
+            var extendedKey = bip32RootKey;
+            var pathBits = derivationPath.split("/");
+            for (var i=0; i<pathBits.length; i++) {
+                var bit = pathBits[i];
+                var index = parseInt(bit);
+                if (isNaN(index)) {
+                    continue;
+                }
+                var hardened = bit[bit.length-1] == "'";
+                var isPriv = !(extendedKey.isNeutered());
+                var invalidDerivationPath = hardened && !isPriv;
+                if (invalidDerivationPath) {
+                    extendedKey = null;
+                }
+                else if (hardened) {
+                    extendedKey = extendedKey.deriveHardened(index);
+                }
+                else {
+                    extendedKey = extendedKey.derive(index);
+                }
+            }
+            var key = "NA";
+            key = extendedKey.derive(index);
+            var keyPair = key.keyPair;
+            var address = keyPair.getAddress().toString();
+            var hasPrivkey = !key.isNeutered();
+            var privkey = "NA";
+            if (hasPrivkey) {
+                privkey = keyPair.toWIF();
+            }
+            var pubkey = keyPair.getPublicKeyBuffer().toString('hex');
+            if ((cointype == 60) || (cointype == 61) || (cointype == 164) || (cointype == 76) || (cointype == 184)
+                || (cointype == 178) || (cointype == 40) || (cointype == 820)
+                || (network.name == "ETC - Ethereum Classic")
+                || (network.name == "PIRL - Pirl")
+                || (network.name == "MIX - MIX")
+                || (network.name == "MUSIC - Musicoin")
+                || (network.name == "POA - Poa")
+                || (network.name == "EXP - Expanse")
+                || (network.name == "CLO - Callisto")) {
+                var privKeyBuffer = keyPair.d.toBuffer(32);
+                privkey = privKeyBuffer.toString('hex');
+                var addressBuffer = ethUtil.privateToAddress(privKeyBuffer);
+                var hexAddress = addressBuffer.toString('hex');
+                var checksumAddress = ethUtil.toChecksumAddress(hexAddress);
+                address = ethUtil.addHexPrefix(checksumAddress);
+                privkey = ethUtil.addHexPrefix(privkey);
+                pubkey = ethUtil.addHexPrefix(pubkey);
+            }
+            // Ripple values are different
+            if (cointype == 144) {
+                privkey = convertRipplePriv(privkey);
+                address = convertRippleAdrr(address);
+            }
+            // Bitcoin Cash address format may vary
+            if (cointype == 145) {
+                address = bchaddr.toCashAddress(address);
+                console.log(bchaddr.toLegacyAddress(address))
+            }
+            //console.log("私钥:"+privkey);
+            //console.log('地址'+address)
+            return '{"address":"'+address+'","privateKey":"'+privkey+'"}'
+        }
+    }else if(cointype == 999){
+        var wallet;
+        wallet = Metaverse.wallet.fromMnemonic(words)
+        address = wallet.getAddress()
+        return '{"address":"'+address+'","privateKey":"'+words+'"}'
+    }else if(cointype == 888){
+        //创建钱包
+        var wallet = getWallet(words,VEEAPI.Network.MAIN_NET)
+        //var wallet = getWallet('negative assume opera cousin sea devote lava reopen bulb gold interest bracket',VEEAPI.Network.TEST_NET)
+        //console.log('钱包：'+wallet);
+        return wallet
+    }else if(cointype == 666){
+        //创建钱包
+        var wallet = Ont.SDK.createAccount(words);
+        console.log("wallet:",wallet)
+        return wallet
+    }else if(cointype == 777){
+        //创建钱包
+        var wallet = NewWiccAddress(words);
+        console.log("wallet:",wallet)
+        return wallet
+    }
+}

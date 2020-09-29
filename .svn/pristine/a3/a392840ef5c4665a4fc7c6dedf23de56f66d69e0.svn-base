@@ -1,0 +1,40 @@
+//
+//  AboutUSVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/8.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AboutUSVC.h"
+
+@interface AboutUSVC ()
+
+@end
+
+@implementation AboutUSVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"关于我们", nil) hiddeBack:NO];
+    [self prepareui];
+}
+
+-(void)prepareui{
+    self.topConst.constant += navBarHeight;
+    self.versionLab.text = [self getVersion];
+}
+
+-(NSString *)getVersion{
+    NSString *app_Version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    NSString* environment = @"";
+    if(SERVICE_LINK_FLAG ==1){
+        environment = @"测试环境";
+    }else{
+        
+        environment = @"";
+    }
+    
+    return [NSString stringWithFormat:@"v%@%@",app_Version,environment];
+}
+@end

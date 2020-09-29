@@ -1,0 +1,24 @@
+//
+//  CoinAssetsTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "CurrencyModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface CoinAssetsTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)CurrencyModel *model;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *kyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *djLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

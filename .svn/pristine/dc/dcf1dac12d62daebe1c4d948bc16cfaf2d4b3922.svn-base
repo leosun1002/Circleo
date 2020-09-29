@@ -1,0 +1,21 @@
+//
+//  DNSOrderManageHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSOrderManageHeader.h"
+
+@implementation DNSOrderManageHeader
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"DNSOrderManageHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+    }
+    return self;
+}
+
+@end

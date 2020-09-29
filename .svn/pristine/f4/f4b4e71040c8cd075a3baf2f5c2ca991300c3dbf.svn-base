@@ -1,0 +1,23 @@
+//
+//  DNSDetailBindCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSBindModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSDetailBindCell : UITableViewCell
+
+@property(nonatomic,strong)DNSBindModel *bindModel;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

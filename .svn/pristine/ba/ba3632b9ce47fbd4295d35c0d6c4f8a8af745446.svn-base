@@ -1,0 +1,25 @@
+//
+//  DNSHomeRollCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "WSLRollView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSHomeRollCell : WSLRollViewCell
+
+@property(nonatomic,strong)UIView *bgview;
+@property(nonatomic,strong)UIView *backview;
+@property(nonatomic,strong)UIImageView *headerV;
+@property(nonatomic,strong)UILabel *nameLabel;
+@property(nonatomic,strong)UILabel *content;
+
+- (void)refreshDataWithType:(int)type;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,26 @@
+//
+//  WebSiteTempleModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/5/29.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebSiteTempleModel : NSObject
+
+@property(nonatomic,assign) long status;
+@property(nonatomic,assign) long templeId;
+@property(nonatomic,strong) NSString *phone_picture;
+@property(nonatomic,strong) NSString *pc_picture;
+@property(nonatomic,strong) NSString *descript;
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,strong) NSString *created_at;
+@property(nonatomic,strong) NSString *updated_at;
+
+@end
+
+NS_ASSUME_NONNULL_END

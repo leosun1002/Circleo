@@ -1,0 +1,289 @@
+//
+//  DNBrowserDetailServiceVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/12/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNBrowserDetailServiceVC.h"
+#import "CHSwitch.h"
+#import "DNSFilterSelectVC.h"
+#import "BrowserServicePayDetailVC.h"
+#import "DNBrowserDetailVC.h"
+
+@interface DNBrowserDetailServiceVC ()
+
+@property(nonatomic,strong) NSString *selectDayId;
+@property(nonatomic,strong) NSString *topSelectDay;
+@property(nonatomic,strong) NSString *topSelectPrice;
+
+@property(nonatomic,weak) CHSwitch *freechSwith;
+@property(nonatomic,weak) CHSwitch *topchSwith;
+@property(nonatomic,weak) UIButton *rightBtn;
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@end
+
+@implementation DNBrowserDetailServiceVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRightBtn];
+    if (self.model.is_sticky == 1)return ;
+    [self getDaysData];
+}
+
+-(void)prepareUi{
+    [self setBanar:NSLocalizedString(@"服务项", nil) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    
+    CHSwitch *freechSwith = [[CHSwitch alloc] initWithFrame:CGRectMake(ksrcwidth - 60, 12.5, 45, 45)];
+    freechSwith.tintColor = [UIColor colorWithRGBHex:@"#EEEEF0"];
+    freechSwith.onTintColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    freechSwith.shadow = NO;
+    freechSwith.on = self.model.is_toll == 0;
+    freechSwith.enabled = self.model.is_toll == 1;
+    freechSwith.tag = 10;
+    [freechSwith addTarget:self action:@selector(changeState:) forControlEvents:(UIControlEventValueChanged)];
+    [self.freeView addSubview:_freechSwith = freechSwith];
+    
+    CHSwitch *topchSwith = [[CHSwitch alloc] initWithFrame:CGRectMake(ksrcwidth - 60, 7.5, 45, 45)];
+    topchSwith.tintColor = [UIColor colorWithRGBHex:@"#EEEEF0"];
+    topchSwith.onTintColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    topchSwith.shadow = NO;
+    topchSwith.on = self.model.is_sticky == 1;
+    topchSwith.enabled = self.model.is_sticky == 0;
+    topchSwith.alpha = self.model.is_sticky == 1?0.3:1;
+    topchSwith.tag = 11;
+    [topchSwith addTarget:self action:@selector(changeState:) forControlEvents:(UIControlEventValueChanged)];
+    [self.topView addSubview:_topchSwith = topchSwith];
+    self.topTipLabel.textColor = self.model.is_sticky == 1?[UIColor colorWithRGBHex:@"#AAAAB5"]:[UIColor colorWithRGBHex:@"18181A"];
+
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself selectDays];
+    }];
+    [self.daysView addGestureRecognizer:tap];
+    
+    self.freeView.hidden = self.model.is_toll == 0;
+    self.freeHeightConst.constant = self.model.is_toll == 0?0:70;
+    
+    self.daysView.hidden = self.model.is_sticky == 0;
+    self.daysTrail.constant = self.model.is_sticky == 1?16:32;
+    self.daysImage.hidden = self.model.is_sticky == 1;
+    
+    if (self.model.is_sticky == 1) {
+        [self getLastTopTime];
+    }
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    CGFloat width = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?80:60;
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - width - 5,navBarHeight - 35, width, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, width, 20);
+    [rightBtn setTitle:NSLocalizedString(@"确定", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    if (self.model.is_toll == 0 && self.model.is_sticky == 1) {
+        rightBtn.hidden = YES;
+    }else{
+        rightBtn.hidden = NO;
+    }
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        //0不付费，1付费
+        if (weakself.model.is_toll == 0) {
+            [weakself getUnpayClick];
+        }else{
+            [weakself getPayClick];
+        }
+    }];
+    [view addSubview:_rightBtn = rightBtn];
+}
+
+-(void)changeState:(UISwitch *)sender{
+    if (sender.tag == 11) {
+        BOOL state = sender.on;
+        self.daysView.hidden = !state;
+    }
+}
+
+-(void)getDaysData{
+    WeakSelf(self);
+    [weakself showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:BrowserSticky param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas addObjectsFromArray:json[@"data"][@"data"]];
+                if (weakself.datas.count != 0) {
+                    NSDictionary *dict = weakself.datas[0];
+                    weakself.selectDayId = [NSString stringWithFormat:@"%lld",[dict[@"id"] longLongValue]];
+                    weakself.topSelectDay = [NSString stringWithFormat:@"%lld",[dict[@"day"] longLongValue]];
+                    weakself.topSelectPrice = AssectString(dict[@"price"]);
+                    weakself.daysLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld天(%@ CNY)", nil),[dict[@"day"] longLongValue],AssectString(dict[@"price"])];
+                }
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getDaysData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getDaysData];
+            }];
+        }
+    }];
+}
+
+-(void)selectDays{
+    DNSFilterSelectVC *select = [[DNSFilterSelectVC alloc] init];
+    select.dataType = 2;
+    select.datas = [self.datas copy];
+    select.selectStr = AssectString(self.selectDayId);
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.subject = [RACSubject subject];
+    WeakSelf(self);
+    [select.subject subscribeNext:^(NSDictionary *dict) {
+        weakself.selectDayId = [NSString stringWithFormat:@"%lld",[dict[@"id"] longLongValue]];
+        weakself.topSelectDay = [NSString stringWithFormat:@"%lld",[dict[@"day"] longLongValue]];
+        weakself.topSelectPrice = AssectString(dict[@"price"]);
+        weakself.daysLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld天(%@ CNY)", nil),[dict[@"day"] longLongValue],AssectString(dict[@"price"])];
+    }];
+    [self presentViewController:select animated:NO completion:nil];
+}
+
+-(void)getLastTopTime{
+    long endTopTime = [self.model.sticky_info[@"end_time"] longLongValue];
+    NSDate *conformTimesp = [NSDate dateWithTimeIntervalSince1970:endTopTime];
+    // 1.将时间转换为date
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"YYYY-MM-dd HH:mm:ss";
+    NSDate *expireDate = [self localeDate:conformTimesp];
+    NSDate* nowDate = [self localeDate:[NSDate date]];
+
+    //1比较大小
+    if ([[expireDate earlierDate:nowDate] isEqualToDate:expireDate]) {
+        self.daysLabel.text = NSLocalizedString(@"置顶时间已过期", nil);
+        return;
+    }
+
+    // 2.创建日历
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSCalendarUnit type = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+    // 3.利用日历对象比较两个时间的差值
+    NSDateComponents *cmps = [calendar components:type fromDate:nowDate toDate:expireDate options:0];
+    NSInteger day = cmps.day;
+    NSString *hour = cmps.hour < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.hour]:[NSString stringWithFormat:@"%ld",(long)cmps.hour];
+    NSString *minute = cmps.minute < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.minute]:[NSString stringWithFormat:@"%ld",(long)cmps.minute];
+
+    // 4.输出结果
+    if (cmps.day > 0) {
+        self.daysLabel.text = [NSString stringWithFormat:NSLocalizedString(@"剩余%ld天%@小时", nil),(long)day,hour];
+    }else{
+        self.daysLabel.text = [NSString stringWithFormat:NSLocalizedString(@"剩余%@小时%@分", nil),hour,minute];
+    }
+}
+
+//获取正确的时间
+- (NSDate*)localeDate:(NSDate*)date {
+    NSTimeZone *zone = [NSTimeZone systemTimeZone];
+    NSInteger interval = [zone secondsFromGMTForDate: date];
+    NSDate *localeDate = [date dateByAddingTimeInterval: interval];
+    return localeDate;
+}
+
+-(void)getUnpayClick{
+    if (self.model.is_sticky == 1) return;
+    if (!self.topchSwith.on) {
+        [self showMsg:NSLocalizedString(@"请选择置顶天数", nil) location:centre];
+        return;
+    }
+    if ([AssectString(self.selectDayId) isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请选择置顶天数", nil) location:centre];
+        return;
+    }
+    NSDictionary *dict = @{@"article_chain_id":[NSString stringWithFormat:@"%ld",self.model.articleid],@"is_private":@"0",@"is_toll":@"0",@"free_word_count":@"",@"charge_amount":@"",@"is_sticky":@"1",@"sticky_configuration_id":AssectString(self.selectDayId),@"price":AssectString(self.topSelectPrice),@"day":AssectString(self.topSelectDay)};
+    BrowserServicePayDetailVC *pay = [[BrowserServicePayDetailVC alloc] init];
+    pay.type = 2;
+    pay.dict = dict;
+    [self.navigationController pushViewController:pay animated:YES];
+    
+}
+
+-(void)getPayClick{
+    if (!self.freechSwith.on && !self.topchSwith.on) return;
+    
+    //置顶开了
+    if (self.model.is_sticky == 1) {
+        //置顶开了    免费没开
+        if (!self.freechSwith.on) return;
+        NSDictionary *dict = @{@"article_chain_id":[NSString stringWithFormat:@"%ld",self.model.articleid],@"is_private":@"0",@"is_toll":@"1",@"free_word_count":@"",@"charge_amount":@"",@"is_sticky":@"",@"sticky_configuration_id":AssectString(self.selectDayId),@"price":AssectString(self.topSelectPrice),@"day":AssectString(self.topSelectDay)};
+        [self getCheck:dict];
+    }else{
+        //置顶没开
+        if (!self.topchSwith.on) {
+            NSDictionary *dict = @{@"article_chain_id":[NSString stringWithFormat:@"%ld",self.model.articleid],@"is_private":@"0",@"is_toll":self.freechSwith.on?@"1":@"0",@"free_word_count":@"",@"charge_amount":@"",@"is_sticky":@"",@"sticky_configuration_id":AssectString(self.selectDayId),@"price":AssectString(self.topSelectPrice),@"day":AssectString(self.topSelectDay)};
+
+            [self getCheck:dict];
+        }else{
+            NSDictionary *dict = @{@"article_chain_id":[NSString stringWithFormat:@"%ld",self.model.articleid],@"is_private":@"0",@"is_toll":self.freechSwith.on?@"1":@"0",@"free_word_count":@"",@"charge_amount":@"",@"is_sticky":self.topchSwith.on?@"1":@"0",@"sticky_configuration_id":AssectString(self.selectDayId),@"price":AssectString(self.topSelectPrice),@"day":AssectString(self.topSelectDay)};
+            BrowserServicePayDetailVC *pay = [[BrowserServicePayDetailVC alloc] init];
+            pay.type = 2;
+            pay.dict = dict;
+            [self.navigationController pushViewController:pay animated:YES];
+        }
+    }
+}
+
+-(void)getCheck:(NSDictionary *)dict{
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    WeakSelf(self);
+    self.rightBtn.enabled = NO;
+    [WebServices postFormReqUrl:BrowserArticleUpdate param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"RefreshArticleList" object:nil];
+                    [weakself popToPopVC:@"DNBrowserDetailVC"];
+                }];
+            }else{
+                weakself.rightBtn.enabled = YES;
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            weakself.rightBtn.enabled = YES;
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)popToPopVC:(NSString* )vcStr{
+    for (UIViewController *controller in self.navigationController.viewControllers) {
+        if([controller isKindOfClass:NSClassFromString(vcStr)]){
+            DNBrowserDetailVC *detailVC = (DNBrowserDetailVC *)controller;
+            detailVC.secretType = 0;
+            [self.navigationController popToViewController:detailVC animated:YES];
+            break;
+        }
+    }
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

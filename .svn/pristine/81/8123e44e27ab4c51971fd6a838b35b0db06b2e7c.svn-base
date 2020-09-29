@@ -1,0 +1,57 @@
+//
+//  EvidenceCertificateView.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/27.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "EvidenceCertificateView.h"
+#import "UIImage+GIFImage.h"
+
+@interface EvidenceCertificateView ()
+@property (weak, nonatomic) IBOutlet UILabel *numberLabel;
+@property (weak, nonatomic) IBOutlet UILabel *personLabel;
+@property (weak, nonatomic) IBOutlet UILabel *phoneLabel;
+@property (weak, nonatomic) IBOutlet UILabel *idcardLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sizeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *memoryLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *erImgV;
+
+@end
+
+@implementation EvidenceCertificateView
+
+-(instancetype)initWithFrame:(CGRect)frame withModel:(nonnull EvidenceDetailModel *)model{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"EvidenceCertificateView" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        self.authenImgV.image = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?[UIImage imageNamed:@"icon_evidence_authen_eng"]:[UIImage imageNamed:@"icon_evidence_authen"];
+        self.model = model;
+    }
+    return self;
+}
+
+#pragma -mark setter
+-(void)setModel:(EvidenceDetailModel *)model{
+    _model = model;
+//    NSString *number_id = self.model.number_id;
+//    if (number_id.length > 10) {
+//        number_id = [NSString stringWithFormat:@"%@...%@",[number_id substringToIndex:10],[number_id substringFromIndex:number_id.length - 10]];
+//    }
+    self.numberLabel.text = model.number_id;
+    self.personLabel.text = model.certification.real_name;
+    self.phoneLabel.text = model.user.phone;
+    self.idcardLabel.text = model.certification.id_number;
+    self.typeLabel.text = model.deposit_certificate_category.name;
+    self.sizeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld*%ld", nil),model.certificate_info.width,model.certificate_info.height];
+    self.memoryLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld", nil),model.certificate_info.file_size];
+    self.timeLabel.text = model.created_at;
+    
+//    NSString *str = [NSString stringWithFormat:@"deposit_certificate_id&&%ld",self.model.id];
+    NSString *str = [NSString stringWithFormat:@"https://jie1.top/dns/proof/#/?deposit_certificate_id=%@",[DES3EncryptUtil base64encode:[NSString stringWithFormat:@"%ld",self.model.evdenceid]]];
+    self.erImgV.image = [UIImage createImgQRCodeWithString:str centerImage:[UIImage imageNamed:@"logo_evidence"] withWidth:150];
+}
+@end

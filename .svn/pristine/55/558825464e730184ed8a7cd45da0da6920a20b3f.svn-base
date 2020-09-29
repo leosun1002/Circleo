@@ -1,0 +1,28 @@
+//
+//  MyEvidenceModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/4/25.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyEvidenceModel : NSObject
+
+/// 0未存证，1存证中，2存证成功，3存证失败
+@property(nonatomic,assign) long status;
+@property(nonatomic,assign) long myEvidenceId;
+@property(nonatomic,strong) NSString *number_id;
+@property(nonatomic,strong) NSString *title;
+@property(nonatomic,assign) long deposit_certificate_category_id;
+@property(nonatomic,strong) NSString *created_at;
+@property(nonatomic,strong) NSString *file_address;
+/// 0否，1是
+@property(nonatomic,assign) long is_domain;
+
+@end
+
+NS_ASSUME_NONNULL_END

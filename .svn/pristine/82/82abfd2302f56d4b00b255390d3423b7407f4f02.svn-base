@@ -1,0 +1,119 @@
+//
+//  EquitySettingVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "EquitySettingVC.h"
+#import "EquitySelectVC.h"
+
+@interface EquitySettingVC ()
+
+@property(nonatomic,strong)NSString *ye;
+@end
+
+@implementation EquitySettingVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"权益设置", nil) hiddeBack:NO];
+    self.topConst.constant += navBarHeight;
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getData];
+}
+
+-(void)prepareUi{
+    WeakSelf(self);
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself selectPercent:weakself.directLabel];
+    }];
+    [self.directView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself selectPercent:weakself.indirectLabel];
+    }];
+    [self.indirectView addGestureRecognizer:tap2];
+}
+
+-(void)selectPercent:(UILabel *)label{
+    EquitySelectVC *select = [[EquitySelectVC alloc] init];
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.percent = label.text;
+    select.subject = [RACSubject subject];
+    WeakSelf(self);
+    [select.subject subscribeNext:^(NSString *percent) {
+        NSString *selectPercent = label == weakself.directLabel?AssectNumber(weakself.indirectLabel.text):AssectNumber(weakself.directLabel.text);
+        if ([[GaoJingDu add:@[selectPercent,percent] jindu:@"2"] doubleValue] > [AssectNumber(weakself.ye) doubleValue]){
+            [weakself showMsg:NSLocalizedString(@"总分成不可大于团队分成", nil) location:centre];
+            return;
+        }
+        label.text = percent;
+        weakself.shareLabel.text = [GaoJingDu jian:@[AssectNumber(weakself.ye),[GaoJingDu add:@[selectPercent,percent] jindu:@"2"]] jindu:@"2"];
+    }];
+    [self presentViewController:select animated:NO completion:^{
+        
+    }];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:PartnerSharingIndex param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself setData:json[@"data"][@"partner_sharing"]];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)setData:(NSDictionary *)data{
+    self.platLabel.text = [NSString stringWithFormat:@"%ld",[data[@"platform_partitioning"] longValue]];
+    self.ye = [GaoJingDu jian:@[@"100",AssectNumber(self.platLabel.text)] jindu:@"2"];
+    self.yeLabel.text  = [NSString stringWithFormat:NSLocalizedString(@"剩余可调配团队分成比例(%%)：%@", nil),self.ye];
+    self.shareLabel.text = [NSString stringWithFormat:@"%ld",[data[@"partner_shar"] longValue]];
+    self.directLabel.text = [NSString stringWithFormat:@"%ld",[data[@"direct_push"] longValue]];
+    self.indirectLabel.text = [NSString stringWithFormat:@"%ld",[data[@"indirect_push"] longValue]];
+}
+
+- (IBAction)checkClick:(UIButton *)sender {
+    sender.enabled = NO;
+    WeakSelf(self);
+    NSDictionary *dict = @{@"partner_shar":AssectString(self.shareLabel.text),@"direct_push":AssectString(self.directLabel.text),@"indirect_push":AssectString(self.indirectLabel.text)};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:PartnerSharingUpdate param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.navigationController popToRootViewControllerAnimated:YES];
+                }];
+            }else{
+                sender.enabled = YES;
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            sender.enabled = YES;
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+@end

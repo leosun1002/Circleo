@@ -1,0 +1,35 @@
+//
+//  DNSExpireCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSExpireCell.h"
+
+@implementation DNSExpireCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(DNSManageModel *)model{
+    _model = model;
+    self.selectBtn.selected = model.hasClick == 1;
+    self.nameLabel.text = model.domain_name;
+    self.endLabel.text = model.end_time;
+    self.endLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+    //0未绑定，1已绑定
+    self.bindView.hidden = model.is_bind != 1;
+    self.unbindView.hidden =  model.is_bind == 1;
+    self.bindTipLabel.text = [NSString stringWithFormat:@"%ld",model. count];
+}
+@end

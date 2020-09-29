@@ -1,0 +1,47 @@
+//
+//  BrowserPayDetailVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BrowserPayDetailVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+
+@property(nonatomic,strong) NSString *domain_id;
+@property(nonatomic,strong) NSString *type_id;;
+@property(nonatomic,strong) NSDictionary *dict;
+@property(nonatomic,strong) NSString *person;
+@property(nonatomic,strong) NSString *titleStr;
+@property(nonatomic,strong) NSString *content;
+@property (weak, nonatomic) IBOutlet UILabel *cnyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *usdtLabel;
+
+///  0是免费文章   1是付费文章  2是私密文章
+@property(nonatomic,assign) long serviceType;
+/// 0不置顶，1置顶
+@property(nonatomic,assign) long is_sticky;
+@property(nonatomic,strong) NSString *sticky_configuration_string;
+@property(nonatomic,strong) NSString *sticky_configuration_id;
+@property(nonatomic,assign) NSString *free_word_count;
+@property(nonatomic,assign) NSString *charge_amount;
+
+///网站发布文章
+@property(nonatomic,assign) long website_id;
+/// 0不展示，1展示
+@property(nonatomic,assign) long display_status;
+@property(nonatomic,assign) long website_category_navigation_id;
+
+
+/// 0是文章发布    1是网站发布
+@property(nonatomic,assign) long payFromType;
+
+@end
+
+NS_ASSUME_NONNULL_END

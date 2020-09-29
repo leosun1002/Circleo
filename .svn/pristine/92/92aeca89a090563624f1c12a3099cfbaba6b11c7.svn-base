@@ -1,0 +1,299 @@
+//
+//  DNSMyPublishVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSMyPublishVC.h"
+#import "DNBrowserNewsTableViewCell.h"
+#import "DNSFilterSelectVC.h"
+#import "BrowserDNFilterVC.h"
+#import "DNSDatePickerVC.h"
+#import "DNSMyBrowserModel.h"
+#import "DNBrowserDetailVC.h"
+#import "AssetConditionVC.h"
+
+@interface DNSMyPublishVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSMutableArray *feeDatas;
+@property(nonatomic,strong)NSMutableArray *typeDatas;
+@property(nonatomic,strong)NSString *time;
+@property(nonatomic,strong)NSString *fee_id;
+@property(nonatomic,strong)NSString *chainId;
+@property(nonatomic,strong)NSString *type_id;
+@property(nonatomic,strong)NSString *domainid;
+@property(nonatomic,strong)NSString *domainName;
+
+@end
+
+@implementation DNSMyPublishVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNBrowserNewsTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNBrowserNewsTableViewCell"];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+    
+    if (@available(iOS 11.0,*)) {
+        self.tableview.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+        self.tableview.estimatedSectionFooterHeight=0;
+        self.tableview.estimatedSectionHeaderHeight = 0;
+    }else{
+        self.automaticallyAdjustsScrollViewInsets=NO;
+    }
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself freeSelect];
+    }];
+    [self.freeView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself dnsSelect];
+    }];
+    [self.domainView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself getChainList];
+    }];
+    [self.chainView addGestureRecognizer:tap2];
+    
+    UITapGestureRecognizer *tap3 = [[UITapGestureRecognizer alloc] init];
+       [[tap3 rac_gestureSignal] subscribeNext:^(id x) {
+           [weakself getTypeList];
+       }];
+    [self.typeView addGestureRecognizer:tap3];
+    
+    self.conditionView.hidden = self.type != 0;
+    self.conditionHeight.constant = self.type == 0?45.5:0;
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"type":[NSString stringWithFormat:@"%ld",self.type+1],@"time":AssectString(self.time),@"domain_name_id":AssectString(self.domainid),@"article_public_chain_id":AssectString(self.chainId),@"title":AssectString(self.searchStr),@"article_type_id":AssectString(self.type_id),@"paid_or_free":AssectString(self.fee_id),@"page":[NSString stringWithFormat:@"%ld",(long)page]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:BrowserMyArticle param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<DNSMyBrowserModel*> *applicationList = [DNSMyBrowserModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+-(void)freeSelect{
+    DNSFilterSelectVC *select = [[DNSFilterSelectVC alloc] init];
+    select.dataType = 0;
+    select.datas = self.feeDatas;
+    select.selectStr = AssectString(self.freeLabel.text);
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.subject = [RACSubject subject];
+    WeakSelf(self);
+    [select.subject subscribeNext:^(NSString *feeStr) {
+        if ([weakself.feeDatas containsObject:AssectString(feeStr)]) {
+            weakself.fee_id = [weakself.feeDatas indexOfObject:AssectString(feeStr)] == 0?@"":[NSString stringWithFormat:@"%lu",(unsigned long)[weakself.feeDatas indexOfObject:AssectString(feeStr)]];
+        }else{
+            weakself.fee_id = @"";
+        }
+        weakself.freeLabel.text = AssectString(feeStr);
+        weakself.freeLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        weakself.freeLabel.font = [UIFont boldSystemFontOfSize:14];
+        weakself.freeImg.image = [UIImage imageNamed:@"icon_shop_up"];
+        [weakself.tableview.mj_header beginRefreshing];
+    }];
+    [self.naviVc presentViewController:select animated:NO completion:nil];
+}
+
+- (void)dnsSelect{
+    BrowserDNFilterVC *select = [[BrowserDNFilterVC alloc] init];
+    select.modalPresentationStyle = UIModalPresentationFullScreen;
+    select.type = 0;
+    select.selectStr = self.domainName;
+    select.selectSubject = [RACSubject subject];
+    WeakSelf(self);
+    [select.selectSubject subscribeNext:^(NSDictionary *dict) {
+        weakself.domainName = dict[@"domain_name"];
+        if ([AssectString(dict[@"domain_name"]) isEqualToString:NSLocalizedString(@"无域名", nil)]) {
+            weakself.domainid = @"ss";
+        }else if ([AssectString(dict[@"domain_name"]) isEqualToString:NSLocalizedString(@"全部域名", nil)]){
+            weakself.domainid = @"";
+        }else{
+            weakself.domainid = [NSString stringWithFormat:@"%ld",[dict[@"id"] longValue]];
+        }
+        weakself.domainLabel.text = AssectString(weakself.domainName);
+        weakself.domainLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        weakself.domainLabel.font = [UIFont boldSystemFontOfSize:14];
+        weakself.domainImg.image = [UIImage imageNamed:@"icon_shop_up"];
+        [weakself.tableview.mj_header beginRefreshing];
+    }];
+    [self.naviVc presentViewController:select animated:YES completion:nil];
+}
+
+-(void)getChainList{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:BrowserPublichChain param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself chainSelect:[json[@"data"][@"article_public_chain"] mutableCopy]];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+- (void)chainSelect:(NSMutableArray *)datas{
+    DNSFilterSelectVC *select = [[DNSFilterSelectVC alloc] init];
+    select.dataType = 1;
+    NSDictionary *dict = @{@"abbreviation":NSLocalizedString(@"全部公链", nil),@"id":@""};
+    [datas insertObject:dict atIndex:0];
+    select.datas = datas;
+    select.selectStr = self.chainLabel.text;
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.subject = [RACSubject subject];
+    WeakSelf(self);
+    [select.subject subscribeNext:^(NSDictionary *dict) {
+        weakself.chainId = [NSString stringWithFormat:@"%@",dict[@"id"]];
+        weakself.chainLabel.text = dict[@"abbreviation"];
+        weakself.chainLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        weakself.chainLabel.font = [UIFont boldSystemFontOfSize:14];
+        weakself.chainImg.image = [UIImage imageNamed:@"icon_shop_up"];
+        [weakself.tableview.mj_header beginRefreshing];
+    }];
+    [self.naviVc presentViewController:select animated:NO completion:nil];
+}
+
+-(void)getTypeList{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:BrowserArticleType param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.typeDatas removeAllObjects];
+                [weakself.typeDatas addObject:@{@"id":@"",@"name":NSLocalizedString(@"全部", nil)}];
+                [weakself.typeDatas addObjectsFromArray:json[@"data"][@"article_types"]];
+                [weakself selectType];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)selectType{
+    DNSFilterSelectVC *select = [[DNSFilterSelectVC alloc] init];
+    select.datas = self.typeDatas;
+    select.dataType = 3;
+    select.selectStr = AssectString(self.type_id);
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.subject = [RACSubject subject];
+    WeakSelf(self);
+    [select.subject subscribeNext:^(NSDictionary *dict) {
+        weakself.type_id = [NSString stringWithFormat:@"%@",dict[@"id"]];
+        weakself.typeLabel.text = AssectString(dict[@"name"]);
+        weakself.typeLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        weakself.typeLabel.font = [UIFont boldSystemFontOfSize:14];
+        weakself.typeImg.image = [UIImage imageNamed:@"icon_shop_up"];
+        [weakself.tableview.mj_header beginRefreshing];
+    }];
+    [self.naviVc presentViewController:select animated:NO completion:nil];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = self.type == 0?NSLocalizedString(@"当前暂无公开文章", nil):NSLocalizedString(@"当前暂无私密文章", nil);
+    return view;
+}
+
+#pragma -mark getter UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return UITableViewAutomaticDimension;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNBrowserNewsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNBrowserNewsTableViewCell"];
+    cell.model = self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    DNSMyBrowserModel *model = self.datas[indexPath.row];
+    DNBrowserDetailVC *detail = [[DNBrowserDetailVC alloc] init];
+    detail.articleid = model.articleid;
+    detail.secretType = self.type == 1?1:0;
+    detail.articleTitle = model.title;
+    [self.naviVc pushViewController:detail animated:YES];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+#pragma -mark JXCategoryListContentViewDelegate
+- (UIView *)listView {
+    return self.view;
+}
+
+-(NSMutableArray *)feeDatas{
+    if (!_feeDatas) {
+        _feeDatas = [NSMutableArray arrayWithObjects:NSLocalizedString(@"全部", nil),NSLocalizedString(@"免费文章", nil),NSLocalizedString(@"付费文章", nil), nil];
+    }
+    return _feeDatas;
+}
+
+-(NSMutableArray *)typeDatas{
+    if (!_typeDatas) {
+        _typeDatas = [NSMutableArray array];
+    }
+    return _typeDatas;
+}
+@end

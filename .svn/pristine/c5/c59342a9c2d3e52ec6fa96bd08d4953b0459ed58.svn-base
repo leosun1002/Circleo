@@ -1,0 +1,162 @@
+//
+//  ShopAddAddressVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAddAddressVC.h"
+#import <BRPickerView.h>
+
+@interface ShopAddAddressVC ()<UITextFieldDelegate>
+
+@property (weak, nonatomic) IBOutlet UITextField *nameText;
+@property (weak, nonatomic) IBOutlet UITextField *phoneText;
+@property (weak, nonatomic) IBOutlet UITextField *addressText;
+@property (weak, nonatomic) IBOutlet UITextField *detailAddressText;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@property (nullable, nonatomic, copy) NSArray <NSNumber *> *addressSelectIndexs;
+
+@end
+
+@implementation ShopAddAddressVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    if (self.status == ShopCheckAddress) {
+        self.nameText.text = self.model.name;
+        self.nameText.enabled = NO;
+        self.phoneText.text = self.model.phone;
+        self.phoneText.enabled = NO;
+        self.addressText.text = self.model.address;
+        self.addressText.enabled = NO;
+        self.detailAddressText.text = self.model.detailed_address;
+        self.detailAddressText.enabled = NO;
+        self.checkBtn.hidden = YES;
+    }else if (self.status == ShopEditAddress){
+        self.nameText.text = self.model.name;
+        self.phoneText.text = self.model.phone;
+        self.addressText.text = self.model.address;
+        self.detailAddressText.text = self.model.detailed_address;
+        self.checkBtn.hidden = NO;
+    }
+}
+
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
+    //写你要实现的：页面跳转的相关代码
+    if (textField == self.addressText) {
+        [self selectAddress];
+        return NO;
+    }
+    return YES;
+}
+
+-(void)selectAddress{
+    BRAddressPickerView *addressPickerView = [[BRAddressPickerView alloc]init];
+    addressPickerView.pickerMode = BRAddressPickerModeArea;
+    addressPickerView.title = @"请选择地区";
+    //addressPickerView.selectValues = [self.infoModel.addressStr componentsSeparatedByString:@" "];
+    addressPickerView.selectIndexs = self.addressSelectIndexs;
+    addressPickerView.isAutoSelect = NO;
+    WeakSelf(self);
+    addressPickerView.resultBlock = ^(BRProvinceModel *province, BRCityModel *city, BRAreaModel *area) {
+        weakself.addressSelectIndexs = @[@(province.index), @(city.index), @(area.index)];
+        weakself.addressText.text = [NSString stringWithFormat:@"%@ %@ %@", province.name, city.name, area.name];
+    };
+    [addressPickerView show];
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSString *name = AssectString(self.nameText.text);
+    NSString *phone = AssectString(self.phoneText.text);
+    NSString *address = AssectString(self.addressText.text);
+    NSString *detailAddress = AssectString(self.detailAddressText.text);
+    if ([name isEqualToString:@""]) {
+        [self showMsg:@"请输入姓名" location:centre];
+        return;
+    }
+    if ([phone isEqualToString:@""]) {
+        [self showMsg:@"请输入手机号" location:centre];
+        return;
+    }
+    if ([address isEqualToString:@""]) {
+        [self showMsg:@"请选择省、市、区" location:centre];
+        return;
+    }
+    if ([detailAddress isEqualToString:@""]) {
+        [self showMsg:@"请填写地址" location:centre];
+        return;
+    }
+    if (self.status == ShopAddAddress) {
+        [self checkNewData];
+    }else{
+        [self checkEditData];
+    }
+}
+
+-(void)checkNewData{
+    NSString *name = AssectString(self.nameText.text);
+    NSString *phone = AssectString(self.phoneText.text);
+    NSString *address = AssectString(self.addressText.text);
+    NSString *detailAddress = AssectString(self.detailAddressText.text);
+    NSDictionary *dict = @{@"name":name,@"phone":phone,@"address":address,@"detailed_address":detailAddress};
+    [self showLoading:@"" allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:AddressStore param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if (json != nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:@"网络异常，请稍后重试" location:centre];
+        }
+    }];
+}
+
+-(void)checkEditData{
+    NSString *name = AssectString(self.nameText.text);
+    NSString *phone = AssectString(self.phoneText.text);
+    NSString *address = AssectString(self.addressText.text);
+    NSString *detailAddress = AssectString(self.detailAddressText.text);
+    NSDictionary *dict = @{@"id":[NSString stringWithFormat:@"%ld",self.model.address_id],@"name":name,@"phone":phone,@"address":address,@"detailed_address":detailAddress};
+    [self showLoading:@"" allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:AddressUpdate param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if (json != nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:@"网络异常，请稍后重试" location:centre];
+        }
+    }];
+}
+
+#pragma -mark getter
+- (NSArray<NSNumber *> *)addressSelectIndexs {
+    if (!_addressSelectIndexs) {
+        _addressSelectIndexs = [NSArray array];
+    }
+    return _addressSelectIndexs;
+}
+@end

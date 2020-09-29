@@ -1,0 +1,29 @@
+//
+//  BankCardTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "BankCardModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BankCardTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *trailConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *leadingConst;
+@property (weak, nonatomic) IBOutlet UIButton *delBtn;
+@property(nonatomic,assign)long editType;//0正常状态  1编辑状态
+@property(nonatomic,strong)BankCardModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cardLabel;
+@property (weak, nonatomic) IBOutlet UILabel *bankLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *personConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bankConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *cardCont;
+
+@end
+
+NS_ASSUME_NONNULL_END

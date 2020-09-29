@@ -1,0 +1,31 @@
+//
+//  AgentExplainVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/9.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AgentExplainVC.h"
+
+@interface AgentExplainVC ()
+
+@end
+
+@implementation AgentExplainVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.topConst.constant = navBarHeight;
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+@end

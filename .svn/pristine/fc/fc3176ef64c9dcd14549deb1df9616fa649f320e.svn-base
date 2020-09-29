@@ -1,0 +1,113 @@
+//
+//  PersonHeaderReusableView.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PersonHeaderReusableView.h"
+#import "AgentCenterVC.h"
+#import "InviteFriendVC.h"
+#import "PersonAssetsVC.h"
+
+@implementation PersonHeaderReusableView
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    [self prepareUi];
+    [self addBlurEffect];
+    [self getBanner];
+}
+
+-(void)prepareUi{    
+    self.levelLabel.text = NSLocalizedString(@"当前等级", nil);
+    if (IS_IPHONEX) {
+        self.topHeightConst.constant += 10;
+    }
+    self.yqLabel.textColor = [UIColor colorWithRGBHex:@"#FF9429"];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        AgentCenterVC *agent = [[AgentCenterVC alloc] init];
+        [weakself.navicontroller pushViewController:agent animated:YES];
+    }];
+    [self.agentView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        InviteFriendVC *invite = [[InviteFriendVC alloc] init];
+        [weakself.navicontroller pushViewController:invite animated:YES];
+    }];
+    [self.yqImageV addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        PersonAssetsVC *assetVc = [[PersonAssetsVC alloc] init];
+        [weakself.navicontroller pushViewController:assetVc animated:YES];
+    }];
+    [self.usdtView addGestureRecognizer:tap2];
+    
+    UITapGestureRecognizer *tap3 = [[UITapGestureRecognizer alloc] init];
+    [[tap3 rac_gestureSignal] subscribeNext:^(id x) {
+        PersonAssetsVC *assetVc = [[PersonAssetsVC alloc] init];
+        [weakself.navicontroller pushViewController:assetVc animated:YES];
+    }];
+    [self.cnyView addGestureRecognizer:tap3];
+    
+    self.yqImageV.image = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?[UIImage imageNamed:@"banner_daili_eng"]:[UIImage imageNamed:@"banner_daili"];
+}
+
+-(void)setData{
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(userdict[JYUserImage])] placeholderImage:[UIImage imageNamed:@"pic_head"] options:SDWebImageAllowInvalidSSLCertificates];
+    [self.headerBgImage sd_setImageWithURL:[NSURL URLWithString:AssectString(userdict[JYUserImage])] placeholderImage:[UIImage imageNamed:@"pic_head"] options:SDWebImageAllowInvalidSSLCertificates];
+    if ([AssectString(userdict[JYUserName]) isEqualToString:@""]) {
+        self.nameLabel.text = AssectString(userdict[JYPhone]);
+    }else{
+        self.nameLabel.text = AssectString(userdict[JYUserName]);
+    }
+    NSString *grade = AssectNumber(userdict[JYGrade]);
+    if ([grade isEqualToString:@"1"]) {
+        self.levelImage.image = [UIImage imageNamed:@"tips_normal"];
+        self.levelHeader.image = [UIImage imageNamed:@"pic_agent_normal"];
+    }else if ([grade isEqualToString:@"2"]){
+        self.levelImage.image = [UIImage imageNamed:@"tips_super"];
+        self.levelHeader.image = [UIImage imageNamed:@"pic_agent_super"];
+    }else{
+        self.levelImage.image = [UIImage imageNamed:@"tips_create"];
+        self.levelHeader.image = [UIImage imageNamed:@"pic_agent_create"];
+    }
+    self.levelName.text = userdict[JYGarde];
+    self.usdtLabel.text = userdict[JYUsdtMoney];
+    self.cnyLabel.text = userdict[JYCnyMoney];
+}
+
+-(void)addBlurEffect{
+    if (!UIAccessibilityIsReduceTransparencyEnabled()) {
+        UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleLight];
+        UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc]initWithEffect:blurEffect];
+        blurEffectView.frame = CGRectMake(0, 0, ksrcwidth, 220);
+        blurEffectView.alpha = 1;//就是毛玻璃的阿尔法值
+        [self.headerBgImage addSubview:blurEffectView];
+    }
+}
+
+- (IBAction)assetBtn:(id)sender {
+    PersonAssetsVC *assetVc = [[PersonAssetsVC alloc] init];
+    [self.navicontroller pushViewController:assetVc animated:YES];
+}
+
+-(void)getBanner{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:AgentCenterBottomBanner param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.yqImageV sd_setImageWithURL:[NSURL URLWithString:AssectString(json[@"data"][@"image"])] placeholderImage:[[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?[UIImage imageNamed:@"banner_daili_eng"]:[UIImage imageNamed:@"banner_daili"] options:SDWebImageAllowInvalidSSLCertificates];
+            }
+        }
+    }];
+}
+
+@end

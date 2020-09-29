@@ -1,0 +1,175 @@
+//
+//  MallHomePageVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallHomePageVC.h"
+#import "SGPageTitleView.h"
+#import "SGPageTitleViewConfigure.h"
+#import "SGPageContentScrollView.h"
+#import "MallHomePageChildVC.h"
+#import "MallSearchResultVC.h"
+#import "ShopHomeListModel.h"
+
+@interface MallHomePageVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate>{
+    BOOL ifFresh;
+}
+
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+
+@property(nonatomic,weak)SGPageContentScrollView *mPageContentScrollView;
+@property(nonatomic,weak)SGPageTitleView *mPageTitleView;
+
+@property(nonatomic,assign)NSInteger selectedPage;
+@property(nonatomic,copy)NSMutableArray *categories;
+@property(nonatomic,copy)NSMutableArray *titles;
+@property(nonatomic,strong)NSMutableArray *vcs;
+
+@end
+
+@implementation MallHomePageVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.selectedPage = 0;
+    [self getData];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.baseLine.hidden = YES;
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    self.baseLine.hidden = NO;
+    [self dismissLoading];
+}
+
+- (IBAction)searchClick:(id)sender {
+    MallSearchResultVC *result = [[MallSearchResultVC alloc] init];
+    result.good_one_category_id = @"";
+    [self.navigationController pushViewController:result animated:YES];
+}
+
+-(void)prepareUi{
+    [self.mPageContentScrollView removeFromSuperview];
+    [self.mPageTitleView removeFromSuperview];
+    
+    //配置容器
+    SGPageTitleViewConfigure *configure = [SGPageTitleViewConfigure pageTitleViewConfigure];
+    configure.titleGradientEffect = YES;
+    configure.indicatorStyle = SGIndicatorStyleFixed;
+    configure.indicatorFixedWidth = 22.0f;
+    configure.indicatorColor = [UIColor colorWithPatternImage:[UIImage imageNamed:@"icon_mall_line"]];
+    configure.indicatorHeight = 3.0f;
+    configure.titleSelectedColor = [UIColor colorWithRGBHex:@"#1C1C1C"];
+    configure.titleColor = [UIColor colorWithRGBHex:@"#777785"];
+    configure.titleFont = [UIFont systemFontOfSize:13 weight:(UIFontWeightSemibold)];
+    configure.titleSelectedFont = [UIFont systemFontOfSize:13 weight:(UIFontWeightSemibold)];
+    configure.showBottomSeparator = NO;
+    configure.titleTextZoom = NO;
+    
+    //顶部Title数据源
+    SGPageTitleView *pageTitleView = [SGPageTitleView pageTitleViewWithFrame:CGRectMake(0, 0, 90 * self.titles.count, 39) delegate:self titleNames:self.titles configure:configure];
+    pageTitleView.backgroundColor = [UIColor whiteColor];
+    _mPageTitleView = pageTitleView;
+    pageTitleView.selectedIndex = self.selectedPage;
+    [self.bgview addSubview:pageTitleView];
+    
+    SGPageContentScrollView *pageContentScrollView = [[SGPageContentScrollView alloc] initWithFrame:CGRectMake(0, 39,ksrcwidth,ksrcheight - navBarHeight - 39 - tabbarHeight) parentVC:self childVCs:[self.vcs copy]];
+    pageContentScrollView.delegatePageContentScrollView = self;
+    pageContentScrollView.isAnimated = NO;
+    pageContentScrollView.backgroundColor = [UIColor colorWithRGBHex:@"#F1F8F8"];
+    _mPageContentScrollView = pageContentScrollView;
+    [self.bgview addSubview:pageContentScrollView];
+    for (int b=0; b<self.vcs.count; b++) {//全部加载出来
+        [pageContentScrollView setPageContentScrollViewCurrentIndex:b];
+    }
+    pageTitleView.selectedIndex = self.selectedPage;
+    [pageContentScrollView setPageContentScrollViewCurrentIndex:self.selectedPage];
+}
+
+-(void)loadVCs{
+    for (int i = 0; i<self.titles.count; i++) {
+        MallHomePageChildVC *childVc = [[MallHomePageChildVC alloc] init];
+        childVc.homeModel = self.categories[i];
+        childVc.navigation = self.navigationController;
+        [self.vcs addObject:childVc];
+    }
+}
+
+//顶部title切换完成调用
+- (void)pageTitleView:(SGPageTitleView *)pageTitleView selectedIndex:(NSInteger)selectedIndex{
+    [_mPageContentScrollView setPageContentScrollViewCurrentIndex:selectedIndex];
+    self.selectedPage=selectedIndex;
+}
+
+//内容区域滚动后调用
+-(void)scrollCompleteDeleate:(NSInteger)index{
+    self.selectedPage=index;
+}
+
+- (void)pageContentScrollView:(SGPageContentScrollView *)pageContentScrollView progress:(CGFloat)progress originalIndex:(NSInteger)originalIndex targetIndex:(NSInteger)targetIndex {
+    [_mPageTitleView setPageTitleViewWithProgress:progress originalIndex:originalIndex targetIndex:targetIndex];
+}
+
+- (void)pageContentScrollView:(SGPageContentScrollView *)pageContentScrollView index:(NSInteger)index{
+    NSLog(@"点击%ld",(long)index);
+}
+
+-(void)pageContentScrollViewDidEndDecelerating:(SGPageContentScrollView *)pageContentScrollView index:(NSInteger)index{
+    NSLog(@"滚动%ld",(long)index);
+}
+
+-(void)getData{
+    [self showLoading:@"" allowsOpOperation:YES];
+    WeakSelf(self);
+    [WebServices getFormReqUrl:GoodCategoryList param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                [weakself.titles removeAllObjects];
+                [weakself.categories removeAllObjects];
+                [weakself.vcs removeAllObjects];
+                [json[@"data"][@"data"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    ShopHomeListModel *modules = [ShopHomeListModel mj_objectWithKeyValues:obj];
+                    [weakself.titles addObject:AssectString(modules.name)];
+                    [weakself.categories addObject:modules];
+                }];
+                [weakself loadVCs];
+                [weakself prepareUi];
+                return ;
+            }
+        }
+        [weakself showErrorView:weakself.view withBlock:^{
+            [weakself getData];
+        }];
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)vcs{
+    if (!_vcs) {
+        _vcs = [NSMutableArray array];
+    }
+    return _vcs;
+}
+
+-(NSMutableArray *)titles{
+    if (!_titles) {
+        _titles = [NSMutableArray array];
+    }
+    return _titles;
+}
+
+-(NSMutableArray *)categories{
+    if (!_categories) {
+        _categories = [NSMutableArray array];
+    }
+    return _categories;
+}
+@end

@@ -1,0 +1,38 @@
+//
+//  CurrencyModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface CurrencyPivotModel : NSObject
+
+@property(nonatomic,copy) NSString *subscript;
+@property(nonatomic,copy) NSString *number;
+@property(nonatomic,assign) long user_id;
+@property(nonatomic,assign) long currency_id;
+@property(nonatomic,copy) NSString *income_number;
+@property(nonatomic,copy) NSString *address;
+
+@end
+
+@interface CurrencyModel : NSObject
+
+@property(nonatomic,assign) long currencyid;
+@property(nonatomic,copy) NSString *updated_at;
+@property(nonatomic,copy) NSString *name;
+@property(nonatomic,copy) NSString *images;
+@property(nonatomic,copy) NSString *created_at;
+@property(nonatomic,strong) CurrencyPivotModel *pivot;
+@property(nonatomic,copy) NSString *minimum_withdrawal;
+@property(nonatomic,copy) NSString *handling_fee;
+@property(nonatomic,copy) NSString *cash_withdrawal;
+
+@end
+
+NS_ASSUME_NONNULL_END

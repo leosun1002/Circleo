@@ -1,0 +1,169 @@
+//
+//  MallHomeSearchResultVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallSearchResultVC.h"
+#import "MallSearchResultTableViewCell.h"
+#import "MallCatrgoryListVC.h"
+#import "ZWTagListView.h"
+
+@interface MallSearchResultVC ()<UITableViewDelegate,UITableViewDataSource,UITextViewDelegate>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIView *historyView;
+@property (weak, nonatomic) IBOutlet UITextField *searchText;
+@property(nonatomic,strong)ZWTagListView *tagView;
+@property(nonatomic,strong)UIButton *clearBtn;
+
+@end
+
+@implementation MallSearchResultVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self getHistoryView];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallSearchResultTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallSearchResultTableViewCell"];
+    [self.historyView addSubview:self.tagView];
+    [self.historyView addSubview:self.clearBtn];
+    
+    WeakSelf(self);
+    [[self.searchText rac_signalForControlEvents:(UIControlEventEditingDidEnd)] subscribeNext:^(id x) {
+        [weakself.searchText resignFirstResponder];
+    }];
+    
+    [[self.searchText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        NSString *search = [weakself removeSpaceAndNewline:weakself.searchText.text];
+        if ([search isEqualToString:@""]) {
+            [weakself getHistoryView];
+        }
+    }];
+}
+
+-(void)getHistoryView{
+    NSArray *tempDatas = [Manager takeUserArrays:history_Arrays];
+    if (tempDatas.count == 0) {
+        self.clearBtn.hidden = YES;
+        return;
+    }
+    self.clearBtn.hidden = NO;
+    self.historyView.hidden = NO;
+    [self.tagView removeFromSuperview];
+    self.tagView = nil;
+    [self.historyView addSubview:self.tagView];
+    NSMutableArray *historyArrays = [NSMutableArray array];
+    for (NSString *tempStr in tempDatas) {
+        NSString *searchStr = tempStr.length > 15?[NSString stringWithFormat:@"%@...",[tempStr substringToIndex:15]]:tempStr;
+        [historyArrays addObject:searchStr];
+    }
+    [self.tagView setTagWithTagArray:historyArrays];
+    self.clearBtn.frame = CGRectMake(ksrcwidth - 40, CGRectGetMaxY(self.tagView.frame), 30, 30);
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)searchClick:(id)sender {
+    [self.searchText resignFirstResponder];
+    NSString *search = [self removeSpaceAndNewline:self.searchText.text];
+    if ([search isEqualToString:@""]) return ;
+    NSCharacterSet *cs = [[NSCharacterSet characterSetWithCharactersInString:ENGALPHAN] invertedSet];
+    NSString *filtered = [[search componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+    if (![search isEqualToString:filtered]) {
+        [self showMsg:NSLocalizedString(@"目前只支持英文加数字的域名格式", nil) location:centre];
+        return;
+    }
+    [self searchClickData:[search lowercaseString]];
+}
+
+-(void)searchClickData:(NSString *)searchStr{
+    [self addHistoryDatas:searchStr];
+    self.historyView.hidden = YES;
+}
+
+-(void)addHistoryDatas:(NSString *)searchData{
+    if ([searchData isEqualToString:@""]) return;
+    NSMutableArray *historyArrays = [[Manager takeUserArrays:history_Arrays] mutableCopy];
+    if (!historyArrays) {
+        historyArrays = [NSMutableArray array];
+        [historyArrays addObject:searchData];
+        [Manager saveUserArrays:historyArrays key:history_Arrays];
+        return;
+    }
+    if ([historyArrays containsObject:searchData]) return;
+    
+    if (historyArrays.count == 10) {
+        [historyArrays insertObject:searchData atIndex:0];
+        [historyArrays removeLastObject];
+    }else{
+        [historyArrays insertObject:searchData atIndex:0];
+    }
+    [Manager saveUserArrays:historyArrays key:history_Arrays];
+}
+
+-(void)deleteClick:(UIButton *)sender{
+    [Manager clearTokenkey:history_Arrays];
+    [self.tagView removeFromSuperview];
+    self.tagView = nil;
+    self.clearBtn.hidden = YES;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallSearchResultTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallSearchResultTableViewCell"];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallCatrgoryListVC *listVC = [[MallCatrgoryListVC alloc] init];
+    [self.navigationController pushViewController:listVC animated:YES];
+}
+
+#pragma -mark UITextFieldDelegate
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    NSLog(@"点击了搜索");
+    [textField resignFirstResponder];
+    return YES;
+}
+
+#pragma -mark getter
+-(ZWTagListView *)tagView{
+    if (!_tagView) {
+        _tagView = [[ZWTagListView alloc]initWithFrame:CGRectMake(0, 10, ksrcwidth, 40)];
+        _tagView.signalTagColor = [UIColor colorWithRGBHex:@"#F2F6FA"];
+        WeakSelf(self);
+        _tagView.Handle = ^(UILabel *selectLabel) {
+            NSString *selectStr = AssectString(selectLabel.text);
+            NSInteger tag = selectLabel.tag - 100;
+            NSArray *tempDatas = [Manager takeUserArrays:history_Arrays];
+            if (tempDatas.count > tag) {
+                selectStr = tempDatas[tag];
+            }
+            weakself.searchText.text = selectStr;
+            [weakself searchClickData:selectStr];
+        };
+    }
+    return _tagView;
+}
+
+-(UIButton *)clearBtn{
+    if (!_clearBtn) {
+        _clearBtn = [[UIButton alloc] initWithFrame:CGRectMake(ksrcwidth - 40, CGRectGetMaxY(self.tagView.frame) + 20, 30, 30)];
+        [_clearBtn setImage:[UIImage imageNamed:@"icon_mall_clear"] forState:UIControlStateNormal];
+        [_clearBtn addTarget:self action:@selector(deleteClick:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _clearBtn;
+}
+@end

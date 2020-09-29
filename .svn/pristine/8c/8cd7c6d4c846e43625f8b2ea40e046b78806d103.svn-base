@@ -1,0 +1,45 @@
+//
+//  WebsiteArticelModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/6/3.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebsiteNavigationModel : NSObject
+
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,assign) long navigationId;
+
+@end
+
+@interface WebsiteChainModel : NSObject
+
+@property(nonatomic,assign) long chainId;
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,strong) NSString *image_address;
+
+@end
+
+@interface WebsiteArticelModel : NSObject
+
+@property (nonatomic,strong)WebsiteChainModel *website_article_chain;
+@property (nonatomic,assign)long website_category_navigation_id;
+@property (nonatomic,assign)long articleId;
+/// 0未上链，1上链中，2上链成功，3上链失败
+@property (nonatomic,assign)long chain_status;
+@property (nonatomic,strong)NSString *title;
+/// 0不显示，1显示
+@property (nonatomic,assign)long display_status;
+@property (nonatomic,strong)NSString *time;
+@property (nonatomic,strong)WebsiteNavigationModel *website_category_navigation;
+
+
+
+@end
+
+NS_ASSUME_NONNULL_END

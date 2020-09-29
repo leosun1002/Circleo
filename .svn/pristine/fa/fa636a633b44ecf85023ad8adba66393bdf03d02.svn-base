@@ -1,0 +1,84 @@
+//
+//  EvidenceDataTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/22.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "EvidenceDataTableViewCell.h"
+#import "HZPhotoBrowser.h"
+
+@implementation EvidenceDataTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself checkFullScreenImage];
+    }];
+    [self.headerView addGestureRecognizer:tap];
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+- (IBAction)numberClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.numberLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)domainClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.domainLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)fingerClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.fingerprintLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+#pragma -mark setter
+-(void)setModel:(EvidenceDetailModel *)model{
+    _model = model;
+    self.numberLabel.text = model.number_id;
+    NSDictionary *domDict = model.domain_name;
+    if (domDict.count != 0) {
+        self.domainLabel.text = AssectString(domDict[@"domain_name"]);
+        self.domainView.hidden = NO;
+        self.domianHeight.constant = 65.5;
+    }else{
+        self.domainLabel.text = @"";
+        self.domainView.hidden = YES;
+        self.domianHeight.constant = 0;
+    }
+    self.fingerprintLabel.text = model.certificate_fingerprint;
+    self.sizeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"图片尺寸：%ld*%ld", nil),model.certificate_info.width,model.certificate_info.height];
+    self.memoryLabel.text = [NSString stringWithFormat:NSLocalizedString(@"图片大小：%ld字节", nil),model.certificate_info.file_size];
+    self.remarkLabel.text = model.remarks;
+    self.timeLabel.text = model.created_at;
+    NSString *url = [NSString stringWithFormat:@"%@%@",serviseShareIP,AssectString(model.file_address)];
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:url]];
+}
+
+-(void)checkFullScreenImage{
+    NSString *url = [NSString stringWithFormat:@"%@%@",serviseShareIP,AssectString(self.model.file_address)];
+    if ([AssectString(url) isEqualToString:@""])return;
+    
+    HZPhotoBrowser *browser = [[HZPhotoBrowser alloc] init];
+    browser.isFullWidthForLandScape = YES;
+    browser.isNeedLandscape = YES;
+    browser.currentImageIndex = 0;
+    browser.imageArray = [NSArray arrayWithObjects:url, nil];
+    [browser show];
+}
+@end

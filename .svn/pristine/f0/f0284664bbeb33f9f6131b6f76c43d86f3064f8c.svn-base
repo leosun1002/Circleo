@@ -1,0 +1,50 @@
+//
+//  ShopTraceSourceSelectVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopTraceSourceSelectVC.h"
+#import "ZWTagListView3.h"
+
+@interface ShopTraceSourceSelectVC ()
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property(nonatomic,strong)ZWTagListView3 *tagView;
+@property (weak, nonatomic) IBOutlet UIView *tagBgView;
+
+@end
+
+@implementation ShopTraceSourceSelectVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.topConst.constant += navBarHeight - 27.5;
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    [self.tagBgView addSubview:self.tagView];
+}
+
+#pragma -mark getter
+-(ZWTagListView3 *)tagView{
+    if (!_tagView) {
+        _tagView = [[ZWTagListView3 alloc]initWithFrame:CGRectMake(16, 0, ksrcwidth - 32, 40)];
+        _tagView.layer.cornerRadius = 10.f;
+        _tagView.GBbackgroundColor = [UIColor whiteColor];
+        _tagView.signalTagColor = [UIColor colorWithRGBHex:@"#F2F6FA"];
+        [_tagView setTagWithTagArray:[NSArray arrayWithObjects:@"全部",@"接收",@"购买",@"提取",@"提取",@"提取",@"提取",@"提取",@"提取", nil]];
+        WeakSelf(self);
+        _tagView.Handle = ^(UILabel *selectLabel) {
+            [weakself dismissViewControllerAnimated:NO completion:^{
+                
+            }];
+        };
+    }
+    return _tagView;
+}
+@end

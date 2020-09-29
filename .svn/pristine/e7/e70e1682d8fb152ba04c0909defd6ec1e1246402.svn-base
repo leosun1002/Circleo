@@ -1,0 +1,32 @@
+//
+//  DNSSearchTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSSearchModel.h"
+#import "DNSShopRecommendModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSSearchTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)DNSSearchModel *model;
+@property(nonatomic,strong)DNSShopRecommendModel *recModel;
+@property (weak, nonatomic) IBOutlet UIButton *selectBtn;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *unitLabel;
+@property (weak, nonatomic) IBOutlet UILabel *usdtLabel;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UIButton *shopCarBtn;
+@property (weak, nonatomic) IBOutlet UILabel *remarkLabel;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

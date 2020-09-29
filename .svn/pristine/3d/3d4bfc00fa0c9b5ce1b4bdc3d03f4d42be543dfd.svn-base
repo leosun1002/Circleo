@@ -1,0 +1,77 @@
+//
+//  ShopAssetsHomeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/14.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAssetsHomeVC.h"
+#import "ShopAssetsHomeTableViewCell.h"
+#import "ShopAssetsSearchVC.h"
+#import "ShopAssetsDetailVC.h"
+#import "ShopAssetsReceiveVC.h"
+#import "ShopAssetsDrawVC.h"
+#import "ShopAssetsSendVC.h"
+
+@interface ShopAssetsHomeVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UIView *searchView;
+
+@end
+
+@implementation ShopAssetsHomeVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#F2F6FA"];
+    self.heightConst.constant = IS_IPHONEX?44:20;
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopAssetsHomeTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopAssetsHomeTableViewCell"];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        ShopAssetsSearchVC *search = [[ShopAssetsSearchVC alloc] init];
+        [weakself.navigationController pushViewController:search animated:YES];
+    }];
+    [self.searchView addGestureRecognizer:tap];
+}
+
+- (IBAction)receiveClick:(id)sender {
+    ShopAssetsReceiveVC *receive = [[ShopAssetsReceiveVC alloc] init];
+    [self.navigationController pushViewController:receive animated:YES];
+}
+
+- (IBAction)sendClick:(id)sender {
+    ShopAssetsSendVC *send = [[ShopAssetsSendVC alloc] init];
+    [self.navigationController pushViewController:send animated:YES];
+}
+
+- (IBAction)drawClick:(id)sender {
+    ShopAssetsDrawVC *draw = [[ShopAssetsDrawVC alloc] init];
+    [self.navigationController pushViewController:draw animated:YES];
+}
+
+#pragma -mark UITableViewDataSource
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopAssetsHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopAssetsHomeTableViewCell"];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+//    ShopAssetsDetailVC *detail = [[ShopAssetsDetailVC alloc] init];
+//    [self.navigationController pushViewController:detail animated:YES];
+    [self.navigationController pushViewController:[NSClassFromString(@"ShopAddressListVC") new] animated:YES];
+
+}
+@end

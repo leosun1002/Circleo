@@ -1,0 +1,45 @@
+//
+//  MallMyFuelChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallMyFuelChildVC.h"
+#import "MallMyFuelTableViewCell.h"
+#import "ShopAssetNewChargeVC.h"
+
+@interface MallMyFuelChildVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+
+@end
+
+@implementation MallMyFuelChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallMyFuelTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallMyFuelTableViewCell"];
+}
+
+- (IBAction)chargeClick:(id)sender {
+    ShopAssetNewChargeVC *chargeVC = [[ShopAssetNewChargeVC alloc] init];
+    [self.navigation pushViewController:chargeVC animated:YES];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallMyFuelTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallMyFuelTableViewCell"];
+    return cell;
+}
+
+@end

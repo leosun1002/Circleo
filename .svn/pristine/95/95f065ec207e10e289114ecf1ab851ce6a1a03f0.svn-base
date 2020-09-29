@@ -1,0 +1,29 @@
+//
+//  ShopAboutUsVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAboutUsVC.h"
+
+@interface ShopAboutUsVC ()
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@end
+
+@implementation ShopAboutUsVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.checkBtn.layer.borderWidth = 1.0f;
+    self.checkBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#C0C5CC"].CGColor;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+
+@end

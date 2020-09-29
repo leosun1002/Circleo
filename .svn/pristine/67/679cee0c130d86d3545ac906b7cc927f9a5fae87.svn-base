@@ -1,0 +1,52 @@
+//
+//  MallPasswordTipVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/29.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallPasswordTipVC.h"
+
+@interface MallPasswordTipVC ()
+
+@end
+
+@implementation MallPasswordTipVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor clearColor];
+    self.topConst.constant = ksrcheight;
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        weakself.topConst.constant = ksrcheight / 2 - 150;
+        [UIView animateWithDuration:0.25 animations:^{
+            [weakself.view layoutIfNeeded];
+        }];
+    });
+}
+
+- (IBAction)closeClick:(id)sender {
+    self.topConst.constant = ksrcheight;
+    [UIView animateWithDuration:0.25 animations:^{
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            
+        }];
+    }];
+}
+
+- (IBAction)setClick:(id)sender {
+    self.topConst.constant = ksrcheight;
+    [UIView animateWithDuration:0.25 animations:^{
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            [self.subject sendNext:@""];
+        }];
+    }];
+}
+
+@end

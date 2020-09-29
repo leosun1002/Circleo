@@ -1,0 +1,58 @@
+//
+//  WebsiteTemplateChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/5/20.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebsiteTemplateChildVC.h"
+#import "HZPhotoBrowser.h"
+
+@interface WebsiteTemplateChildVC ()
+
+@end
+
+@implementation WebsiteTemplateChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self addGradientLayer];
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.model.phone_picture)]];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself fullScreenClick];
+    }];
+    [self.headV addGestureRecognizer:tap];
+    
+    [[self.viewBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself.subject sendNext:weakself.model];
+    }];
+}
+
+-(void)addGradientLayer{
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, ksrcwidth - 140, 45);
+    gradient.startPoint = CGPointMake(0, 0);
+    gradient.endPoint = CGPointMake(1, 0);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor getColor:@"#6647FF" alpha:1].CGColor,
+                       (id)[UIColor getColor:@"#7CB0FF" alpha:1].CGColor,nil];
+    [self.viewBtn.layer addSublayer:gradient];
+}
+
+-(void)fullScreenClick{
+    HZPhotoBrowser *browser = [[HZPhotoBrowser alloc] init];
+    browser.isFullWidthForLandScape = YES;
+    browser.isNeedLandscape = YES;
+    browser.currentImageIndex = 0;
+    browser.imageArray = [NSArray arrayWithObjects:self.model.phone_picture, nil];
+    [browser show];
+}
+@end

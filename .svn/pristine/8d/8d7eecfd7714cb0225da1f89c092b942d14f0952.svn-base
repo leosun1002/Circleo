@@ -1,0 +1,129 @@
+//
+//  PersonInfoVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PersonInfoVC.h"
+#import "UpdateNameVC.h"
+#import "TZImagePickerController.h"
+
+@interface PersonInfoVC ()<TZImagePickerControllerDelegate>
+
+@end
+
+@implementation PersonInfoVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"个人信息", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self setData];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+        if ([dict[JYIsModified] isEqualToString:@"1"]) {
+            [weakself showMsg:NSLocalizedString(@"昵称已修改过，不可再次修改", nil) location:centre];
+            return ;
+        }
+        UpdateNameVC *update = [[UpdateNameVC alloc] init];
+        [weakself.navigationController pushViewController:update animated:YES];
+    }];
+    [self.nameView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself avararClick];
+    }];
+    [self.headView addGestureRecognizer:tap1];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself setData];
+            }
+        }
+    }];
+}
+
+-(void)setData{
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(userdict[JYUserImage])] placeholderImage:[UIImage imageNamed:@"pic_head"] options:SDWebImageAllowInvalidSSLCertificates];
+    self.codeLabel.text = AssectString(userdict[JYInvitationCode]);
+    self.phoneLabel.text = AssectString(userdict[JYPhone]);
+
+    if ([AssectString(userdict[JYUserName]) isEqualToString:@""]) {
+        self.nameLabel.text = NSLocalizedString(@"未设置", nil);
+        self.nameLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    }else{
+        self.nameLabel.text = AssectString(userdict[JYUserName]);
+        self.nameLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+
+    }
+}
+
+- (IBAction)fzClick:(id)sender {
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(userdict[JYInvitationCode]);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+-(void)avararClick{
+    TZImagePickerController *imagePC=[[TZImagePickerController alloc]initWithMaxImagesCount:1 delegate:self];//设置多选最多支持的最大数量，设置代理
+    WeakSelf(self);
+    imagePC.preferredLanguage = [GDLocalizableController userLanguage];
+    imagePC.modalPresentationStyle = UIModalPresentationFullScreen;
+    [imagePC setDidFinishPickingPhotosWithInfosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto, NSArray<NSDictionary *> *infos) {
+        UIImage *image =  [weakself compressImage:photos[0] toTargetWidth:200];
+        [weakself uploadImgae:image];
+    }];
+    [self presentViewController:imagePC animated:YES completion:nil];//跳转
+}
+
+- (UIImage *)compressImage:(UIImage *)sourceImage toTargetWidth:(CGFloat)targetWidth {
+    
+    CGSize imageSize = sourceImage.size;
+    NSLog(@"%@",sourceImage);
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetHeight = (targetWidth / width) * height;
+    UIGraphicsBeginImageContext(CGSizeMake(targetWidth, targetHeight));
+    [sourceImage drawInRect:CGRectMake(0, 0, targetWidth, targetHeight)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+-(void)uploadImgae:(UIImage *)avatarImgae{
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postImageFormReqUrl:UpdateAvatar image:avatarImgae param:@{} loadingTime:30.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself getUserInfo];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+@end

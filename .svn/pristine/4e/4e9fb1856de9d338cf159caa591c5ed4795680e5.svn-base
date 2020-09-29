@@ -1,0 +1,34 @@
+//
+//  AgentUSDTPullDetailVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AgentUSDTPullDetailVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *jsLabel;
+@property (weak, nonatomic) IBOutlet UILabel *fsLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sxfLabel;
+@property (weak, nonatomic) IBOutlet UILabel *dzLabel;
+@property (weak, nonatomic) IBOutlet UILabel *hashLabel;
+@property (weak, nonatomic) IBOutlet UILabel *markLabel;
+@property (weak, nonatomic) IBOutlet UIView *markView;
+@property (weak, nonatomic) IBOutlet UIView *sxfview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *sxfHeightConst;
+
+@property (assign, nonatomic) long assetId;
+
+@end
+
+NS_ASSUME_NONNULL_END

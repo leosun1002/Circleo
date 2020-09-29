@@ -1,0 +1,268 @@
+//
+//  PersonHomeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PersonHomeVC.h"
+#import "PersonCollectionViewCell.h"
+#import "PersonHeaderReusableView.h"
+#import "PersonRightSettingVC.h"
+#import "UIViewController+CWLateralSlide.h"
+#import "ConsoleViewController.h"
+#import "MyCardCouponVC.h"
+#import "IntegrationCenterVC.h"
+#import "MessageCenterVC.h"
+#import "TZImagePickerController.h"
+
+@interface PersonHomeVC ()<UICollectionViewDelegate,UICollectionViewDataSource,TZImagePickerControllerDelegate>
+
+@property(nonatomic,strong)NSMutableArray *titles;
+@property(nonatomic,strong)NSMutableArray *images;
+@property(nonatomic,weak)PersonHeaderReusableView *homeHeader;
+@property(nonatomic,assign)long redCount;
+@property(nonatomic,assign)long is_read;
+
+@end
+
+@implementation PersonHomeVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getUserInfo];
+    [self getRedCount];
+    [self getReadMsg];
+}
+
+-(void)prepareUi{
+    self.botConst.constant = tabbarHeight;
+    self.heightConst.constant = navBarHeight;
+    self.flowOut.minimumInteritemSpacing = 0;
+    self.flowOut.minimumLineSpacing = 0;
+    self.flowOut.itemSize = CGSizeMake((ksrcwidth - 32)/4,90);
+    self.flowOut.scrollDirection = UICollectionViewScrollDirectionVertical;
+    self.flowOut.headerReferenceSize = CGSizeMake(ksrcwidth, IS_IPHONEX?550:540);
+    [self.collection registerNib:[UINib nibWithNibName:@"PersonCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"PersonCollectionViewCell"];
+    [self.collection registerNib:[UINib nibWithNibName:@"PersonHeaderReusableView" bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"PersonHeaderReusableView"];
+    
+   if (@available(iOS 11.0,*)) {
+        self.collection.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+    }else{
+        self.automaticallyAdjustsScrollViewInsets=NO;
+    }
+    
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    if ([AssectString(dict[JYUserName]) isEqualToString:@""]) {
+        self.titleLabel.text = AssectString(dict[JYPhone]);
+    }else{
+        self.titleLabel.text = AssectString(dict[JYUserName]);
+    }
+    
+    WeakSelf(self);
+//    self.collection.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+//        [weakself getUserInfo];
+//        [weakself getRedCount];
+//        [weakself getReadMsg];
+//    }];
+    
+    //增加拖动手势
+    [self cw_registerShowIntractiveWithEdgeGesture:NO transitionDirectionAutoBlock:^(CWDrawerTransitionDirection direction) {
+        if (direction == CWDrawerTransitionFromRight) {
+            [weakself settingClick];
+        }
+    }];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+            }
+        }
+        [weakself.collection reloadData];
+//        [weakself.collection.mj_header endRefreshing];
+    }];
+}
+
+//获取红点数
+-(void)getRedCount{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:NoticeRead param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.is_read =  [json[@"data"][@"is_read"] longValue];
+                [weakself.collection reloadData];
+            }
+        }
+    }];
+}
+
+-(void)getReadMsg{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:ShoppingCartRedCount param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                long count =  [json[@"data"][@"count"] longValue];
+                weakself.redCount = count;
+                [weakself.collection reloadData];
+            }
+        }
+    }];
+}
+
+- (IBAction)topSettingClick:(id)sender {
+    [self settingClick];
+}
+
+#pragma -mark UICollectionViewDelegate
+-(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
+    PersonHeaderReusableView *homeHeader = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"PersonHeaderReusableView" forIndexPath:indexPath];
+    [homeHeader.setBtn addTarget:self action:@selector(settingClick) forControlEvents:UIControlEventTouchUpInside];
+    [homeHeader.avatarBtn addTarget:self action:@selector(avararClick) forControlEvents:UIControlEventTouchUpInside];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal]subscribeNext:^(id x) {
+        [weakself avararClick];
+    }];
+    [homeHeader.headV addGestureRecognizer:tap];
+    [homeHeader setData];
+    homeHeader.navicontroller = self.navigationController;
+    return _homeHeader = homeHeader;
+}
+
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.titles.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    PersonCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"PersonCollectionViewCell" forIndexPath:indexPath];
+    cell.headV.image = [UIImage imageNamed:self.images[indexPath.item]];
+    cell.nameLabel.text = self.titles[indexPath.item];
+    if (indexPath.item == 0) {
+        cell.countLabel.hidden = self.redCount == 0;
+        cell.countLabel.text = self.redCount > 99?[NSString stringWithFormat:@"99+"]:[NSString stringWithFormat:@"%ld",self.redCount];
+        cell.widthConst.constant = 16;
+        cell.countLabel.layer.cornerRadius = 8;
+        cell.countLabel.layer.masksToBounds = YES;
+    }else if(indexPath.item == 3){
+        cell.countLabel.hidden = self.is_read == 0;
+        cell.countLabel.text = @"";
+        cell.widthConst.constant = 8;
+        cell.countLabel.layer.cornerRadius = 4;
+        cell.countLabel.layer.masksToBounds = YES;
+    }else{
+        cell.countLabel.hidden = YES;
+    }
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (indexPath.item == 0) {
+        ConsoleViewController *console = [[ConsoleViewController alloc] init];
+        [self.navigationController pushViewController:console animated:YES];
+    }else if (indexPath.item == 1){
+        MyCardCouponVC *coupon = [[MyCardCouponVC alloc] init];
+        [self.navigationController pushViewController:coupon animated:YES];
+    }else if (indexPath.item == 2){
+        IntegrationCenterVC *integration = [[IntegrationCenterVC alloc] init];
+        [self.navigationController pushViewController:integration animated:YES];
+    }else if (indexPath.item == 3){
+        MessageCenterVC *message = [[MessageCenterVC alloc] init];
+        [self.navigationController pushViewController:message animated:YES];
+    }
+}
+
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (scrollView == self.collection) {
+        CGFloat scrollY = scrollView.contentOffset.y;
+        CGFloat height = IS_IPHONEX?145:135;
+        if (scrollY > height) {
+            self.topView.hidden = NO;
+        }else{
+            self.topView.hidden = YES;
+        }
+    }
+}
+
+-(void)settingClick{
+    PersonRightSettingVC *setvc = [[PersonRightSettingVC alloc] init];
+
+    CWLateralSlideConfiguration *conf = [CWLateralSlideConfiguration defaultConfiguration];
+    conf.direction = CWDrawerTransitionFromRight; // 从右边滑出
+    conf.finishPercent = 0.2f;
+    conf.showAnimDuration = 0.25;
+    conf.HiddenAnimDuration = 0.25;
+    conf.maskAlpha = 0.4;
+    conf.distance = ksrcwidth - 100;
+    [self cw_showDrawerViewController:setvc animationType:CWDrawerAnimationTypeDefault configuration:conf];
+}
+
+-(void)avararClick{
+    TZImagePickerController *imagePC=[[TZImagePickerController alloc]initWithMaxImagesCount:1 delegate:self];//设置多选最多支持的最大数量，设置代理
+    WeakSelf(self);
+    imagePC.preferredLanguage = [GDLocalizableController userLanguage];
+    imagePC.modalPresentationStyle = UIModalPresentationFullScreen;
+    [imagePC setDidFinishPickingPhotosWithInfosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto, NSArray<NSDictionary *> *infos) {
+        UIImage *image =  [weakself compressImage:photos[0] toTargetWidth:200];
+        [weakself uploadImgae:image];
+    }];
+    [self presentViewController:imagePC animated:YES completion:nil];//跳转
+}
+
+- (UIImage *)compressImage:(UIImage *)sourceImage toTargetWidth:(CGFloat)targetWidth {
+    
+    CGSize imageSize = sourceImage.size;
+    NSLog(@"%@",sourceImage);
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetHeight = (targetWidth / width) * height;
+    UIGraphicsBeginImageContext(CGSizeMake(targetWidth, targetHeight));
+    [sourceImage drawInRect:CGRectMake(0, 0, targetWidth, targetHeight)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+-(void)uploadImgae:(UIImage *)avatarImgae{
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postImageFormReqUrl:UpdateAvatar image:avatarImgae param:@{} loadingTime:30.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself getUserInfo];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)titles{
+    if (!_titles) {
+        _titles = [NSMutableArray arrayWithObjects:NSLocalizedString(@"管理中心", nil),NSLocalizedString(@"卡券中心", nil),NSLocalizedString(@"积分中心", nil),NSLocalizedString(@"通知中心", nil), nil];
+    }
+    return _titles;
+}
+
+-(NSMutableArray *)images{
+    if (!_images) {
+        _images = [NSMutableArray arrayWithObjects:@"icon_manage_center",@"icon_coupon_center",@"icon_point_center",@"icon_message_center", nil];
+    }
+    return _images;
+}
+@end

@@ -1,0 +1,51 @@
+//
+//  DNSBrowserSettingVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/12/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSBrowserSettingVC.h"
+
+@interface DNSBrowserSettingVC ()
+
+@property(nonatomic,weak)UIView *maskView;
+
+@end
+
+@implementation DNSBrowserSettingVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self.maskView removeFromSuperview];
+    [self setMaskView:nil];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, ksrcheight - 200, ksrcheight, 200)];
+    view.backgroundColor = [UIColor clearColor];
+    [[UIApplication sharedApplication].keyWindow addSubview:_maskView = view];
+}
+
+- (IBAction)cancelClick:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+}
+
+- (IBAction)settingClick:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:^{
+        [self.settingSubject sendNext:@""];
+
+    }];
+}
+
+@end

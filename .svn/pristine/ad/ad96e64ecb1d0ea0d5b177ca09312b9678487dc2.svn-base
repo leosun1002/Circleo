@@ -1,0 +1,250 @@
+//
+//  RecommendDNVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "RecommendDNVC.h"
+#import "DNRecomendCollectionViewCell.h"
+#import "DNRecomendNoDataCollectionViewCell.h"
+#import "ShopCarViewController.h"
+#import "DNSRenewViewController.h"
+#import "UIImage+GIFImage.h"
+
+@interface RecommendDNVC ()<UICollectionViewDelegate,UICollectionViewDataSource,UICollectionViewDelegateFlowLayout>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@end
+
+@implementation RecommendDNVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    if (self.type == 0) {
+        [self setBanar:NSLocalizedString(@"推荐域名", nil) hiddeBack:NO];
+    }else{
+        [self setBanar:AssectString(self.titlename) hiddeBack:NO];
+    }
+    [self prepareUi];
+    self.topConst.constant = navBarHeight + 10;
+    [self addRefresh];
+    [self.collect.mj_header beginRefreshing];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getRedCount];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.collect.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    
+    //使用这个加载  可以隐藏最后的一行字
+    self.collect.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    // 推荐
+    if (self.type == 1) {
+        [self getClassifyData:YES];
+    }else{
+        [self getReccommedData:YES];
+    }
+}
+
+-(void)getClassifyData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    WeakSelf(self);
+    NSDictionary *dict = @{@"domain_name_category_id":AssectString(self.domain_name_category_id),@"page":[NSString stringWithFormat:@"%d",page]};
+    [WebServices getFormReqUrl:RecommendedDomainName param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                id temps = json[@"data"][@"data"];
+                if ([temps isKindOfClass:[NSArray class]]) {
+                    !ifFresh?:[weakself.datas removeAllObjects];
+                    [temps enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                        DNSShopRecommendModel *modules = [DNSShopRecommendModel mj_objectWithKeyValues:obj];
+//                        if (modules.status == 0) {
+                        [weakself.datas addObject:modules];
+//                        }
+                    }];
+                }
+            }
+        }
+        [weakself.collect.mj_header endRefreshing];
+        [weakself.collect.mj_footer endRefreshing];
+        [weakself.collect reloadData];
+    }];
+}
+
+-(void)getReccommedData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    WeakSelf(self);
+    NSDictionary *dict = @{@"page":[NSString stringWithFormat:@"%d",page]};
+    [WebServices getFormReqUrl:RecommendedDNHomepageMore param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                id temps = json[@"data"][@"data"][@"data"];
+                if ([temps isKindOfClass:[NSArray class]]) {
+                    !ifFresh?:[weakself.datas removeAllObjects];
+                    [temps enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                        DNSShopRecommendModel *modules = [DNSShopRecommendModel mj_objectWithKeyValues:obj];
+                        [weakself.datas addObject:modules];
+                    }];
+                }
+            }
+        }
+        [weakself.collect.mj_header endRefreshing];
+        [weakself.collect.mj_footer endRefreshing];
+        [weakself.collect reloadData];
+    }];
+}
+
+//获取红点数
+-(void)getRedCount{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:ShoppingCartRedCount param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                long count =  [json[@"data"][@"count"] longValue];
+                weakself.redCountLabel.hidden = count == 0;
+                if (count > 99) {
+                    weakself.redCountLabel.text = [NSString stringWithFormat:@"99+"];
+                }else{
+                    weakself.redCountLabel.text = [NSString stringWithFormat:@"%ld",count];
+                }
+                
+            }
+        }
+    }];
+}
+
+-(void)prepareUi{
+    UICollectionViewFlowLayout * layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumInteritemSpacing = 5;
+    layout.minimumLineSpacing = 5;
+    layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    [self.collect setCollectionViewLayout:layout];
+    [self.collect registerNib:[UINib nibWithNibName:@"DNRecomendCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"DNRecomendCollectionViewCell"];
+    [self.collect registerNib:[UINib nibWithNibName:@"DNRecomendNoDataCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"DNRecomendNoDataCollectionViewCell"];
+    self.redCountLabel.adjustsFontSizeToFitWidth = YES;
+    
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+    self.collect.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+}
+
+- (IBAction)shopCarClick:(id)sender {
+    ShopCarViewController *shopCar = [[ShopCarViewController alloc] init];
+    [self.navigationController pushViewController:shopCar animated:YES];
+}
+
+#pragma -mark UICollectionViewDelegate
+-(CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.datas.count == 0) {
+        return CGSizeMake(ksrcwidth, self.collect.height);
+    }
+    return CGSizeMake((ksrcwidth - 32 - 5)/2,113);
+}
+
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    if (self.datas.count == 0) {
+        return 1;
+    }
+    return self.datas.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.datas.count == 0) {
+        DNRecomendNoDataCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DNRecomendNoDataCollectionViewCell" forIndexPath:indexPath];
+        cell.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+        return cell;
+    }
+    DNRecomendCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DNRecomendCollectionViewCell" forIndexPath:indexPath];
+    cell.model = self.datas[indexPath.item];
+    cell.addBtn.tag = indexPath.row;
+    [cell.addBtn addTarget:self action:@selector(addShopCar:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.datas.count == 0) return;
+    
+    DNSShopRecommendModel *model = self.datas[indexPath.item];
+    
+    DNSRenewViewController *renuw = [[DNSRenewViewController alloc] init];
+    renuw.newType = 0;
+    renuw.domains = AssectString(model.domain_name);
+    [self.navigationController pushViewController:renuw animated:YES];
+}
+
+-(void)addShopCar:(UIButton *)sender{
+    if (self.datas.count == 0) return;
+    NSInteger tag = sender.tag;
+    DNSShopRecommendModel *model = self.datas[tag];
+//    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    NSDictionary *dict = @{@"domain_names":AssectString(model.domain_name)};
+    [WebServices postFormReqUrl:ShoppingCartStore param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself addAnimation:tag];
+                [weakself getRedCount];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)addAnimation:(NSInteger)tag{
+    DNRecomendCollectionViewCell *cell = (DNRecomendCollectionViewCell *)[self.collect cellForItemAtIndexPath:[NSIndexPath indexPathForItem:tag inSection:0]];
+    UIButton *sender =  cell.addBtn;
+    sender.hidden = YES;
+    LOTAnimationView *animation = [LOTAnimationView animationNamed:@"addShopCart"];
+    animation.frame = CGRectMake(CGRectGetMidX(sender.frame) - 13, CGRectGetMidY(sender.frame) - 15, 30, 30);
+    [cell addSubview:animation];
+    [animation playWithCompletion:^(BOOL animationFinished) {
+        [animation removeFromSuperview];
+      // Do Something
+        sender.hidden = NO;
+    }];
+    
+    [UIView animateWithDuration:0.4 animations:^{
+        self.redCountLabel.transform = CGAffineTransformMakeScale(1.3, 1.3);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.25 animations:^{
+            self.redCountLabel.transform = CGAffineTransformIdentity;
+        }];
+    }];
+    
+    [UIView animateWithDuration:0.25 animations:^{
+         self.redCountBtn.transform = CGAffineTransformMakeRotation(30 *M_PI / 180.0);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.25 animations:^{
+            self.redCountBtn.transform = CGAffineTransformMakeRotation(-30 *M_PI / 180.0);
+        } completion:^(BOOL finished) {
+            self.redCountBtn.transform = CGAffineTransformMakeRotation(0 *M_PI / 180.0);
+        }];
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

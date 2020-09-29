@@ -1,0 +1,40 @@
+//
+//  MyAssetChildView.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/19.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "JXPagerView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef enum{
+    MyAssetChildViewTypeCharge,       // 充值
+    MyAssetChildViewTypeWithDraw,     // 提现
+    MyAssetChildViewTypeWithOther,    // 其他
+}MyAssetChildViewType;
+
+typedef enum{
+    MyAssetChildViewCurrencyTypeUSDT,  // USDT
+    MyAssetChildViewCurrencyTypeCNY,   // CNY
+}MyAssetChildViewCurrencyType;
+
+@interface MyAssetChildView : UIView<JXPagerViewListViewDelegate,UITableViewDelegate,UITableViewDataSource>
+
+/**
+ 页面类型
+ */
+@property (nonatomic,assign) MyAssetChildViewType pageType;
+@property (nonatomic,assign) MyAssetChildViewCurrencyType currencyType;
+
+@property (nonatomic, copy) void(^scrollCallback)(UIScrollView *scrollView);
+@property (nonatomic,strong) UITableView *tableview;
+@property (nonatomic,strong) RACSubject *subject;
+
+-(void)refreshData;
+@end
+
+NS_ASSUME_NONNULL_END

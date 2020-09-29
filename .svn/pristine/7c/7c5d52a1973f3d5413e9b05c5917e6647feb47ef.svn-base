@@ -1,0 +1,39 @@
+//
+//  DNSBrowserInfo.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/28.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSPublicChain : NSObject
+
+@property(nonatomic,assign) long chainid;
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,strong) NSString *wallet_address;
+/// 上链状态，1上链中，2已上链
+@property(nonatomic,assign) long status;
+
+@end
+
+//热搜域名信息
+@interface DNSBrowserInfo : NSObject
+
+@property(nonatomic,strong) NSString *end_time;
+@property(nonatomic,strong) NSString *domain_name;
+@property(nonatomic,assign) long browserid;
+@property(nonatomic,strong) NSMutableArray <DNSPublicChain *> *public_chains;
+@property(nonatomic,strong) NSString *start_time;
+///1未注册，2挂单冻结中，3已注册 绑定地址中
+@property(nonatomic,assign) long type;
+/// 0是收起   1是展开
+@property(nonatomic,assign) long is_frozen;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

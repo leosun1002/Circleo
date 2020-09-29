@@ -1,0 +1,123 @@
+//
+//  Contant.h
+//  ScmProject
+//
+//  Created by zhoudong on 2018/7/7.
+//  Copyright © 2018年 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+@protocol Contant <NSObject>
+
+#define PI 3.14
+//加快审核
+#define AppVersion @"1.6.2"
+
+    //屏幕高宽
+#define ksrcwidth [UIScreen mainScreen].bounds.size.width
+#define ksrcheight [UIScreen mainScreen].bounds.size.height
+
+//ipx
+#define IS_IPHONE (UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPhone)
+#define iPhone6     ([[UIScreen mainScreen] bounds].size.height == 667)
+#define iPhone6Plus ([[UIScreen mainScreen] bounds].size.height == 736)
+#define IS_IOS_11  ([[[UIDevice currentDevice] systemVersion] floatValue] >= 11.f)
+#define IS_IPHONEX (IS_IOS_11 && IS_IPHONE && (MIN([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height) >= 375 && MAX([UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height) >= 812))
+#define navBarHeight ((IS_IPHONEX == YES)? 88.0f:64.0f)
+#define tabbarHeight ((IS_IPHONEX == YES) ? (49.f+34.f) : 49.f)
+#define bottomY ((IS_IPHONEX == YES)?30.0f:0.0f)
+
+    //系统版本
+#define IOSVer [[[UIDevice currentDevice] systemVersion]floatValue]
+   
+    //app的版本号
+//#define kAppVersion [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"]
+    
+    //app build版本号
+#define kAppBuildVersion [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleVersion"]
+    
+    //weak self
+#define WeakSelf(type) __weak typeof(type) weak##type = type
+
+//String
+#define AssectString(param) [(param) isKindOfClass:[NSNumber class]] ? [((NSNumber *)param) stringValue] : ([(param) isKindOfClass:[NSString class]] ? ([[(param) lowercaseString] isEqualToString:@"null"] ? @"" : (param)): @"")
+#define AssectNumber(param) !(param) || [(param) isEqualToString:@""]?@"0":(param)
+//英文和数字
+#define ENGALPHAN  @"1234567890zxcvbnmasdfghjklpoiuytrewqZXCVBNMLKJHGFDSAQWERTYUIOP."
+#define NUMBERALPHAN  @"1234567890"
+
+#define CHINESE @"zh-Hans"
+#define ENGLISH @"en"
+
+#define access_token @"access_token"//用户token
+
+#define history_Arrays @"history_Arrays"//记录
+
+#define UpdateDay @"UpdateDay"//记录
+
+
+//用户信息
+#define JYLoginuser @"loginuser"
+
+#define JYIp @"ip"
+#define JYCnyMoney @"cny_money"
+#define JYCnyNotMoney @"cny_not_money"
+#define JYCnySevenMoney @"cny_seven_income"
+#define JYUSDTSevenMoney @"usdt_seven_income"
+#define JYUsdtMoney @"usdt_money"
+#define JYUsdtNotMoney @"usdt_not_money"
+#define JYIncomeCnyMoney @"income_cny_money"
+#define JYIncomeCnyNotMoney @"income_not_cny_money"
+#define JYIncomeUsdtMoney @"income_usdt_money"
+#define JYIncomeUsdtNotMoney @"income_not_usdt_money"
+#define JYWechat @"wechat"
+#define JYInvitationCode @"invitation_code"
+#define JYUpdatedAt @"updated_at"
+#define JYParentId @"parent_id"
+#define JYId @"id"
+#define JYActive @"is_active"
+#define JYCodeUsed @"code_is_used"
+#define JYEmail @"email"
+#define JYGrade @"grade"
+#define JYPhone @"phone"
+#define JYArea @"area"
+#define JYEmailVerified @"email_verified_at"
+#define JYCreatedAt @"created_at"
+#define JYCreatedTime @"created_time"
+#define JYIntegral @"integral"
+#define JYAuthentication @"is_authentication"
+#define JYOldUserId @"old_user_id"
+#define JYGarde @"garde"
+#define JYGardeType @"garde_type"
+#define JYGradeLetter @"garde_letter"
+#define JYDirectPhone @"direct_push_phone"
+#define JYDirectCount @"direct_push_count"
+#define JYIndirectCount @"indirect_push_count"
+#define JYTotalRelease @"total_release"
+#define JYWeekTotalRelease @"week_total_release"
+#define JYConsumptionRelease @"consumption_release"
+#define JYAddress @"address"
+#define JYDomainNameCount @"domain_name_count"
+#define JYPayPassword @"is_pay_password"
+#define JYUserImage @"avatar"
+#define JYBindBankCard @"is_bink_band_card"
+#define JYUpdateAgentStatus @"upgrade_agent_status"
+#define JYIsPartner @"is_partner"
+#define JYPartnerSharing @"partner_sharing"
+#define JYWalletAddress @"is_user_wallet_address"
+#define JYDomainNumber @"domain_total_number"
+#define JYUserTitle @"user_title"
+#define JYHasKachin @"is_kachin"
+#define JYUserName @"name"
+#define JYIsModified @"is_modified_nickname"
+
+#define JYArticleFont @"articleFont"
+#define JYArticleColor @"articleColor"
+
+
+#pragma -mark 公钥、地址、私钥
+#define ShopWalletAddress @"ShopWalletAddress"
+#define ShopWalletPrivite @"ShopWalletPrivite"
+#define ShopWalletPublic @"ShopWalletPublic"
+@end

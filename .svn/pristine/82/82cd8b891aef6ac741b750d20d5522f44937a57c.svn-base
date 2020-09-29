@@ -1,0 +1,33 @@
+//
+//  MessageModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MessageModel : NSObject
+
+/// 0不显示，1显示
+@property(nonatomic,assign)long status;
+@property(nonatomic,copy)NSString *content;
+/// 0不跳转，1 app跳转，2 h5跳转
+@property(nonatomic,assign)long jump_type;
+@property(nonatomic,assign)long messageId;
+@property(nonatomic,copy)NSString *title;
+/// app跳转 链接、参数
+@property(nonatomic,copy)NSString *jump_url;
+@property(nonatomic,assign)long user_id;
+/// 1域名通知，2推广通知，3系统通知
+@property(nonatomic,assign)long type;
+@property(nonatomic,copy)NSString *create_time;
+/// h5跳转链接
+@property(nonatomic,copy)NSString *url;
+
+@end
+
+NS_ASSUME_NONNULL_END

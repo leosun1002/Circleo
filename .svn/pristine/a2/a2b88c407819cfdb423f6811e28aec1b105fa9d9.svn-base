@@ -1,0 +1,246 @@
+//
+//  ConsoleViewController.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "ConsoleViewController.h"
+#import "ConsoleHeader.h"
+#import "DNSManageVC.h"
+#import "DNSOrderManageChildVC.h"
+#import "DNSOrderDynamicTableViewCell.h"
+#import "ShopCarViewController.h"
+#import "OYCountDownManager.h"
+#import "DNSOrderDetailVC.h"
+
+@interface ConsoleViewController ()<UITableViewDataSource,UITableViewDelegate>
+
+@property(nonatomic,strong) NSString *total_number;
+@property(nonatomic,strong) NSString *expire_total_number;
+@property(nonatomic,strong) NSString *freeze_total_number;
+@property(nonatomic,strong) NSString *sold_hang_sale;
+@property(nonatomic,strong) NSString *pending_order_hang_sale;
+@property(nonatomic,strong) NSString *bought_hang_sale;
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@end
+
+@implementation ConsoleViewController
+
+- (void)dealloc {
+    [kCountDownManager removeAllSource];
+    [kCountDownManager invalidate];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+    [kCountDownManager start];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    [self getRedCount];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [self getConsoleData];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getConsoleData];
+    }];
+}
+
+//获取红点数
+-(void)getRedCount{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:ShoppingCartRedCount param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                long count =  [json[@"data"][@"count"] longValue];
+                weakself.redCountLabel.hidden = count == 0;
+                if (count > 99) {
+                    weakself.redCountLabel.text = [NSString stringWithFormat:@"99+"];
+                }else{
+                    weakself.redCountLabel.text = [NSString stringWithFormat:@"%ld",count];
+                }
+            }
+        }
+    }];
+}
+
+-(void)getConsoleData{
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    
+    WeakSelf(self);
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        [weakself getDatawithGroup:group];
+    });
+    
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        // 追加任务 2
+        [weakself getOrderDatawithGroup:group];
+    });
+
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview reloadData];
+    });
+}
+
+-(void)getDatawithGroup:(dispatch_group_t)group{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:DomainConsole param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.total_number = [NSString stringWithFormat:@"%ld",[json[@"data"][@"total_number"] longValue]];
+                weakself.expire_total_number = [NSString stringWithFormat:@"%ld",[json[@"data"][@"expire_total_number"] longValue]];
+                weakself.freeze_total_number = [NSString stringWithFormat:@"%ld",[json[@"data"][@"freeze_total_number"] longValue]];
+                weakself.sold_hang_sale = [NSString stringWithFormat:@"%ld",[json[@"data"][@"sold_hang_sale"] longValue]];
+                weakself.pending_order_hang_sale = [NSString stringWithFormat:@"%ld",[json[@"data"][@"pending_order_hang_sale"] longValue]];
+                weakself.bought_hang_sale = [NSString stringWithFormat:@"%ld",[json[@"data"][@"bought_hang_sale"] longValue]];
+            }
+        }
+    }];
+}
+
+-(void)getOrderDatawithGroup:(dispatch_group_t)group{
+    WeakSelf(self);
+    NSDictionary *dict = @{@"order_type":@"",@"order_status":@"",@"transaction_date":@"",@"page":@"1"};
+    [WebServices getFormReqUrl:DomainOrderManage param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                [json[@"data"][@"data"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    if (weakself.datas.count == 5) return ;
+                    DNSOrderModel *modules = [DNSOrderModel mj_objectWithKeyValues:obj];
+                    //order_status  1挂卖中，2已出售，3已取消， 99已购买
+                    [weakself.datas addObject:modules];
+//                    if (modules.order_status == 1 || modules.order_status == 2) {
+//                    }
+                }];
+                [kCountDownManager reload];
+            }
+        }
+    }];
+}
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSOrderDynamicTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNSOrderDynamicTableViewCell"];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)shopCarClick:(id)sender {
+    ShopCarViewController *shopCar = [[ShopCarViewController alloc] init];
+    [self.navigationController pushViewController:shopCar animated:YES];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 336.f;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    ConsoleHeader *header = [[ConsoleHeader alloc] init];
+    header.totalLabel.text = AssectString(self.total_number);
+    header.xfLabel.text = AssectString(self.expire_total_number);
+    header.sdLabel.text = AssectString(self.freeze_total_number);
+    header.sellLabel.text = AssectString(self.sold_hang_sale);
+    header.hangLabel.text = AssectString(self.pending_order_hang_sale);
+    header.buyLabel.text = AssectString(self.bought_hang_sale);
+    header.navigationVC = self.navigationController;
+    return header;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 65.f;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    UIView *footer = [[UIView alloc] init];
+    footer.backgroundColor = [UIColor whiteColor];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        DNSOrderManageChildVC *childVc = [[DNSOrderManageChildVC alloc] init];
+        [weakself.navigationController pushViewController:childVc animated:YES];
+    }];
+    [footer addGestureRecognizer:tap];
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(ksrcwidth/2 - 30, 0, 60, 65)];
+    label.text = NSLocalizedString(@"查看全部", nil);
+    label.textAlignment = NSTextAlignmentCenter;
+    label.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    label.font = [UIFont systemFontOfSize:11];
+    [footer addSubview:label];
+    
+    UIView *leftView = [[UIView alloc] initWithFrame:CGRectMake(15, 32, CGRectGetMinX(label.frame) - 15, 0.5)];
+    leftView.backgroundColor = [UIColor colorWithRGBHex:@"#DEDEE0"];
+    [footer addSubview:leftView];
+    
+    UIView *rightView = [[UIView alloc] initWithFrame:CGRectMake(CGRectGetMaxX(label.frame), 32, leftView.width, 0.5)];
+    rightView.backgroundColor = [UIColor colorWithRGBHex:@"#DEDEE0"];
+    [footer addSubview:rightView];
+    
+    return footer;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return 82.f;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSOrderDynamicTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSOrderDynamicTableViewCell"];
+    cell.model = self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    DNSOrderModel *model = self.datas[indexPath.row];
+    DNSOrderDetailVC *detailVC = [[DNSOrderDetailVC alloc] init];
+    detailVC.jumptype = 1;
+    detailVC.order_id = [NSString stringWithFormat:@"%ld",model.orderid];
+    [self.navigationController pushViewController:detailVC animated:YES];
+}
+
+-(void)goManageVc{
+    DNSManageVC *dnsVc = [[DNSManageVC alloc] init];
+    dnsVc.type = 0;
+    [self.navigationController pushViewController:dnsVc animated:YES];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

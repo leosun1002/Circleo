@@ -1,0 +1,74 @@
+//
+//  AgentIncomeTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AgentIncomeTableViewCell.h"
+
+@implementation AgentIncomeTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(AgentIncomeModel *)model{
+    _model = model;
+    switch (model.type) {
+        case 1:
+            self.nameLabel.text = NSLocalizedString(@"购买域名", nil);
+            break;
+        case 2:
+            self.nameLabel.text = NSLocalizedString(@"绑定地址", nil);
+            break;
+        case 3:
+            self.nameLabel.text = NSLocalizedString(@"换绑地址", nil);
+            break;
+        case 4:
+            self.nameLabel.text = NSLocalizedString(@"解除绑定地址", nil);
+            break;
+        case 5:
+            self.nameLabel.text = NSLocalizedString(@"域名续费", nil);
+            break;
+        case 6:
+            self.nameLabel.text = model.payment_method == 1?NSLocalizedString(@"提现", nil):NSLocalizedString(@"提币", nil);
+            break;
+        case 7:
+            self.nameLabel.text = NSLocalizedString(@"充币", nil);
+            break;
+        case 8:
+            self.nameLabel.text = NSLocalizedString(@"消费分成", nil);
+            break;
+        case 9:
+            self.nameLabel.text = NSLocalizedString(@"推广收益", nil);
+        case 10:
+            self.nameLabel.text = NSLocalizedString(@"合作商分成", nil);
+            break;
+        default:
+            break;
+    }
+    switch (model.status) {
+        case 0:
+            self.statusLabel.text = NSLocalizedString(@"失败", nil);
+            break;
+        case 1:
+            self.statusLabel.text = NSLocalizedString(@"审核中", nil);
+            break;
+        default:
+            self.statusLabel.text = NSLocalizedString(@"成功", nil);
+            break;
+    }
+    self.timeLabel.text = model.create_time;
+    self.moneyLabel.text = [NSString stringWithFormat:@"＋%@ %@" ,model.amount_money,model.payment_method == 1?@"CNY":@"USDT"];
+}
+
+@end

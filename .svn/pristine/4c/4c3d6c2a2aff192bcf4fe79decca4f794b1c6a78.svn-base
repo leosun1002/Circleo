@@ -1,0 +1,81 @@
+//
+//  CTabBarVC.m
+//  ScmProject
+//
+//  Created by zhoudong on 2018/7/13.
+//  Copyright © 2018年 session. All rights reserved.
+//
+
+#import "CTabBarVC.h"
+#import "ShopAssetsHomeVC.h"
+#import "MallHomePageVC.h"
+#import "PersonHomeVC.h"
+#import "DNBrowserVC.h"
+
+#import "MyIncomeAssetVC.h"
+
+@interface CTabBarVC ()
+
+@end
+
+@implementation CTabBarVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    // Do any additional setup after loading the view.
+//    JYHomePageVC *homePageVc = [[JYHomePageVC alloc] init];
+//    [self controller:homePageVc Title:NSLocalizedString(@"动态", nil) tabBarItemImage:@"icon_home_unselect" tabBarItemSelectedImage:@"icon_home_select"];
+    
+    ShopAssetsHomeVC *shopAssetVc = [[ShopAssetsHomeVC alloc] init];
+    [self controller:shopAssetVc Title:NSLocalizedString(@"动态", nil) tabBarItemImage:@"icon_home_unselect" tabBarItemSelectedImage:@"icon_home_select"];
+
+    MallHomePageVC *mallVC = [[MallHomePageVC alloc] init];
+    [self controller:mallVC Title:NSLocalizedString(@"商城", nil) tabBarItemImage:@"icon_dns_unselect" tabBarItemSelectedImage:@"icon_dns_select"];
+    
+    DNBrowserVC *browser = [[DNBrowserVC alloc] init];
+    [self controller:browser Title:NSLocalizedString(@"浏览器", nil) tabBarItemImage:@"icon_console_unselect" tabBarItemSelectedImage:@"icon_console_select"];
+    PersonHomeVC *personVc = [[PersonHomeVC alloc] init];
+    [self controller:personVc Title:NSLocalizedString(@"我的", nil) tabBarItemImage:@"icon_person_unselect" tabBarItemSelectedImage:@"icon_person_select"];
+
+    self.viewControllers = @[shopAssetVc,mallVC,browser,personVc];
+    
+}
+
+- (void)controller:(UIViewController *)controller Title:(NSString *)title tabBarItemImage:(NSString *)image tabBarItemSelectedImage:(NSString *)selectedImage
+{
+    controller.title = title;
+    controller.tabBarItem.image = [UIImage imageNamed:image];
+    // 设置 tabbarItem 选中状态的图片(不被系统默认渲染,显示图像原始颜色)
+    UIImage *imageHome = [UIImage imageNamed:selectedImage];
+    imageHome = [imageHome imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    [controller.tabBarItem setSelectedImage:imageHome];
+//    // 设置 tabbarItem 选中状态下的文字颜色(不被系统默认渲染,显示文字自定义颜色)
+//    NSDictionary *dictHome = [NSDictionary dictionaryWithObject:[UIColor colorWithRGBHex:@"#5151F0"] forKey:NSForegroundColorAttributeName];
+//    [controller.tabBarItem setTitleTextAttributes:dictHome forState:UIControlStateSelected];
+    self.tabBar.tintColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    
+    if (@available(iOS 10.0, *)) {
+        self.tabBar.unselectedItemTintColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    } else {
+        // Fallback on earlier versions
+    }
+}
+
+
+
+- (void)didReceiveMemoryWarning {
+    [super didReceiveMemoryWarning];
+    // Dispose of any resources that can be recreated.
+}
+
+/*
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+}
+*/
+
+@end

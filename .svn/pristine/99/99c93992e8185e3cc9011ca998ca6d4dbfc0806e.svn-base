@@ -1,0 +1,31 @@
+//
+//  WebsiteCarouselVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/5/20.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebsiteCarouselVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowout;
+@property (weak, nonatomic) IBOutlet UIView *backView;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (weak, nonatomic) IBOutlet UICollectionView *botCollect;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *botFlowLayOut;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (strong, nonatomic) RACSubject *subject;
+@property (nonatomic, strong) NSMutableArray *imgs;
+
+/// 0是新建   1是修改
+@property(nonatomic,assign) long fromType;
+@property(nonatomic,assign) long website_id;
+
+@end
+
+NS_ASSUME_NONNULL_END

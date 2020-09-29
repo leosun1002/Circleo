@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="AssetCoinHeader">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7kP-DG-rP5">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="50"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MWc-gd-bJL">
+                            <rect key="frame" x="0.0" y="0.0" width="125" height="45"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ZhA-Ph-Hjl">
+                                    <rect key="frame" x="18" y="10" width="89" height="30"/>
+                                    <color key="backgroundColor" red="0.38431372549999998" green="0.38431372549999998" blue="0.94509803920000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                    <state key="normal" title="资产账户">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </state>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="16"/>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                    </userDefinedRuntimeAttributes>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="bottom" secondItem="ZhA-Ph-Hjl" secondAttribute="bottom" constant="5" id="Beo-c2-9k5"/>
+                                <constraint firstAttribute="height" constant="45" id="Kf8-cW-uV8"/>
+                                <constraint firstItem="ZhA-Ph-Hjl" firstAttribute="leading" secondItem="MWc-gd-bJL" secondAttribute="leading" constant="18" id="gZb-yi-WI5"/>
+                                <constraint firstItem="ZhA-Ph-Hjl" firstAttribute="top" secondItem="MWc-gd-bJL" secondAttribute="top" constant="10" id="gfj-8Y-MUu"/>
+                                <constraint firstAttribute="trailing" secondItem="ZhA-Ph-Hjl" secondAttribute="trailing" constant="18" id="uLP-5U-gdD"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3aa-xZ-iIb">
+                            <rect key="frame" x="125" y="0.0" width="125" height="45"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SIH-Rb-nyq">
+                                    <rect key="frame" x="18" y="10" width="89" height="30"/>
+                                    <color key="backgroundColor" red="0.38431372549999998" green="0.38431372549999998" blue="0.94509803920000002" alpha="1" colorSpace="calibratedRGB"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                    <state key="normal" title="收益账户">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </state>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="16"/>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                    </userDefinedRuntimeAttributes>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstItem="SIH-Rb-nyq" firstAttribute="leading" secondItem="3aa-xZ-iIb" secondAttribute="leading" constant="18" id="n5T-BS-IZB"/>
+                                <constraint firstItem="SIH-Rb-nyq" firstAttribute="top" secondItem="3aa-xZ-iIb" secondAttribute="top" constant="10" id="pZL-av-IDm"/>
+                                <constraint firstAttribute="bottom" secondItem="SIH-Rb-nyq" secondAttribute="bottom" constant="5" id="yDQ-R1-GuK"/>
+                                <constraint firstAttribute="trailing" secondItem="SIH-Rb-nyq" secondAttribute="trailing" constant="18" id="zjp-QS-EGK"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HOk-fL-CUU">
+                            <rect key="frame" x="250" y="0.0" width="125" height="45"/>
+                            <subviews>
+                                <button opaque="NO" alpha="0.90000000000000002" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="x0s-uN-ys7">
+                                    <rect key="frame" x="18" y="10" width="89" height="30"/>
+                                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
+                                    <state key="normal" title="币币账户">
+                                        <color key="titleColor" red="0.31764705879999999" green="0.31764705879999999" blue="0.94117647059999998" alpha="1" colorSpace="calibratedRGB"/>
+                                    </state>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="16"/>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                    </userDefinedRuntimeAttributes>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="trailing" secondItem="x0s-uN-ys7" secondAttribute="trailing" constant="18" id="Au9-ag-nBY"/>
+                                <constraint firstItem="x0s-uN-ys7" firstAttribute="top" secondItem="HOk-fL-CUU" secondAttribute="top" constant="10" id="Duu-Na-6xc"/>
+                                <constraint firstItem="x0s-uN-ys7" firstAttribute="leading" secondItem="HOk-fL-CUU" secondAttribute="leading" constant="18" id="WBD-AQ-Alp"/>
+                                <constraint firstAttribute="bottom" secondItem="x0s-uN-ys7" secondAttribute="bottom" constant="5" id="dsH-7v-myf"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" red="0.31764705879999999" green="0.31764705879999999" blue="0.94117647059999998" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstItem="HOk-fL-CUU" firstAttribute="top" secondItem="7kP-DG-rP5" secondAttribute="top" id="B2z-YA-Rdi"/>
+                        <constraint firstItem="3aa-xZ-iIb" firstAttribute="leading" secondItem="MWc-gd-bJL" secondAttribute="trailing" id="CDE-cy-W44"/>
+                        <constraint firstItem="MWc-gd-bJL" firstAttribute="top" secondItem="7kP-DG-rP5" secondAttribute="top" id="LR3-By-Vte"/>
+                        <constraint firstItem="HOk-fL-CUU" firstAttribute="height" secondItem="3aa-xZ-iIb" secondAttribute="height" id="RJl-9X-m2z"/>
+                        <constraint firstItem="MWc-gd-bJL" firstAttribute="width" secondItem="7kP-DG-rP5" secondAttribute="width" multiplier="1:3" id="Xhp-hc-hdo"/>
+                        <constraint firstAttribute="height" constant="50" id="d1P-K0-agi"/>
+                        <constraint firstItem="3aa-xZ-iIb" firstAttribute="top" secondItem="7kP-DG-rP5" secondAttribute="top" id="iI2-Nf-KvG"/>
+                        <constraint firstItem="3aa-xZ-iIb" firstAttribute="width" secondItem="MWc-gd-bJL" secondAttribute="width" id="idd-HN-aVE"/>
+                        <constraint firstAttribute="trailing" secondItem="HOk-fL-CUU" secondAttribute="trailing" id="l9J-qm-Uch"/>
+                        <constraint firstItem="HOk-fL-CUU" firstAttribute="leading" secondItem="3aa-xZ-iIb" secondAttribute="trailing" id="lRj-Kf-xH1"/>
+                        <constraint firstItem="3aa-xZ-iIb" firstAttribute="height" secondItem="MWc-gd-bJL" secondAttribute="height" id="mPs-bk-mNR"/>
+                        <constraint firstItem="MWc-gd-bJL" firstAttribute="leading" secondItem="7kP-DG-rP5" secondAttribute="leading" id="svI-xK-ZLF"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="7kP-DG-rP5" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="anx-jJ-yJh"/>
+                <constraint firstItem="7kP-DG-rP5" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="dGa-sk-Dvs"/>
+                <constraint firstAttribute="trailing" secondItem="7kP-DG-rP5" secondAttribute="trailing" id="eWY-kf-0vN"/>
+            </constraints>
+            <connections>
+                <outlet property="assetBtn" destination="ZhA-Ph-Hjl" id="moL-0r-JRs"/>
+                <outlet property="coinBtn" destination="x0s-uN-ys7" id="l6W-A6-Lsg"/>
+                <outlet property="incomeBtn" destination="SIH-Rb-nyq" id="uhB-eJ-dKg"/>
+            </connections>
+            <point key="canvasLocation" x="132" y="119"/>
+        </view>
+    </objects>
+</document>

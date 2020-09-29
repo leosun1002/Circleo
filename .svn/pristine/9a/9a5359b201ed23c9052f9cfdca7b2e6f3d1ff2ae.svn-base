@@ -1,0 +1,35 @@
+//
+//  DNSOrderDetailVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSOrderDetailVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) NSString *order_id;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *buyTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *expireTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *saleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *buyerLabel;
+@property (weak, nonatomic) IBOutlet UILabel *stateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *fromLabel;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *publishLabel;
+@property (weak, nonatomic) IBOutlet UIView *payTypeView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *payTypeHeightConst;
+@property (weak, nonatomic) IBOutlet UILabel *payTyepLabel;
+@property (weak, nonatomic) IBOutlet UILabel *lastTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *lastTimeTipLabel;
+@property (assign, nonatomic) long jumptype;
+
+@end
+
+NS_ASSUME_NONNULL_END

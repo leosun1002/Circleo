@@ -1,0 +1,192 @@
+//
+//  BaseViewController.m
+//  JXCategoryView
+//
+//  Created by jiaxin on 2018/8/9.
+//  Copyright © 2018年 jiaxin. All rights reserved.
+//
+
+#import "WebsiteDomainVC.h"
+#import "JXCategoryView.h"
+#import "WebSiteDomainBindVC.h"
+#import "WebSiteDomainUnbindVC.h"
+
+@interface WebsiteDomainVC () <JXCategoryViewDelegate, JXCategoryListContainerViewDelegate>
+
+@property (nonatomic, strong) UIView *titleview;
+@property (nonatomic, strong) UIButton *backBtn;
+@property (nonatomic, strong) JXCategoryTitleView *categoryView;
+@property (nonatomic, strong) JXCategoryListContainerView *listContainerView;
+@property (nonatomic, strong) NSArray *titles;
+@property (nonatomic, assign) NSInteger selectIndex;
+@property (nonatomic, weak) WebSiteDomainUnbindVC *unBindVc;
+
+@end
+
+@implementation WebsiteDomainVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    [self.view addSubview:self.titleview];
+    [self.titleview addSubview:self.categoryView];
+    [self.titleview addSubview:self.backBtn];
+    [self.view addSubview:self.listContainerView];
+    self.listContainerView.didAppearPercent = 0.01; //滚动一点就触发加载
+
+    self.categoryView.contentScrollView = self.listContainerView.scrollView;
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    self.titleview.frame = CGRectMake(0, 0, ksrcwidth, navBarHeight);
+    self.backBtn.frame = CGRectMake(5, navBarHeight - 40, 30, 30);
+    self.categoryView.frame = CGRectMake(ksrcwidth/2 - 133/2, self.titleview.height - 40, 132, 30);
+    self.listContainerView.frame = CGRectMake(0, CGRectGetMaxY(self.titleview.frame), ksrcwidth, ksrcheight - self.titleview.height);
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    //处于第一个item的时候，才允许屏幕边缘手势返回
+//    self.navigationController.interactivePopGestureRecognizer.enabled = (self.categoryView.selectedIndex == 0);
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    //离开页面的时候，需要恢复屏幕边缘手势，不能影响其他页面
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+}
+
+#pragma mark -JXCategoryViewDelegate
+- (JXCategoryBaseView *)preferredCategoryView {
+    return [[JXCategoryTitleView alloc] init];
+}
+
+- (CGFloat)preferredCategoryViewHeight {
+    return 30;
+}
+
+- (id<JXCategoryListContentViewDelegate>)preferredListAtIndex:(NSInteger)index {
+    WeakSelf(self);
+    if (index == 0) {
+        WebSiteDomainBindVC *bindVc = [[WebSiteDomainBindVC alloc] init];
+        bindVc.navigationVc = self.navigationController;
+        bindVc.website_id = self.website_id;
+        bindVc.subject = [RACSubject subject];
+        [bindVc.subject subscribeNext:^(id x) {
+            [weakself.subject sendNext:@""];
+        }];
+        return bindVc;
+    }
+    WebSiteDomainUnbindVC *unBindVc = [[WebSiteDomainUnbindVC alloc] init];
+    unBindVc.navigationVc = self.navigationController;
+    unBindVc.website_id = self.website_id;
+    unBindVc.subject = [RACSubject subject];
+    [unBindVc.subject subscribeNext:^(id x) {
+        [weakself.subject sendNext:@""];
+    }];
+    return _unBindVc = unBindVc;
+}
+
+#pragma -mark getter
+-(UIView *)titleview{
+    if (!_titleview) {
+        _titleview = [[UIView alloc] init];
+        _titleview.backgroundColor = [UIColor whiteColor];
+    }
+    return _titleview;
+}
+
+-(UIButton *)backBtn{
+    if (!_backBtn) {
+        _backBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_backBtn setImage:[UIImage imageNamed:@"Back_black"] forState:UIControlStateNormal];
+        [_backBtn setImage:[UIImage imageNamed:@"Back_black"] forState:UIControlStateHighlighted];
+        WeakSelf(self);
+        [[_backBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }];
+    }
+    return _backBtn;
+}
+
+- (JXCategoryTitleView *)categoryView {
+    if (_categoryView == nil) {
+        [_categoryView removeFromSuperview];
+        _categoryView = (JXCategoryTitleView *)[self preferredCategoryView];
+        _categoryView.layer.cornerRadius = 15;
+        _categoryView.layer.masksToBounds = YES;
+        _categoryView.layer.borderColor = [UIColor colorWithRGBHex:@"#9999A3"].CGColor;
+        _categoryView.layer.borderWidth = 2/[UIScreen mainScreen].scale;
+        _categoryView.titles = self.titles;
+        _categoryView.cellSpacing = 0;
+        _categoryView.cellWidth = 132/2;
+//        _categoryView.cellWidthIncrement = 10;
+//        _categoryView.cellWidthZoomEnabled = YES;
+        _categoryView.titleColor = [UIColor colorWithRGBHex:@"#777785"];
+        _categoryView.titleFont = [UIFont systemFontOfSize:14];
+        _categoryView.titleSelectedColor = [UIColor whiteColor];
+        _categoryView.titleSelectedFont = [UIFont systemFontOfSize:14 weight:(UIFontWeightMedium)];
+        _categoryView.titleLabelMaskEnabled = YES;
+        _categoryView.delegate = self;
+        
+        JXCategoryIndicatorBackgroundView *backgroundView = [[JXCategoryIndicatorBackgroundView alloc] init];
+        backgroundView.indicatorHeight = 30;
+        backgroundView.indicatorColor = [UIColor blackColor];
+        _categoryView.indicators = @[backgroundView];
+    }
+    return _categoryView;
+}
+
+- (JXCategoryListContainerView *)listContainerView {
+    if (_listContainerView == nil) {
+        _listContainerView = [[JXCategoryListContainerView alloc] initWithDelegate:self];
+    }
+    return _listContainerView;
+}
+
+#pragma mark - JXCategoryViewDelegate
+- (void)categoryView:(JXCategoryBaseView *)categoryView didSelectedItemAtIndex:(NSInteger)index {
+    //侧滑手势处理
+//    self.navigationController.interactivePopGestureRecognizer.enabled = (index == 0);
+    self.selectIndex = index;
+    if (index == 1) {
+        [self.unBindVc refreshData];
+    }
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView didScrollSelectedItemAtIndex:(NSInteger)index {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView didClickSelectedItemAtIndex:(NSInteger)index {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+    [self.listContainerView didClickSelectedItemAtIndex:index];
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView scrollingFromLeftIndex:(NSInteger)leftIndex toRightIndex:(NSInteger)rightIndex ratio:(CGFloat)ratio {
+    [self.listContainerView scrollingFromLeftIndex:leftIndex toRightIndex:rightIndex ratio:ratio selectedIndex:categoryView.selectedIndex];
+}
+
+#pragma mark - JXCategoryListContainerViewDelegate
+
+- (id<JXCategoryListContentViewDelegate>)listContainerView:(JXCategoryListContainerView *)listContainerView initListForIndex:(NSInteger)index {
+    id<JXCategoryListContentViewDelegate> list = [self preferredListAtIndex:index];
+    return list;
+}
+
+- (NSInteger)numberOfListsInlistContainerView:(JXCategoryListContainerView *)listContainerView {
+    return self.titles.count;
+}
+
+#pragma -mark getter
+-(NSArray *)titles{
+    if (!_titles) {
+        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"绑定", nil),NSLocalizedString(@"解绑", nil), nil];
+    }
+    return _titles;
+}
+@end

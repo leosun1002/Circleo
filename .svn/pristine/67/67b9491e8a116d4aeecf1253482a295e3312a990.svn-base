@@ -1,0 +1,75 @@
+//
+//  MallHomePageChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallHomePageChildVC.h"
+#import "MallHomePageTableViewCell.h"
+#import "MallHomePageHeader.h"
+#import "MallCatrgoryListVC.h"
+
+@interface MallHomePageChildVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+
+@end
+
+@implementation MallHomePageChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallHomePageTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallHomePageTableViewCell"];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.homeModel.good_two_categorys.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 225;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    MallHomePageHeader *header = [[MallHomePageHeader alloc] init];
+    [header.imgV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.homeModel.image_address)]];
+    return header;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallHomePageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallHomePageTableViewCell"];
+    ShopHomeSecondListModel *model = self.homeModel.good_two_categorys[indexPath.row];
+    [cell.imgV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.image_address)]];
+    cell.nameLabel.text = model.name;
+    cell.descLabel.text = model.content;
+    if ([AssectString(model.keyword) containsString:@";"]) {
+        cell.datas = [model.keyword componentsSeparatedByString:@";"];
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallCatrgoryListVC *listVC = [[MallCatrgoryListVC alloc] init];
+    listVC.homeModel = self.homeModel;
+    [self.navigation pushViewController:listVC animated:YES];    
+}
+@end

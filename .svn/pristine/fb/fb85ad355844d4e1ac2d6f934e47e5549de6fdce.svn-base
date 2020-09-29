@@ -1,0 +1,39 @@
+//
+//  ShopAssetsTradeDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAssetsTradeDetailVC.h"
+
+@interface ShopAssetsTradeDetailVC ()
+@property (weak, nonatomic) IBOutlet UIView *jsView;
+
+@end
+
+@implementation ShopAssetsTradeDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self preapreUi];
+}
+
+-(void)preapreUi{
+    [self addLayer];
+}
+
+-(void)addLayer{
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, 72, 25) byRoundingCorners:UIRectCornerTopLeft | UIRectCornerTopRight cornerRadii:CGSizeMake(12.5, 12.5)];
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+    maskLayer.frame = CGRectMake(0, 0, 72, 25);
+    maskLayer.path = path.CGPath;
+    self.jsView.layer.mask = maskLayer;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+@end

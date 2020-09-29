@@ -1,0 +1,54 @@
+<html>
+
+<head>
+	<script src="./wordlist_english1.js"></script>
+	<script src="./sjcl-bip391.js"></script>
+	<script src="./jsbip391.js"></script>
+	<script src="./bundle1.js"></script>
+	<script src="./getpk_ddress1.js"></script>
+	<script>
+		function create(){
+		
+			//! 生成地址/私钥
+			var res = createaddress('concert input old weasel knock brush proof excess park industry swing junior')
+			console.log("..."+res)
+			
+			var to ="A87WXGRznUtu4hzon846QjtU8D1acoiM3k"		//! 接收地址
+			var value = 600000000								//! 例:发送 6 个狗狗币，6*精度8位(100000000) 等于 600000000
+			var fixedFee = 100000000							//! 矿工费默认固定  1 个狗狗币
+			
+			
+			//! utxo
+			var utxo = [{
+							"txid": "f30818d54dfe171612457fd83889b6be5826cfad4d0e11cbb354de3cbee1a05d",
+							"outputIndex": 1,
+							"script": "76a9144072f5cada58df8b96814a4b0e30df9d20181dda88ac",
+							"satoshis": "19200000000",
+							"address": "DB1sW74BMhT8rSjo48LszxtjYL3K7PnvLW"
+						},{
+							"txid": "95e8880d7517cfe2128f21dcc3299b3247c2488507dee3b6236a7eea9a6195b6",
+							"outputIndex": 0,
+							"script": "76a9144072f5cada58df8b96814a4b0e30df9d20181dda88ac",
+							"satoshis": "300000000",
+							"confirmations": 2,
+							"address": "DB1sW74BMhT8rSjo48LszxtjYL3K7PnvLW"
+						}]
+						
+			var words = "concert input old weasel knock brush proof excess park industry swing junior"
+			
+			//! 离线签名
+			var sign = createTxSign(to,value,fixedFee,utxo,words)
+			console.log("sign:"+sign)
+		}
+		
+	</script>
+</head>
+<body>
+	<button class="btn generate" onclick="create()">生成</button>
+	
+   
+</body>
+
+
+
+</html>

@@ -1,0 +1,30 @@
+//
+//  DNBrowserErVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/21.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "DNBrowserErVC.h"
+#import "UIImage+GIFImage.h"
+
+@interface DNBrowserErVC ()
+
+@end
+
+@implementation DNBrowserErVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor clearColor];
+    self.erImageV.image = [UIImage createImgQRCodeWithString:AssectString(self.address) centerImage:[UIImage imageNamed:@""] withWidth:12.f];
+}
+
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+    [self dismissViewControllerAnimated:NO completion:^{
+        
+    }];
+}
+
+@end

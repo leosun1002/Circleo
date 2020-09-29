@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="RecommendDNVC">
+            <connections>
+                <outlet property="collect" destination="7Tb-Bq-LhT" id="Kkb-Ev-adR"/>
+                <outlet property="redCountBtn" destination="J5a-bS-xKN" id="juP-pf-PNm"/>
+                <outlet property="redCountLabel" destination="Ern-GI-u7l" id="sCC-QT-Z0H"/>
+                <outlet property="topConst" destination="CTW-cO-dBV" id="Be9-TI-INB"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="7Tb-Bq-LhT">
+                    <rect key="frame" x="16" y="0.0" width="382" height="896"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="l9l-sC-CqA">
+                        <size key="itemSize" width="50" height="50"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="uin-Pa-KlU"/>
+                        <outlet property="delegate" destination="-1" id="EkT-DI-xCW"/>
+                    </connections>
+                </collectionView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="J5a-bS-xKN">
+                    <rect key="frame" x="329" y="811" width="60" height="60"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="60" id="ay6-KV-qYb"/>
+                        <constraint firstAttribute="height" constant="60" id="kon-Yl-wIo"/>
+                    </constraints>
+                    <state key="normal" image="icon_shopcar_btn"/>
+                    <state key="highlighted" image="icon_shopcar_btn"/>
+                    <connections>
+                        <action selector="shopCarClick:" destination="-1" eventType="touchUpInside" id="FgJ-br-uw1"/>
+                    </connections>
+                </button>
+                <label hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ern-GI-u7l">
+                    <rect key="frame" x="369" y="815" width="16" height="16"/>
+                    <color key="backgroundColor" red="0.97647058819999999" green="0.34901960780000002" blue="0.2784313725" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="16" id="i4q-qn-y9t"/>
+                        <constraint firstAttribute="height" constant="16" id="xZ9-yM-yZl"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <nil key="highlightedColor"/>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="8"/>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                    </userDefinedRuntimeAttributes>
+                </label>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="7Tb-Bq-LhT" secondAttribute="trailing" constant="16" id="8pm-e2-3Jb"/>
+                <constraint firstAttribute="trailing" secondItem="J5a-bS-xKN" secondAttribute="trailing" constant="25" id="C4w-pg-fRr"/>
+                <constraint firstItem="7Tb-Bq-LhT" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="CTW-cO-dBV"/>
+                <constraint firstItem="7Tb-Bq-LhT" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="16" id="FJk-xP-qhO"/>
+                <constraint firstAttribute="bottom" secondItem="J5a-bS-xKN" secondAttribute="bottom" constant="25" id="OdO-nu-h5S"/>
+                <constraint firstAttribute="bottom" secondItem="7Tb-Bq-LhT" secondAttribute="bottom" id="PbV-W7-UXX"/>
+                <constraint firstItem="Ern-GI-u7l" firstAttribute="top" secondItem="J5a-bS-xKN" secondAttribute="top" constant="4" id="WLR-bg-qci"/>
+                <constraint firstItem="Ern-GI-u7l" firstAttribute="trailing" secondItem="J5a-bS-xKN" secondAttribute="trailing" constant="-4" id="kq0-2n-Lwn"/>
+            </constraints>
+            <point key="canvasLocation" x="132" y="119"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="icon_shopcar_btn" width="60" height="60"/>
+    </resources>
+</document>

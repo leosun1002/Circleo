@@ -1,0 +1,24 @@
+//
+//  MyIncomeAssetVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyIncomeAssetVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet UIView *backview;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *botConst;
+
+@property(nonatomic,assign)long type;//0是usdt 1是cny
+
+@end
+
+NS_ASSUME_NONNULL_END

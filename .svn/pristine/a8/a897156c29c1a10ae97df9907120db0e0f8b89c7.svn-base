@@ -1,0 +1,26 @@
+//
+//  ShopAssetsHomeTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/14.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "ShopAssetModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopAssetsHomeTableViewCell : UITableViewCell
+
+@property (nonatomic,strong) ShopAssetModel *model;
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UILabel *descLabel;
+@property (weak, nonatomic) IBOutlet UILabel *numberLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,35 @@
+//
+//  ShopTraceSourceTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopTraceSourceTableViewCell.h"
+
+@interface ShopTraceSourceTableViewCell ()
+
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+
+@end
+
+@implementation ShopTraceSourceTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.bgview.layer.shadowColor = [UIColor colorWithRGBHex:@"#2D3540"].CGColor;
+    self.bgview.layer.shadowOffset = CGSizeMake(1, 1);
+    self.bgview.layer.shadowRadius = 3.0f;
+    self.bgview.layer.shadowOpacity = 0.1f;
+    [self.bgview.layer setShadowPath:[[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, ksrcwidth - 32, 55)] CGPath]];
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

@@ -1,0 +1,25 @@
+//
+//  MyWebsiteHomeVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/5/20.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyWebsiteHomeVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIView *timeView;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *timeImgV;
+@property (weak, nonatomic) IBOutlet UIView *domainView;
+@property (weak, nonatomic) IBOutlet UILabel *domainLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *domainImgV;
+
+@end
+
+NS_ASSUME_NONNULL_END

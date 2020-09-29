@@ -1,0 +1,102 @@
+//
+//  ShopTraceSourceRecordCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopTraceSourceRecordCell.h"
+
+@interface ShopTraceSourceRecordCell ()
+
+@property (weak, nonatomic) IBOutlet UIView *topView;
+@property (weak, nonatomic) IBOutlet UIImageView *lineView;
+@property (weak, nonatomic) IBOutlet UIView *tqBGview;
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+
+@end
+
+@implementation ShopTraceSourceRecordCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.topView.layer.cornerRadius = 5.0f;
+    self.topView.layer.borderColor = [UIColor colorWithRGBHex:@"#55555E"].CGColor;
+    self.topView.layer.borderWidth = 2.5f;
+    
+    [self drawLineByImageView:self.lineView];
+    [self.bgview bringSubviewToFront:self.tqBGview];
+}
+
+- (void)drawLineByImageView:(UIImageView *)imageView {
+    UIGraphicsBeginImageContext(imageView.frame.size);   //开始画线 划线的frame
+    [imageView.image drawInRect:CGRectMake(0, 0, imageView.frame.size.width, imageView.frame.size.height)];
+    //设置线条终点形状
+    CGContextSetLineCap(UIGraphicsGetCurrentContext(), kCGLineCapRound);
+    
+    CGContextRef line = UIGraphicsGetCurrentContext();
+    // 设置颜色
+    CGContextSetStrokeColorWithColor(line, [UIColor colorWithRGBHex:@"#AAAAB5"].CGColor);
+    
+    
+    CGFloat lengths[] = {5,4};//先画4个点再画2个点
+    CGContextSetLineDash(line,0, lengths,2);//注意2(count)的值等于lengths数组的长度
+    
+    CGContextMoveToPoint(line, imageView.width/2, 0);    //开始画线
+    CGContextAddLineToPoint(line,imageView.width/2, imageView.height);
+    CGContextStrokePath(line);
+    // UIGraphicsGetImageFromCurrentImageContext()返回的就是image
+    UIImage *image =   UIGraphicsGetImageFromCurrentImageContext();
+    imageView.image = image;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(SourceListModel *)model{
+    _model = model;
+    self.nickNameLabel.text = [AssectString(model.userName) isEqualToString:@""]?@"默认昵称":AssectString(model.userName);
+    self.addressLabel.text = model.address;
+    self.typeLabel.text = [self getType:model.types];
+    self.typeNameLabel.text = [NSString stringWithFormat:@"%@地址",[self getType:model.types]];
+    self.timeLabel.text = model.createdAt;
+    self.remarkLabel.text = AssectString(model.note);
+    self.remarkView.hidden = [AssectString(model.note) isEqualToString:@""];
+    
+    CGFloat width = ksrcwidth - 187;
+    self.heightConst.constant = [self getWidthWithText:AssectString(model.address) width:width font:[UIFont fontWithName:@"DINPro-Medium" size:10]];
+}
+
+-(CGFloat)getWidthWithText:(NSString*)text width:(CGFloat)width font:(UIFont *)font{
+    CGRect rect = [text boundingRectWithSize:CGSizeMake(width, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName:font} context:nil];
+    return rect.size.height + 5;
+}
+
+-(NSString *)getType:(long)type{
+    NSString *typeStr = @"0";
+    if (type == 1) {
+        typeStr = @"购买";
+    }else if (type == 2) {
+        typeStr = @"提取";
+    }else if (type == 3) {
+        typeStr = @"二手";
+    }else if (type == 9) {
+        typeStr = @"提货";
+    }else if (type == 0){
+        typeStr = @"商家";
+    }
+    return typeStr;
+}
+
+- (IBAction)copyClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.model.address);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+@end

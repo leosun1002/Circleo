@@ -1,0 +1,28 @@
+//
+//  ArticleHashModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/27.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ArticleHashModel : NSObject
+
+@property(nonatomic,assign) long article_chain_id;
+@property(nonatomic,copy) NSString *hashContent;
+/// 0待上链，1上链中，2上链成功，3上链失败
+@property(nonatomic,assign) long status;
+@property(nonatomic,copy) NSString *miner_fee;
+@property(nonatomic,assign) long packing_time;
+@property(nonatomic,copy) NSString *block_height;
+@property(nonatomic,copy) NSString *block_hash;
+@property(nonatomic,assign) long article_public_chain_id;
+@property(nonatomic,strong) NSDictionary *pivot;
+@property(nonatomic,assign) long hasClick;
+@end
+
+NS_ASSUME_NONNULL_END

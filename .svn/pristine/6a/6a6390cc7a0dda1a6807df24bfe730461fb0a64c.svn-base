@@ -1,0 +1,26 @@
+//
+//  DNSShopBuyTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/28.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSShopBuyTableViewCell.h"
+
+@implementation DNSShopBuyTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.selectBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#5151F0"].CGColor;
+    self.selectBtn.layer.borderWidth = 1.f;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

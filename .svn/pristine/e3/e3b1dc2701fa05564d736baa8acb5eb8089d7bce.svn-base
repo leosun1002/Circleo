@@ -1,0 +1,255 @@
+//
+//  UpdateInfoVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "UpdateInfoVC.h"
+#import "TZImagePickerController.h"
+#import "UpdateResultVC.h"
+
+@interface UpdateInfoVC ()<TZImagePickerControllerDelegate>
+
+@property(nonatomic,assign)long type;//2超级,3创世
+@property(nonatomic,strong)NSString *frontUrl;
+@property(nonatomic,strong)NSString *backUrl;
+
+@end
+
+@implementation UpdateInfoVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+    self.type = 2;
+    WeakSelf(self);
+    [[self.superBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.type == 2) return ;
+        weakself.type = 2;
+    }];
+    [[self.createBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.type == 3) return ;
+        weakself.type = 3;
+    }];
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.phoneText.text = AssectString(userdict[JYPhone]);
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself changUserImageClick:10];
+    }];
+    [self.frontView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself changUserImageClick:11];
+    }];
+    [self.backView addGestureRecognizer:tap2];
+    
+    [[self.nameText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeCheckBtnEnable];
+    }];
+    
+    [[self.cardText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeCheckBtnEnable];
+    }];
+    
+    [[self.codeText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeCheckBtnEnable];
+    }];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        XWCountryCodeController *countryCode = [[XWCountryCodeController alloc] init];
+        countryCode.returnCountryCodeBlock = ^(NSString *countryName, NSString *code) {
+            weakself.areaLabel.text = [NSString stringWithFormat:@"＋%@",[weakself removeSpaceAndNewline:code]];
+        };
+        [weakself.navigationController pushViewController:countryCode animated:YES];
+    }];
+    [self.areaView addGestureRecognizer:tap];
+}
+
+-(void)makeCheckBtnEnable{
+    if (![AssectString([self removeSpaceAndNewline:self.nameText.text]) isEqualToString:@""] && ![AssectString([self removeSpaceAndNewline:self.cardText.text]) isEqualToString:@""] && ![AssectString(self.frontUrl) isEqualToString:@""] && ![AssectString(self.backUrl) isEqualToString:@""]) {
+        self.codeBtn.enabled = YES;
+    }else{
+        self.codeBtn.enabled = NO;
+    }
+    
+    if (![AssectString([self removeSpaceAndNewline:self.nameText.text]) isEqualToString:@""] && ![AssectString([self removeSpaceAndNewline:self.cardText.text]) isEqualToString:@""] && ![AssectString(self.frontUrl) isEqualToString:@""] && ![AssectString(self.backUrl) isEqualToString:@""] && ![AssectString([self removeSpaceAndNewline:self.codeText.text]) isEqualToString:@""]) {
+        self.checkBtn.enabled = YES;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    }else{
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#C2C2C3"];
+    }
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSDictionary *dict = @{@"node_level":[NSString stringWithFormat:@"%ld",self.type],@"full_name":AssectString([self removeSpaceAndNewline:self.nameText.text]),@"id_number":AssectString([self removeSpaceAndNewline:self.cardText.text]),@"positive_image":AssectString(self.frontUrl),@"reverse_side_image":AssectString(self.backUrl),@"area":([self.areaLabel.text containsString:@"＋"]?[self.areaLabel.text stringByReplacingOccurrencesOfString:@"＋" withString:@""]:@""),@"phone":AssectString(userdict[JYPhone]),@"code":AssectString([self removeSpaceAndNewline:self.codeText.text])};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices  postFormReqUrl:UpgradeAgent param:dict loadingTime:12 callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.navigationController popToRootViewControllerAnimated:YES];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+- (IBAction)codeClick:(id)sender {
+    NSString *area = [self.areaLabel.text containsString:@"＋"]?[self.areaLabel.text stringByReplacingOccurrencesOfString:@"＋" withString:@""]:self.areaLabel.text;
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSDictionary *dict = @{@"node_level":[NSString stringWithFormat:@"%ld",self.type],@"full_name":AssectString([self removeSpaceAndNewline:self.nameText.text]),@"id_number":AssectString([self removeSpaceAndNewline:self.cardText.text]),@"positive_image":AssectString(self.frontUrl),@"reverse_side_image":AssectString(self.backUrl),@"area":AssectString(area),@"phone":AssectString([self removeSpaceAndNewline:userdict[JYPhone]])};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices  postFormReqUrl:UpgradeSendCode param:dict loadingTime:12 callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself countDown];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)countDown{
+    __block int timeout=60;//倒计时时间
+    WeakSelf(self);
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_source_t _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+    dispatch_source_set_timer(_timer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+    dispatch_source_set_event_handler(_timer, ^{
+        if(timeout<=0)
+        { //倒计时结束，关闭
+            dispatch_source_cancel(_timer);
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //设置界面的按钮显示 根据自己需求设置
+                [weakself.codeBtn setTitle:NSLocalizedString(@"重发验证码", nil) forState:UIControlStateNormal];
+                weakself.codeBtn.enabled = YES;
+            });
+        }else{
+            int seconds = timeout % 100;
+            NSString *strTime = [NSString stringWithFormat:@"%.2d", seconds];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                //NSLog(@"____%@",strTime);
+                [UIView beginAnimations:nil context:nil];
+                [UIView setAnimationDuration:1];
+                [weakself.codeBtn setTitle:[NSString stringWithFormat:@"%@s",strTime] forState:UIControlStateNormal];
+                [UIView commitAnimations];
+                weakself.codeBtn.enabled = NO;
+            });
+            timeout--;
+        }
+    });
+    dispatch_resume(_timer);
+}
+
+#pragma -mark 上传图片
+-(void)upLoadImage:(UIImage *)image withTag:(NSInteger )tag{
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postImageFormReqUrl:ImageUpload image:image param:@{} loadingTime:30.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                if (tag == 10) {
+                    weakself.frontImage.image = image;
+                    weakself.frontUrl = json[@"data"][@"image_path"];
+                }else{
+                    weakself.backImage.image = image;
+                    weakself.backUrl = json[@"data"][@"image_path"];
+                }
+                [weakself makeCheckBtnEnable];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)changUserImageClick:(NSInteger)tag{
+    TZImagePickerController *imagePC=[[TZImagePickerController alloc]initWithMaxImagesCount:1 delegate:self];//设置多选最多支持的最大数量，设置代理
+    WeakSelf(self);
+    imagePC.modalPresentationStyle = UIModalPresentationFullScreen;
+    imagePC.preferredLanguage = [GDLocalizableController userLanguage];
+    [imagePC setDidFinishPickingPhotosWithInfosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto, NSArray<NSDictionary *> *infos) {
+        UIImage *image = photos[0];
+        [weakself upLoadImage:image withTag:tag];
+    }];
+    [self presentViewController:imagePC animated:YES completion:nil];//跳转
+}
+
+- (UIImage *)compressImage:(UIImage *)sourceImage toTargetWidth:(CGFloat)targetWidth {
+    
+    CGSize imageSize = sourceImage.size;
+    NSLog(@"%@",sourceImage);
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetHeight = (targetWidth / width) * height;
+    UIGraphicsBeginImageContext(CGSizeMake(targetWidth, targetHeight));
+    [sourceImage drawInRect:CGRectMake(0, 0, targetWidth, targetHeight)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+-(void)setType:(long)type{
+    _type = type;
+    if (type == 2) {
+        [self.superBtn setBackgroundImage:[UIImage imageNamed:@"bg_level_sel"] forState:UIControlStateNormal];
+        [self.superBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        self.superBtn.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.superBtn.layer.borderWidth = 1.f;
+        
+        [self.createBtn setBackgroundImage:[UIColor createColorImg:@"#ffffff"] forState:UIControlStateNormal];
+        [self.createBtn setTitleColor:[UIColor colorWithRGBHex:@"#55555D"] forState:UIControlStateNormal];
+        self.createBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#9999A3"].CGColor;
+        self.createBtn.layer.borderWidth = 1.f;
+    }else{
+        [self.createBtn setBackgroundImage:[UIImage imageNamed:@"bg_level_sel"] forState:UIControlStateNormal];
+        [self.createBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        self.createBtn.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.createBtn.layer.borderWidth = 1.f;
+        
+        [self.superBtn setBackgroundImage:[UIColor createColorImg:@"#ffffff"] forState:UIControlStateNormal];
+        [self.superBtn setTitleColor:[UIColor colorWithRGBHex:@"#55555D"] forState:UIControlStateNormal];
+        self.superBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#9999A3"].CGColor;
+        self.superBtn.layer.borderWidth = 1.f;
+    }
+}
+@end

@@ -1,0 +1,73 @@
+//
+//  ShopTraceSourceVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopTraceSourceVC.h"
+#import "ShopTraceSourceTableViewCell.h"
+#import "ShopTraceSourceSelectVC.h"
+#import "ShopTraceSourceRecordVC.h"
+
+@interface ShopTraceSourceVC ()<UITableViewDataSource,UITableViewDelegate>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIView *selectBgview;
+
+@end
+
+@implementation ShopTraceSourceVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#323236"];
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopTraceSourceTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopTraceSourceTableViewCell"];
+    
+    self.selectBgview.layer.shadowColor = [UIColor colorWithRGBHex:@"#2D3540"].CGColor;
+    self.selectBgview.layer.shadowOffset = CGSizeMake(1, 1);
+    self.selectBgview.layer.shadowRadius = 3.0f;
+    self.selectBgview.layer.shadowOpacity = 0.1f;
+    [self.selectBgview.layer setShadowPath:[[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, ksrcwidth - 32, 55)] CGPath]];
+}
+
+- (IBAction)typeClick:(id)sender {
+    ShopTraceSourceSelectVC *selectVc = [[ShopTraceSourceSelectVC alloc] init];
+    selectVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    [self presentViewController:selectVc animated:NO completion:^{
+        
+    }];
+}
+
+- (IBAction)timeClick:(id)sender {
+    ShopTraceSourceSelectVC *selectVc = [[ShopTraceSourceSelectVC alloc] init];
+    selectVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    [self presentViewController:selectVc animated:NO completion:^{
+        
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopTraceSourceTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopTraceSourceTableViewCell"];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopTraceSourceRecordVC *source = [[ShopTraceSourceRecordVC alloc] init];
+    [self.navigationController pushViewController:source animated:YES];
+}
+@end

@@ -1,0 +1,231 @@
+//
+//  CNYPullOutVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "CNYPullOutVC.h"
+#import "BankCardListVC.h"
+#import "BankCardModel.h"
+#import "PayResultVC.h"
+#import "TransPswInputVC.h"
+#import "PersonAssetsVC.h"
+
+@interface CNYPullOutVC ()<UITextViewDelegate>
+
+@property(nonatomic,strong)NSString *cnyYe;
+@property(nonatomic,assign)long cardid;
+
+@property(nonatomic,strong)NSString *minWithdraw;
+@property(nonatomic,strong)NSString *maxWithdraw;
+
+@end
+
+@implementation CNYPullOutVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"CNY提现", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self getData];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    if(@available(iOS 13.0, *)){
+        self.pullText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.pullText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+        self.sxfText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.sxfText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+        self.dztext.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.dztext.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    }else{
+        [self.pullText setValue:[UIColor colorWithRGBHex:@"#AAAAB5"] forKeyPath:@"_placeholderLabel.textColor"];
+        [self.pullText setValue:[UIFont systemFontOfSize:12] forKeyPath:@"_placeholderLabel.font"];
+        
+        [self.sxfText setValue:[UIColor colorWithRGBHex:@"#AAAAB5"] forKeyPath:@"_placeholderLabel.textColor"];
+        [self.sxfText setValue:[UIFont systemFontOfSize:12] forKeyPath:@"_placeholderLabel.font"];
+        
+        [self.dztext setValue:[UIColor colorWithRGBHex:@"#AAAAB5"] forKeyPath:@"_placeholderLabel.textColor"];
+        [self.dztext setValue:[UIFont systemFontOfSize:12] forKeyPath:@"_placeholderLabel.font"];
+    }
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself selectCardClick];
+    }];
+    [weakself.topBgview addGestureRecognizer:tap];
+    [[self.pullText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        NSString *pull = [weakself.pullText PreciseFigures:2];
+        weakself.pullText.text = pull;
+        [weakself calculateCount];
+        [weakself makeBtnEnable];
+    }];
+    [[self.checkBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        TransPswInputVC *psw = [[TransPswInputVC alloc] init];
+        psw.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        psw.subject = [RACSubject subject];
+        [psw.subject subscribeNext:^(NSString *psw) {
+            [weakself checkClick:psw];
+        }];
+        [weakself presentViewController:psw animated:NO completion:^{
+            
+        }];
+    }];
+    [self setData];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getUserInfo];
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [self dismissLoading];
+}
+
+- (IBAction)allClick:(id)sender {
+    self.pullText.text = self.cnyYe;
+    [self calculateCount];
+    [self makeBtnEnable];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself setData];
+            }
+        }
+    }];
+}
+
+-(void)setData{
+    NSDictionary *userDict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.cnyYe = AssectNumber(userDict[JYCnyMoney]);
+    NSString *placeholder = [NSString stringWithFormat:NSLocalizedString(@"当前可提 %@", nil),self.cnyYe];
+    self.pullText.placeholder = placeholder;
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:DomainPaymentFee param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.sxfText.text = AssectNumber(json[@"data"][@"cny_payment_fee"]);
+                weakself.minWithdraw = AssectNumber(json[@"data"][@"cny_minimum_withdrawal"]);
+                weakself.maxWithdraw = AssectNumber(json[@"data"][@"cny_highest_withdrawal"]);
+                NSString *tipStr = [NSString stringWithFormat:NSLocalizedString(@"注：手续费为%@CNY，最低提现金额%@CNY，最高为%@CNY额度。预计1-2个工作日到账！", nil),AssectNumber(json[@"data"][@"cny_payment_fee"]),weakself.minWithdraw,weakself.maxWithdraw];
+                weakself.tipLabel.text = tipStr;
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)checkClick:(NSString *)psw{
+    NSString *pull = AssectNumber(self.pullText.text);
+    NSString *sxf = AssectNumber(self.sxfText.text);
+    NSString *dz = AssectNumber(self.dztext.text);
+    
+    if ([pull doubleValue] < [self.minWithdraw doubleValue]) {
+        [self showMsg:[NSString stringWithFormat:NSLocalizedString(@"最低提币数量为%@", nil),self.minWithdraw] location:centre];
+        return;
+    }
+       
+    if ([pull doubleValue] > [self.maxWithdraw doubleValue]) {
+        [self showMsg:[NSString stringWithFormat:NSLocalizedString(@"最高提币数量为%@", nil),self.maxWithdraw] location:centre];
+        return;
+    }
+    
+    NSArray *datas = [NSArray arrayWithObjects:@{@"bank_card_id":[NSString stringWithFormat:@"%ld",self.cardid]},@{@"withdrawal_money":pull},@{@"payment_fee":sxf},@{@"actual_money":dz},@{@"remark":self.remarkText.text},@{@"type":@"1"},@{@"pay_password":[psw md532BitUpper]}, nil];
+    NSDictionary *dict = [SignGenerated signedAfterDic:datas];
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:Withdrawal param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                PayResultVC *result = [[PayResultVC alloc] init];
+                result.type = 2;
+                result.modalPresentationStyle = UIModalPresentationFullScreen;
+                result.subject = [RACSubject subject];
+                [result.subject subscribeNext:^(id x) {
+                    [weakself popToVC:@"PersonAssetsVC"];
+                }];
+                [weakself presentViewController:result animated:YES completion:^{
+                    
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+- (void)selectCardClick{
+    BankCardListVC *cardList = [[BankCardListVC alloc] init];
+    cardList.subject = [RACSubject subject];
+    WeakSelf(self);
+    [cardList.subject subscribeNext:^(BankCardModel *model) {
+        weakself.cardid = model.cardid;
+        weakself.cardSelectview.hidden = ![AssectString(model.name) isEqualToString:@""];
+        weakself.nameLabel.text = model.name;
+        weakself.cardNumLabel.text = model.card_number;
+        weakself.bankLabel.text = model.bank_name;
+        [weakself makeBtnEnable];
+    }];
+    [self.navigationController pushViewController:cardList animated:YES];
+}
+
+-(void)calculateCount{
+    NSString *pull = AssectNumber(self.pullText.text);
+    NSString *sxf = AssectNumber(self.sxfText.text);
+    if ([pull doubleValue] <= [sxf doubleValue]) {
+        self.dztext.text = @"0.00";
+        return;
+    }
+    self.dztext.text = [GaoJingDu jian:@[pull,sxf] jindu:@"2"];
+}
+
+-(void)makeBtnEnable{
+    NSString *dz = self.dztext.text;
+    if ([dz doubleValue] > 0 && self.cardSelectview.hidden) {
+        self.checkBtn.enabled = YES;
+        self.checkBtn.alpha = 1.f;
+    }else{
+        self.checkBtn.enabled = NO;
+        self.checkBtn.alpha = 0.7;
+    }
+}
+
+#pragma -mark UITextViewDelegate
+-(void)textViewDidChange:(UITextView *)textView{
+    self.remarkLabel.hidden = textView.text.length != 0;
+}
+
+-(void)popToVC:(NSString* )vcStr{
+    for (UIViewController *controller in self.navigationController.viewControllers) {
+        if([controller isKindOfClass:NSClassFromString(vcStr)]){
+            PersonAssetsVC *asset = (PersonAssetsVC *)controller;
+            [self.navigationController popToViewController:asset animated:NO];
+            [asset refreshFromOtherPage];
+            break;
+        }
+    }
+}
+@end

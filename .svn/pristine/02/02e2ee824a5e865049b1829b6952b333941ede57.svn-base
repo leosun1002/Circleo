@@ -1,0 +1,148 @@
+//
+//  MallDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallDetailVC.h"
+#import "MallDetailHeader.h"
+#import "MallDetailTableViewCell.h"
+#import "ShopDetailModel.h"
+#import "MallDetailChainDataVC.h"
+#import "MallDataSpecsVC.h"
+#import "MallCheckOrderVC.h"
+
+@interface MallDetailVC ()<UITableViewDataSource,UITableViewDelegate>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property(nonatomic,strong)ShopDetailModel *detailModel;
+@property(nonatomic,strong)NSMutableAttributedString *contentStr;
+@property(nonatomic,assign)CGFloat height;
+@property (weak, nonatomic) IBOutlet UIView *countBgView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *botHeightConst;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+
+@end
+
+@implementation MallDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self getData];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    if (IS_IPHONEX) {
+        self.botHeightConst.constant += 20;
+    }
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallDetailTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallDetailTableViewCell"];
+    
+    self.countBgView.layer.cornerRadius = 20.0f;
+    self.countBgView.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.countBgView.layer.borderWidth = 0.5f;
+}
+
+- (IBAction)checkClick:(id)sender {
+    MallCheckOrderVC *check = [[MallCheckOrderVC alloc] init];
+    check.detail = self.detailModel;
+    check.count = self.countLabel.text;
+    check.big_image = self.model.big_image;
+    [self.navigationController pushViewController:check animated:YES];
+}
+
+- (IBAction)minusClick:(id)sender {
+    NSString *countStr = self.countLabel.text;
+    if ([countStr intValue] <= 1) return;
+    self.countLabel.text = [NSString stringWithFormat:@"%d",[countStr intValue] - 1];
+}
+
+- (IBAction)addClick:(id)sender {
+    self.countLabel.text = [NSString stringWithFormat:@"%d",[self.countLabel.text intValue] + 1];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 255 + 0.5 + 86 + 48.5*3 + 5 + 62.5;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    MallDetailHeader *header = [[MallDetailHeader alloc] init];
+    header.detailModel = self.detailModel;
+    WeakSelf(self);
+    [[header.canshuBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        MallDetailChainDataVC *chainData = [[MallDetailChainDataVC alloc] init];
+        chainData.chainId = weakself.detailModel.detailId;
+        [weakself.navigationController pushViewController:chainData animated:YES];
+    }];
+    [[header.guigeBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        return ;
+        MallDataSpecsVC *specs = [[MallDataSpecsVC alloc] init];
+        specs.modalPresentationStyle = UIModalPresentationFullScreen;
+        [weakself presentViewController:specs animated:YES completion:^{
+            
+        }];
+    }];
+    return header;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return UITableViewAutomaticDimension;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallDetailTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallDetailTableViewCell"];
+    cell.contentLabel.attributedText = self.contentStr;
+    return cell;
+}
+
+-(void)getData{
+    NSDictionary *dict = @{@"id":[NSString stringWithFormat:@"%ld",self.model.secondid]};
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices postFormReqUrl:SecondGoodDetail param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                weakself.detailModel = [ShopDetailModel mj_objectWithKeyValues:json[@"data"]];
+                [weakself setHtmlStr:AssectString(weakself.detailModel.content)];
+                [weakself.tableview reloadData];
+                return ;
+            }
+        }
+        [weakself showErrorView:weakself.view withBlock:^{
+            [weakself getData];
+        }];
+    }];
+}
+
+
+-(void)setHtmlStr:(NSString *)htmlStr{
+    NSString *detailTextString = [NSString stringWithFormat:@"%@",htmlStr];
+    NSString *str = [NSString stringWithFormat:@"<head><style>img{width:%f !important;height:auto}</style></head>%@",ksrcwidth - 20,detailTextString];
+    NSMutableAttributedString *attributeString = [[NSMutableAttributedString alloc]initWithData:[str dataUsingEncoding:NSUnicodeStringEncoding] options:@{NSDocumentTypeDocumentAttribute: NSHTMLTextDocumentType} documentAttributes:nil error:nil];
+    self.contentStr = attributeString;
+}
+@end

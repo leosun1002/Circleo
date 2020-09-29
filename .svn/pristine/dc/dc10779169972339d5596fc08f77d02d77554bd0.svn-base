@@ -1,0 +1,57 @@
+//
+//  DNSManageCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSManageCell.h"
+
+@implementation DNSManageCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(DNSManageModel *)model{
+    _model = model;
+    self.nameLabel.text = model.domain_name;
+    self.endLabel.text = model.end_time;
+    self.frozenLabel.text = NSLocalizedString(@"挂卖冻结中", nil);
+    //0未到期，1要到期了
+    if (model.is_expire == 1) {
+        self.endLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+    }else{
+        self.endLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    }
+    
+    //0未绑定，1已绑定
+    if (model.is_bind == 1) {
+        self.bindview.hidden = NO;
+        self.unbindview.hidden = YES;
+    }else{
+        self.bindview.hidden = YES;
+        self.unbindview.hidden = NO;
+    }
+    self.bindNum.text = [NSString stringWithFormat:@"%ld",model.count];
+    //0未冻结，1已冻结
+    if (model.is_frozen == 0) {
+        self.opereateBtn.hidden = NO;
+        self.frozenLabel.hidden = YES;
+    }else{
+        self.opereateBtn.hidden = YES;
+        self.frozenLabel.hidden = NO;
+    }
+}
+
+
+
+@end

@@ -1,0 +1,34 @@
+//
+//  DNSSellFilterVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "DNSFilterModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSSellFilterVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UIButton *resetBtn;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UIView *hzview;
+@property (weak, nonatomic) IBOutlet UILabel *hzLabel;
+@property (weak, nonatomic) IBOutlet UIView *priceview;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UIView *lengview;
+@property (weak, nonatomic) IBOutlet UILabel *lengLabel;
+@property (weak, nonatomic) IBOutlet UIView *daysview;
+@property (weak, nonatomic) IBOutlet UILabel *daysLabel;
+@property (weak, nonatomic) IBOutlet UIView *tradeview;
+@property (weak, nonatomic) IBOutlet UILabel *tradeLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) DNSFilterModel *filterModel;
+@property (strong, nonatomic) RACSubject *subject;
+
+@end
+
+NS_ASSUME_NONNULL_END

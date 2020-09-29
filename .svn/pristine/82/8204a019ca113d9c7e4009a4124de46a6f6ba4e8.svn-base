@@ -1,0 +1,41 @@
+//
+//  DNSBindModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+@interface PivotModel : NSObject
+
+@property(nonatomic,assign) long domain_name_id;
+@property(nonatomic,assign) long public_chain_id;
+@property(nonatomic,assign) long user_id;
+@property(nonatomic,strong) NSString *wallet_address;
+@property(nonatomic,assign) long status;
+@property(nonatomic,assign) long pivotid;
+@property(nonatomic,strong) NSString *created_at;
+@property(nonatomic,strong) NSString *updated_at;
+@property(nonatomic,strong) NSString *remark;
+
+@end
+
+@interface DNSBindModel : NSObject
+
+@property(nonatomic,assign) long bindid;
+@property(nonatomic,copy) NSString *name;
+@property(nonatomic,copy) NSString *name_simple;
+@property(nonatomic,copy) NSString *log_image;
+@property(nonatomic,assign) long status;
+@property(nonatomic,assign) BOOL hasClick;
+@property(nonatomic,copy) NSString *create_time;
+@property(nonatomic,copy) NSString *created_at;
+@property(nonatomic,copy) NSString *updated_at;
+@property(nonatomic,strong) PivotModel *pivot;
+
+@end
+
+NS_ASSUME_NONNULL_END

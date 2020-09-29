@@ -1,0 +1,25 @@
+//
+//  WebDomainBindModel.m
+//  ScmProject
+//
+//  Created by leosun on 2020/6/6.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebDomainBindModel.h"
+
+@implementation WebDomainBindNameModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"domain_id":@"id"};
+}
+
+@end
+
+@implementation WebDomainBindModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"website_id":@"id"};
+}
+
+@end

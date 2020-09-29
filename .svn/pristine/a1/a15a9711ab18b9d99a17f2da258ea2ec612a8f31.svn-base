@@ -1,0 +1,25 @@
+//
+//  DNSSellSelectChildVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSSellSelectChildVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (assign, nonatomic) NSInteger type;
+@property (strong, nonatomic) RACSubject *subject;
+/// 0选择挂卖域名  1选择发布域名
+@property(nonatomic,assign)long pageType;
+@property(nonatomic,strong)NSString *selectStr;
+
+-(void)refreshData;
+
+@end
+
+NS_ASSUME_NONNULL_END

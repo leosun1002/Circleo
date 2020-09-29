@@ -1,0 +1,48 @@
+//
+//  CardCouponModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/11.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface LimitationModel : NSObject
+
+@property(nonatomic,assign) long limitationid;
+@property(nonatomic,copy) NSString *language;
+@property(nonatomic,copy) NSString *updated_at;
+@property(nonatomic,copy) NSString *name;
+
+@end
+
+@interface CardCouponModel : NSObject
+
+@property(nonatomic,assign) long counponid;
+/// 0未使用，1已使用，2已过期
+@property(nonatomic,assign) long status;
+@property(nonatomic,assign) long parent_id;
+@property(nonatomic,copy) NSString *created_at;
+@property(nonatomic,assign) long user_id;
+@property(nonatomic,copy) NSString *start_time;
+/// 1 CNY，2 USDT
+@property(nonatomic,assign) long money_type;
+@property(nonatomic,copy) NSString *price;
+@property(nonatomic,copy) NSString *used_price;
+@property(nonatomic,copy) NSString *updated_at;
+@property(nonatomic,copy) NSString *end_time;
+/// 0可赠送，1不可赠送（未使用）
+@property(nonatomic,assign) long gift_status;
+@property(nonatomic,copy) NSString *name;
+/// cover_id 为0已使用   不为0已赠送（已使用）
+@property(nonatomic,assign) long cover_id;
+
+@property(nonatomic,strong) NSMutableArray <LimitationModel *> *limitations;
+@property(nonatomic,assign) long hasExpend;
+
+@end
+
+NS_ASSUME_NONNULL_END

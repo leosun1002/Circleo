@@ -1,0 +1,156 @@
+//
+//  MallCatrgoryListVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallCatrgoryListVC.h"
+#import "SGPageTitleView.h"
+#import "SGPageTitleViewConfigure.h"
+#import "SGPageContentScrollView.h"
+#import "MallCatrgoryListChildVC.h"
+#import "MallSearchResultVC.h"
+
+@interface MallCatrgoryListVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate>
+
+@property(nonatomic,weak)SGPageContentScrollView *mPageContentScrollView;
+@property(nonatomic,weak)SGPageTitleView *mPageTitleView;
+
+@property(nonatomic,assign)NSInteger selectedPage;
+@property(nonatomic,strong)NSMutableArray *vcs;
+@property(nonatomic,copy)NSArray *titles;
+
+
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *topImgV;
+
+@end
+
+@implementation MallCatrgoryListVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    if (IS_IPHONEX) {
+        self.topConst.constant += 24;
+        self.heightConst.constant += 24;
+    }
+    self.selectedPage = 0;
+    [self loadVCs];
+    [self prepareUi];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)searchClick:(id)sender {
+    MallSearchResultVC *result = [[MallSearchResultVC alloc] init];
+    result.good_one_category_id = [NSString stringWithFormat:@"%ld",self.homeModel.listId];
+    [self.navigationController pushViewController:result animated:YES];
+
+}
+
+-(void)prepareUi{
+    self.nameLabel.text = self.homeModel.name;
+    if (self.homeModel.good_two_categorys.count > 0) {
+        [self.topImgV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.homeModel.good_two_categorys[0].image_address)]];
+    }
+    
+    [self.mPageContentScrollView removeFromSuperview];
+    [self.mPageTitleView removeFromSuperview];
+    
+    //配置容器
+    SGPageTitleViewConfigure *configure = [SGPageTitleViewConfigure pageTitleViewConfigure];
+    configure.titleGradientEffect = YES;
+    configure.indicatorFixedWidth = 25.f;
+    configure.indicatorStyle = SGIndicatorStyleFixed;
+    configure.indicatorColor = [UIColor colorWithRGBHex:@"#323236"];
+    configure.indicatorHeight = 2.0f;
+    configure.titleSelectedColor = [UIColor colorWithRGBHex:@"#323236"];
+    configure.titleSelectedFont = [UIFont systemFontOfSize:12 weight:(UIFontWeightSemibold)];
+    configure.titleColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    configure.titleFont = [UIFont systemFontOfSize:12 weight:(UIFontWeightSemibold)];
+    configure.showBottomSeparator = YES;
+    configure.bottomSeparatorColor = [UIColor colorWithRGBHex:@"#E6E9ED"];
+    
+    CGFloat height = IS_IPHONEX?224:200;
+    
+    //顶部Title数据源
+    SGPageTitleView *pageTitleView = [SGPageTitleView pageTitleViewWithFrame:CGRectMake(0, height, ksrcwidth, 45) delegate:self titleNames:self.titles configure:configure];
+    pageTitleView.backgroundColor = [UIColor whiteColor];
+    _mPageTitleView = pageTitleView;
+    pageTitleView.selectedIndex = self.selectedPage;
+    [self.view addSubview:pageTitleView];
+    
+    SGPageContentScrollView *pageContentScrollView = [[SGPageContentScrollView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(pageTitleView.frame),ksrcwidth,ksrcheight - CGRectGetMaxY(pageTitleView.frame)) parentVC:self childVCs:[self.vcs copy]];
+    pageContentScrollView.delegatePageContentScrollView = self;
+    pageContentScrollView.isAnimated = NO;
+    pageContentScrollView.backgroundColor = [UIColor whiteColor];
+    _mPageContentScrollView = pageContentScrollView;
+    [self.view addSubview:pageContentScrollView];
+    for (int b=0; b<self.vcs.count; b++) {//全部加载出来
+        [pageContentScrollView setPageContentScrollViewCurrentIndex:b];
+    }
+    pageTitleView.selectedIndex = self.selectedPage;
+    [pageContentScrollView setPageContentScrollViewCurrentIndex:self.selectedPage];
+}
+
+-(void)loadVCs{
+    self.titles = [self.homeModel.good_two_categorys valueForKey:@"name"];
+    for (int i = 0; i<self.titles.count; i++) {
+        MallCatrgoryListChildVC *childVc = [[MallCatrgoryListChildVC alloc] init];
+        childVc.navigation = self.navigationController;
+        childVc.firstId = self.homeModel.listId;
+        childVc.secondModel = self.homeModel.good_two_categorys[i];
+        [self.vcs addObject:childVc];
+    }
+}
+
+//顶部title切换完成调用
+- (void)pageTitleView:(SGPageTitleView *)pageTitleView selectedIndex:(NSInteger)selectedIndex{
+    [_mPageContentScrollView setPageContentScrollViewCurrentIndex:selectedIndex];
+    self.selectedPage=selectedIndex;
+    MallCatrgoryListChildVC *childVc = self.vcs[self.selectedPage];
+    [childVc getData];
+    if (self.homeModel.good_two_categorys.count > self.selectedPage)
+        [self.topImgV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.homeModel.good_two_categorys[self.selectedPage].image_address)]];
+}
+
+//内容区域滚动后调用
+-(void)scrollCompleteDeleate:(NSInteger)index{
+    self.selectedPage=index;
+}
+
+- (void)pageContentScrollView:(SGPageContentScrollView *)pageContentScrollView progress:(CGFloat)progress originalIndex:(NSInteger)originalIndex targetIndex:(NSInteger)targetIndex {
+    [_mPageTitleView setPageTitleViewWithProgress:progress originalIndex:originalIndex targetIndex:targetIndex];
+}
+
+- (void)pageContentScrollView:(SGPageContentScrollView *)pageContentScrollView index:(NSInteger)index{
+    NSLog(@"点击%ld",(long)index);
+}
+
+-(void)pageContentScrollViewDidEndDecelerating:(SGPageContentScrollView *)pageContentScrollView index:(NSInteger)index{
+    self.selectedPage=index;
+    MallCatrgoryListChildVC *childVc = self.vcs[self.selectedPage];
+    [childVc getData];
+    if (self.homeModel.good_two_categorys.count > self.selectedPage)
+        [self.topImgV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.homeModel.good_two_categorys[self.selectedPage].image_address)]];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)vcs{
+    if (!_vcs) {
+        _vcs = [NSMutableArray array];
+    }
+    return _vcs;
+}
+
+-(NSArray *)titles{
+    if (!_titles) {
+        _titles = [NSArray array];
+    }
+    return _titles;
+}
+@end

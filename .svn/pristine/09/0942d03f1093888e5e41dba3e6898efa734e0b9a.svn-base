@@ -1,0 +1,25 @@
+//
+//  ShopChainModel.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopChainModel.h"
+
+@implementation ShopChainListModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"listId":@"id"};
+}
+
+@end
+
+@implementation ShopChainModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"chainId":@"id"};
+}
+
+@end

@@ -1,0 +1,156 @@
+//
+//  MallMyFuelVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallMyFuelVC.h"
+#import "SGPageTitleView.h"
+#import "SGPageTitleViewConfigure.h"
+#import "SGPageContentScrollView.h"
+#import "MallMyFuelChildVC.h"
+
+@interface MallMyFuelVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate>
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heigthConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *midBgview;
+
+@property(nonatomic,weak)SGPageContentScrollView *mPageContentScrollView;
+@property(nonatomic,weak)SGPageTitleView *mPageTitleView;
+
+@property(nonatomic,assign)NSInteger selectedPage;
+@property(nonatomic,strong)NSMutableArray *vcs;
+@property(nonatomic,copy)NSArray *titles;
+
+@property (weak, nonatomic) IBOutlet UILabel *yeLabel;
+
+@end
+
+@implementation MallMyFuelVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    if (IS_IPHONEX) {
+        self.heigthConst.constant += 24;
+        self.topConst.constant += 24;
+    }
+    self.selectedPage = 0;
+    [self loadVCs];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getFuel];
+}
+
+-(void)getFuel{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:GetMyFuel param:@{} loadingTime:12.0f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.yeLabel.text = AssectString(json[@"data"][@"my_fuel"]);
+            }
+        }
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    [self.mPageContentScrollView removeFromSuperview];
+    [self.mPageTitleView removeFromSuperview];
+    
+    //配置容器
+    SGPageTitleViewConfigure *configure = [SGPageTitleViewConfigure pageTitleViewConfigure];
+    configure.titleGradientEffect = YES;
+    configure.indicatorFixedWidth = 25.f;
+    configure.indicatorStyle = SGIndicatorStyleFixed;
+    configure.indicatorColor = [UIColor colorWithRGBHex:@"#323236"];
+    configure.indicatorHeight = 2.0f;
+    configure.titleSelectedColor = [UIColor colorWithRGBHex:@"#323236"];
+    configure.titleSelectedFont = [UIFont systemFontOfSize:12 weight:(UIFontWeightSemibold)];
+    configure.titleColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    configure.titleFont = [UIFont systemFontOfSize:12 weight:(UIFontWeightSemibold)];
+    configure.showBottomSeparator = YES;
+    configure.bottomSeparatorColor = [UIColor colorWithRGBHex:@"#EEEFEE"];
+    //顶部Title数据源
+    SGPageTitleView *pageTitleView = [SGPageTitleView pageTitleViewWithFrame:CGRectMake(0, 0, ksrcwidth, 45) delegate:self titleNames:self.titles configure:configure];
+    pageTitleView.backgroundColor = [UIColor whiteColor];
+    _mPageTitleView = pageTitleView;
+    pageTitleView.selectedIndex = self.selectedPage;
+    [self.midBgview addSubview:pageTitleView];
+    
+    CGFloat height = IS_IPHONEX?210+24:210;
+    SGPageContentScrollView *pageContentScrollView = [[SGPageContentScrollView alloc] initWithFrame:CGRectMake(0, 45,ksrcwidth,ksrcheight - height - 45) parentVC:self childVCs:[self.vcs copy]];
+    pageContentScrollView.delegatePageContentScrollView = self;
+    pageContentScrollView.isAnimated = NO;
+    pageContentScrollView.backgroundColor = [UIColor whiteColor];
+    _mPageContentScrollView = pageContentScrollView;
+    [self.midBgview addSubview:pageContentScrollView];
+    for (int b=0; b<self.vcs.count; b++) {//全部加载出来
+        [pageContentScrollView setPageContentScrollViewCurrentIndex:b];
+    }
+    pageTitleView.selectedIndex = self.selectedPage;
+    [pageContentScrollView setPageContentScrollViewCurrentIndex:self.selectedPage];
+}
+
+-(void)loadVCs{
+    for (int i = 0; i<self.titles.count; i++) {
+        MallMyFuelChildVC *childVc = [[MallMyFuelChildVC alloc] init];
+        childVc.navigation = self.navigationController;
+        childVc.selectedPage = i;
+        [self.vcs addObject:childVc];
+    }
+}
+
+//顶部title切换完成调用
+- (void)pageTitleView:(SGPageTitleView *)pageTitleView selectedIndex:(NSInteger)selectedIndex{
+    [_mPageContentScrollView setPageContentScrollViewCurrentIndex:selectedIndex];
+    self.selectedPage=selectedIndex;
+    MallMyFuelChildVC *childVc = self.vcs[self.selectedPage];
+    [childVc getData];
+
+}
+
+//内容区域滚动后调用
+-(void)scrollCompleteDeleate:(NSInteger)index{
+    self.selectedPage=index;
+}
+
+- (void)pageContentScrollView:(SGPageContentScrollView *)pageContentScrollView progress:(CGFloat)progress originalIndex:(NSInteger)originalIndex targetIndex:(NSInteger)targetIndex {
+    [_mPageTitleView setPageTitleViewWithProgress:progress originalIndex:originalIndex targetIndex:targetIndex];
+}
+
+- (void)pageContentScrollView:(SGPageContentScrollView *)pageContentScrollView index:(NSInteger)index{
+    NSLog(@"点击%ld",(long)index);
+}
+
+-(void)pageContentScrollViewDidEndDecelerating:(SGPageContentScrollView *)pageContentScrollView index:(NSInteger)index{
+    NSLog(@"滚动%ld",(long)index);
+    self.selectedPage=index;
+    MallMyFuelChildVC *childVc = self.vcs[self.selectedPage];
+    [childVc getData];
+
+}
+
+#pragma -mark getter
+-(NSMutableArray *)vcs{
+    if (!_vcs) {
+        _vcs = [NSMutableArray array];
+    }
+    return _vcs;
+}
+
+-(NSArray *)titles{
+    if (!_titles) {
+        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"全部", nil),NSLocalizedString(@"收入", nil),NSLocalizedString(@"支出", nil), nil];
+    }
+    return _titles;
+}
+@end

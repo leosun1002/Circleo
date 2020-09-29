@@ -1,0 +1,41 @@
+//
+//  WebsiteDetailModel.m
+//  ScmProject
+//
+//  Created by leosun on 2020/6/4.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebsiteDetailModel.h"
+
+@implementation WebsiteCarouselsModel
+
+@end
+
+@implementation WebsiteDomainModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"domain_id":@"id"};
+}
+
+@end
+
+@implementation WebsiteTemplateModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"templateId":@"id"};
+}
+
+@end
+
+@implementation WebsiteDetailModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"website_id":@"id"};
+}
+
++(NSDictionary *)mj_objectClassInArray{
+    return @{@"website_carousels":@"WebsiteCarouselsModel",@"website_category_navigations":@"WebsiteNavigationModel"};//前边，是属性数组的名字，后边就是类名
+}
+
+@end

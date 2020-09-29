@@ -1,0 +1,165 @@
+//
+//  WebSiteDomainUnbindVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/6/6.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebSiteDomainUnbindVC.h"
+#import "WebDomainBindModel.h"
+#import "BrowserDNListTableViewCell.h"
+
+@interface WebSiteDomainUnbindVC ()<UITableViewDataSource,UITableViewDelegate,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong) NSMutableArray *datas;
+
+@end
+
+@implementation WebSiteDomainUnbindVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"BrowserDNListTableViewCell" bundle:nil] forCellReuseIdentifier:@"BrowserDNListTableViewCell"];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)refreshData{
+    [self getData:YES];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"page":[NSString stringWithFormat:@"%ld",(long)page],@"website_id":[NSString stringWithFormat:@"%ld",self.website_id]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:WebsiteOneDomainList param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<WebDomainBindModel *> *applicationList = [WebDomainBindModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself calculateCount];
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无域名", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    BrowserDNListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BrowserDNListTableViewCell"];
+    WebDomainBindModel *model = self.datas[indexPath.row];
+    cell.nameLabel.text = AssectString(model.domain_name.domain_name);
+    cell.delBtn.hidden = YES;
+    cell.imageV.hidden = NO;
+    cell.imageV.image = model.type == 1?[UIImage imageNamed:@"console_select"]:[UIImage imageNamed:@"console_unselect"];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    WebDomainBindModel *model = self.datas[indexPath.row];
+    model.type = model.type == 1?0:1;
+    [self.tableview reloadRowsAtIndexPaths:[NSArray arrayWithObjects:indexPath,nil] withRowAnimation:UITableViewRowAnimationNone];
+    [self calculateCount];
+}
+
+-(void)calculateCount{
+    self.allLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count];
+    int selectCout = 0;
+    for (WebDomainBindModel *model in self.datas) {
+        if (model.type == 1) selectCout ++;
+    }
+    self.selectLabel.text = [NSString stringWithFormat:@"%d",selectCout];
+    self.allBtn.selected = self.datas.count != 0 && self.datas.count == selectCout;
+    self.checkBtn.enabled = selectCout != 0;
+    self.checkBtn.alpha = selectCout == 0?0.7:1;
+}
+
+- (IBAction)allClick:(id)sender {
+    if (self.datas.count == 0) return;
+    for (WebDomainBindModel *model in self.datas) {
+        model.type = self.allBtn.selected?0:1;
+    }
+    [self.tableview cyl_reloadData];
+    [self calculateCount];
+}
+
+- (IBAction)checkClick:(id)sender {
+    if (self.datas.count == 0) return;
+    NSString *domain_name_ids = @"";
+    for (WebDomainBindModel *model in self.datas) {
+        if (model.type == 1) {
+            long domainid = model.domain_name.domain_id;
+            domain_name_ids = [domain_name_ids stringByAppendingFormat:@"%@", [NSString stringWithFormat:@"%ld,",domainid]];
+        }
+    }
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    NSDictionary *dict = @{@"domain_name_ids":[domain_name_ids containsString:@","]?[domain_name_ids substringToIndex:domain_name_ids.length - 1]:domain_name_ids,@"website_id":[NSString stringWithFormat:@"%ld",self.website_id]};
+    self.checkBtn.enabled = NO;
+    WeakSelf(self);
+    [WebServices postFormReqUrl:WebsiteUnbindDomain param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.tableview.mj_header beginRefreshing];
+                [weakself.subject sendNext:@""];
+            }else{
+                weakself.checkBtn.enabled = YES;
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            weakself.checkBtn.enabled = YES;
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(UIView *)listView{
+    return self.view;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

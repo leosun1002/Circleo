@@ -1,0 +1,16 @@
+//
+//  MessageModel.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MessageModel.h"
+
+@implementation MessageModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"messageId":@"id"};
+}
+@end

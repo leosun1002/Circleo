@@ -1,0 +1,138 @@
+//
+//  DNSDetailChildView.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AgentChildView.h"
+#import "MyTeamTableViewCell.h"
+#import "EmptyTableViewCell.h"
+
+@interface AgentChildView (){
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+
+@end
+
+@implementation AgentChildView
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor whiteColor];
+        [self addSubview:self.tableview];
+        [self.tableview registerNib:[UINib nibWithNibName:@"MyTeamTableViewCell" bundle:nil] forCellReuseIdentifier:@"MyTeamTableViewCell"];
+        [self.tableview registerNib:[UINib nibWithNibName:@"EmptyTableViewCell" bundle:nil] forCellReuseIdentifier:@"EmptyTableViewCell"];
+        [self addRefresh];
+    }
+    return self;
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)refreshData{
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"type":[NSString stringWithFormat:@"%u",self.pageType+1],@"page":[NSString stringWithFormat:@"%ld",(long)page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:MyTeamIndex param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<MyTeamModel*> *applicationList = [MyTeamModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+- (UIScrollView *)listScrollView {
+    return self.tableview;
+}
+
+- (UIView *)listView {
+    return self;
+}
+
+// 必须加（用于联动）
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    self.scrollCallback(scrollView);
+}
+
+- (void)listViewDidScrollCallback:(void (^)(UIScrollView *))callback {
+    self.scrollCallback = callback;
+}
+
+#pragma -mark UITableViewDelegate
+- (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    if (self.datas.count == 0) {
+        EmptyTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"EmptyTableViewCell"];
+        return cell;
+    }
+    MyTeamTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyTeamTableViewCell"];
+    cell.model = self.datas[indexPath.row];
+    return cell;
+}
+
+- (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (self.datas.count == 0) {
+        return 1;
+    }
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.datas.count == 0) {
+        return self.tableview.height;
+    }
+    return 71;
+}
+
+-(void)layoutSubviews{
+    [self.tableview setFrame:self.bounds];
+    self.tableview.height = self.height;
+}
+
+#pragma -mark getter
+-(UITableView *)tableview{
+    if(!_tableview){
+        _tableview=[[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStylePlain];
+        _tableview.backgroundColor = [UIColor whiteColor];
+        [_tableview setDelegate:self];
+        [_tableview setDataSource:self];
+        [_tableview setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+        [_tableview setBackgroundColor:[UIColor whiteColor]];
+        [_tableview setContentInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+    }
+    return _tableview;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+@end

@@ -1,0 +1,26 @@
+//
+//  CardCouponSelectVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/10.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface CardCouponSelectVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) RACSubject *subject;
+
+/// 0 未使用卡券   1不使用卡券     2使用卡券(判断是有有couponModel)
+@property (assign, nonatomic) long couponType;
+/**
+ 0是购买  1是续费
+ */
+@property (assign, nonatomic) long newType;
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,33 @@
+//
+//  DNSBrowserArticleModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/28.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSBrowserArticleModel : NSObject
+
+@property(nonatomic,strong) NSString *content;
+@property(nonatomic,strong) NSDictionary *domain_names;
+@property(nonatomic,assign) long articleid;
+@property(nonatomic,assign) long article_type_id;
+/// 是否置顶，0不置顶，1置顶
+@property(nonatomic,assign) long is_sticky;
+/// 文章搜索量
+@property(nonatomic,assign) long popularity;
+@property(nonatomic,strong) NSString *created_at;
+@property(nonatomic,strong) NSString *title;
+@property(nonatomic,strong) NSString *time;
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,strong) NSDictionary *article_public_chain;
+@property(nonatomic,strong) NSDictionary *article_type;
+@property(nonatomic,strong) NSArray *article_labels;
+
+@end
+
+NS_ASSUME_NONNULL_END

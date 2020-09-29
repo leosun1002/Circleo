@@ -1,0 +1,49 @@
+//
+//  DNSDetailVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+// 头部View高
+#define JXTableHeaderViewHeight 170
+// 菜单项View高
+#define JXheightForHeaderInSection 45
+#define kNavBarAndStatusBarHeight 0
+
+#import "JXPagerListRefreshView.h"
+#import "JXCategoryView.h"
+#import "DNSDetailChildView.h"
+#import "DNSDetailChildHeader.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSDetailVC : BaseViewController<JXPagerViewDelegate, JXCategoryViewDelegate>
+
+/**
+ 顶部View（自定义View）
+ */
+@property (nonatomic,strong) DNSDetailChildHeader *detailHeader;
+/**
+ 菜单项View
+ */
+@property (nonatomic,strong) JXCategoryTitleView *categoryView;
+/**
+ 内容View
+ */
+@property (nonatomic, strong) JXPagerListRefreshView *pagingView;
+/**
+ 菜单项标题数组
+ */
+@property (nonatomic,copy) NSArray *itemArr;
+
+/**
+ 管理id
+ */
+@property (nonatomic,strong) NSString *manageid;
+
+@end
+
+NS_ASSUME_NONNULL_END

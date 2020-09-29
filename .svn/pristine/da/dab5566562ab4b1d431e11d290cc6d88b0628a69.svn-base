@@ -1,0 +1,98 @@
+//
+//  ShopAssetChargeRecordChildViewController.m
+//  Cloud Pro
+//
+//  Created by leosun on 2020/7/13.
+//  Copyright © 2020 yunzhuan. All rights reserved.
+//
+
+#import "ShopAssetChargeRecordVC.h"
+#import "ShopAssetChargeRecordTableViewCell.h"
+#import "MyFuelChargeRecordModel.h"
+
+@interface ShopAssetChargeRecordVC ()<UITableViewDelegate,UITableViewDataSource>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+
+@end
+
+@implementation ShopAssetChargeRecordVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUI];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)prepareUI{
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopAssetChargeRecordTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopAssetChargeRecordTableViewCell"];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"page":[NSString stringWithFormat:@"%d",page]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:FuelRechargeRecord param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<MyFuelChargeRecordModel*> *applicationList = [MyFuelChargeRecordModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    ShopEmptyView *view = [ShopEmptyView flagView];
+    view.backgroundColor = [UIColor clearColor];
+    view.contentLabel.text = @"暂无数据";
+    return view;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopAssetChargeRecordTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopAssetChargeRecordTableViewCell"];
+    MyFuelChargeRecordModel *model = self.datas[indexPath.row];
+    cell.nameLabel.text = [NSString stringWithFormat:@"充值%@燃料 - %@",AssectString(model.nuls_num),model.payment_method == 1?@"支付宝":@"微信"];
+    cell.timeLabel.text = model.created_at;
+    cell.numberLabel.text = model.chinese_num;
+    return cell;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

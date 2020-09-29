@@ -1,0 +1,331 @@
+//
+//  DNSDatePickerVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSDatePickerVC.h"
+
+@interface DNSDatePickerVC ()<UIPickerViewDelegate,UIPickerViewDataSource>
+
+@property(nonatomic,strong)NSMutableArray *years;
+@property(nonatomic,strong)NSMutableArray *months;
+@property(nonatomic,strong)NSMutableArray *days;
+//当前年
+@property(nonatomic,strong)NSString *nowYear;
+
+///0是至今   1是非至今
+@property(nonatomic,assign)long monthType;
+@property(nonatomic,assign)long yearType;
+@property(nonatomic,assign)long dayType;
+
+@end
+
+@implementation DNSDatePickerVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.02 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        weakself.bottomConst.constant = 0;
+        [UIView animateWithDuration:0.25 animations:^{
+            [weakself.view layoutIfNeeded];
+            weakself.bgview.alpha = 0.3;
+        } completion:^(BOOL finished) {
+            //获取当前时间
+            [weakself getDateNow];
+            //获取数据
+            [weakself getDatas];
+        }];
+    });
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself hideView];
+    }];
+    [self.bgview addGestureRecognizer:tap];
+    
+    _yearType = [AssectString(self.selectYear) isEqualToString:@""]?0:1;
+    _monthType = [AssectString(self.selectMonth) isEqualToString:@""]?0:1;
+    _dayType = [AssectString(self.selectDay) isEqualToString:@""]?0:1;
+
+}
+
+-(void)getDateNow{
+    NSDate *date = [NSDate date];
+    //使用formatter格式化后的时间
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyy-MM-dd"];
+    NSString *time_now = [formatter stringFromDate:date];
+    self.nowYear = [time_now componentsSeparatedByString:@"-"][0];
+}
+
+-(void)getDatas{
+    [self.years addObject:@""];
+    for (int i = [self.nowYear intValue]; i>[self.nowYear intValue] - 11; i--)
+        [self.years addObject:[NSString stringWithFormat:NSLocalizedString(@"%d年", nil),i]];
+    
+    [self.months addObject:NSLocalizedString(@"至今", nil)];
+    for (int i = 1; i<=12; i++)
+        [self.months addObject:[NSString stringWithFormat:NSLocalizedString(@"%d月", nil),i]];
+    
+    [self.days addObject:@""];
+    for (int i = 1; i<=31; i++)
+        [self.days addObject:[NSString stringWithFormat:NSLocalizedString(@"%d日", nil),i]];
+    
+    
+    [self.yearPicker reloadAllComponents];
+    if ([self.years containsObject:[NSString stringWithFormat:NSLocalizedString(@"%@年", nil),AssectString(self.selectYear)]]){
+        NSInteger index = [self.years indexOfObject:[NSString stringWithFormat:NSLocalizedString(@"%@年", nil),AssectString(self.selectYear)]];
+        [self.yearPicker selectRow:index inComponent:0 animated:NO];
+    }
+    
+    [self.monthPicker reloadAllComponents];
+    if ([self.months containsObject:[NSString stringWithFormat:NSLocalizedString(@"%@月", nil),AssectString(self.selectMonth)]]){
+        NSInteger index = [self.months indexOfObject:[NSString stringWithFormat:NSLocalizedString(@"%@月", nil),AssectString(self.selectMonth)]];
+        [self.monthPicker selectRow:index inComponent:0 animated:NO];
+    }
+    
+    [self.dayPicker reloadAllComponents];
+    if ([self.days containsObject:[NSString stringWithFormat:NSLocalizedString(@"%@日", nil),AssectString(self.selectDay)]]){
+        NSInteger index = [self.days indexOfObject:[NSString stringWithFormat:NSLocalizedString(@"%@日", nil),AssectString(self.selectDay)]];
+        [self.dayPicker selectRow:index inComponent:0 animated:NO];
+    }
+}
+
+- (IBAction)cancelClick:(id)sender {
+    [self hideView];
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSInteger yearRow = [self.yearPicker selectedRowInComponent:0];
+    NSInteger monthRow = [self.monthPicker selectedRowInComponent:0];
+    NSInteger dayRow = [self.dayPicker selectedRowInComponent:0];
+    
+    if (monthRow == 0) {
+        [self.daySubject sendNext:NSLocalizedString(@"至今", nil)];
+        [self hideView];
+        return;
+    }
+    
+    NSString *year = self.years[yearRow];
+    NSString *month = self.months[monthRow];
+    NSString *day = self.days[dayRow];
+    NSString *selectDay = [NSString stringWithFormat:@"%@-%@-%@",[year stringByReplacingOccurrencesOfString:NSLocalizedString(@"年", nil) withString:@""],[month stringByReplacingOccurrencesOfString:NSLocalizedString(@"月", nil) withString:@""],[day stringByReplacingOccurrencesOfString:NSLocalizedString(@"日", nil) withString:@""]];
+    
+    NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
+    [formatter setDateFormat:@"yyyy-MM-dd"];
+    //NSString转NSDate
+    NSDate *date = [formatter dateFromString:selectDay];
+    //获取当前时区时间
+    NSTimeZone *zone = [NSTimeZone systemTimeZone];
+    NSInteger interval = [zone secondsFromGMTForDate: date];
+    NSDate *localeDate = [date  dateByAddingTimeInterval: interval];
+    NSDate *nowDate = [[NSDate date] dateByAddingTimeInterval:interval];
+    if ([[localeDate earlierDate:nowDate] isEqualToDate:nowDate]) {
+        [self showMsg:NSLocalizedString(@"时间需早于当前时间", nil) location:centre];
+        return;
+    }
+    
+    [self.daySubject sendNext:selectDay];
+    [self hideView];
+    return;
+}
+
+-(void)hideView{
+    self.bottomConst.constant = -275;
+    [UIView animateWithDuration:0.25 animations:^{
+        [self.view layoutIfNeeded];
+        self.bgview.alpha = 0.01;
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+    }];
+}
+
+//获取当前月的天数
+-(NSInteger)getDaysWtithMonth:(NSString *)dateStr{
+    NSDateFormatter *formatter = [[NSDateFormatter alloc]init];
+    [formatter setDateFormat:@"yyyy-MM-dd"];
+    //NSString转NSDate
+    NSDate *date = [formatter dateFromString:dateStr];
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSRange range = [calendar rangeOfUnit:NSCalendarUnitDay inUnit:NSCalendarUnitMonth forDate:date];
+    NSUInteger numberOfDaysInMonth = range.length;
+    return numberOfDaysInMonth;
+}
+
+-(NSString *)getNowDay{
+    NSDate *date = [NSDate date];
+    NSDateFormatter *format = [[NSDateFormatter alloc] init];
+    [format setDateFormat:@"yyyy-MM-dd"];
+    return [format stringFromDate:date];
+}
+
+#pragma UIPickerViewDelegate
+//有几行
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+    return 1;
+}
+
+//行中有几列
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+    if (pickerView == self.yearPicker) {
+        return self.years.count;
+    }
+    if (pickerView == self.monthPicker) {
+        return self.months.count;
+    }
+    return self.days.count;
+}
+
+//列显示的数据
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger) row forComponent:(NSInteger)component {
+    if (pickerView == self.yearPicker) {
+        return self.years[row];
+    }
+    if (pickerView == self.monthPicker) {
+        return self.months[row];
+    }
+    return self.days[row];
+}
+
+-(void)pickerView:(UIPickerView *)pickerView didSelectRow:(NSInteger)row inComponent:(NSInteger)component{
+    if (pickerView == self.yearPicker) {
+        self.selectYear = [self.years[row] stringByReplacingOccurrencesOfString:NSLocalizedString(@"年", nil) withString:@""];
+        self.yearType = row == 0?0:1;
+        return;
+    }
+    
+    if (pickerView == self.monthPicker) {
+        self.selectMonth = row == 0?self.months[row]:[self.months[row] stringByReplacingOccurrencesOfString:NSLocalizedString(@"月", nil) withString:@""];
+        self.monthType = row == 0?0:1;
+        return;
+    }
+    
+    if (pickerView == self.dayPicker) {
+        self.dayType = row == 0?0:1;
+    }
+}
+
+-(CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component{
+    return 35;
+}
+
+-(void)reloadDays{
+    if ([AssectString(self.selectMonth) isEqualToString:NSLocalizedString(@"至今", nil)]) return;
+    NSInteger numberOfDaysInMonth = [self getDaysWtithMonth:[NSString stringWithFormat:@"%@-%@-%@",[AssectString(self.selectYear) isEqualToString:@""]?AssectString(self.nowYear):AssectString(self.selectYear) ,[AssectString(self.selectMonth) isEqualToString:@""]?@"1":AssectString(self.selectMonth),@"1"]];
+    [self.days removeAllObjects];
+    [self.days addObject:@""];
+    for (int i = 1; i<=numberOfDaysInMonth; i++)
+    [self.days addObject:[NSString stringWithFormat:NSLocalizedString(@"%d日", nil),i]];
+    [self.dayPicker reloadAllComponents];
+}
+
+-(void)setYearType:(long)yearType{
+    if (_yearType == yearType) {
+        [self reloadDays];
+        return;
+    }
+    if (yearType == 0) {
+        [self.monthPicker selectRow:0 inComponent:0 animated:NO];
+        [self.dayPicker selectRow:0 inComponent:0 animated:NO];
+        _yearType = yearType;
+        _monthType = 0;
+        _dayType = 0;
+        return;
+    }
+    
+    if (yearType == 1) {
+        [self.monthPicker selectRow:1 inComponent:0 animated:NO];
+        [self reloadDays];
+        [self.dayPicker selectRow:1 inComponent:0 animated:NO];
+        _yearType = yearType;
+        _monthType = 1;
+        _dayType = 1;
+        return;
+    }
+}
+
+-(void)setMonthType:(long)monthType{
+    if (_monthType == monthType) {
+        [self reloadDays];
+        return;
+    }
+    if (monthType == 0) {
+        [self.yearPicker selectRow:0 inComponent:0 animated:NO];
+        [self.dayPicker selectRow:0 inComponent:0 animated:NO];
+        _monthType = monthType;
+        _yearType = 0;
+        _dayType = 0;
+        return;
+    }
+    
+    if (monthType == 1) {
+        [self.yearPicker selectRow:1 inComponent:0 animated:NO];
+        [self reloadDays];
+        [self.dayPicker selectRow:1 inComponent:0 animated:NO];
+        _monthType = monthType;
+        _yearType = 1;
+        _dayType = 1;
+        return;
+    }
+}
+
+-(void)setDayType:(long)dayType{
+    if (_dayType == dayType) {
+        return;
+    }
+    if (dayType == 0) {
+        [self.yearPicker selectRow:0 inComponent:0 animated:NO];
+        [self.monthPicker selectRow:0 inComponent:0 animated:NO];
+        _dayType = dayType;
+        _yearType = 0;
+        _monthType = 0;
+        return;
+    }
+    
+    if (dayType == 1) {
+        [self.yearPicker selectRow:1 inComponent:0 animated:NO];
+        [self.monthPicker selectRow:1 inComponent:0 animated:NO];
+        [self reloadDays];
+        _dayType = dayType;
+        _yearType = 1;
+        _monthType = 1;
+        return;
+    }
+}
+
+#pragma -mark getter
+-(NSMutableArray *)years{
+    if (!_years) {
+        _years = [NSMutableArray array];
+    }
+    return _years;
+}
+
+-(NSMutableArray *)months{
+    if (!_months) {
+        _months = [NSMutableArray array];
+    }
+    return _months;
+}
+
+-(NSMutableArray *)days{
+    if (!_days) {
+        _days = [NSMutableArray array];
+    }
+    return _days;
+}
+@end

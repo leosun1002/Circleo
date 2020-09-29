@@ -1,0 +1,42 @@
+//
+//  DNSHomePageReusableView.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSHomePageReusableView : UICollectionReusableView
+
+@property(nonatomic,strong)UINavigationController *navigationVC;
+
+@property (weak, nonatomic) IBOutlet UIView *topBgview;
+@property (weak, nonatomic) IBOutlet UIView *topContentView;
+@property (weak, nonatomic) IBOutlet UIView *scrollBgview;
+
+@property (weak, nonatomic) IBOutlet UIView *midCollectBgview;
+
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *botFlowLayout;
+@property (weak, nonatomic) IBOutlet UICollectionView *botCollect;
+
+@property (weak, nonatomic) IBOutlet UIView *botScrollView;
+
+@property(nonatomic,strong)NSMutableArray *banners;//轮播图
+@property(nonatomic,strong)NSMutableArray *categorys;//域名分类
+@property(nonatomic,strong)NSMutableArray *recommends;//推荐域名
+@property (weak, nonatomic) IBOutlet UIView *tradeView;
+
+@property(nonatomic,strong)RACSubject *redSubject;//域名分类
+@property(nonatomic,strong)RACSubject *colorSubject;//域名分类
+
+@property(nonatomic,assign)BOOL hasRefresh;//判断是否重新请求过数据
+
+@property(nonatomic,strong)RACSubject *seeSubject;//已经是刷新过的
+
+@end
+
+NS_ASSUME_NONNULL_END

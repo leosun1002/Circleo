@@ -1,0 +1,27 @@
+//
+//  DNBrowserVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNBrowserVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIView *inputBgview;
+@property (weak, nonatomic) IBOutlet UIView *searchView;
+@property (weak, nonatomic) IBOutlet UIImageView *searchImage;
+@property (weak, nonatomic) IBOutlet UITextField *searchText;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomConst;
+@property (weak, nonatomic) IBOutlet UIView *epidBgView;
+
+@property (nonatomic, assign) CGRect buttonFrame;
+@property (weak, nonatomic) IBOutlet UIImageView *buttonImageV;
+
+@end
+
+NS_ASSUME_NONNULL_END

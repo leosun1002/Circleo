@@ -1,0 +1,60 @@
+//
+//  DNSSearchModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+@interface DNSUserInfo : NSObject
+
+@property(nonatomic,strong)NSString *phone;
+@property(nonatomic,strong)NSString *email;
+@property(nonatomic,strong)NSString *name;
+
+@end
+
+@interface DNSSearchModel : NSObject
+
+@property(nonatomic,strong)NSString *searchid;
+@property(nonatomic,assign)long user_id;
+@property(nonatomic,strong)NSString *domain_name;
+@property(nonatomic,strong)NSString *domain_name_before;
+@property(nonatomic,strong)NSString *domain_name_after;
+@property(nonatomic,strong)NSString *unit_price;
+@property(nonatomic,strong)NSString *unit_usdt_price;
+@property(nonatomic,strong)NSString *purchase_price;
+@property(nonatomic,strong)NSString *years;
+/**
+ 支付类别，1 支付宝支付，2 USDT支付
+ */
+@property(nonatomic,strong)NSString *payment_type;
+@property(nonatomic,strong)NSString *start_time;
+@property(nonatomic,strong)NSString *end_time;
+@property(nonatomic,strong)NSString *created_at;
+@property(nonatomic,strong)NSString *cny_fee;
+@property(nonatomic,strong)NSString *usdt_fee;
+/**
+ 0 未注册，1 已注册
+ */
+@property(nonatomic,assign)long type;
+/**
+ 0 未注册，1 已注册
+ */
+@property(nonatomic,assign)long status;
+/**
+ 0 未选择，1 已选择
+ */
+@property(nonatomic,assign)long hasSelect;
+
+/**
+ 0 未选择，1 已选择
+ */
+@property(nonatomic,strong)DNSUserInfo *user_info;
+
+@end
+
+NS_ASSUME_NONNULL_END

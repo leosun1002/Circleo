@@ -1,0 +1,26 @@
+//
+//  DNSCoinSelectVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSCoinSelectVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (strong, nonatomic) NSString *manageid;
+@property (weak, nonatomic) IBOutlet UITextField *searchText;
+@property(nonatomic,strong) NSString *domain_name_id;
+
+/// 0搜索币种  1选择币种   2添加地址  3支付
+@property(nonatomic,assign) long type;
+@property(nonatomic,strong) RACSubject *subject;
+
+@end
+
+NS_ASSUME_NONNULL_END

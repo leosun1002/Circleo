@@ -1,0 +1,58 @@
+//
+//  BrowserPayDetailFooter.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BrowserPayDetailFooter.h"
+
+@implementation BrowserPayDetailFooter
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"BrowserPayDetailFooter" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+    }
+    return self;
+}
+
+// 0支付宝 1微信 2cny余额 3usdt余额 4币币账户(暂无)
+-(void)setPayType:(NSInteger)payType{
+    _payType = payType;
+    if (payType == 0) {
+        self.payName.text = NSLocalizedString(@"支付宝", nil);
+        self.headV.image = [UIImage imageNamed:@"icon_alipay"];
+        self.yueLabel.hidden = YES;
+        self.pswView.hidden = YES;
+    }else if (payType == 1) {
+        self.payName.text = NSLocalizedString(@"微信", nil);
+        self.headV.image = [UIImage imageNamed:@"icon_wechat_pay"];
+        self.yueLabel.hidden = YES;
+        self.pswView.hidden = YES;
+    }else if (payType == 2) {
+        NSDictionary *userinfo = [Manager takeoutUserTokenkey:JYLoginuser];
+        self.payName.text = NSLocalizedString(@"CNY资产", nil);
+        self.headV.image = [UIImage imageNamed:@"icon_cny_pay"];
+        self.yueLabel.hidden = NO;
+        NSString *yue = [NSString stringWithFormat:NSLocalizedString(@"（剩余：%@）", nil),AssectNumber(userinfo[JYCnyMoney])];
+        self.yueLabel.text = yue;
+        self.pswView.hidden = NO;
+    }else if (payType == 3) {
+        NSDictionary *userinfo = [Manager takeoutUserTokenkey:JYLoginuser];
+        self.payName.text = NSLocalizedString(@"USDT资产", nil);
+        self.headV.image = [UIImage imageNamed:@"icon_usdt_pay"];
+        self.yueLabel.hidden = NO;
+        NSString *yue = [NSString stringWithFormat:NSLocalizedString(@"（剩余：%@）", nil),AssectNumber(userinfo[JYUsdtMoney])];
+        self.yueLabel.text = yue;
+        self.pswView.hidden = NO;
+    }
+}
+
+#pragma -mark UITextFieldDelegate
+-(BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [textField resignFirstResponder];
+    return YES;
+}
+@end

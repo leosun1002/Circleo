@@ -1,0 +1,22 @@
+//
+//  MallCheckDoneVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MallCheckDoneVC : BaseViewController
+
+@property(nonatomic,strong)NSString *big_image;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+
+@property(nonatomic,strong)RACSubject *subject;
+
+@end
+
+NS_ASSUME_NONNULL_END

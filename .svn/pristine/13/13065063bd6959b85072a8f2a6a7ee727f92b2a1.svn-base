@@ -1,0 +1,155 @@
+//
+//  ConsoleSearchVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "ConsoleSearchVC.h"
+#import "LanguageTableViewCell.h"
+#import "DNSManageCell.h"
+#import "DNSManageModel.h"
+#import "DNSDetailVC.h"
+
+@interface ConsoleSearchVC ()<UITableViewDelegate,UITableViewDataSource>{
+    NSInteger selectIndex;
+    NSInteger page;
+}
+
+@property(nonatomic,strong) NSMutableArray *searchData;
+@property(nonatomic,strong) NSMutableArray *datas;
+
+@end
+
+@implementation ConsoleSearchVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"域名搜索", nil) hiddeBack:NO];
+    self.topConst.constant += navBarHeight;
+    [self prepareUi];
+    [self addRefresh];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"LanguageTableViewCell" bundle:nil] forCellReuseIdentifier:@"LanguageTableViewCell"];
+    [self.contentTable registerNib:[UINib nibWithNibName:@"DNSManageCell" bundle:nil] forCellReuseIdentifier:@"DNSManageCell"];
+    self.widthConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?51:31;
+}
+
+- (IBAction)searchClick:(id)sender{
+    [self.contentTable.mj_header beginRefreshing];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.contentTable.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself gotoSearch:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.contentTable.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself gotoSearch:NO];
+    }];
+}
+
+-(void)gotoSearch:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"domain_name":[self removeSpaceAndNewline:self.searchText.text],@"type":[NSString stringWithFormat:@"%ld",selectIndex+1],@"page":[NSString stringWithFormat:@"%ld",(long)page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:DomainNameSearch param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<DNSManageModel *> *applicationList = [DNSManageModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+        [weakself.contentTable reloadData];
+        [weakself.contentTable.mj_header endRefreshing];
+        [weakself.contentTable.mj_footer endRefreshing];
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (tableView == self.tableview) {
+        return 2;
+    }
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.tableview) {
+        LanguageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"LanguageTableViewCell"];
+        cell.nameLabel.text = self.searchData[indexPath.row];
+        cell.nameLabel.textColor = indexPath.row == selectIndex?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#18181A"];
+        cell.selectImg.hidden = indexPath.row != selectIndex;
+        return cell;
+    }
+
+    DNSManageCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSManageCell"];
+    cell.model = self.datas[indexPath.row];
+    cell.opereateBtn.tag = indexPath.row;
+    [cell.opereateBtn addTarget:self action:@selector(operateClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (tableView == self.tableview){
+        if (indexPath.row == selectIndex)return;
+        selectIndex = indexPath.row;
+        [self.tableview reloadData];
+        return;
+    }
+    
+    if (self.datas.count == 0) return;
+    DNSManageModel *model = self.datas[indexPath.row];
+    DNSDetailVC *detail = [[DNSDetailVC alloc] init];
+    detail.manageid = [NSString stringWithFormat:@"%ld",model.manageid];
+    [self.navigationController pushViewController:detail animated:YES];
+}
+
+-(void)operateClick:(UIButton *)sender{
+    NSInteger senderTag = sender.tag;
+    UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"查看域名详情", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if (weakself.datas.count == 0) return;
+        DNSManageModel *model = weakself.datas[senderTag];
+        DNSDetailVC *detail = [[DNSDetailVC alloc] init];
+        detail.manageid = [NSString stringWithFormat:@"%ld",model.manageid];
+        [weakself.navigationController pushViewController:detail animated:YES];
+    }];
+    
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)searchData{
+    if (!_searchData) {
+        _searchData = [NSMutableArray arrayWithObjects:NSLocalizedString(@"全部域名", nil),NSLocalizedString(@"即将到期域名", nil), nil];
+    }
+    return _searchData;
+}
+
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

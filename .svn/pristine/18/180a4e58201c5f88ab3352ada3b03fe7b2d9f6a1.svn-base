@@ -1,0 +1,40 @@
+//
+//  DNSDetailSelectCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSDetailSelectCell.h"
+
+@implementation DNSDetailSelectCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(DNSBindModel *)model{
+    _model = model;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:model.log_image] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+    self.nameLabel.text = model.name;
+    self.addressLabel.text = model.pivot.wallet_address;
+    //0未上链，1已上链
+    if (model.pivot.status == 0) {
+        self.statusLabel.text = NSLocalizedString(@"待上链", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#FA7528"];
+    }else{
+        self.statusLabel.text = model.pivot.status == 1?NSLocalizedString(@"域名绑定中", nil):NSLocalizedString(@"已生效", nil);
+        self.statusLabel.textColor = model.pivot.status == 1?[UIColor colorWithRGBHex:@"#FA7528"]:[UIColor colorWithRGBHex:@"#5151F0"];
+    }
+    self.selectbtn.selected = model.hasClick;
+}
+
+@end

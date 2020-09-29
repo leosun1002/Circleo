@@ -1,0 +1,26 @@
+//
+//  BrowserBindArticleVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BrowserBindArticleVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIView *selectView;
+@property (weak, nonatomic) IBOutlet UILabel *domainLabel;
+@property (weak, nonatomic) IBOutlet UITextView *text;
+@property (weak, nonatomic) IBOutlet UILabel *placeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@end
+
+NS_ASSUME_NONNULL_END

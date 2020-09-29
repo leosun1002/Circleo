@@ -1,0 +1,27 @@
+//
+//  ShopCarTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "ShopCarModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopCarTableViewCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UIButton *selectBtn;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *usdtPrice;
+@property (weak, nonatomic) IBOutlet UILabel *usdtTipLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *cnyPrice;
+@property (weak, nonatomic) IBOutlet UILabel *registerLabel;
+
+@property (nonatomic,strong)ShopCarModel *model;
+@end
+
+NS_ASSUME_NONNULL_END

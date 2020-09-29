@@ -1,0 +1,33 @@
+//
+//  DNSBrowserFooter.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSBrowserFooter : UIView<UICollectionViewDelegate,UICollectionViewDataSource>
+
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+@property(nonatomic,strong)NSMutableArray *hots;
+@property (weak, nonatomic) IBOutlet UIView *topView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topHeiht;
+@property (weak, nonatomic) IBOutlet UIButton *nextBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *hextHeightConst;
+@property (weak, nonatomic) IBOutlet UIView *midView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *midHeightConst;
+
+@property (weak, nonatomic) IBOutlet UIView *hotView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *hotHeight;
+
+@property (strong, nonatomic) RACSubject *subject;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

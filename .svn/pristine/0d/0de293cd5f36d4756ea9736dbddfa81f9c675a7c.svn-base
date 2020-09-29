@@ -1,0 +1,82 @@
+//
+//  DSPublishServiceTypeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/12/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DSPublishServiceTypeVC.h"
+
+@interface DSPublishServiceTypeVC ()
+
+@end
+
+@implementation DSPublishServiceTypeVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor clearColor];
+    [self preapreUi];
+}
+
+-(void)preapreUi{
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        weakself.bgBottomConst.constant = 0;
+        [UIView animateWithDuration:0.25 animations:^{
+            weakself.bgview.alpha = 0.3;
+            [weakself.view layoutIfNeeded];
+        }];
+    });
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself closeClick:nil];
+    }];
+    [self.bgview addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        if (weakself.serviceType == 0) return ;
+        [weakself.serviceSubject sendNext:@"0"];
+        [weakself closeClick:nil];
+    }];
+    [self.freeView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        if (weakself.serviceType == 1) return ;
+        [weakself.serviceSubject sendNext:@"1"];
+        [weakself closeClick:nil];
+    }];
+    [self.payView addGestureRecognizer:tap2];
+    
+    UITapGestureRecognizer *tap3 = [[UITapGestureRecognizer alloc] init];
+    [[tap3 rac_gestureSignal] subscribeNext:^(id x) {
+        if (weakself.serviceType == 2) return ;
+        [weakself.serviceSubject sendNext:@"2"];
+        [weakself closeClick:nil];
+
+    }];
+    [self.secretView addGestureRecognizer:tap3];
+    
+    self.freeImage.image = self.serviceType == 0?[UIImage imageNamed:@"console_select"]:[UIImage imageNamed:@"console_unselect"];
+    self.payImage.image = self.serviceType == 1?[UIImage imageNamed:@"console_select"]:[UIImage imageNamed:@"console_unselect"];
+    self.secretImage.image = self.serviceType == 2?[UIImage imageNamed:@"console_select"]:[UIImage imageNamed:@"console_unselect"];
+}
+
+- (IBAction)closeClick:(id)sender {
+    self.bgBottomConst.constant = -258;
+    [UIView animateWithDuration:0.25 animations:^{
+        self.bgview.alpha = 0.01;
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            
+        }];
+    }];
+}
+
+
+@end

@@ -1,0 +1,202 @@
+//
+//  MallMyOrderDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallMyOrderDetailVC.h"
+#import "ShopMyOrderDetailModel.h"
+
+@interface MallMyOrderDetailVC ()
+
+@property (weak, nonatomic) IBOutlet UILabel *statusaLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *topImgV;
+
+@property (weak, nonatomic) IBOutlet UIView *sendView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *sendHeight;
+@property (weak, nonatomic) IBOutlet UILabel *sendLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sendOrderLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *receiveView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *reiceiveHeight;
+@property (weak, nonatomic) IBOutlet UILabel *receiveLabel;
+@property (weak, nonatomic) IBOutlet UILabel *receiveAddressLabel;
+
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *specLabel;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *shopPriceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *freightLabel;
+@property (weak, nonatomic) IBOutlet UILabel *totalPriceLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *orderNumLabel;
+@property (weak, nonatomic) IBOutlet UILabel *tradeNumLabel;
+@property (weak, nonatomic) IBOutlet UILabel *createTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *payTimeLabel;
+///提货时间
+@property (weak, nonatomic) IBOutlet UILabel *pushTimeLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *sendTimeView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *sendTimeHeight;
+@property (weak, nonatomic) IBOutlet UILabel *sendTimeLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *receiveTimeView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *receiveTimeHeight;
+@property (weak, nonatomic) IBOutlet UILabel *receiveTimeLabel;
+
+@end
+
+@implementation MallMyOrderDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self getData];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self dismissLoading];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    self.headV.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.headV.layer.borderWidth = 0.5f;
+}
+
+-(void)getData{
+    NSDictionary *dict = @{@"id":[NSString stringWithFormat:@"%ld",self.order_id]};
+    [self showLoading:@"" allowsOpOperation:YES];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:GoodsMyOrderDetail param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                ShopMyOrderDetailModel *modules = [ShopMyOrderDetailModel mj_objectWithKeyValues:json[@"data"]];
+                [weakself setData:modules];
+                return ;
+            }
+        }
+        [weakself showErrorView:weakself.view withBlock:^{
+            [weakself getData];
+        }];
+    }];
+}
+
+-(void)setData:(ShopMyOrderDetailModel *)model{
+    if (model.status == 1) {
+        [self waitSend:model];
+    }else if (model.status == 2){
+        [self waitReceive:model];
+    }else{
+        [self sendDone:model];
+    }
+}
+
+-(void)waitSend:(ShopMyOrderDetailModel *)model{
+    self.statusaLabel.text = @"待发货";
+    self.topImgV.image = [UIImage imageNamed:@"pic_wait_bg"];
+    
+    self.sendView.hidden = YES;
+    self.sendHeight.constant = 0;
+    
+    self.receiveLabel.text = [NSString stringWithFormat:@"%@ %@",AssectString(model.consignee_name),AssectString(model.consignee_phone)];
+    self.receiveAddressLabel.text = model.consignee_address;
+    
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.good_info.small_image)]];
+    self.nameLabel.text = model.good_info.name;
+    self.specLabel.text = model.specification;
+    self.priceLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(model.price)];
+    self.shopPriceLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(model.total_price)];
+    self.freightLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(model.freight_price)];
+    self.totalPriceLabel.text = [NSString stringWithFormat:@"¥%@",[GaoJingDu add:@[AssectString(model.freight_price),AssectString(model.total_price)] jindu:@"2"]];
+    self.orderNumLabel.text = model.order_number;
+    self.tradeNumLabel.text = model.transaction_serial_number;
+    self.payTimeLabel.text = model.payment_time;
+ 
+    self.sendTimeView.hidden = YES;
+    self.sendTimeHeight.constant = 0;
+    self.receiveTimeView.hidden = YES;
+    self.receiveTimeHeight.constant = 0;
+}
+
+-(void)waitReceive:(ShopMyOrderDetailModel *)model{
+    self.statusaLabel.text = @"待收货";
+    self.topImgV.image = [UIImage imageNamed:@"pic_send_bg"];
+    
+    self.sendLabel.text = model.express_delivery;
+    self.sendOrderLabel.text = model.tracking_number;
+    
+    self.receiveLabel.text = [NSString stringWithFormat:@"%@ %@",AssectString(model.consignee_name),AssectString(model.consignee_phone)];
+    self.receiveAddressLabel.text = model.consignee_address;
+    
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.good_info.small_image)]];
+    self.nameLabel.text = model.good_info.name;
+    self.specLabel.text = model.specification;
+    self.priceLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(model.price)];
+    self.shopPriceLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(model.total_price)];
+    self.freightLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(model.freight_price)];
+    self.totalPriceLabel.text = [NSString stringWithFormat:@"¥%@",[GaoJingDu add:@[AssectString(model.freight_price),AssectString(model.total_price)] jindu:@"2"]];
+    self.orderNumLabel.text = model.order_number;
+    self.tradeNumLabel.text = model.transaction_serial_number;
+    self.payTimeLabel.text = model.payment_time;
+ 
+    self.sendTimeLabel.text = model.ship_time;
+    
+    self.receiveTimeView.hidden = YES;
+    self.receiveTimeHeight.constant = 0;
+}
+
+-(void)sendDone:(ShopMyOrderDetailModel *)model{
+    self.statusaLabel.text = @"已完成";
+    self.topImgV.image = [UIImage imageNamed:@"pic_done_bg"];
+    
+    self.sendLabel.text = model.express_delivery;
+    self.sendOrderLabel.text = model.tracking_number;
+    
+    self.receiveLabel.text = [NSString stringWithFormat:@"%@ %@",AssectString(model.consignee_name),AssectString(model.consignee_phone)];
+    self.receiveAddressLabel.text = model.consignee_address;
+    
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.good_info.small_image)]];
+    self.nameLabel.text = model.good_info.name;
+    self.specLabel.text = model.specification;
+    self.priceLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(model.price)];
+    self.shopPriceLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(model.total_price)];
+    self.freightLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(model.freight_price)];
+    self.totalPriceLabel.text = [NSString stringWithFormat:@"¥%@",[GaoJingDu add:@[AssectString(model.freight_price),AssectString(model.total_price)] jindu:@"2"]];
+    self.orderNumLabel.text = model.order_number;
+    self.tradeNumLabel.text = model.transaction_serial_number;
+    self.payTimeLabel.text = model.payment_time;
+ 
+    self.sendTimeLabel.text = model.ship_time;
+    
+    self.receiveTimeLabel.text = model.receipt_time;
+}
+
+- (IBAction)sendClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.sendOrderLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)orderNumClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.orderNumLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)tradeNumClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.tradeNumLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+@end

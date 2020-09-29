@@ -1,0 +1,163 @@
+//
+//  Manager.m
+//  Millect
+//
+//  Created by 叶中刚 on 2017/3/27.
+//  Copyright © 2017年 yunzhuan. All rights reserved.
+//
+
+#import "Manager.h"
+
+NSString* const TOKEN_KEY = @"token";
+NSString* const DATE_KEY = @"date";
+
+@implementation Manager
+
+//保存token 传入 token   传入  时间
++ (void)saveToken:(NSString* )token key:(NSString* )key{
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:token forKey:key];
+    [userDefaults synchronize];
+}
+
+//判断是否有token
++(BOOL)hasAvalibleTokenkey:(NSString* )key{
+    
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString* token = [userDefaults objectForKey:key];
+    if (token) {
+        return YES;
+    }else{
+        return NO;}
+}
+
+
+//删除token
++ (void)clearTokenkey:(NSString* )key{
+    NSUserDefaults* userDefaults=[NSUserDefaults standardUserDefaults];
+    [userDefaults removeObjectForKey:key];
+    [userDefaults synchronize];
+}
+
+//取出
++(NSString* )takeoutTokenkey:(NSString* )key{
+    
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    NSString*  token = [userDefaults objectForKey:key];
+    return token;
+}
+
++(void)saveUserToken:(NSDictionary* )userDic key:(NSString* )key{
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:userDic forKey:key];
+    [userDefaults synchronize];
+}
+
++(BOOL)hasUserAvalibleTokenkey:(NSString* )key{
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    NSDictionary* token = [userDefaults objectForKey:key];
+    if(token!=nil)
+    
+        return YES;
+    else
+        return NO;
+}
+
++ (BOOL)clearUserTokenkey:(NSString* )key{
+    NSUserDefaults* userDefaults=[NSUserDefaults standardUserDefaults];
+    [userDefaults removeObjectForKey:key];
+     return [userDefaults synchronize];
+}
+
++(NSDictionary* )takeoutUserTokenkey:(NSString* )key{
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    NSDictionary*  token = [userDefaults objectForKey:key];
+    return token;
+}
+
++(void)saveUserArrays:(NSArray *)arrays key:(NSString *)key{
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    [userDefaults setObject:arrays forKey:key];
+    [userDefaults synchronize];
+}
+
++(NSArray *)takeUserArrays:(NSString *)key{
+    NSUserDefaults* userDefaults = [NSUserDefaults standardUserDefaults];
+    NSArray *userArrays = [userDefaults objectForKey:key];
+    return userArrays;
+}
+
+//+(void)saveUserInfo:(NSDictionary *)dict{
+//    NSMutableDictionary* userDic=[[NSMutableDictionary alloc] initWithDictionary:[Manager takeoutUserTokenkey:JYLoginuser]];
+//
+//    [userDic setValue:AssectString(dict[@"data"][@"ip"]) forKey:JYIp];
+//    [userDic setValue:AssectString(dict[@"data"][@"wechat"]) forKey:JYWechat];
+//    [userDic setValue:AssectString(dict[@"data"][@"cny_money"]) forKey:JYCnyMoney];
+//    [userDic setValue:AssectString(dict[@"data"][@"cny_not_money"]) forKey:JYCnyNotMoney];
+//    [userDic setValue:AssectString(dict[@"data"][@"cny_seven_income"]) forKey:JYCnySevenMoney];
+//    [userDic setValue:AssectString(dict[@"data"][@"usdt_seven_income"]) forKey:JYUSDTSevenMoney];
+//    [userDic setValue:AssectString(dict[@"data"][@"usdt_money"]) forKey:JYUsdtMoney];
+//    [userDic setValue:AssectString(dict[@"data"][@"usdt_not_money"]) forKey:JYUsdtNotMoney];
+//    [userDic setValue:AssectString(dict[@"data"][@"income_cny_money"]) forKey:JYIncomeCnyMoney];
+//    [userDic setValue:AssectString(dict[@"data"][@"income_not_cny_money"]) forKey:JYIncomeCnyNotMoney];
+//    [userDic setValue:AssectString(dict[@"data"][@"income_usdt_money"]) forKey:JYIncomeUsdtMoney];
+//    [userDic setValue:AssectString(dict[@"data"][@"income_not_usdt_money"]) forKey:JYIncomeUsdtNotMoney];
+//    [userDic setValue:AssectString(dict[@"data"][@"address"]) forKey:JYAddress];
+//    [userDic setValue:AssectString(dict[@"data"][@"invitation_code"]) forKey:JYInvitationCode];
+//    [userDic setValue:AssectString(dict[@"data"][@"updated_at"]) forKey:JYUpdatedAt];
+//    [userDic setValue:AssectString(dict[@"data"][@"parent_id"]) forKey:JYParentId];
+//    [userDic setValue:AssectString(dict[@"data"][@"id"]) forKey:JYId];
+//    [userDic setValue:AssectString(dict[@"data"][@"is_active"]) forKey:JYActive];
+//    [userDic setValue:AssectString(dict[@"data"][@"code_is_used"]) forKey:JYCodeUsed];
+//    [userDic setValue:AssectString(dict[@"data"][@"email"]) forKey:JYEmail];
+//    [userDic setValue:AssectString(dict[@"data"][@"grade"]) forKey:JYGrade];
+//    [userDic setValue:AssectString(dict[@"data"][@"phone"]) forKey:JYPhone];
+//    [userDic setValue:AssectString(dict[@"data"][@"area"]) forKey:JYArea];
+//    [userDic setValue:AssectString(dict[@"data"][@"email_verified_at"]) forKey:JYEmailVerified];
+//    [userDic setValue:AssectString(dict[@"data"][@"created_at"]) forKey:JYCreatedAt];
+//    [userDic setValue:AssectString(dict[@"data"][@"created_time"]) forKey:JYCreatedTime];
+//    [userDic setValue:AssectString(dict[@"data"][@"integral"]) forKey:JYIntegral];
+//    [userDic setValue:AssectString(dict[@"data"][@"is_authentication"]) forKey:JYAuthentication];
+//    [userDic setValue:AssectString(dict[@"data"][@"old_user_id"]) forKey:JYOldUserId];
+//    [userDic setValue:AssectString(dict[@"data"][@"garde"]) forKey:JYGarde];
+//    [userDic setValue:AssectString(dict[@"data"][@"garde_type"]) forKey:JYGardeType];
+//    [userDic setValue:AssectString(dict[@"data"][@"garde_letter"]) forKey:JYGradeLetter];
+//    [userDic setValue:AssectString(dict[@"data"][@"direct_push_phone"]) forKey:JYDirectPhone];
+//    [userDic setValue:AssectString(dict[@"data"][@"direct_push_count"]) forKey:JYDirectCount];
+//    [userDic setValue:AssectString(dict[@"data"][@"indirect_push_count"]) forKey:JYIndirectCount];
+//    [userDic setValue:AssectString(dict[@"data"][@"consumption_release"]) forKey:JYConsumptionRelease];
+//    [userDic setValue:AssectString(dict[@"data"][@"week_total_release"]) forKey:JYWeekTotalRelease];
+//    [userDic setValue:AssectString(dict[@"data"][@"total_release"]) forKey:JYTotalRelease];
+//    [userDic setValue:AssectString(dict[@"data"][@"domain_name_count"]) forKey:JYDomainNameCount];
+//    [userDic setValue:AssectString(dict[@"data"][@"is_pay_password"]) forKey:JYPayPassword];
+//    [userDic setValue:AssectString(dict[@"data"][@"avatar"]) forKey:JYUserImage];
+//    [userDic setValue:AssectString(dict[@"data"][@"is_bink_band_card"]) forKey:JYBindBankCard];
+//    [userDic setValue:AssectString(dict[@"data"][@"upgrade_agent_status"]) forKey:JYUpdateAgentStatus];
+//    [userDic setValue:AssectString(dict[@"data"][@"is_partner"]) forKey:JYIsPartner];
+//    [userDic setValue:AssectString(dict[@"data"][@"is_user_wallet_address"]) forKey:JYWalletAddress];
+//    [userDic setValue:AssectString(dict[@"data"][@"domain_total_number"]) forKey:JYDomainNumber];
+//    [userDic setValue:AssectString(dict[@"data"][@"user_title"]) forKey:JYUserTitle];
+//    [userDic setValue:AssectString(dict[@"data"][@"is_kachin"]) forKey:JYHasKachin];
+//    [userDic setValue:AssectString(dict[@"data"][@"name"]) forKey:JYUserName];
+//    [userDic setValue:AssectString(dict[@"data"][@"name"]) forKey:JYUserName];
+//    [userDic setValue:AssectString(dict[@"data"][@"is_modified_nickname"]) forKey:JYIsModified];
+//
+//    [Manager saveUserToken:[userDic copy]  key:JYLoginuser];
+//}
+
++(void)saveUserInfo:(NSDictionary *)dict{
+    NSMutableDictionary* userDic=[[NSMutableDictionary alloc] initWithDictionary:[Manager takeoutUserTokenkey:JYLoginuser]];
+
+//    [userDic setValue:AssectString(dict[@"data"][@"avatar"]) forKey:JYUserImage];
+    [userDic setValue:AssectString(dict[@"data"][@"domain_name"]) forKey:JYDomainName];
+    [userDic setValue:[NSString stringWithFormat:@"%@",dict[@"data"][@"id"]] forKey:JYId];
+    [userDic setValue:AssectString(dict[@"data"][@"nickname"]) forKey:JYNickName];
+    [userDic setValue:AssectString(dict[@"data"][@"fuel"]) forKey:JYFuel];
+    [userDic setValue:AssectString(dict[@"data"][@"key_password"]) forKey:JYKeyPassword];
+    [userDic setValue:AssectString(dict[@"data"][@"key_address"]) forKey:JYKeyAddress];
+
+
+    [Manager saveUserToken:[userDic copy]  key:JYLoginuser];
+}
+
+@end

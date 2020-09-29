@@ -1,0 +1,32 @@
+//
+//  DSPublishServiceTypeVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/12/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DSPublishServiceTypeVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bgBottomConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomConst;
+///  0是免费文章   1是付费文章  2是私密文章
+@property(nonatomic,assign) long serviceType;
+
+@property (weak, nonatomic) IBOutlet UIView *secretView;
+@property (weak, nonatomic) IBOutlet UIImageView *secretImage;
+@property (weak, nonatomic) IBOutlet UIView *payView;
+@property (weak, nonatomic) IBOutlet UIImageView *payImage;
+@property (weak, nonatomic) IBOutlet UIView *freeView;
+@property (weak, nonatomic) IBOutlet UIImageView *freeImage;
+
+@property (strong, nonatomic) RACSubject *serviceSubject;
+
+@end
+
+NS_ASSUME_NONNULL_END

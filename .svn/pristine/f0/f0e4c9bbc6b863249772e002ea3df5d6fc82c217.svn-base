@@ -1,0 +1,231 @@
+//
+//  BaseViewController.m
+//  JXCategoryView
+//
+//  Created by jiaxin on 2018/8/9.
+//  Copyright © 2018年 jiaxin. All rights reserved.
+//
+
+#import "DNSShopHomeVC.h"
+#import "JXCategoryView.h"
+#import "DNSHomeTradeVC.h"
+#import "DNSHomePublishVC.h"
+
+@interface DNSShopHomeVC () <JXCategoryViewDelegate, JXCategoryListContainerViewDelegate>
+
+@property (nonatomic, strong) UIView *titleview;
+@property (nonatomic, strong) UIButton *backBtn;
+@property (nonatomic, strong) UIButton *searchBtn;
+@property (nonatomic, strong) JXCategoryTitleView *categoryView;
+@property (nonatomic, strong) JXCategoryListContainerView *listContainerView;
+@property (nonatomic, strong) UIView *gradientview;
+@property (nonatomic, strong) NSArray *titles;
+@property (nonatomic, assign) long searchHidden;
+@property (nonatomic, weak) DNSHomeTradeVC *tradeVC;
+
+@end
+
+@implementation DNSShopHomeVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    [self.view addSubview:self.titleview];
+    [self addGradientLayer:self.titleview withHeight:navBarHeight withColor:@"#6647FF" toColor:@"#7CB0FF"];
+    [self.titleview addSubview:self.categoryView];
+    [self.titleview addSubview:self.backBtn];
+    [self.titleview addSubview:self.searchBtn];
+    [self.view addSubview:self.gradientview];
+    [self.view addSubview:self.listContainerView];
+    [self addGradientLayer:self.gradientview withHeight:300 withColor:@"#6647FF" toColor:@"#7CB0FF"];
+    self.listContainerView.didAppearPercent = 0.01; //滚动一点就触发加载
+
+    self.categoryView.contentScrollView = self.listContainerView.scrollView;
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    self.titleview.frame = CGRectMake(0, 0, ksrcwidth, navBarHeight);
+    self.backBtn.frame = CGRectMake(5, navBarHeight - 40, 30, 30);
+    self.categoryView.frame = CGRectMake(ksrcwidth/2 - 133/2, self.titleview.height - 40, 132, 30);
+    self.searchBtn.frame = CGRectMake(ksrcwidth - 45, CGRectGetMidY(self.categoryView.frame) - 15, 30, 30);
+    self.gradientview.frame = CGRectMake(0, CGRectGetMaxY(self.titleview.frame), ksrcwidth, 300);
+    self.listContainerView.frame = CGRectMake(0, CGRectGetMaxY(self.titleview.frame), ksrcwidth, ksrcheight - self.titleview.height);
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    //处于第一个item的时候，才允许屏幕边缘手势返回
+//    self.navigationController.interactivePopGestureRecognizer.enabled = (self.categoryView.selectedIndex == 0);
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    //离开页面的时候，需要恢复屏幕边缘手势，不能影响其他页面
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+}
+
+-(void)addGradientLayer:(UIView *)bgview withHeight:(CGFloat)height withColor:(NSString *)fromColor toColor:(NSString *)toColor{
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, ksrcwidth, height);
+    gradient.startPoint = CGPointMake(0, 0);
+    gradient.endPoint = CGPointMake(1, 0);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor getColor:fromColor alpha:1].CGColor,
+                       (id)[UIColor getColor:toColor alpha:1].CGColor,nil];
+    [bgview.layer addSublayer:gradient];
+}
+
+#pragma mark -JXCategoryViewDelegate
+- (JXCategoryBaseView *)preferredCategoryView {
+    return [[JXCategoryTitleView alloc] init];
+}
+
+- (CGFloat)preferredCategoryViewHeight {
+    return 30;
+}
+
+- (id<JXCategoryListContentViewDelegate>)preferredListAtIndex:(NSInteger)index {
+    if (index == 0) {
+        DNSHomeTradeVC *tradeVC = [[DNSHomeTradeVC alloc] init];
+        tradeVC.naviVC = self.navigationController;
+        return _tradeVC = tradeVC;
+    }
+    DNSHomePublishVC *publishVC = [[DNSHomePublishVC alloc] init];
+    publishVC.naviVC = self.navigationController;
+    return publishVC;
+}
+
+#pragma -mark getter
+-(UIView *)titleview{
+    if (!_titleview) {
+        _titleview = [[UIView alloc] init];
+        _titleview.backgroundColor = [UIColor whiteColor];
+    }
+    return _titleview;
+}
+
+-(UIButton *)backBtn{
+    if (!_backBtn) {
+        _backBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_backBtn setImage:[UIImage imageNamed:@"Back_white"] forState:UIControlStateNormal];
+        [_backBtn setImage:[UIImage imageNamed:@"Back_white"] forState:UIControlStateHighlighted];
+        WeakSelf(self);
+        [[_backBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }];
+    }
+    return _backBtn;
+}
+
+-(UIButton *)searchBtn{
+    if (!_searchBtn) {
+        _searchBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_searchBtn setImage:[UIImage imageNamed:@"icon_search_white_big"] forState:UIControlStateNormal];
+        [_searchBtn setImage:[UIImage imageNamed:@"icon_search_white_big"] forState:UIControlStateHighlighted];
+        WeakSelf(self);
+        [[_searchBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            [weakself.tradeVC goSearchVC];
+        }];
+    }
+    return _searchBtn;
+}
+
+
+- (JXCategoryTitleView *)categoryView {
+    if (_categoryView == nil) {
+        [_categoryView removeFromSuperview];
+        _categoryView = (JXCategoryTitleView *)[self preferredCategoryView];
+        _categoryView.layer.cornerRadius = 15;
+        _categoryView.layer.masksToBounds = YES;
+        _categoryView.layer.borderColor = [UIColor getColor:@"#FFFFFF" alpha:0.7].CGColor;
+        _categoryView.layer.borderWidth = 2/[UIScreen mainScreen].scale;
+        _categoryView.titles = self.titles;
+        _categoryView.cellSpacing = 0;
+        _categoryView.cellWidth = 132/2;
+        _categoryView.titleColor = [UIColor getColor:@"#FFFFFF" alpha:0.7];
+        _categoryView.titleFont = [UIFont systemFontOfSize:14];
+        _categoryView.titleSelectedColor = [UIColor colorWithRGBHex:@"#5151F0"];
+        _categoryView.titleSelectedFont = [UIFont boldSystemFontOfSize:14];
+        _categoryView.titleLabelMaskEnabled = YES;
+         _categoryView.delegate = self;
+        
+        JXCategoryIndicatorBackgroundView *backgroundView = [[JXCategoryIndicatorBackgroundView alloc] init];
+        backgroundView.indicatorHeight = 30;
+        backgroundView.indicatorWidth = 66;
+        backgroundView.indicatorColor = [UIColor whiteColor];
+        _categoryView.indicators = @[backgroundView];
+    }
+    return _categoryView;
+}
+
+-(UIView *)gradientview{
+    if (!_gradientview) {
+        _gradientview = [[UIView alloc] init];
+    }
+    return _gradientview;
+}
+
+- (JXCategoryListContainerView *)listContainerView {
+    if (_listContainerView == nil) {
+        _listContainerView = [[JXCategoryListContainerView alloc] initWithDelegate:self];
+        _listContainerView.scrollView.scrollEnabled = NO;//禁止滚动
+    }
+    return _listContainerView;
+}
+
+#pragma mark - JXCategoryViewDelegate
+- (void)categoryView:(JXCategoryBaseView *)categoryView didSelectedItemAtIndex:(NSInteger)index {
+    //侧滑手势处理
+//    self.navigationController.interactivePopGestureRecognizer.enabled = (index == 0);
+    self.searchBtn.hidden = index == 1;
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView didScrollSelectedItemAtIndex:(NSInteger)index {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView didClickSelectedItemAtIndex:(NSInteger)index {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+    [self.listContainerView didClickSelectedItemAtIndex:index];
+    if (index == 0) {
+        [self addGradientLayer:self.titleview withHeight:navBarHeight withColor:@"#6647FF" toColor:@"#7CB0FF"];
+        [self addGradientLayer:self.gradientview withHeight:300 withColor:@"#6647FF" toColor:@"#7CB0FF"];
+        self.categoryView.titleSelectedColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    }else{
+        [self addGradientLayer:self.titleview withHeight:navBarHeight withColor:@"#18181A" toColor:@"#777785"];
+        [self addGradientLayer:self.gradientview withHeight:300 withColor:@"#18181A" toColor:@"#777785"];
+        self.categoryView.titleSelectedColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }
+    [self.titleview bringSubviewToFront:self.categoryView];
+    [self.titleview bringSubviewToFront:self.backBtn];
+    [self.titleview bringSubviewToFront:self.searchBtn];
+    [self.categoryView reloadData];
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView scrollingFromLeftIndex:(NSInteger)leftIndex toRightIndex:(NSInteger)rightIndex ratio:(CGFloat)ratio {
+    [self.listContainerView scrollingFromLeftIndex:leftIndex toRightIndex:rightIndex ratio:ratio selectedIndex:categoryView.selectedIndex];
+}
+
+#pragma mark - JXCategoryListContainerViewDelegate
+
+- (id<JXCategoryListContentViewDelegate>)listContainerView:(JXCategoryListContainerView *)listContainerView initListForIndex:(NSInteger)index {
+    id<JXCategoryListContentViewDelegate> list = [self preferredListAtIndex:index];
+    return list;
+}
+
+- (NSInteger)numberOfListsInlistContainerView:(JXCategoryListContainerView *)listContainerView {
+    return self.titles.count;
+}
+
+#pragma -mark getter
+-(NSArray *)titles{
+    if (!_titles) {
+        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"交易区", nil),NSLocalizedString(@"发布区", nil), nil];
+    }
+    return _titles;
+}
+@end

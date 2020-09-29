@@ -1,0 +1,303 @@
+//
+//  BaseViewController.m
+//  JXCategoryView
+//
+//  Created by jiaxin on 2018/8/9.
+//  Copyright © 2018年 jiaxin. All rights reserved.
+//
+
+#import "DNSMyPublishParentVC.h"
+#import "JXCategoryView.h"
+#import "DNSMyPublishVC.h"
+#import "BrowserUnbindArticleVC.h"
+#import "BrowserBindArticleVC.h"
+#import "DNSShopSelectVC.h"
+#import "DSPublishVC.h"
+#import "DNSBrowserSettingVC.h"
+#import "UpdateNameVC.h"
+
+@interface DNSMyPublishParentVC () <JXCategoryViewDelegate, JXCategoryListContainerViewDelegate>
+
+@property (nonatomic, strong) UIView *titleview;
+@property (nonatomic, strong) UIButton *backBtn;
+@property (nonatomic, strong) UIButton *searchBtn;
+@property (nonatomic, strong) UIButton *operateBtn;
+@property (nonatomic, strong) JXCategoryTitleView *categoryView;
+@property (nonatomic, strong) JXCategoryListContainerView *listContainerView;
+@property (nonatomic, strong) UIView *gradientview;
+@property (nonatomic, strong) NSArray *titles;
+@property (nonatomic, strong) NSMutableArray *vcs;
+@property (nonatomic, strong) NSMutableArray *searchs;
+@property (nonatomic, assign) NSInteger selectIndex;
+
+@end
+
+@implementation DNSMyPublishParentVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.view.backgroundColor = [UIColor whiteColor];
+    
+    [self.view addSubview:self.titleview];
+    [self.titleview addSubview:self.categoryView];
+    [self.titleview addSubview:self.backBtn];
+    [self.titleview addSubview:self.operateBtn];
+    [self.titleview addSubview:self.searchBtn];
+    [self.view addSubview:self.listContainerView];
+    self.listContainerView.didAppearPercent = 0.01; //滚动一点就触发加载
+
+    self.categoryView.contentScrollView = self.listContainerView.scrollView;
+    
+//    RefreshArticleList
+    WeakSelf(self);
+    [[[NSNotificationCenter defaultCenter] rac_addObserverForName:@"RefreshArticleList" object:nil] subscribeNext:^(NSNotification * _Nullable x) {
+        for (DNSMyPublishVC *publishVC in weakself.vcs) {
+            [publishVC.tableview.mj_header beginRefreshing];
+        }
+    }];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    self.titleview.frame = CGRectMake(0, 0, ksrcwidth, navBarHeight);
+    self.backBtn.frame = CGRectMake(5, navBarHeight - 40, 30, 30);
+    self.categoryView.frame = CGRectMake(ksrcwidth/2 - 133/2, self.titleview.height - 40, 132, 30);
+    self.operateBtn.frame = CGRectMake(ksrcwidth - 40, CGRectGetMidY(self.categoryView.frame) - 15, 30, 30);
+    self.searchBtn.frame = CGRectMake(CGRectGetMinX(self.operateBtn.frame) - 40, CGRectGetMidY(self.categoryView.frame) - 15, 30, 30);
+    self.gradientview.frame = CGRectMake(0, CGRectGetMaxY(self.titleview.frame), ksrcwidth, 300);
+    self.listContainerView.frame = CGRectMake(0, CGRectGetMaxY(self.titleview.frame), ksrcwidth, ksrcheight - self.titleview.height);
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    //处于第一个item的时候，才允许屏幕边缘手势返回
+//    self.navigationController.interactivePopGestureRecognizer.enabled = (self.categoryView.selectedIndex == 0);
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    //离开页面的时候，需要恢复屏幕边缘手势，不能影响其他页面
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+}
+
+#pragma mark -JXCategoryViewDelegate
+- (JXCategoryBaseView *)preferredCategoryView {
+    return [[JXCategoryTitleView alloc] init];
+}
+
+- (CGFloat)preferredCategoryViewHeight {
+    return 30;
+}
+
+- (id<JXCategoryListContentViewDelegate>)preferredListAtIndex:(NSInteger)index {
+    DNSMyPublishVC *publishVC = [[DNSMyPublishVC alloc] init];
+    publishVC.type = index;
+    publishVC.naviVc = self.navigationController;
+    [self.vcs replaceObjectAtIndex:index withObject:publishVC];
+    return publishVC;
+}
+
+-(void)bindOrUnbindClick{
+    UIAlertController *sheetVC = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    WeakSelf(self);
+    UIAlertAction *sheetBtn1 = [UIAlertAction actionWithTitle:NSLocalizedString(@"解绑文章", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        BrowserUnbindArticleVC *unbind = [[BrowserUnbindArticleVC alloc] init];
+        [weakself.navigationController pushViewController:unbind animated:YES];
+    }];
+    
+    UIAlertAction *sheetBtn2 = [UIAlertAction actionWithTitle:NSLocalizedString(@"绑定文章", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        BrowserBindArticleVC *bind = [[BrowserBindArticleVC alloc] init];
+        [weakself.navigationController pushViewController:bind animated:YES];
+    }];
+    
+    UIAlertAction *sheetBtn3 = [UIAlertAction actionWithTitle:NSLocalizedString(@"发布文章", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+        if ([AssectString(dict[JYIsModified]) isEqualToString:@"1"]) {
+            DSPublishVC *publish = [[DSPublishVC alloc] init];
+            [weakself.navigationController pushViewController:publish animated:YES];
+        }else{
+            //设置
+            DNSBrowserSettingVC *setting = [[DNSBrowserSettingVC alloc] init];
+            setting.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+            setting.settingSubject = [RACSubject subject];
+            [setting.settingSubject subscribeNext:^(id x) {
+                UpdateNameVC *update = [[UpdateNameVC alloc] init];
+                [weakself.navigationController pushViewController:update animated:YES];
+            }];
+            [weakself presentViewController:setting animated:YES completion:^{
+            }];
+        }
+    }];
+    
+    UIAlertAction *sheetBtn = [UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    
+    [sheetVC addAction:sheetBtn3];
+    [sheetBtn3 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn2];
+    [sheetBtn2 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+-(void)getSearch{
+    DNSShopSelectVC *selectVC = [[DNSShopSelectVC alloc] init];
+    selectVC.searchHistory = AssectString(self.searchs[self.selectIndex]);
+    selectVC.placeHolderStr = NSLocalizedString(@"请输入 域名/Hash/关键字", nil);
+    selectVC.statusType = 1;
+    selectVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    selectVC.searchSubject = [RACSubject subject];
+    WeakSelf(self);
+    [selectVC.searchSubject subscribeNext:^(NSString *search) {
+        DNSMyPublishVC *publish = weakself.vcs[weakself.selectIndex];
+        publish.searchStr  = search;
+        [weakself.searchs replaceObjectAtIndex:weakself.selectIndex withObject:AssectString(search)];
+        [publish.tableview.mj_header beginRefreshing];
+    }];
+    UIWindow *window = [[[UIApplication sharedApplication] windows] objectAtIndex:0];
+    [window.rootViewController presentViewController:selectVC animated:NO completion:^{
+        
+    }];
+}
+
+#pragma -mark getter
+-(UIView *)titleview{
+    if (!_titleview) {
+        _titleview = [[UIView alloc] init];
+        _titleview.backgroundColor = [UIColor whiteColor];
+    }
+    return _titleview;
+}
+
+-(UIButton *)backBtn{
+    if (!_backBtn) {
+        _backBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_backBtn setImage:[UIImage imageNamed:@"Back_black"] forState:UIControlStateNormal];
+        [_backBtn setImage:[UIImage imageNamed:@"Back_black"] forState:UIControlStateHighlighted];
+        WeakSelf(self);
+        [[_backBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }];
+    }
+    return _backBtn;
+}
+
+-(UIButton *)searchBtn{
+    if (!_searchBtn) {
+        _searchBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_searchBtn setImage:[UIImage imageNamed:@"icon_search_black"] forState:UIControlStateNormal];
+        [_searchBtn setImage:[UIImage imageNamed:@"icon_search_black"] forState:UIControlStateHighlighted];
+        WeakSelf(self);
+        [[_searchBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            [weakself getSearch];
+        }];
+    }
+    return _searchBtn;
+}
+
+-(UIButton *)operateBtn{
+    if (!_operateBtn) {
+        _operateBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_operateBtn setImage:[UIImage imageNamed:@"icon_browser_operate"] forState:UIControlStateNormal];
+        [_operateBtn setImage:[UIImage imageNamed:@"icon_browser_operate"] forState:UIControlStateHighlighted];
+        WeakSelf(self);
+        [[_operateBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            [weakself bindOrUnbindClick];
+        }];
+    }
+    return _operateBtn;
+}
+
+- (JXCategoryTitleView *)categoryView {
+    if (_categoryView == nil) {
+        [_categoryView removeFromSuperview];
+        _categoryView = (JXCategoryTitleView *)[self preferredCategoryView];
+        _categoryView.layer.cornerRadius = 15;
+        _categoryView.layer.masksToBounds = YES;
+        _categoryView.layer.borderColor = [UIColor colorWithRGBHex:@"#9999A3"].CGColor;
+        _categoryView.layer.borderWidth = 2/[UIScreen mainScreen].scale;
+        _categoryView.titles = self.titles;
+        _categoryView.cellSpacing = 0;
+        _categoryView.cellWidth = 132/2;
+//        _categoryView.cellWidthIncrement = 10;
+//        _categoryView.cellWidthZoomEnabled = YES;
+        _categoryView.titleColor = [UIColor colorWithRGBHex:@"#777785"];
+        _categoryView.titleFont = [UIFont systemFontOfSize:14];
+        _categoryView.titleSelectedColor = [UIColor whiteColor];
+        _categoryView.titleSelectedFont = [UIFont systemFontOfSize:14 weight:(UIFontWeightMedium)];
+        _categoryView.titleLabelMaskEnabled = YES;
+        _categoryView.delegate = self;
+        
+        JXCategoryIndicatorBackgroundView *backgroundView = [[JXCategoryIndicatorBackgroundView alloc] init];
+        backgroundView.indicatorHeight = 30;
+        backgroundView.indicatorColor = [UIColor blackColor];
+        _categoryView.indicators = @[backgroundView];
+    }
+    return _categoryView;
+}
+
+- (JXCategoryListContainerView *)listContainerView {
+    if (_listContainerView == nil) {
+        _listContainerView = [[JXCategoryListContainerView alloc] initWithDelegate:self];
+    }
+    return _listContainerView;
+}
+
+#pragma mark - JXCategoryViewDelegate
+- (void)categoryView:(JXCategoryBaseView *)categoryView didSelectedItemAtIndex:(NSInteger)index {
+    //侧滑手势处理
+//    self.navigationController.interactivePopGestureRecognizer.enabled = (index == 0);
+    self.selectIndex = index;
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView didScrollSelectedItemAtIndex:(NSInteger)index {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView didClickSelectedItemAtIndex:(NSInteger)index {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+    [self.listContainerView didClickSelectedItemAtIndex:index];
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView scrollingFromLeftIndex:(NSInteger)leftIndex toRightIndex:(NSInteger)rightIndex ratio:(CGFloat)ratio {
+    [self.listContainerView scrollingFromLeftIndex:leftIndex toRightIndex:rightIndex ratio:ratio selectedIndex:categoryView.selectedIndex];
+}
+
+#pragma mark - JXCategoryListContainerViewDelegate
+
+- (id<JXCategoryListContentViewDelegate>)listContainerView:(JXCategoryListContainerView *)listContainerView initListForIndex:(NSInteger)index {
+    id<JXCategoryListContentViewDelegate> list = [self preferredListAtIndex:index];
+    return list;
+}
+
+- (NSInteger)numberOfListsInlistContainerView:(JXCategoryListContainerView *)listContainerView {
+    return self.titles.count;
+}
+
+#pragma -mark getter
+-(NSArray *)titles{
+    if (!_titles) {
+        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"公开", nil),NSLocalizedString(@"私密", nil), nil];
+    }
+    return _titles;
+}
+-(NSMutableArray *)vcs{
+    if (!_vcs) {
+        _vcs = [NSMutableArray arrayWithObjects:[DNSMyPublishVC new],[DNSMyPublishVC new], nil];
+    }
+    return _vcs;
+}
+
+-(NSMutableArray *)searchs{
+    if (!_searchs) {
+        _searchs = [NSMutableArray arrayWithObjects:@"",@"", nil];
+    }
+    return _searchs;
+}
+@end

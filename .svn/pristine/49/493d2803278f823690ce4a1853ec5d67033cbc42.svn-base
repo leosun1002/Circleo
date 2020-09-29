@@ -1,0 +1,43 @@
+//
+//  DNBrowserNewsTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSMyBrowserModel.h"
+#import "DNSBrowserArticleModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNBrowserNewsTableViewCell : UITableViewCell
+
+@property(nonatomic,strong) DNSMyBrowserModel *model;
+@property(nonatomic,strong) DNSMyBrowserModel *collectModel;
+@property(nonatomic,strong) DNSBrowserArticleModel *article;
+@property(nonatomic,strong) NSString *searchStr;
+
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentLabel;
+@property (weak, nonatomic) IBOutlet UILabel *dnNameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *chainImg;
+@property (weak, nonatomic) IBOutlet UILabel *chainLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleLeadConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *tagLeadConst;
+
+@property (weak, nonatomic) IBOutlet UIImageView *topImage;
+@property (weak, nonatomic) IBOutlet UIView *tagView;//标签
+@property (weak, nonatomic) IBOutlet UILabel *tagLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *typeView;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *typeviewLeading;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,37 @@
+//
+//  DNBrowserListVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNBrowserListVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (strong, nonatomic) NSString *searchStr;
+@property (strong, nonatomic) RACSubject *searchSubject;
+@property (weak, nonatomic) IBOutlet UITextField *searchText;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthConst;
+
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet UIView *topTypeView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topTypeHeight;
+
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *collectWidth;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+@property (weak, nonatomic) IBOutlet UIScrollView *tagBgview;
+
+@property (weak, nonatomic) IBOutlet UITableView *domainTable;
+@property (weak, nonatomic) IBOutlet UITableView *articelTable;
+@property (weak, nonatomic) IBOutlet UITableView *certificateTable;
+@property (weak, nonatomic) IBOutlet UITableView *websiteTable;
+
+@end
+
+NS_ASSUME_NONNULL_END

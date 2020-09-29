@@ -1,0 +1,16 @@
+//
+//  ShopAssetsRecordModel.m
+//  Cloud Pro
+//
+//  Created by leosun on 2020/7/10.
+//  Copyright © 2020 yunzhuan. All rights reserved.
+//
+
+#import "ShopAssetsRecordModel.h"
+
+@implementation ShopAssetsRecordModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"recordid":@"id",@"hashContent":@"hash"};
+}
+@end

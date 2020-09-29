@@ -1,0 +1,206 @@
+//
+//  AgentUSDTPullVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AgentUSDTPullVC.h"
+#import "ScanViewController.h"
+#import "TransPswInputVC.h"
+#import "PayResultVC.h"
+#import "AddressManageVC.h"
+
+@interface AgentUSDTPullVC ()<UITextViewDelegate>
+
+@property(nonatomic,strong)NSString *usdtYe;
+@end
+
+@implementation AgentUSDTPullVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self getData];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getUserInfo];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+    self.backview.layer.shadowColor = [UIColor colorWithRGBHex:@"#1F1F4D"].CGColor;//阴影颜色
+    self.backview.layer.shadowOffset = CGSizeMake(2, 2);//偏移距离
+    self.backview.layer.shadowOpacity = 0.1;//不透明度
+    self.backview.layer.shadowRadius = 5;//半径
+    
+    self.countText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.countText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+
+    WeakSelf(self);
+    [[self.countText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        NSString *pull = [weakself.countText PreciseFigures:4];
+        weakself.countText.text = pull;
+        [weakself calculateCount];
+        [weakself makeBtnEnable];
+    }];
+    [[self.addressText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeBtnEnable];
+    }];
+    [[self.checkBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        TransPswInputVC *psw = [[TransPswInputVC alloc] init];
+        psw.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        psw.subject = [RACSubject subject];
+        [psw.subject subscribeNext:^(NSString *psw) {
+            [weakself checkClick:psw];
+        }];
+        [weakself presentViewController:psw animated:NO completion:^{
+            
+        }];
+    }];
+    [self setData];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself setData];
+            }
+        }
+    }];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:DomainPaymentFee param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.sxfText.text = AssectNumber(json[@"data"][@"usdt_payment_fee"]);
+                NSString *minWithdraw = AssectNumber(json[@"data"][@"usdt_minimum_withdrawal"]);
+                NSString *tipStr = [NSString stringWithFormat:NSLocalizedString(@"注：如果向非USDT地址发送资产将不可找回。USDT提币手续费%@USDT，最低转出金额为%@USDT。", nil),AssectNumber(json[@"data"][@"usdt_payment_fee"]),minWithdraw];
+                weakself.tipLabel.text = tipStr;
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)setData{
+    NSDictionary *userDict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.usdtYe = AssectNumber(userDict[JYIncomeUsdtMoney]);
+    NSString *placeholder = [NSString stringWithFormat:NSLocalizedString(@"当前可提 %@", nil),self.usdtYe];
+    self.countText.placeholder = placeholder;
+    self.usdtLabel.text = self.usdtYe;
+    self.zhCnyLabel.text = [NSString stringWithFormat:@"≈%@CNY",[GaoJingDu cheng:@[self.usdtYe,@"7"] jindu:@"2"]];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)allClick:(id)sender {
+    self.countText.text = self.usdtYe;
+    [self calculateCount];
+    [self makeBtnEnable];
+}
+
+- (IBAction)addressClick:(id)sender {
+    AddressManageVC *adrress = [[AddressManageVC alloc] init];
+    adrress.subject = [RACSubject subject];
+    WeakSelf(self);
+    [adrress.subject subscribeNext:^(NSString *address) {
+        weakself.addressText.text = address;
+    }];
+    [self.navigationController pushViewController:adrress animated:YES];
+}
+
+- (IBAction)saoClick:(id)sender {
+    ScanViewController *scan = [[ScanViewController alloc] init];
+    WeakSelf(self);
+    scan.modalPresentationStyle = UIModalPresentationFullScreen;
+    scan.scanBlock = ^(NSString *scanData) {
+        weakself.addressText.text = scanData;
+        [weakself makeBtnEnable];
+    };
+    [self presentViewController:scan animated:YES completion:^{
+    }];
+}
+
+-(void)calculateCount{
+    NSString *pull = AssectNumber(self.countText.text);
+    NSString *sxf = AssectNumber(self.sxfText.text);
+    if ([pull doubleValue] <= [sxf doubleValue]) {
+        self.dzText.text = @"0.00";
+        return;
+    }
+    self.dzText.text = [GaoJingDu jian:@[pull,sxf] jindu:@"2"];
+}
+
+-(void)makeBtnEnable{
+    NSString *dz = self.dzText.text;
+    NSString *address = AssectString(self.addressText.text);
+    if ([dz doubleValue] > 0 && ![address isEqualToString:@""]) {
+        self.checkBtn.enabled = YES;
+        self.checkBtn.alpha = 1.f;
+    }else{
+        self.checkBtn.enabled = NO;
+        self.checkBtn.alpha = 0.7;
+    }
+}
+
+-(void)checkClick:(NSString *)psw{
+    NSString *address = AssectString(self.addressText.text);
+    NSString *pull = AssectNumber(self.countText.text);
+    NSString *sxf = AssectNumber(self.sxfText.text);
+    NSString *dz = AssectNumber(self.dzText.text);
+
+    NSArray *datas = [NSArray arrayWithObjects:@{@"withdrawal_money":pull},@{@"payment_fee":sxf},@{@"actual_money":dz},@{@"remark":self.markText.text},@{@"type":@"2"},@{@"pay_password":[psw md532BitUpper]},@{@"receiving_address":address}, nil];
+    NSDictionary *dict = [SignGenerated signedAfterDic:datas];
+
+    //    NSDictionary *dict = @{@"withdrawal_money":pull,@"payment_fee":sxf,@"actual_money":dz,@"remark":self.markText.text,@"type":@"2",@"pay_password":[psw md532BitUpper],@"receiving_address":address};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:WithdrawalUSDT param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                PayResultVC *result = [[PayResultVC alloc] init];
+                result.type = 1;
+                result.modalPresentationStyle = UIModalPresentationFullScreen;
+                result.subject = [RACSubject subject];
+                [result.subject subscribeNext:^(id x) {
+//                    [weakself.navigationController popToRootViewControllerAnimated:YES];
+                    [weakself popToNav:weakself.navigationController withPopVC:@"MyIncomeAssetVC"];
+                }];
+                [weakself presentViewController:result animated:YES completion:^{
+                    
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark UITextViewDelegate
+-(void)textViewDidChange:(UITextView *)textView{
+    self.markLabel.hidden = textView.text.length != 0;
+}
+@end

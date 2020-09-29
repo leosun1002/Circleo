@@ -1,0 +1,44 @@
+//
+//  ShopAssetsSearchVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/14.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAssetsSearchVC.h"
+#import "ShopAssetSearchTableViewCell.h"
+
+@interface ShopAssetsSearchVC ()<UITableViewDelegate,UITableViewDataSource>
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+
+@end
+
+@implementation ShopAssetsSearchVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = IS_IPHONEX?44:20;
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopAssetSearchTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopAssetSearchTableViewCell"];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma -mark UITableViewDataSource
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopAssetSearchTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopAssetSearchTableViewCell"];
+    return cell;
+}
+
+@end

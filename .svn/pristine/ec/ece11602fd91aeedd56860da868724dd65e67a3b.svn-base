@@ -1,0 +1,127 @@
+//
+//  IntegrationChildCenterVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "IntegrationChildCenterVC.h"
+#import "IntegrationTableViewCell.h"
+#import "IntegralModel.h"
+#import "DNSNoDataTableViewCell.h"
+
+@interface IntegrationChildCenterVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property(nonatomic,strong)NSMutableArray<NSMutableArray *> *datas;
+@property(nonatomic,strong)NSMutableArray *pages;
+@property(nonatomic,strong)NSMutableArray *refreshs;
+
+@end
+
+@implementation IntegrationChildCenterVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"IntegrationTableViewCell" bundle:nil] forCellReuseIdentifier:@"IntegrationTableViewCell"];
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSNoDataTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNSNoDataTableViewCell"];
+    
+    self.tableview.estimatedRowHeight = 0;
+    self.tableview.estimatedSectionFooterHeight = 0;
+    self.tableview.estimatedSectionHeaderHeight = 0;
+    
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getDatas:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getDatas:NO];
+    }];
+}
+
+-(void)getDatas:(BOOL)ifFresh{
+    NSMutableArray *tempDatas = self.datas[self.type];
+    NSInteger page = [self.pages[self.type] integerValue];
+    ifFresh?(page = 1):(page ++);
+    NSDictionary *dict = @{@"in_or_out":[NSString stringWithFormat:@"%ld",self.type+1],@"page":[NSString stringWithFormat:@"%ld",(long)page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:IntegralIndex param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[tempDatas removeAllObjects];
+                NSMutableArray<IntegralModel *> *applicationList = [IntegralModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [tempDatas addObjectsFromArray:applicationList];
+                [weakself.datas replaceObjectAtIndex:weakself.type withObject:tempDatas];
+                [weakself.pages replaceObjectAtIndex:weakself.type withObject:[NSString stringWithFormat:@"%ld",(long)page]];
+            }
+        }
+        [weakself.tableview reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+-(void)refreshData{
+    NSString *refrsh = self.refreshs[self.type];
+    if ([refrsh isEqualToString:@"0"]) {
+        [self.tableview.mj_header beginRefreshing];
+        [self.refreshs replaceObjectAtIndex:self.type withObject:@"1"];
+    }
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    NSMutableArray *tempDatas = self.datas[self.type];
+    if (tempDatas.count == 0) {
+        return 1;
+    }
+    return tempDatas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSMutableArray *tempDatas = self.datas[self.type];
+    if (tempDatas.count == 0) {
+        return ksrcheight - 210 - 44;
+    }
+    return 71.f;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSMutableArray *tempDatas = self.datas[self.type];
+    if (tempDatas.count == 0) {
+        DNSNoDataTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSNoDataTableViewCell"];
+        cell.nameLabel.text = NSLocalizedString(@"暂无数据记录", nil);
+        return cell;
+    }
+    IntegrationTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"IntegrationTableViewCell"];
+    cell.model = tempDatas[indexPath.row];
+    return cell;
+}
+
+#pragma mark -getter
+-(NSMutableArray<NSMutableArray *> *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray arrayWithObjects:[NSMutableArray array],[NSMutableArray array],[NSMutableArray array], nil];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)pages{
+    if (!_pages) {
+        _pages = [NSMutableArray arrayWithObjects:@"1",@"1",@"1", nil];
+    }
+    return _pages;
+}
+
+-(NSMutableArray *)refreshs{
+    if (!_refreshs) {
+        _refreshs = [NSMutableArray arrayWithObjects:@"0",@"0",@"0", nil];
+    }
+    return _refreshs;
+}
+@end

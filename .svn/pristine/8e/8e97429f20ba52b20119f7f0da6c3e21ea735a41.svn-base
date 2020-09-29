@@ -1,0 +1,32 @@
+//
+//  WebsiteArticelModel.m
+//  ScmProject
+//
+//  Created by leosun on 2020/6/3.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebsiteArticelModel.h"
+
+@implementation WebsiteNavigationModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"navigationId":@"id"};
+}
+
+@end
+
+@implementation WebsiteChainModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"chainId":@"id"};
+}
+
+@end
+
+@implementation WebsiteArticelModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"articleId":@"id"};
+}
+@end

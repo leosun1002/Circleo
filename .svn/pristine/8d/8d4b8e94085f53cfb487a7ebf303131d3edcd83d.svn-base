@@ -1,0 +1,44 @@
+//
+//  ShopCarModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopCarModel : NSObject
+
+@property(nonatomic,assign) long carid;
+@property(nonatomic,assign) long user_id;
+@property(nonatomic,copy) NSString *domain_name;
+/**
+ 域名CNY价格
+ */
+@property(nonatomic,copy) NSString *cny_fee;
+/**
+ 域名CNY年维护费
+ */
+@property(nonatomic,copy) NSString *unit_price;
+/**
+ 域名USDT价格
+ */
+@property(nonatomic,copy) NSString *usdt_fee;
+@property(nonatomic,copy) NSString *unit_usdt_price;
+/**
+ 0未注册，1已注册
+ */
+@property(nonatomic,assign) long status;
+@property(nonatomic,copy) NSString *created_at;
+@property(nonatomic,copy) NSString *updated_at;
+/**
+ 0未选中 1已选中
+ */
+@property(nonatomic,assign) long hasSelect;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,27 @@
+//
+//  AuthenVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AuthenVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITextField *nameText;
+@property (weak, nonatomic) IBOutlet UITextField *cardText;
+@property (weak, nonatomic) IBOutlet UIView *frontView;
+@property (weak, nonatomic) IBOutlet UIImageView *frontImage;
+@property (weak, nonatomic) IBOutlet UIView *backView;
+@property (weak, nonatomic) IBOutlet UIImageView *backImage;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UILabel *xieyiLabel;
+@property (weak, nonatomic) IBOutlet UILabel *yinsiLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

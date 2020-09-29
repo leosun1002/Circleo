@@ -1,0 +1,28 @@
+//
+//  MyEvidenceTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/4/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MyEvidenceModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyEvidenceTableViewCell : UITableViewCell
+
+@property (strong, nonatomic) MyEvidenceModel *model;
+@property (weak, nonatomic) IBOutlet UIButton *operateClick;
+@property (weak, nonatomic) IBOutlet UILabel *numberLabel;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UIView *statusView;
+@property (weak, nonatomic) IBOutlet UIImageView *statusImageV;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *statusWidth;
+
+@end
+
+NS_ASSUME_NONNULL_END

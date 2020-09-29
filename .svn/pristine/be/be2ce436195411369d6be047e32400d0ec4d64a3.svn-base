@@ -1,0 +1,25 @@
+//
+//  IntegrationTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "IntegralModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface IntegrationTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)IntegralModel *model;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *orderLabel;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

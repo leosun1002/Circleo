@@ -1,0 +1,129 @@
+//
+//  BrowserBindDNVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BrowserBindDNVC.h"
+#import "BrowserDNListTableViewCell.h"
+#import "DNSSellSelectVC.h"
+
+@interface BrowserBindDNVC ()<UITableViewDataSource,UITableViewDelegate,CYLTableViewPlaceHolderDelegate>
+
+@property(nonatomic,strong) NSMutableArray *datas;
+@end
+
+@implementation BrowserBindDNVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"绑定域名", nil) hiddeBack:NO];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"BrowserDNListTableViewCell" bundle:nil] forCellReuseIdentifier:@"BrowserDNListTableViewCell"];
+    WeakSelf(self);
+    [[self.checkBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself checkClick];
+    }];
+    [self.tableview cyl_reloadData];
+}
+
+- (IBAction)addClick:(id)sender {
+    DNSSellSelectVC *sellSelect = [[DNSSellSelectVC alloc] init];
+    sellSelect.pageType = 1;
+    sellSelect.titleStr = NSLocalizedString(@"选择绑定域名", nil);
+    if (self.datas.count > 0) {
+        NSDictionary *dict = self.datas[0];
+        sellSelect.selectStr = AssectString(dict[@"domain_name"]);
+    }
+    sellSelect.nameSubject = [RACSubject subject];
+    WeakSelf(self);
+    [sellSelect.nameSubject subscribeNext:^(NSDictionary *dict) {
+        if (weakself.datas.count == 0) {
+            [weakself.datas addObject:dict];
+        }else{
+            [weakself.datas replaceObjectAtIndex:0 withObject:dict];
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself caculateCount];
+    }];
+    [self.navigationController pushViewController:sellSelect animated:YES];
+}
+
+-(void)caculateCount{
+    self.checkBtn.enabled = self.datas.count>0;
+    self.checkBtn.alpha = self.datas.count>0?1:0.7;
+    self.countLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count];
+}
+
+-(void)checkClick{
+    if (self.datas.count == 0) return;
+    long domain_name_id = [self.datas[0][@"manageid"] longLongValue];
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    NSDictionary *dict = @{@"domain_name_id":[NSString stringWithFormat:@"%ld",domain_name_id],@"article_chain_id":[NSString stringWithFormat:@"%ld",self.articleid]};
+    self.checkBtn.enabled = NO;
+    WeakSelf(self);
+    [WebServices postFormReqUrl:BrowserDomainBindArticleChain param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.subject sendNext:@""];
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }else{
+                weakself.checkBtn.enabled = YES;
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            weakself.checkBtn.enabled = YES;
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无绑定域名", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    BrowserDNListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BrowserDNListTableViewCell"];
+    cell.imageView.hidden = YES;
+    cell.delBtn.hidden = NO;
+    NSDictionary *dict = self.datas[indexPath.row];
+    cell.nameLabel.text = AssectString(dict[@"domain_name"]);
+    [cell.delBtn addTarget:self action:@selector(delClick) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)delClick{
+    [self.datas removeAllObjects];
+    [self.tableview cyl_reloadData];
+    [self caculateCount];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

@@ -1,0 +1,39 @@
+//
+//  MyIncomeChildView.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/19.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "JXPagerView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef enum{
+    MyIncomeChildViewTypeWithDraw,     // 提现
+    MyIncomeChildViewTypeWithTransfer,    // 划转
+}MyIncomeChildViewType;
+
+typedef enum{
+    MyIncomeChildViewCurrencyTypeUSDT,  // USDT
+    MyIncomeChildViewCurrencyTypeCNY,   // CNY
+}MyIncomeChildViewCurrencyType;
+
+@interface MyIncomeChildView : UIView<JXPagerViewListViewDelegate,UITableViewDelegate,UITableViewDataSource>
+
+/**
+ 页面类型
+ */
+@property (nonatomic,assign) MyIncomeChildViewType pageType;
+@property (nonatomic,assign) MyIncomeChildViewCurrencyType currencyType;
+
+@property (nonatomic, copy) void(^scrollCallback)(UIScrollView *scrollView);
+@property (nonatomic,strong) UITableView *tableview;
+@property (nonatomic,strong) RACSubject *subject;
+
+-(void)refreshData;
+@end
+
+NS_ASSUME_NONNULL_END

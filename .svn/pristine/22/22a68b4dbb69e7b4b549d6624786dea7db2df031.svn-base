@@ -1,0 +1,28 @@
+//
+//  AlipayOrWechatVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AlipayOrWechatVC.h"
+
+@interface AlipayOrWechatVC ()
+
+@end
+
+@implementation AlipayOrWechatVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"添加支付宝", nil) hiddeBack:NO];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+}
+
+
+@end

@@ -1,0 +1,33 @@
+//
+//  DNRecomendCollectionViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSShopRecommendModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNRecomendCollectionViewCell : UICollectionViewCell
+
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property(nonatomic,strong)DNSShopRecommendModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *tjLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *tjWidth;
+@property (weak, nonatomic) IBOutlet UILabel *tjLabel1;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *tWidth1;
+@property (weak, nonatomic) IBOutlet UILabel *tjLabel2;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *tjWidth2;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UIButton *addBtn;
+@property (weak, nonatomic) IBOutlet UILabel *remarkLabel;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *leadingConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *trailConst;
+@end
+
+NS_ASSUME_NONNULL_END

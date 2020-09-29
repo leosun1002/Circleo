@@ -1,0 +1,71 @@
+//
+//  MallSetPasswordVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallSetPasswordVC.h"
+
+@interface MallSetPasswordVC ()
+
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+@property (weak, nonatomic) IBOutlet UITextField *retryPswText;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@end
+
+@implementation MallSetPasswordVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    WeakSelf(self);
+    [[self.pswText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeBtnEnable];
+    }];
+    [[self.retryPswText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeBtnEnable];
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSString *psw = AssectString(self.pswText.text);
+    NSString *retryPsw = AssectString(self.retryPswText.text);
+    NSCharacterSet *cs = [[NSCharacterSet characterSetWithCharactersInString:NUMBERALPHAN] invertedSet];
+    NSString *filtered = [[psw componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+    if (psw.length != 6) {
+        [self showMsg:NSLocalizedString(@"请输入正确的密码", nil) location:centre];
+        return;
+    }
+    if (![psw isEqualToString:filtered]) {
+        [self showMsg:NSLocalizedString(@"请输入正确的密码", nil) location:centre];
+        return;
+    }
+    if (![retryPsw isEqualToString:psw]) {
+        [self showMsg:NSLocalizedString(@"两次密码不一致", nil) location:centre];
+        return;
+    }
+    
+    [Manager saveToken:[[psw md532BitUpper] md532BitLower] key:JYTradePassword];
+    [self showMsg:@"密码设置成功" location:centre];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)makeBtnEnable{
+    NSString *psw = AssectString(self.pswText.text);
+    NSString *retryPsw = AssectString(self.retryPswText.text);
+    if ([psw isEqualToString:@""] || [retryPsw isEqualToString:@""]) {
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        self.checkBtn.enabled = NO;
+    }else{
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+        self.checkBtn.enabled = YES;
+    }
+}
+
+@end

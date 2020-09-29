@@ -1,0 +1,43 @@
+//
+//  PayDetailTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PayDetailTableViewCell.h"
+
+@implementation PayDetailTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setNewType:(long)newType{
+    _newType = newType;
+    self.salePrice.hidden = newType != 0;
+    self.salePriceTip.hidden = newType != 0;
+}
+
+-(void)setModel:(DNSBuyModel *)model{
+    _model = model;
+    self.nameLabel.text = model.domain_name;
+    self.salePrice.text = AssectNumber(model.usdt_fee);
+    if (self.newType == 0) {
+        self.servicePrice.text = AssectNumber(model.usdt_price);
+    }else{
+        self.servicePrice.text = [GaoJingDu cheng:@[AssectNumber(model.usdt_price),[NSString stringWithFormat:@"%ld",model.years]] jindu:@"2"];
+    }
+    NSString *year = [NSString stringWithFormat:NSLocalizedString(@"%ld年", nil),model.years];
+    self.yearLabel.text = year;
+}
+
+@end

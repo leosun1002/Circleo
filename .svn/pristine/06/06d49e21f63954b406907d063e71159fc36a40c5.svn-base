@@ -1,0 +1,291 @@
+//
+//  DNSUnbindVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSUnbindVC.h"
+#import "DNSDetailBindCell.h"
+#import "DNSUnbindDetailFooter.h"
+#import "CloudBankSelectViewController.h"
+#import "SetTradePasswordVC.h"
+#import "DNSBindModel.h"
+#import "PayResultVC.h"
+#import "ConsoleViewController.h"
+
+@interface DNSUnbindVC ()<UITableViewDataSource,UITableViewDelegate>
+
+@property (assign, nonatomic) NSInteger payType;// 0支付宝 1微信 2cny余额 3usdt余额
+@property (strong, nonatomic) NSString *usdtFee;//
+@property (strong, nonatomic) NSString *cnyFee;//
+@property (weak, nonatomic) DNSUnbindDetailFooter *footer;
+
+@end
+
+@implementation DNSUnbindVC
+
+
+-(void)notificationCenter{
+    WeakSelf(self);
+    [[[NSNotificationCenter defaultCenter]rac_addObserverForName:zfbPaySuccessful object:nil]subscribeNext:^(id x) {
+        PayResultVC *result = [[PayResultVC alloc] init];
+        result.modalPresentationStyle = UIModalPresentationFullScreen;
+        result.subject = [RACSubject subject];
+        result.type = 3;
+        [result.subject subscribeNext:^(id x) {
+            [weakself popToVC:@"ConsoleViewController"];
+        }];
+        [weakself presentViewController:result animated:YES completion:^{
+            
+        }];
+    }];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"确认解绑", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self notificationCenter];
+    [self getPaymentFee];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSDetailBindCell" bundle:nil] forCellReuseIdentifier:@"DNSDetailBindCell"];
+    self.topConst.constant += navBarHeight;
+    self.payType = 0;
+    self.countLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count];
+}
+
+-(void)getPaymentFee{
+    WeakSelf(self);
+    [weakself showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:DomainPaymentFee param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.cnyFee = AssectString(json[@"data"][@"remove_bind_address_cny"]);
+                weakself.usdtFee = AssectString(json[@"data"][@"remove_bind_address_usdt"]);
+                [weakself.tableview reloadData];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getPaymentFee];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getPaymentFee];
+            }];;
+        }
+    }];
+}
+
+-(void)paywaySelect{
+    [self.view endEditing:YES];
+
+    CloudBankSelectViewController *select = [[CloudBankSelectViewController alloc] init];
+    select.payType = self.payType;
+    select.plType = 1;
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.subject = [RACSubject subject];
+    WeakSelf(self);
+    [select.subject subscribeNext:^(NSString *selectType) {
+        weakself.footer.pswText.text = @"";
+        weakself.payType = [selectType integerValue];
+        [weakself.tableview reloadData];
+    }];
+    [self presentViewController:select animated:NO completion:^{
+    }];
+}
+
+-(BOOL)setTradepsw:(NSInteger)type{
+    // 0支付宝 1微信 2cny余额 3usdt余额
+    if (type == 2 || type == 3) {
+        NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+        NSString *payPsw = AssectString(userdict[JYPayPassword]);
+        if ([payPsw isEqualToString:@"0"]) {
+            UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:NSLocalizedString(@"设置资产密码", nil) message:NSLocalizedString(@"是否设置资产密码", nil) preferredStyle:UIAlertControllerStyleAlert];
+            
+            WeakSelf(self);
+            UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"确认", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                SetTradePasswordVC *setPsw = [[SetTradePasswordVC alloc] init];
+                setPsw.hasgoback = 1;
+                [weakself.navigationController pushViewController:setPsw animated:YES];
+            }];
+            
+            UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            }];
+            [sheetVC addAction:sheetBtn1];
+            [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+            [sheetVC addAction:sheetBtn];
+            [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+            [self presentViewController:sheetVC animated:YES completion:nil];
+            
+            return NO;
+        }
+    }
+    return YES;
+}
+
+
+- (IBAction)checkClick:(id)sender {
+    if (self.datas.count == 0) return;
+    
+    //查看是否设置交易密码
+    if (![self setTradepsw:self.payType]) return;
+    
+    NSString *password = [self removeSpaceAndNewline:self.footer.pswText.text];
+    NSString *type = @"";
+    // 0支付宝 1微信 2cny余额 3usdt余额
+    if (self.payType == 0) {
+        type = @"3";
+    }else if (self.payType == 2){
+        type = @"1";
+        if ([password isEqualToString:@""]) {
+            [self showMsg:NSLocalizedString(@"请输入资产密码", nil) location:centre];
+            return;
+        }
+    }else{
+        type = @"2";
+        if ([password isEqualToString:@""]) {
+            [self showMsg:NSLocalizedString(@"请输入资产密码", nil) location:centre];
+            return;
+        }
+    }
+    NSString *chain_ids = @"";
+    for (DNSBindModel *model in self.datas) {
+        chain_ids = [chain_ids stringByAppendingString:[NSString stringWithFormat:@"%ld,",model.bindid]];
+    }
+    if (chain_ids.length != 0) {
+        chain_ids = [chain_ids substringToIndex:chain_ids.length - 1];
+    }
+    NSArray *reqDatas = [NSArray array];
+    if ([type isEqualToString:@"3"]) {
+        reqDatas = [NSArray arrayWithObjects:@{@"domain_name_id":self.manageid},@{@"public_chain_ids":chain_ids},@{@"type":type},nil];
+    }else{
+        reqDatas = [NSArray arrayWithObjects:@{@"domain_name_id":self.manageid},@{@"public_chain_ids":chain_ids},@{@"type":type},@{@"pay_password":[password md532BitUpper]},nil];
+    }
+    NSDictionary *dict = [SignGenerated signedAfterDic:reqDatas];
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:DomainNameBatchPay param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                if (weakself.payType == 2 || weakself.payType == 3) {
+                    PayResultVC *result = [[PayResultVC alloc] init];
+                    result.modalPresentationStyle = UIModalPresentationFullScreen;
+                    result.type = 3;
+                    result.subject = [RACSubject subject];
+                    [result.subject subscribeNext:^(id x) {
+                        [weakself popToVC:@"ConsoleViewController"];
+                    }];
+                    [weakself presentViewController:result animated:YES completion:^{
+                        
+                    }];
+                }else{
+                    [weakself openAliPay:json[@"data"][@"alipay_string"]];
+                }
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)openAliPay:(id)sign{
+    if (![sign isKindOfClass:[NSString class]]){
+        [self showMsg:NSLocalizedString(@"支付失败，请稍后重试", nil) location:centre];
+        return;
+    }
+    WeakSelf(self);
+    [[AlipaySDK defaultService] payOrder:AssectString(sign) fromScheme:AlipayScheme callback:^(NSDictionary *resultDic) {
+        NSLog(@"%@",resultDic[@"memo"]);
+        NSString * status =   resultDic[@"resultStatus"];
+        if ([status isEqualToString:@"9000"]) {
+            [weakself showMsg:NSLocalizedString(@"支付成功", nil) location:centre];
+            PayResultVC *result = [[PayResultVC alloc] init];
+            result.modalPresentationStyle = UIModalPresentationFullScreen;
+            result.subject = [RACSubject subject];
+            result.type = 3;
+            [result.subject subscribeNext:^(id x) {
+                [weakself popToVC:@"ConsoleViewController"];
+            }];
+            [weakself presentViewController:result animated:YES completion:^{
+                
+            }];
+        }
+        else if([status isEqualToString:@"6001"]){
+            
+            [weakself showMsg:NSLocalizedString(@"取消支付", nil) location:centre];
+        }
+        else{
+            [weakself showMsg:NSLocalizedString(@"支付失败", nil) location:centre];
+        }
+        
+    }];
+}
+
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 0.001;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    if (self.payType == 0 || self.payType == 1) {
+        return 100 + 20;
+    }
+    return 100 + 80 + 20;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    DNSUnbindDetailFooter *footer = [[DNSUnbindDetailFooter alloc] init];
+    footer.tipLabel.text = [NSString stringWithFormat:NSLocalizedString(@"注：本次解绑将扣除手续费%@CNY≈ %@USDT", nil),[GaoJingDu cheng:@[[NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count],AssectNumber(self.cnyFee)] jindu:@"2"],[GaoJingDu cheng:@[[NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count],AssectNumber(self.usdtFee)] jindu:@"4"]];
+    footer.payType = self.payType;
+    self.checkBtn.enabled = self.payType == 0 || self.payType == 1;
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself paywaySelect];
+    }];
+    [footer addGestureRecognizer:tap];
+    [[footer.pswText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        NSString *psw = [weakself removeSpaceAndNewline:weakself.footer.pswText.text];
+        weakself.checkBtn.enabled = ![psw isEqualToString:@""];
+    }];
+    return _footer = footer;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSDetailBindCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSDetailBindCell"];
+    cell.bindModel = self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)popToVC:(NSString* )vcStr{
+    for (UIViewController *controller in self.navigationController.viewControllers) {
+        if([controller isKindOfClass:NSClassFromString(vcStr)]){
+            ConsoleViewController *consolse = (ConsoleViewController *)controller;
+            [self.navigationController popToViewController:consolse animated:NO];
+            [consolse goManageVc];
+            break;
+        }
+    }
+}
+@end

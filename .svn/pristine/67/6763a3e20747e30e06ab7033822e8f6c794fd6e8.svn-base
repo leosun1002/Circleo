@@ -1,0 +1,30 @@
+//
+//  DNSBrowserInfo.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/28.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSBrowserInfo.h"
+
+@implementation DNSPublicChain
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"chainid":@"id"};
+}
+
+@end
+
+@implementation DNSBrowserInfo
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"browserid":@"id"};
+}
+
++(NSDictionary *)mj_objectClassInArray{
+    return @{@"public_chains" : @"DNSPublicChain"};//前边，是属性数组的名字，后边就是类名
+
+}
+
+@end

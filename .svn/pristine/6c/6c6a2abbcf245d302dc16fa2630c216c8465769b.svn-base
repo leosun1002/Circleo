@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="BankCardListVC">
+            <connections>
+                <outlet property="botHeightConst" destination="KE3-Ea-rQr" id="cso-qW-OHX"/>
+                <outlet property="tableview" destination="HIq-gU-Fpz" id="25J-kH-4AD"/>
+                <outlet property="topConst" destination="mh4-bq-A5K" id="ytA-us-Zqw"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kNE-YN-wUJ">
+                    <rect key="frame" x="0.0" y="814" width="414" height="82"/>
+                    <subviews>
+                        <imageView clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="jianbian_dibu" translatesAutoresizingMaskIntoConstraints="NO" id="P1n-nv-KdG">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="82"/>
+                        </imageView>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UbD-47-8t5">
+                            <rect key="frame" x="0.0" y="17" width="414" height="65"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BYh-bn-5G5">
+                                    <rect key="frame" x="15" y="10" width="384" height="45"/>
+                                    <color key="backgroundColor" red="0.31764705882352939" green="0.31764705882352939" blue="0.94117647058823528" alpha="1" colorSpace="calibratedRGB"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="45" id="AYu-9I-5h0"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                    <inset key="titleEdgeInsets" minX="0.0" minY="0.0" maxX="-20" maxY="0.0"/>
+                                    <state key="normal" title="添加银行卡" image="icon_add">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </state>
+                                    <state key="highlighted" image="icon_add"/>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="5"/>
+                                    </userDefinedRuntimeAttributes>
+                                    <connections>
+                                        <action selector="addCardClick:" destination="-1" eventType="touchUpInside" id="IkN-nE-RQE"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="trailing" secondItem="BYh-bn-5G5" secondAttribute="trailing" constant="15" id="Bnt-YO-0qh"/>
+                                <constraint firstItem="BYh-bn-5G5" firstAttribute="leading" secondItem="UbD-47-8t5" secondAttribute="leading" constant="15" id="feV-OH-AF7"/>
+                                <constraint firstItem="BYh-bn-5G5" firstAttribute="top" secondItem="UbD-47-8t5" secondAttribute="top" constant="10" id="i6I-kR-fez"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="UbD-47-8t5" secondAttribute="bottom" id="0Ge-w7-lv3"/>
+                        <constraint firstItem="UbD-47-8t5" firstAttribute="leading" secondItem="kNE-YN-wUJ" secondAttribute="leading" id="3xr-Yd-QZl"/>
+                        <constraint firstItem="UbD-47-8t5" firstAttribute="top" secondItem="kNE-YN-wUJ" secondAttribute="top" constant="17" id="987-iz-Bzb"/>
+                        <constraint firstAttribute="trailing" secondItem="UbD-47-8t5" secondAttribute="trailing" id="H5Q-sn-u6e"/>
+                        <constraint firstAttribute="height" constant="82" id="KE3-Ea-rQr"/>
+                        <constraint firstAttribute="trailing" secondItem="P1n-nv-KdG" secondAttribute="trailing" id="LJ1-yf-v8f"/>
+                        <constraint firstAttribute="bottom" secondItem="P1n-nv-KdG" secondAttribute="bottom" id="ghf-bm-4KP"/>
+                        <constraint firstItem="P1n-nv-KdG" firstAttribute="top" secondItem="kNE-YN-wUJ" secondAttribute="top" id="m98-T7-oei"/>
+                        <constraint firstItem="P1n-nv-KdG" firstAttribute="leading" secondItem="kNE-YN-wUJ" secondAttribute="leading" id="xxZ-hf-NcZ"/>
+                    </constraints>
+                </view>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="127" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="HIq-gU-Fpz">
+                    <rect key="frame" x="0.0" y="10" width="414" height="804"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="TsK-FB-DC5"/>
+                        <outlet property="delegate" destination="-1" id="XAW-a7-CrY"/>
+                    </connections>
+                </tableView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="kNE-YN-wUJ" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="6Vz-YZ-Vqy"/>
+                <constraint firstItem="kNE-YN-wUJ" firstAttribute="top" secondItem="HIq-gU-Fpz" secondAttribute="bottom" id="Ufi-V5-6Ch"/>
+                <constraint firstItem="HIq-gU-Fpz" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="bmU-dI-R15"/>
+                <constraint firstAttribute="trailing" secondItem="kNE-YN-wUJ" secondAttribute="trailing" id="lCM-uV-KAK"/>
+                <constraint firstItem="HIq-gU-Fpz" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="10" id="mh4-bq-A5K"/>
+                <constraint firstAttribute="bottom" secondItem="kNE-YN-wUJ" secondAttribute="bottom" id="rSK-LV-VcE"/>
+                <constraint firstAttribute="trailing" secondItem="HIq-gU-Fpz" secondAttribute="trailing" id="tKq-pp-TvC"/>
+            </constraints>
+        </view>
+    </objects>
+    <resources>
+        <image name="icon_add" width="16" height="16"/>
+        <image name="jianbian_dibu" width="375" height="72"/>
+    </resources>
+</document>

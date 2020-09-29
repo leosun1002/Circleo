@@ -1,0 +1,23 @@
+//
+//  AdvanceAuthenVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AdvanceAuthenVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UIView *backview;
+@property (weak, nonatomic) IBOutlet UIImageView *pswImage;
+@property (weak, nonatomic) IBOutlet UIButton *pswBtn;
+@property (weak, nonatomic) IBOutlet UIImageView *authenImage;
+@property (weak, nonatomic) IBOutlet UIButton *authenBtn;
+@property(nonatomic,strong) RACSubject *pswSubject;
+@property(nonatomic,strong) RACSubject *authenSubject;
+@end
+
+NS_ASSUME_NONNULL_END

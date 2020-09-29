@@ -1,0 +1,370 @@
+//
+//  DNSSellOrderVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSSellOrderVC.h"
+#import "JieyiXieyiVC.h"
+#import "SetTradePasswordVC.h"
+#import "TransPswInputVC.h"
+#import "NSTimer+Block.h"
+
+@interface DNSSellOrderVC (){
+    long sale_id;
+}
+
+@property(nonatomic,strong) NSString *usdtYe;
+@property(nonatomic,weak) NSTimer *timer;
+@property(nonatomic,strong) NSString *sale_time;
+@property(nonatomic,strong) NSString *price;
+@property(nonatomic,assign) long sale_day;
+@property(nonatomic,assign) BOOL is_exists;
+
+@end
+
+@implementation DNSSellOrderVC
+
+-(void)dealloc{
+    [self tearDownTimer];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:self.type == 0?NSLocalizedString(@"购买订单", nil):NSLocalizedString(@"售出订单", nil) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    WeakSelf(self);
+    [self getUserInfo];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [weakself getData];
+    });
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self dismissLoading];
+}
+
+-(void)prepareUi{
+    if (self.type == 1) {
+        self.priceTipLabel.text = NSLocalizedString(@"求购价格", nil);
+        self.timeTipLabel.text = NSLocalizedString(@"剩余求购时间", nil);
+        self.markTipLabel.text = NSLocalizedString(@"求购备注", nil);
+        [self.checkBtn setTitle:NSLocalizedString(@"确认售出", nil) forState:(UIControlStateNormal)];
+        self.payTipLabel.text = NSLocalizedString(@"交易成功后将扣除手续费", nil);
+        self.payTipLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+        self.buyLable.hidden = YES;
+        self.buyUnitLabel.hidden = YES;
+        self.yeLabel.text = @"--";
+        self.yeLabel.textColor = [UIColor colorWithRGBHex:@"#5151F0"];
+        self.yeLabel.font = [UIFont systemFontOfSize:12];
+        [self getPaymentFee];
+    }else{
+        self.buyView.hidden = YES;
+        self.buyerHeightConst.constant = 0;
+        self.sellUnitLabel.hidden = YES;
+    }
+    
+    NSDictionary *userDict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.usdtYe = AssectNumber(userDict[JYUsdtMoney]);
+    if (self.type == 0) {
+        self.yeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"USDT账户剩余:%@", nil),self.usdtYe];
+    }
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                NSDictionary *userDict = [Manager takeoutUserTokenkey:JYLoginuser];
+                weakself.usdtYe = AssectNumber(userDict[JYUsdtMoney]);
+                if (weakself.type == 0) {
+                    weakself.yeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"USDT账户剩余:%@", nil),weakself.usdtYe];
+                }
+            }
+        }
+    }];
+}
+
+-(void)getPaymentFee{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:DomainPaymentFee param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.yeLabel.text = [NSString stringWithFormat:@"%@%%",[GaoJingDu cheng:@[AssectString(json[@"data"][@"hang_sale_percentage"]),@"100"] jindu:@"2"]];
+            }
+        }
+    }];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    self.checkBtn.enabled = NO;
+    [self showLoading:@"" allowsOpOperation:YES];
+    [WebServices postFormReqUrl:DomainHangSaleShow param:@{@"id":AssectString(self.selectid)} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                if (weakself.type == 0) {
+                    weakself.checkBtn.enabled = YES;
+                    [weakself dismissLoading];
+                    [weakself setData:json[@"data"]];
+                }else{
+                    [weakself setBuyData:json[@"data"]];
+                    [weakself checkBtnEnable:[json[@"data"][@"domain_name_id"] longValue]];
+                }
+            }else{
+                weakself.checkBtn.enabled = YES;
+                [weakself dismissLoading];
+                [weakself showErrorView:weakself.view withTips:AssectString(json[@"msg"])];
+            }
+        }else{
+            weakself.checkBtn.enabled = YES;
+            [weakself dismissLoading];
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)checkBtnEnable:(long)domain_name_id{
+    WeakSelf(self);
+    [WebServices postFormReqUrl:DomainHangSaleIfSelf param:@{@"id":[NSString stringWithFormat:@"%ld",domain_name_id]} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        weakself.checkBtn.enabled = YES;
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.is_exists = [json[@"data"][@"is_exists"] boolValue];
+                if (!weakself.is_exists) {
+                    [weakself.checkBtn setBackgroundImage:[UIImage imageNamed:@"renew_logo_gray"] forState:UIControlStateNormal];
+                }
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself checkBtnEnable:domain_name_id];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself checkBtnEnable:domain_name_id];
+            }];
+        }
+    }];
+}
+
+-(void)setData:(NSDictionary *)dict{
+    self.nameLabel.text = AssectString(dict[@"domain_name"]);
+    self.buyTimeLabel.text = AssectString(dict[@"start_time"]);
+    self.expireTimeLabel.text = AssectString(dict[@"end_time"]);
+    self.sale_time = AssectString(dict[@"sale_time"]);
+    self.sale_day = [dict[@"sale_day"] longValue];
+    NSString *phone = dict[@"sale_phone"];
+    if (phone.length > 9) {
+        phone = [phone substringToIndex:9];
+        phone = [phone stringByAppendingFormat:@"..."];
+    }
+    self.sellLabel.text = phone;
+    self.priceLabel.text = [NSString stringWithFormat:@"%@ USDT",AssectString(dict[@"price"])];
+    self.typeLabel.text = [dict[@"type"] longValue] != 1?@"":NSLocalizedString(@"一口价", nil);
+    self.pulishTimeLabel.text = AssectString(dict[@"sale_time"]);
+    self.contentLabel.text = [AssectString(dict[@"content"]) isEqualToString:@""]?NSLocalizedString(@"界一域名，自用投资两不误！", nil):AssectString(dict[@"content"]);
+    self.buyLable.text = AssectString(dict[@"price"]);
+    self.price = AssectString(dict[@"price"]);
+    [self addTimer];
+}
+
+-(void)setBuyData:(NSDictionary *)dict{
+    self.nameLabel.text = AssectString(dict[@"domain_name"]);
+    self.buyTimeLabel.text = AssectString(dict[@"start_time"]);
+    self.expireTimeLabel.text = AssectString(dict[@"end_time"]);
+    self.sale_time = AssectString(dict[@"sale_time"]);
+    self.sale_day = [dict[@"sale_day"] longValue];
+    NSString *phone = dict[@"sale_phone"];
+    if (phone.length > 9) {
+        phone = [phone substringToIndex:9];
+        phone = [phone stringByAppendingFormat:@"..."];
+    }
+    self.sellLabel.text = phone;
+    NSString *buy_phone = dict[@"buy_phone"];
+    if (buy_phone.length > 9) {
+        buy_phone = [buy_phone substringToIndex:9];
+        buy_phone = [buy_phone stringByAppendingFormat:@"..."];
+    }
+    self.buyerLabel.text = buy_phone;
+    self.priceLabel.text = [NSString stringWithFormat:@"%@ USDT",AssectString(dict[@"price"])];
+    self.typeLabel.text = [dict[@"type"] longValue] != 1?@"":NSLocalizedString(@"一口价", nil);
+    self.pulishTimeLabel.text = AssectString(dict[@"sale_time"]);
+    self.contentLabel.text = [AssectString(dict[@"content"]) isEqualToString:@""]?NSLocalizedString(@"界一域名，自用投资两不误！", nil):AssectString(dict[@"content"]);
+    self.buyLable.text = AssectString(dict[@"price"]);
+    self.price = AssectString(dict[@"price"]);
+    [self addTimer];
+}
+
+-(void)caculateSurplusTime{
+    // 1.将时间转换为date
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"YYYY-MM-dd HH:mm:ss";
+    NSDate *publishDate = [self localeDate:[formatter dateFromString:self.sale_time]];
+    NSDate *expireDate = [publishDate dateByAddingTimeInterval:self.sale_day*60*60*24];
+    NSDate* nowDate = [self localeDate:[NSDate date]];
+    
+    //1比较大小
+    if ([[expireDate earlierDate:nowDate] isEqualToDate:expireDate]) {
+        self.lastTimeLabel.text = NSLocalizedString(@"该域名已经过期", nil);
+        [self tearDownTimer];
+        self.checkBtn.enabled = NO;
+        return;
+    }
+    
+    // 2.创建日历
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSCalendarUnit type = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+    // 3.利用日历对象比较两个时间的差值
+    NSDateComponents *cmps = [calendar components:type fromDate:nowDate toDate:expireDate options:0];
+    NSInteger day = cmps.day;
+    NSString *hour = cmps.hour < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.hour]:[NSString stringWithFormat:@"%ld",(long)cmps.hour];
+    NSString *minute = cmps.minute < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.minute]:[NSString stringWithFormat:@"%ld",(long)cmps.minute];
+    NSString *second = cmps.second < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.second]:[NSString stringWithFormat:@"%ld",(long)cmps.second];
+    
+    // 4.输出结果
+    if (cmps.day > 0) {
+        self.lastTimeLabel.text = [NSString stringWithFormat:@"%ldd %@:%@:%@",(long)day,hour,minute,second];
+    }else{
+        self.lastTimeLabel.text = [NSString stringWithFormat:@"%@:%@:%@",hour,minute,second];
+    }
+}
+
+//添加倒计时
+- (void)addTimer {
+    [self tearDownTimer];
+    WeakSelf(self);
+    self.timer = [NSTimer repeatWithInterval:1.f block:^(NSTimer * _Nonnull timer) {
+        [weakself caculateSurplusTime];
+    }];
+}
+
+- (void)tearDownTimer {
+    [self.timer invalidate];
+    self.timer = nil;
+}
+
+//获取正确的时间
+- (NSDate*)localeDate:(NSDate*)date {
+    NSTimeZone *zone = [NSTimeZone systemTimeZone];
+    NSInteger interval = [zone secondsFromGMTForDate: date];
+    NSDate *localeDate = [date dateByAddingTimeInterval: interval];
+    return localeDate;
+}
+
+- (IBAction)checkClick:(id)sender {
+    if (self.type == 1 && !self.is_exists) {
+        [self showMsg:NSLocalizedString(@"您暂未持有该域名，无法售出", nil) location:centre];
+        return;
+    }
+    
+    if (self.type == 0 && [self.usdtYe doubleValue] < [self.price doubleValue]) {
+        [self showMsg:NSLocalizedString(@"USDT账户余额不足", nil) location:centre];
+        return;
+    }
+    
+    WeakSelf(self);
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSString *payPsw = AssectString(userdict[JYPayPassword]);
+    if ([payPsw isEqualToString:@"0"]) {
+        UIAlertController *sheetVC = [UIAlertController alertControllerWithTitle:NSLocalizedString(@"设置资产密码", nil) message:NSLocalizedString(@"是否设置资产密码", nil) preferredStyle:UIAlertControllerStyleAlert];
+        
+        UIAlertAction*  sheetBtn1 = [UIAlertAction actionWithTitle:NSLocalizedString(@"确认", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            SetTradePasswordVC *setPsw = [[SetTradePasswordVC alloc] init];
+            setPsw.hasgoback = 1;
+            [weakself.navigationController pushViewController:setPsw animated:YES];
+        }];
+        
+        UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        }];
+        [sheetVC addAction:sheetBtn1];
+        [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+        [sheetVC addAction:sheetBtn];
+        [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+        [self presentViewController:sheetVC animated:YES completion:nil];
+        return;
+    }
+    
+    TransPswInputVC *psw = [[TransPswInputVC alloc] init];
+    psw.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    psw.subject = [RACSubject subject];
+    [psw.subject subscribeNext:^(NSString *psw) {
+        if (weakself.type == 0) {
+            [weakself goToPay:psw];
+        }else{
+            [weakself goSellPay:psw];
+        }
+    }];
+    [weakself presentViewController:psw animated:NO completion:^{
+        
+    }];
+}
+
+-(void)goToPay:(NSString *)psw{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:DomainHangSalePay param:@{@"id":AssectString(self.selectid),@"pay_password":[psw md532BitUpper]} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.navigationController popViewControllerAnimated:YES];
+                [weakself.successSubject sendNext:@""];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)goSellPay:(NSString *)psw{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:DomainHangSalePayBuy param:@{@"id":AssectString(self.selectid),@"pay_password":[psw md532BitUpper]} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.navigationController popViewControllerAnimated:YES];
+                [weakself.successSubject sendNext:@""];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+- (IBAction)xieyiClick:(id)sender {
+    JieyiXieyiVC *xieyi = [[JieyiXieyiVC alloc] init];
+    xieyi.type = 3;
+    [self.navigationController pushViewController:xieyi animated:YES];
+}
+
+-(void)showErrorView:(UIView *)view withTips:(NSString *)tips{
+    EmptyView *errowView = [EmptyView flagView];
+    errowView.backImage.image = [UIImage imageNamed:@"defultPage_error"];
+    errowView.contents.text = tips;
+    errowView.frame = CGRectMake(0, navBarHeight, ksrcwidth, ksrcheight - navBarHeight);
+    [view addSubview:errowView];
+}
+@end

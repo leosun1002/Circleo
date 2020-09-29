@@ -1,0 +1,118 @@
+//
+//  BrowserDNListVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BrowserDNListVC.h"
+#import "BrowserDNListTableViewCell.h"
+#import "BrowserDomainModel.h"
+
+@interface BrowserDNListVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSMutableArray *showDatas;
+
+@end
+
+@implementation BrowserDNListVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"域名列表", nil) hiddeBack:NO];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.baseLine.hidden = YES;
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    self.baseLine.hidden = NO;
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    
+    [self.tableview registerNib:[UINib nibWithNibName:@"BrowserDNListTableViewCell" bundle:nil] forCellReuseIdentifier:@"BrowserDNListTableViewCell"];
+    
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"page":[NSString stringWithFormat:@"%ld",(long)page],@"id":[NSString stringWithFormat:@"%ld",self.articleid],@"domain_name_id":AssectString(self.domain_name_id)};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:BrowserSearchDN param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                [weakself.showDatas removeAllObjects];
+                NSMutableArray<BrowserDomainModel *> *applicationList = [BrowserDomainModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"domain_names"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+                [weakself.showDatas addObjectsFromArray:weakself.datas];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无域名", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.showDatas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    BrowserDNListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BrowserDNListTableViewCell"];
+    BrowserDomainModel *model = self.showDatas[indexPath.row];
+    cell.nameLabel.text = AssectString(model.domain_name);
+    cell.imageV.hidden = YES;
+    return cell;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)showDatas{
+    if (!_showDatas) {
+        _showDatas = [NSMutableArray array];
+    }
+    return _showDatas;
+}
+@end

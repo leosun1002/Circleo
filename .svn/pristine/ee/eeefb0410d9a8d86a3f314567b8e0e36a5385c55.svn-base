@@ -1,0 +1,82 @@
+//
+//  ShopCarUnuseVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "ShopCarUnuseVC.h"
+#import "ShopCarUnuseTableViewCell.h"
+#import "ShopCarModel.h"
+
+@interface ShopCarUnuseVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@end
+
+@implementation ShopCarUnuseVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopCarUnuseTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopCarUnuseTableViewCell"];
+    [self animationAlert:self.bgview];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+}
+
+- (IBAction)payClick:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:^{
+        [self.paysubject sendNext:@""];
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.unuseDatas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return 50;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopCarUnuseTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopCarUnuseTableViewCell"];
+    ShopCarModel *model = self.unuseDatas[indexPath.row];
+    cell.nameLabel.text = model.domain_name;
+    return cell;
+}
+
+-(void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+}
+
+- (void)animationAlert:(UIView *)view{
+    /* 放大缩小 */
+    
+    // 设定为缩放
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+    
+    // 动画选项设定
+    animation.duration = 0.25; // 动画持续时间
+    animation.repeatCount = 1; // 重复次数
+    animation.removedOnCompletion = NO;
+    
+    // 缩放倍数
+    animation.fromValue = [NSNumber numberWithFloat:0.0]; // 开始时的倍率
+    animation.toValue = [NSNumber numberWithFloat:1.0]; // 结束时的倍率
+    
+    // 添加动画
+    [view.layer addAnimation:animation forKey:@"scale-layer"];
+}
+@end

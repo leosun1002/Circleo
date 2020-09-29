@@ -1,0 +1,26 @@
+//
+//  HomePageFooter.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface HomePageFooter : UIView<UICollectionViewDelegate,UICollectionViewDataSource>
+
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet UICollectionView *helpCollect;
+
+@property(nonatomic,strong)NSMutableArray *solutions;
+@property(nonatomic,strong)NSMutableArray *helps;
+@property (weak, nonatomic) IBOutlet UIView *helpView;
+
+@property(nonatomic,strong)UINavigationController *navigationVC;
+
+@end
+
+NS_ASSUME_NONNULL_END

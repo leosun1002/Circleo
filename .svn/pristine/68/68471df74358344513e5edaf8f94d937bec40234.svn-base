@@ -1,0 +1,71 @@
+//
+//  ShopTraceSourceSelectVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopTraceSourceSelectVC.h"
+#import "ZWTagListView3.h"
+
+@interface ShopTraceSourceSelectVC ()
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property(nonatomic,strong)ZWTagListView3 *tagView;
+@property (weak, nonatomic) IBOutlet UIView *tagBgView;
+@property (weak, nonatomic) IBOutlet UIView *backView;
+
+@end
+
+@implementation ShopTraceSourceSelectVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.topConst.constant += navBarHeight - 27.5;
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    [self.tagBgView addSubview:self.tagView];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself dismissViewControllerAnimated:NO completion:^{
+            
+        }];
+    }];
+    [self.backView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself dismissViewControllerAnimated:NO completion:^{
+            
+        }];
+    }];
+    [self.tagBgView addGestureRecognizer:tap1];
+}
+
+#pragma -mark getter
+-(ZWTagListView3 *)tagView{
+    if (!_tagView) {
+        _tagView = [[ZWTagListView3 alloc]initWithFrame:CGRectMake(16, 0, ksrcwidth - 32, 40)];
+        _tagView.layer.cornerRadius = 10.f;
+        _tagView.selectName = self.selectName;
+        _tagView.GBbackgroundColor = [UIColor whiteColor];
+        [_tagView setTagWithTagArray:[NSArray arrayWithObjects:@"全部",@"购买",@"提取",@"二手",@"提货", nil]];
+        WeakSelf(self);
+        _tagView.Handle = ^(NSString *selectStr) {
+            if (![weakself.selectName isEqualToString:selectStr]) {
+                [weakself.subject sendNext:AssectString(selectStr)];
+            }
+            [weakself dismissViewControllerAnimated:NO completion:^{
+                
+            }];
+        };
+    }
+    return _tagView;
+}
+@end

@@ -1,0 +1,109 @@
+//
+//  AgentUSDTPullDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AgentUSDTPullDetailVC.h"
+#import "WithdrawOrderModel.h"
+
+@interface AgentUSDTPullDetailVC ()
+
+@end
+
+@implementation AgentUSDTPullDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self getData];
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [self dismissLoading];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    [WebServices postFormReqUrl:ConsumeRecordShow param:@{@"id":[NSString stringWithFormat:@"%ld",self.assetId]} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                WithdrawOrderModel *modules = [WithdrawOrderModel mj_objectWithKeyValues:json[@"data"][@"consume_record"]];
+                [weakself setData:modules];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)setData:(WithdrawOrderModel *)model{
+    self.headV.image = model.in_or_out == 1?[UIImage imageNamed:@"icon_withdraw"]:[UIImage imageNamed:@"icon_charge"];
+    self.nameLabel.text = model.in_or_out == 1?NSLocalizedString(@"提币", nil):NSLocalizedString(@"充币", nil);
+    self.moneyLabel.text = [NSString stringWithFormat:@"%@USDT",AssectString(model.withdrawal_money)];
+    self.statusLabel.text = model.status == 0?NSLocalizedString(@"处理中", nil):NSLocalizedString(@"提币成功", nil);
+    self.statusLabel.textColor = model.status == 0?[UIColor colorWithRGBHex:@"#F95947"]:[UIColor colorWithRGBHex:@"#5151F0"];
+    self.timeLabel.text = model.create_time;
+    self.jsLabel.text = [AssectString(model.receiving_address) isEqualToString:@""]?@"--":AssectString(model.receiving_address);
+    self.fsLabel.text = [AssectString(model.send_address) isEqualToString:@""]?@"--":AssectString(model.send_address);
+    self.sxfLabel.text = AssectString(model.service_charge);
+    self.dzLabel.text = AssectString(model.amount_money);
+    self.hashLabel.text = [AssectString(model.hashcontent) isEqualToString:@""]?@"--":AssectString(model.hashcontent);
+    self.markLabel.text = model.remark;
+    if (model.payment_method == 2 & model.in_or_out == 2) {
+        self.markView.hidden = YES;
+    }else{
+        self.markView.hidden = NO;
+    }
+    if (model.payment_method == 2 & model.in_or_out == 2) {
+        self.sxfview.hidden = YES;
+        self.sxfHeightConst.constant = 0;
+    }else{
+        self.markView.hidden = NO;
+        self.sxfHeightConst.constant = 50;
+    }
+}
+
+- (IBAction)jsClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.jsLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)fsClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.fsLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)hashClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.hashLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+@end

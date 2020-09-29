@@ -1,0 +1,90 @@
+//
+//  ConsoleHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "ConsoleHeader.h"
+#import "DNSManageVC.h"
+#import "DNSOrderManageChildVC.h"
+
+@implementation ConsoleHeader
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"ConsoleHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        [self prepareUi];
+    }
+    return self;
+}
+
+-(void)prepareUi{
+    WeakSelf(self);
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        DNSManageVC *dnsVc = [[DNSManageVC alloc] init];
+        dnsVc.type = 0;
+        [weakself.navigationVC pushViewController:dnsVc animated:YES];
+    }];
+    [self.totalView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        DNSManageVC *dnsVc = [[DNSManageVC alloc] init];
+        dnsVc.type = 4;
+        [weakself.navigationVC pushViewController:dnsVc animated:YES];
+    }];
+    [self.xfView addGestureRecognizer:tap2];
+    
+    UITapGestureRecognizer *tap3 = [[UITapGestureRecognizer alloc] init];
+    [[tap3 rac_gestureSignal] subscribeNext:^(id x) {
+        DNSManageVC *dnsVc = [[DNSManageVC alloc] init];
+        dnsVc.type = 3;
+        [weakself.navigationVC pushViewController:dnsVc animated:YES];
+    }];
+    [self.sdView addGestureRecognizer:tap3];
+    
+    //售出
+    UITapGestureRecognizer *tap4 = [[UITapGestureRecognizer alloc] init];
+    [[tap4 rac_gestureSignal] subscribeNext:^(id x) {
+        DNSOrderManageChildVC *childVc = [[DNSOrderManageChildVC alloc] init];
+        childVc.status = NSLocalizedString(@"已售出", nil);
+        [weakself.navigationVC pushViewController:childVc animated:YES];
+    }];
+    [self.sellView addGestureRecognizer:tap4];
+    
+    //挂卖
+    UITapGestureRecognizer *tap5 = [[UITapGestureRecognizer alloc] init];
+    [[tap5 rac_gestureSignal] subscribeNext:^(id x) {
+        DNSOrderManageChildVC *childVc = [[DNSOrderManageChildVC alloc] init];
+        childVc.status = NSLocalizedString(@"挂卖中", nil);
+        [weakself.navigationVC pushViewController:childVc animated:YES];
+    }];
+    [self.hangView addGestureRecognizer:tap5];
+    
+    //购买
+    UITapGestureRecognizer *tap6 = [[UITapGestureRecognizer alloc] init];
+    [[tap6 rac_gestureSignal] subscribeNext:^(id x) {
+        DNSOrderManageChildVC *childVc = [[DNSOrderManageChildVC alloc] init];
+        childVc.status = NSLocalizedString(@"已购买", nil);
+        [weakself.navigationVC pushViewController:childVc animated:YES];
+
+    }];
+    [self.buyView addGestureRecognizer:tap6];
+}
+
+- (IBAction)ymClick:(id)sender {
+    DNSManageVC *dnsVc = [[DNSManageVC alloc] init];
+    dnsVc.type = 0;
+    [self.navigationVC pushViewController:dnsVc animated:YES];
+}
+
+- (IBAction)orderClick:(id)sender {
+    DNSOrderManageChildVC *childVc = [[DNSOrderManageChildVC alloc] init];
+    [self.navigationVC pushViewController:childVc animated:YES];
+}
+
+@end

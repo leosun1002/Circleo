@@ -1,0 +1,45 @@
+//
+//  MyAssetModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/2.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyAssetModel : NSObject
+
+@property(nonatomic,assign)long assetid;
+@property(nonatomic,assign)long userid;
+@property(nonatomic,copy)NSString *amount_money;
+/**
+ 1购买域名，2绑定地址，3换绑地址，4解除绑定地址，5域名续费，6提现（提币），7充币，8购买域名上级收益，9节点推广收益, 10合作商推广抽成收益, 11域名商城挂卖支出, 12域名商城收入, 13金币划转出帐，14金币划转入帐
+ */
+@property(nonatomic,assign)long type;
+/**
+ 1总帐户，2收益帐户
+ */
+@property(nonatomic,assign)long account_type;
+/**
+ 1CNY，2USDT
+ */
+@property(nonatomic,assign)long payment_method;
+/**
+ 0失败，1审核中，2成功
+ */
+@property(nonatomic,assign)long status;
+/**
+ 1出帐，2入帐，3其它
+ */
+@property(nonatomic,assign)long in_or_out;
+@property(nonatomic,copy)NSString *create_time;
+@property(nonatomic,copy)NSString *type_message;
+@property(nonatomic,copy)NSString *title;
+@property(nonatomic,copy)NSString *domain_names;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,75 @@
+//
+//  MallCheckPasswordVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallCheckPasswordVC.h"
+#import "KLCodeResignView.h"
+
+@interface MallCheckPasswordVC ()
+
+@property (weak, nonatomic) IBOutlet UIView *inputBgView;
+@property (strong, nonatomic) NSString *psw;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@end
+
+@implementation MallCheckPasswordVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+
+-(void)prepareUi{
+    KLCodeResignView *codeView = [[KLCodeResignView alloc] initWithCodeBits:6];
+    WeakSelf(self);
+    codeView.codeResignCompleted = ^(NSString * _Nonnull content) {
+        weakself.psw = content;
+        weakself.checkBtn.enabled = YES;
+        weakself.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+    };
+    codeView.codeResignUnCompleted = ^(NSString * _Nonnull content) {
+        weakself.psw = content;
+        weakself.checkBtn.enabled = NO;
+        weakself.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+    };
+    [self.inputBgView addSubview:codeView];
+    codeView.frame = CGRectMake(0, 0, ksrcwidth - 100, 60);
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSLog(@"%@",self.psw);
+    NSString *inputPpsw = [[self.psw md532BitUpper] md532BitLower];
+    NSString *psw = [Manager takeoutTokenkey:JYTradePassword];
+    if (![inputPpsw isEqualToString:psw]) {
+        [self showMsg:@"密码错误" location:centre];
+        return;
+    }
+    MallOutputPswVC *output = [[MallOutputPswVC alloc] init];
+    output.putType = self.putType;
+    [self.navigationController pushViewController:output animated:YES];
+    [self removeSelfFromNavigation];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)removeSelfFromNavigation{
+    NSMutableArray<UIViewController *> *tmpArr = [NSMutableArray array];
+    for (UIViewController *vc in self.navigationController.viewControllers) {
+        [tmpArr addObject:vc];
+    }
+    for (UIViewController *vc in self.navigationController.viewControllers) {
+        if (vc == self) {
+            [tmpArr removeObject:vc];
+        }
+    }
+    self.navigationController.viewControllers = tmpArr;
+}
+@end

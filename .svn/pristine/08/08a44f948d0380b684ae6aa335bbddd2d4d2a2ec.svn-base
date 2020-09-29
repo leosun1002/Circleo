@@ -1,0 +1,184 @@
+//
+//  MyCardCouponChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/9.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MyCardCouponChildVC.h"
+#import "MyCardCouponView.h"
+#import "MyCardCouponTableViewCell.h"
+#import "EmptyTableViewCell.h"
+#import "CardCouponModel.h"
+
+@interface MyCardCouponChildVC ()<UITableViewDelegate,UITableViewDataSource>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSString *canRefresh;
+
+@end
+
+@implementation MyCardCouponChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MyCardCouponTableViewCell" bundle:nil] forCellReuseIdentifier:@"MyCardCouponTableViewCell"];
+    [self.tableview registerNib:[UINib nibWithNibName:@"EmptyTableViewCell" bundle:nil] forCellReuseIdentifier:@"EmptyTableViewCell"];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"type":[NSString stringWithFormat:@"%ld",self.type],@"page":[NSString stringWithFormat:@"%d",page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:KachinIndex param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<CardCouponModel *> *applicationList = [CardCouponModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview reloadData];
+    }];
+}
+
+-(void)refreshDataWithType:(NSInteger)type{
+    if (type == 0) {
+        if ([AssectString(self.canRefresh) isEqualToString:@""]) {
+            [self.tableview.mj_header beginRefreshing];
+            self.canRefresh = @"1";
+        }
+    }else{
+        [self.tableview.mj_header beginRefreshing];
+    }
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    if (self.datas.count == 0) {
+        return 1;
+    }
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    if (self.datas.count == 0) {
+        return 0.01;
+    }
+    return 112;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    if (self.datas.count == 0) {
+        return [UIView new];
+    }
+    MyCardCouponView *view = [[MyCardCouponView alloc] init];
+    view.detailBtn.tag = section;
+    [view.detailBtn addTarget:self action:@selector(hideOrShowCell:) forControlEvents:(UIControlEventTouchUpInside)];
+    view.sendBtn.tag = section;
+    [view.sendBtn addTarget:self action:@selector(sendClick:) forControlEvents:UIControlEventTouchUpInside];
+    view.model = self.datas[section];
+    return view;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.datas.count == 0) {
+        return ksrcheight - navBarHeight;
+    }
+    return 25.f;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (self.datas.count == 0) {
+        return 1;
+    }
+    
+    CardCouponModel *model = self.datas[section];
+    if (model.hasExpend == 0) {
+        return 0;
+    }
+    return model.limitations.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.datas.count == 0) {
+        EmptyTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"EmptyTableViewCell"];
+        if (self.type == 1) {
+            cell.nameLabel.text = NSLocalizedString(@"当前暂无未使用卡券", nil);
+        }else if (self.type == 2) {
+            cell.nameLabel.text = NSLocalizedString(@"当前暂无已使用卡券", nil);
+        }else {
+            cell.nameLabel.text = NSLocalizedString(@"当前暂无已失效卡券", nil);
+        }
+        return cell;
+    }
+    
+    MyCardCouponTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyCardCouponTableViewCell"];
+    CardCouponModel *model = self.datas[indexPath.section];
+    if (model.limitations.count == 0) return cell;
+    if (model.status == 0) {
+        cell.backView.backgroundColor = [UIColor getColor:@"#FF9429" alpha:0.1];
+    }else{
+        cell.backView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+    }
+    LimitationModel *limitation = model.limitations[indexPath.row];
+    cell.nameLabel.text = limitation.name;
+    cell.nameLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+    return cell;
+}
+
+//隐藏展示cell
+-(void)hideOrShowCell:(UIButton *)sender{
+    NSInteger section = sender.tag;
+    if (section >= self.datas.count) return;
+    CardCouponModel *model = self.datas[section];
+    model.hasExpend = model.hasExpend == 0?1:0;
+    [self.datas replaceObjectAtIndex:section withObject:model];
+    NSIndexSet *indexSet = [[NSIndexSet alloc] initWithIndex:section];
+    [self.tableview reloadSections:indexSet withRowAnimation:UITableViewRowAnimationNone];
+}
+
+-(void)sendClick:(UIButton *)sender{
+    NSInteger section = sender.tag;
+    if (section >= self.datas.count) return;
+    CardCouponModel *model = self.datas[section];
+    [self.subject sendNext:[NSString stringWithFormat:@"%ld",model.counponid]];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

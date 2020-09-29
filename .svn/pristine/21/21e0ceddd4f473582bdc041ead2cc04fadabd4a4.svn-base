@@ -1,0 +1,30 @@
+<html>
+
+<head>
+	<script src="./gitChain.js"></script>
+	
+	<script>
+		function create(){
+		
+			//username 用户名(助记词)
+			//password 密码(就填固定的 123456)
+			//返回一个对象{originalSeed, cyptoSeed} originalSeed 原始seed值(当私钥)，cyptoSeed加密后的seed值(当公钥) (也就是传入api的seed)
+			
+			//var seed = getSeed(username, password);
+			var seed = getSeed("test test test test test test test test test test test test", "123456");
+			console.log(`originalSeed:`+seed.originalSeed);
+			console.log(`cyptoSeed:`+seed.cyptoSeed);
+			
+		}
+		
+	</script>
+</head>
+<body>
+	<button class="btn generate" onclick="create()">生成</button>
+	
+   
+</body>
+
+
+
+</html>

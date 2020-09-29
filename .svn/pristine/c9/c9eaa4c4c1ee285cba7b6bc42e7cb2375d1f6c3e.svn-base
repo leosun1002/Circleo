@@ -1,0 +1,25 @@
+//
+//  DNSCoinSelectModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSCoinSelectModel : NSObject
+
+@property(nonatomic,assign)long selectid;
+@property(nonatomic,copy)NSString *name;
+@property(nonatomic,copy)NSString *name_simple;
+@property(nonatomic,copy)NSString *log_image;
+@property(nonatomic,assign)long status;
+@property(nonatomic,copy)NSString *create_time;
+@property(nonatomic,assign)BOOL hasSelect;
+
+@end
+
+NS_ASSUME_NONNULL_END

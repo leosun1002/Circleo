@@ -1,0 +1,20 @@
+//
+//  MallHomePageHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallHomePageHeader.h"
+
+@implementation MallHomePageHeader
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"MallHomePageHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+    }
+    return self;
+}
+@end

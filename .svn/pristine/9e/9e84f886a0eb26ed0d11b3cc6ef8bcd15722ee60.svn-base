@@ -1,0 +1,223 @@
+//
+//  ShopAssetsDrawVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAssetsDrawVC.h"
+#import "ShopAddressListVC.h"
+#import "CallJsClass.h"
+#import "ShopAssetNewChargeVC.h"
+
+@interface ShopAssetsDrawVC ()
+
+@property (weak, nonatomic) IBOutlet UIButton *chargeBtn;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *specLabel;
+@property (weak, nonatomic) IBOutlet UILabel *numberLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *receiveNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *receiveAddressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *receiveTipLabel;
+
+@property(nonatomic,strong) NSString *receive_name;
+@property(nonatomic,strong) NSString *receive_phone;
+@property(nonatomic,strong) NSString *receive_address;
+
+@property (weak, nonatomic) IBOutlet UITextField *countText;
+
+@property (strong, nonatomic) NSString *ye;
+@property (weak, nonatomic) IBOutlet UILabel *yeLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@property (weak, nonatomic) IBOutlet UILabel *chargeTipLabel;
+
+
+@end
+
+@implementation ShopAssetsDrawVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getFuel];
+}
+
+-(void)prepareUi{
+    [self addLayerAndShadow];
+    
+    self.headV.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.headV.layer.borderWidth = 0.5f;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.shopModel.small_image)]];
+    self.nameLabel.text = self.shopModel.name;
+    self.specLabel.text = self.shopModel.specification;
+    self.numberLabel.text = self.shopModel.number;
+    
+    WeakSelf(self);
+    [[self.countText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        weakself.countText.text = [weakself.countText PreciseFigures:0];
+        [weakself makeBtnEnable];
+    }];
+    
+    [[self.chargeBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself chargeClick];
+    }];
+}
+
+-(void)addLayerAndShadow{
+    self.chargeBtn.layer.cornerRadius = 15;
+
+    self.chargeBtn.layer.shadowColor = [UIColor colorWithRGBHex:@"#2982FF"].CGColor;
+    self.chargeBtn.layer.shadowOffset = CGSizeMake(1, 1);
+    self.chargeBtn.layer.shadowRadius = 15.f;
+    self.chargeBtn.layer.shadowOpacity = 0.4f;
+    [self.chargeBtn.layer setShadowPath:[[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, 84, 30)] CGPath]];
+}
+
+- (IBAction)receiveClick:(id)sender {
+    ShopAddressListVC *addressvc = [[ShopAddressListVC alloc] init];
+    addressvc.status = ShopAddressSelect;
+    addressvc.subject = [RACSubject subject];
+    WeakSelf(self);
+    [addressvc.subject subscribeNext:^(NSDictionary *dict) {
+        weakself.receive_name = dict[@"name"];
+        weakself.receive_phone = dict[@"phone"];
+        weakself.receive_address = dict[@"address"];
+        weakself.receiveTipLabel.hidden = YES;
+        weakself.receiveNameLabel.hidden = NO;
+        weakself.receiveAddressLabel.hidden = NO;
+        weakself.receiveNameLabel.text = [NSString stringWithFormat:@"%@ %@",weakself.receive_name,weakself.receive_phone];
+        weakself.receiveAddressLabel.text = [NSString stringWithFormat:@"%@",weakself.receive_address];
+        [weakself makeBtnEnable];
+    }];
+    [self.navigationController pushViewController:addressvc animated:YES];
+}
+
+- (IBAction)allClick:(id)sender {
+    self.countText.text = AssectString(self.shopModel.number);
+    [self makeBtnEnable];
+}
+
+-(void)chargeClick{
+    ShopAssetNewChargeVC *chargeVC = [[ShopAssetNewChargeVC alloc] init];
+    [self.navigationController pushViewController:chargeVC animated:YES];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)getFuel{
+    WeakSelf(self);
+    [weakself showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:GetMyFuel param:@{} loadingTime:12.0f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.ye = AssectString(json[@"data"][@"my_fuel"]);
+                weakself.yeLabel.text = [NSString stringWithFormat:@"余额 %@",AssectString(json[@"data"][@"my_fuel"])];
+                if ([weakself.ye doubleValue] < 0.006) {
+                    weakself.chargeTipLabel.hidden = NO;
+                    weakself.chargeBtn.hidden = NO;
+                }else{
+                    weakself.chargeTipLabel.hidden = YES;
+                    weakself.chargeBtn.hidden = YES;
+                }
+                return ;
+            }
+        }
+        [weakself showErrorView:weakself.view withBlock:^{
+            [weakself getFuel];
+        }];
+    }];
+}
+
+-(void)makeBtnEnable{
+    NSString *name = AssectString(self.receive_name);
+    NSString *phone = AssectString(self.receive_phone);
+    NSString *address = AssectString(self.receive_address);
+    NSString *count = AssectString(self.countText.text);
+    if ([name isEqualToString:@""] || [phone isEqualToString:@""] || [address isEqualToString:@""] || [count isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+    }else{
+        self.checkBtn.enabled = YES;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+    }
+}
+
+- (IBAction)checkClick:(id)sender {
+    [self getNonce];
+}
+
+-(void)getNonce{
+    if (0.006 > [self.ye doubleValue]) {
+        [self showMsg:@"余额不足" location:centre];
+        return;
+    }
+    
+    [self showLoading:@"" allowsOpOperation:NO];
+    NSDictionary *dict = @{@"address":AssectString([Manager takeoutTokenkey:ShopWalletAddress])};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:MallGetNonce param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                NSString *nonce = AssectString(json[@"data"][@"nonce"]);
+                [weakself getSign:nonce];
+            }else{
+                [weakself dismissLoading];
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself dismissLoading];
+            [weakself showMsg:@"网络异常，请稍后重试" location:centre];
+        }
+    }];
+}
+
+-(void)getSign:(NSString *)nonce{
+    NSDictionary *resDict = @{@"fromaddr":AssectString([Manager takeoutTokenkey:ShopWalletAddress]),@"toaddr":AssectString(@"NULSd6HgWSU1iR6BfNoQi85mAMT52JMFzpnok"),@"contractID":[NSString stringWithFormat:@"%ld",self.shopModel.assetId],@"amount":self.countText.text,@"fee":@(10000),@"nonce":AssectString(nonce),@"remark":@"提货",@"pri":AssectString([Manager takeoutTokenkey:ShopWalletPrivite]),@"pub":AssectString([Manager takeoutTokenkey:ShopWalletPublic]),@"contractAddress":@"NULSd6Hgt8nVqwgFAwTGgRz5fuh3myN3yXc1h"};
+    NSString* createAddressStr = [NSString stringWithFormat:@"transactionSignature('%@','%@','%@',%@,%@,'%@','%@','%@','%@','%@')",AssectString([Manager takeoutTokenkey:ShopWalletAddress]),resDict[@"toaddr"],resDict[@"contractID"],resDict[@"amount"],@"10000",resDict[@"nonce"],resDict[@"remark"],resDict[@"pri"],resDict[@"pub"],resDict[@"contractAddress"]];
+    WeakSelf(self);
+    [[CallJsClass OCCallJs] getAddressExecuFun:createAddressStr backResultBlock:^(id data) {
+        NSString *sign = data;
+        if (![AssectString(sign) isEqualToString:@""]) {
+            [weakself sendData:sign];
+        }else{
+            [weakself dismissLoading];
+            [weakself showMsg:@"签名失败" location:centre];
+        }
+    } backFailBlock:^(id data) {
+        [weakself dismissLoading];
+        [weakself showMsg:@"签名失败" location:centre];
+    } currencyName:NULS currentViewFun:self.view];;
+}
+
+-(void)sendData:(NSString *)sign{
+    NSDictionary *dict = @{@"number":AssectString(self.countText.text),@"good_id":[NSString stringWithFormat:@"%ld",self.shopModel.assetId],@"black_address":@"NULSd6HgWSU1iR6BfNoQi85mAMT52JMFzpnok",@"sign":AssectString(sign),@"name":AssectString(self.receive_name),@"phone":AssectString(self.receive_phone),@"address":AssectString(self.receive_address)};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:MallPickUp param:dict loadingTime:12.0f callbackBlock:^(id result, NSInteger startCode, NSString *error) {
+        NSDictionary *json = result;
+        [weakself dismissLoading];
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];;
+            }
+        }else{
+            [weakself showMsg:@"网络异常，请稍后重试" location:centre];;
+        }
+    }];
+}
+@end

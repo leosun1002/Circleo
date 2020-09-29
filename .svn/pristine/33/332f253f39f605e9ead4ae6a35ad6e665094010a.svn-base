@@ -1,0 +1,250 @@
+//
+//  WebsiteCarouselVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/5/20.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebsiteCarouselVC.h"
+#import "JhPageControl.h"
+#import "CarouselCollectionViewCell.h"
+#import "TZImagePickerController.h"
+#import "CarouselImageCollectionViewCell.h"
+#import "HZPhotoBrowser.h"
+
+@interface WebsiteCarouselVC ()<UICollectionViewDelegate,UICollectionViewDataSource,TZImagePickerControllerDelegate>
+
+@property (nonatomic, strong) JhPageControl *pageControl;
+
+@end
+
+@implementation WebsiteCarouselVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"轮播图", nil) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    CGFloat width = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?80:60;
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - width - 5,navBarHeight - 35, width, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, width, 20);
+    [rightBtn setTitle:NSLocalizedString(@"确定", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#323236"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself saveClick];
+    }];
+    [view addSubview:rightBtn];
+}
+
+-(void)prepareUi{
+    if (self.imgs.count == 0) {
+        [self.imgs addObject:@"icon_evidence_pic"];
+    }else{
+        [self.imgs insertObject:@"icon_evidence_pic" atIndex:0];
+    }
+    
+    self.flowout.itemSize = CGSizeMake(ksrcwidth - 32, 150);
+    self.flowout.minimumLineSpacing = 0;
+    self.flowout.minimumInteritemSpacing = 0;
+    self.flowout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    [self.collect registerNib:[UINib nibWithNibName:@"CarouselImageCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"CarouselImageCollectionViewCell"];
+    [self.backView addSubview:self.pageControl];
+    
+    self.botFlowLayOut.itemSize = CGSizeMake(ksrcwidth / 2, 80);
+    self.botFlowLayOut.minimumLineSpacing = 10;
+    self.botFlowLayOut.minimumInteritemSpacing = 0;
+    self.botFlowLayOut.scrollDirection = UICollectionViewScrollDirectionVertical;
+    [self.botCollect registerNib:[UINib nibWithNibName:@"CarouselCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"CarouselCollectionViewCell"];
+    
+    [self setPageCounts];
+}
+
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    if (collectionView == self.collect) {
+        return self.imgs.count;
+    }
+    return self.imgs.count - 1;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (collectionView == self.collect) {
+        CarouselImageCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"CarouselImageCollectionViewCell" forIndexPath:indexPath];
+        cell.widthConst.constant = indexPath.item == 0 ? 37.5:ksrcwidth - 32;
+        cell.heightConst.constant = indexPath.item == 0 ? 32:150;
+        if (indexPath.item == 0) {
+            cell.imgV.image  = [UIImage imageNamed:AssectString(self.imgs[indexPath.item])];
+        }else{
+            [cell.imgV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.imgs[indexPath.item])]];
+        }
+        return cell;
+    }
+    CarouselCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"CarouselCollectionViewCell" forIndexPath:indexPath];
+    cell.leadConst.constant = indexPath.item % 2 == 0?15:10;
+    cell.trailConst.constant = indexPath.item % 2 == 0?10:15;
+    NSString *tempStr = self.imgs[indexPath.item + 1];
+    if ([tempStr isEqualToString:@"icon_evidence_pic"]) {
+       cell.imgV.image = [UIImage imageNamed:@"icon_evidence_pic"];
+    }else{
+        [cell.imgV sd_setImageWithURL:[NSURL URLWithString:AssectString(tempStr)]];
+    }
+    cell.delBtn.tag = indexPath.item;
+    [cell.delBtn addTarget:self action:@selector(delClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (collectionView == self.collect) {
+        if (indexPath.item == 0) {
+            if (self.imgs.count >= 7) {
+                [self showMsg:NSLocalizedString(@"轮播图最多6张", nil) location:centre];
+                return;
+            }
+            [self avararClick];
+        }else{
+            [self showFullScreen:indexPath.item];
+        }
+    }
+}
+
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    if (scrollView == self.collect) {
+        int page = scrollView.contentOffset.x / scrollView.width;
+        self.pageControl.currentPage = page;
+        self.countLabel.text = [NSString stringWithFormat:@"%d/%lu",page,self.imgs.count - 1];
+    }
+}
+
+-(void)avararClick{
+    TZImagePickerController *imagePC=[[TZImagePickerController alloc]initWithMaxImagesCount:1 delegate:self];//设置多选最多支持的最大数量，设置代理
+    WeakSelf(self);
+    imagePC.preferredLanguage = [GDLocalizableController userLanguage];
+    imagePC.modalPresentationStyle = UIModalPresentationFullScreen;
+    [imagePC setDidFinishPickingPhotosWithInfosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto, NSArray<NSDictionary *> *infos) {
+        [weakself upLoadImage:photos[0]];
+        
+    }];
+    [self presentViewController:imagePC animated:YES completion:nil];//跳转
+}
+
+-(void)upLoadImage:(UIImage *)image{
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postImageFormReqUrl:ImageUpload image:image param:@{} loadingTime:30.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.imgs addObject:AssectString(json[@"data"][@"image_path"])];
+                [weakself.collect reloadData];
+                [weakself.botCollect reloadData];
+                [weakself setPageCounts];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)showFullScreen:(NSInteger )tag{
+    HZPhotoBrowser *browser = [[HZPhotoBrowser alloc] init];
+    browser.isFullWidthForLandScape = YES;
+    browser.isNeedLandscape = YES;
+    browser.currentImageIndex = 0;
+    browser.imageArray = [NSArray arrayWithObjects:AssectString(self.imgs[tag]), nil];
+    [browser show];
+}
+
+-(void)delClick:(UIButton *)sender{
+    NSInteger tag = sender.tag + 1;
+    [self.imgs removeObjectAtIndex:tag];
+    [self.collect reloadData];
+    [self.botCollect reloadData];
+    [self setPageCounts];
+}
+
+-(void)setPageCounts{
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        int page = weakself.collect.contentOffset.x / weakself.collect.width;
+        weakself.pageControl.numberOfPages = weakself.imgs.count;
+        weakself.pageControl.currentPage = page;
+        weakself.tipLabel.hidden = weakself.imgs.count == 1;
+        weakself.countLabel.hidden = weakself.imgs.count == 1;
+        weakself.countLabel.text = [NSString stringWithFormat:@"%d/%lu",page,weakself.imgs.count - 1];
+    });
+}
+
+-(void)saveClick{
+    if (self.imgs.count <= 1) {
+        [self showMsg:NSLocalizedString(@"请上传轮播图", nil) location:centre];
+        return;
+    }
+    if (self.fromType == 0) {
+        [self.imgs removeObjectAtIndex:0];
+        [self.subject sendNext:self.imgs];
+        [self.navigationController popViewControllerAnimated:YES];
+    }else{
+        //更新图片
+        [self upDateImage];
+    }
+}
+
+-(void)upDateImage{
+    if (self.imgs.count <= 1) {
+        [self showMsg:NSLocalizedString(@"请上传轮播图", nil) location:centre];
+        return;
+    }
+    [self.imgs removeObjectAtIndex:0];
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+       NSString *carousel = [self.imgs componentsJoinedByString:@","];
+    NSDictionary *dict = @{@"carousel":AssectString(carousel),@"website_id":[NSString stringWithFormat:@"%ld",self.website_id]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:WebsiteArticleUpdateCarousel param:dict loadingTime:12. callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.subject sendNext:weakself.imgs];
+                [weakself.navigationController popViewControllerAnimated:YES];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.imgs insertObject:@"icon_evidence_pic" atIndex:0];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+            [weakself.imgs insertObject:@"icon_evidence_pic" atIndex:0];
+        }
+    }];
+}
+
+
+#pragma -mark getter
+-(JhPageControl *)pageControl{
+    if (!_pageControl) {
+        _pageControl = [[JhPageControl alloc] init];
+        _pageControl.frame = CGRectMake(30, CGRectGetMaxY(self.collect.frame) + 10, ksrcwidth - 60, 6);
+        _pageControl.otherColor = [UIColor colorWithRGBHex:@"#CBCBCC"];
+        _pageControl.currentColor = [UIColor colorWithRGBHex:@"#5151F0"];
+        _pageControl.PageControlContentMode = JhPageControlContentModeCenter; //设置对齐方式
+        _pageControl.controlSpacing = 10.0;  //间距
+        _pageControl.marginSpacing = 0.f;  //距离初始位置 间距  默认10
+        _pageControl.PageControlStyle = JhPageControlStyelDotAndRectangle;//长条样式
+    }
+    return _pageControl;
+}
+
+@end

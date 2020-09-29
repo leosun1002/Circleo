@@ -1,0 +1,27 @@
+//
+//  CardCouponModel.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/11.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "CardCouponModel.h"
+
+@implementation LimitationModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"limitationid":@"id"};
+}
+@end
+
+@implementation CardCouponModel
+
++(NSDictionary *)mj_objectClassInArray{
+    return @{@"limitations" : @"LimitationModel"};
+}
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"counponid":@"id"};
+}
+@end

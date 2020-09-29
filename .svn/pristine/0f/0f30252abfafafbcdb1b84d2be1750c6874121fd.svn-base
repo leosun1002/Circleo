@@ -1,0 +1,28 @@
+//
+//  AssetConditionVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AssetConditionVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet UIView *backview;
+@property (weak, nonatomic) IBOutlet UICollectionView *collecview;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowOut;
+@property (strong, nonatomic) NSString *filterStr;
+@property (strong, nonatomic) NSMutableArray *filterArray;
+@property (strong, nonatomic) RACSubject *subject;
+
+/// 1是字典   0是字符串
+@property (assign, nonatomic) long type;
+
+@end
+
+NS_ASSUME_NONNULL_END

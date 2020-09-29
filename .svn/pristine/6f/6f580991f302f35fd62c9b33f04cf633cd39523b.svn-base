@@ -1,0 +1,86 @@
+//
+//  UpdateResultVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/6.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "UpdateResultVC.h"
+#import "UpdateInfoVC.h"
+
+@interface UpdateResultVC ()<UIGestureRecognizerDelegate>
+
+@property (strong, nonatomic) NSString *updateStatus;
+
+@end
+
+@implementation UpdateResultVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.heiConst.constant = navBarHeight;
+    self.checkBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#D6AF91"].CGColor;
+    self.checkBtn.layer.borderWidth = 1.f;
+    [self setStatus];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getUserInfo];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    if ([self.navigationController respondsToSelector:@selector(interactivePopGestureRecognizer)]) {
+        self.navigationController.interactivePopGestureRecognizer.enabled = NO;
+    }
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self popToNav:self.navigationController withPopVC:@"UpdateTipsVC"];
+}
+
+- (IBAction)checkClick:(id)sender {
+    UpdateInfoVC *update = [[UpdateInfoVC alloc] init];
+    [self.navigationController pushViewController:update animated:YES];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself setStatus];
+            }
+        }
+    }];
+}
+
+-(void)setStatus{
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    //0未提交升级，1提交升级审核中，2升级成功，3升级失败
+    NSString *updateStatus = AssectString(userdict[JYUpdateAgentStatus]);
+    if ([updateStatus isEqualToString:@"1"]) {
+        self.titleLabel.text = NSLocalizedString(@"审核中", nil);
+        self.statusImage.image = [UIImage imageNamed:@"pic_shz"];
+        self.checkBtn.hidden = YES;
+    }else if ([updateStatus isEqualToString:@"2"]) {
+        self.titleLabel.text = NSLocalizedString(@"审核成功", nil);
+        self.statusImage.image = [UIImage imageNamed:@"pic_shcg"];
+        self.checkBtn.hidden = NO;
+    }else if ([updateStatus isEqualToString:@"3"]) {
+        self.titleLabel.text = NSLocalizedString(@"审核失败", nil);
+        self.statusImage.image = [UIImage imageNamed:@"pic_shsb"];
+        self.checkBtn.hidden = NO;
+    }
+}
+
+@end

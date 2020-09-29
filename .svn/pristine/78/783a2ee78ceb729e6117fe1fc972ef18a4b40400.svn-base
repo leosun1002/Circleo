@@ -1,0 +1,40 @@
+//
+//  MallSearchResultTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallSearchResultTableViewCell.h"
+
+@interface MallSearchResultTableViewCell ()
+
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+
+@end
+
+@implementation MallSearchResultTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.bgview.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.bgview.layer.borderWidth = 1.0f;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(ShopSecondModel *)model{
+    _model = model;
+    [self.imgV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.big_image)]];
+    self.nameLabel.text = model.name;
+    self.descLabel.hidden = YES;
+    self.priceLabel.text = [NSString stringWithFormat:@"¥%@",model.price];
+}
+
+@end

@@ -1,0 +1,196 @@
+//
+//  DNSHomeTradeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSHomePublishVC.h"
+#import "JXCategoryView.h"
+#import "DNSShopSellVC.h"
+#import "DNSSellSelectVC.h"
+#import "JieyiXieyiVC.h"
+#import "DNSShopBuySelectVC.h"
+
+@interface DNSHomePublishVC ()<JXCategoryViewDelegate, JXCategoryListContainerViewDelegate>
+
+@property (nonatomic, strong) UIView *titleview;
+@property (nonatomic, strong) JXCategoryTitleView *categoryView;
+@property (nonatomic, strong) JXCategoryListContainerView *listContainerView;
+@property (nonatomic, strong) NSArray *titles;
+@property (nonatomic, weak) DNSShopSellVC *sellVC1;
+@property (nonatomic, weak) DNSShopSellVC *sellVC2;
+
+@end
+
+@implementation DNSHomePublishVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.view.backgroundColor = [UIColor clearColor];
+    
+    [self.view addSubview:self.titleview];
+    [self.titleview addSubview:self.categoryView];
+    [self.view addSubview:self.listContainerView];
+    self.listContainerView.didAppearPercent = 0.01; //滚动一点就触发加载
+
+    self.categoryView.contentScrollView = self.listContainerView.scrollView;
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    self.titleview.frame = CGRectMake(0, 0, ksrcwidth, 65);
+    self.categoryView.frame = CGRectMake(0, 10, ksrcwidth, 45);
+    self.listContainerView.frame = CGRectMake(0, CGRectGetMaxY(self.titleview.frame), ksrcwidth, ksrcheight - 65 - navBarHeight);
+}
+
+- (void)viewDidAppear:(BOOL)animated {
+    [super viewDidAppear:animated];
+    //处于第一个item的时候，才允许屏幕边缘手势返回
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    //离开页面的时候，需要恢复屏幕边缘手势，不能影响其他页面
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+}
+
+#pragma -mark JXCategoryListContentViewDelegate
+- (UIView *)listView {
+    return self.view;
+}
+
+#pragma mark -JXCategoryViewDelegate
+- (JXCategoryBaseView *)preferredCategoryView {
+    return [[JXCategoryTitleView alloc] init];
+}
+
+- (CGFloat)preferredCategoryViewHeight {
+    return 30;
+}
+
+- (id<JXCategoryListContentViewDelegate>)preferredListAtIndex:(NSInteger)index {
+    WeakSelf(self);
+    DNSShopSellVC *sellVC = [[DNSShopSellVC alloc] init];
+    sellVC.pageType = index == 0?DNSShopSellVCTypeSell:DNSShopSellVCTypeBuy;
+    sellVC.selectSubject = [RACSubject subject];
+    [sellVC.selectSubject subscribeNext:^(NSString *name) {
+        if ([AssectString(name) isEqualToString:@"1"]) {
+            DNSSellSelectVC  *sell = [[DNSSellSelectVC alloc] init];
+            sell.nameSubject = [RACSubject subject];
+            [sell.nameSubject subscribeNext:^(NSDictionary *dict) {
+                [weakself.sellVC1 setData:dict];
+            }];
+            [weakself.naviVC pushViewController:sell animated:YES];
+        }else{
+            DNSShopBuySelectVC *buySelect = [[DNSShopBuySelectVC alloc] init];
+            buySelect.nameSubject = [RACSubject subject];
+            [buySelect.nameSubject subscribeNext:^(NSDictionary *dict) {
+                [weakself.sellVC2 setData:dict];
+            }];
+            [weakself.naviVC pushViewController:buySelect animated:YES];
+        }
+    }];
+    sellVC.xieyiSubject = [RACSubject subject];
+    [sellVC.xieyiSubject subscribeNext:^(id x) {
+        JieyiXieyiVC *xieyi = [[JieyiXieyiVC alloc] init];
+        xieyi.type = 3;
+        [weakself.naviVC pushViewController:xieyi animated:YES];
+    }];
+    if (index == 0) {
+        self.sellVC1 = sellVC;
+    }else{
+        self.sellVC2 = sellVC;
+    }
+    return sellVC;;
+}
+
+#pragma -mark getter
+-(UIView *)titleview{
+    if (!_titleview) {
+        _titleview = [[UIView alloc] init];
+        _titleview.backgroundColor = [UIColor clearColor];
+    }
+    return _titleview;
+}
+
+- (JXCategoryTitleView *)categoryView {
+    if(!_categoryView){
+        //
+        _categoryView = [[JXCategoryTitleView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 45)];
+        // dele
+        _categoryView.delegate = self;
+        // 设置菜单项标题数组
+        _categoryView.titles = self.titles;
+        // 背景色
+        _categoryView.backgroundColor = [UIColor clearColor];
+        // 标题色、标题选中色、标题字体、标题选中字体
+        _categoryView.titleColor = [UIColor getColor:@"#FFFFFF" alpha:0.8];
+        _categoryView.titleSelectedColor = [UIColor colorWithRGBHex:@"#FFFFFF"];
+        _categoryView.titleFont = [UIFont boldSystemFontOfSize:15];
+        _categoryView.titleLabelZoomEnabled = YES;
+        // 标题色是否渐变过渡
+        _categoryView.titleColorGradientEnabled = YES;
+        _categoryView.titleLabelZoomScale = 1.5;
+        
+        // 下划线
+        JXCategoryIndicatorLineView *lineView = [[JXCategoryIndicatorLineView alloc] init];
+        // 下划线颜色
+        lineView.indicatorLineViewColor = [UIColor whiteColor];
+        // 下划线宽度
+        lineView.indicatorLineWidth = 30;
+        // 下划线高度
+        lineView.indicatorLineViewHeight = 4;
+        lineView.indicatorLineViewCornerRadius = 2;
+        lineView.lineStyle = JXCategoryIndicatorLineStyle_JD;
+        _categoryView.indicators = @[lineView];
+    }
+    return _categoryView;
+}
+
+- (JXCategoryListContainerView *)listContainerView {
+    if (_listContainerView == nil) {
+        _listContainerView = [[JXCategoryListContainerView alloc] initWithDelegate:self];
+    }
+    return _listContainerView;
+}
+
+#pragma mark - JXCategoryViewDelegate
+- (void)categoryView:(JXCategoryBaseView *)categoryView didSelectedItemAtIndex:(NSInteger)index {
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView didScrollSelectedItemAtIndex:(NSInteger)index {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView didClickSelectedItemAtIndex:(NSInteger)index {
+    NSLog(@"%@", NSStringFromSelector(_cmd));
+    [self.listContainerView didClickSelectedItemAtIndex:index];
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView scrollingFromLeftIndex:(NSInteger)leftIndex toRightIndex:(NSInteger)rightIndex ratio:(CGFloat)ratio {
+    [self.listContainerView scrollingFromLeftIndex:leftIndex toRightIndex:rightIndex ratio:ratio selectedIndex:categoryView.selectedIndex];
+}
+
+#pragma mark - JXCategoryListContainerViewDelegate
+
+- (id<JXCategoryListContentViewDelegate>)listContainerView:(JXCategoryListContainerView *)listContainerView initListForIndex:(NSInteger)index {
+    id<JXCategoryListContentViewDelegate> list = [self preferredListAtIndex:index];
+    return list;
+}
+
+- (NSInteger)numberOfListsInlistContainerView:(JXCategoryListContainerView *)listContainerView {
+    return self.titles.count;
+}
+
+#pragma -mark getter
+-(NSArray *)titles{
+    if (!_titles) {
+        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"挂卖", nil),NSLocalizedString(@"求购", nil), nil];
+    }
+    return _titles;
+}
+
+@end

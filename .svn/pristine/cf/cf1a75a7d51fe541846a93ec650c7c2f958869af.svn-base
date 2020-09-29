@@ -1,0 +1,89 @@
+//
+//  DNSHomeCollectionViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSHomeCollectionViewCell.h"
+#import "OYCountDownManager.h"
+
+@implementation DNSHomeCollectionViewCell
+
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(countDownNotification) name:OYCountDownNotification object:nil];
+    // Initialization code
+    self.remainImg.image = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?[UIImage imageNamed:@"tips_last_shop_eng"]:[UIImage imageNamed:@"tips_last_shop"];
+    self.widthConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?46:57;
+    [self addGradientLayer:self.lineView];
+}
+
+-(void)addGradientLayer:(UIView *)bgview{
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, bgview.width, bgview.height - 30);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor getColor:@"#5151F0" alpha:0.1].CGColor,
+                       (id)[UIColor colorWithRGBHex:@"#5151F0"].CGColor,
+                       (id)[UIColor getColor:@"#5151F0" alpha:0.1].CGColor,nil];
+    [bgview.layer addSublayer:gradient];
+}
+
+-(void)setDict:(NSDictionary *)dict{
+    _dict = dict;
+    self.nameLabel.text = AssectString(dict[@"domain_name"]);
+    [self.headerV sd_setImageWithURL:[NSURL URLWithString:AssectString(dict[@"avatar"])] placeholderImage:[UIImage imageNamed:@"pic_head"] options:SDWebImageAllowInvalidSSLCertificates];
+    [self countDownNotification];
+}
+
+-(void)countDownNotification{
+    // 1.将时间转换为date
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"YYYY-MM-dd HH:mm:ss";
+    long publish_time = [self.dict[@"sale_time"] longValue];
+    long sale_day = [self.dict[@"sale_day"] longValue];
+    NSDate *expireDate = [[self getLocateTime:publish_time] dateByAddingTimeInterval:sale_day*60*60*24];
+    NSDate* nowDate = [self localeDate:[NSDate date]];
+
+    //1比较大小
+    if ([[expireDate earlierDate:nowDate] isEqualToDate:expireDate]) {
+        self.leftTime.text = NSLocalizedString(@"已过期", nil);
+        return;
+    }
+
+    // 2.创建日历
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSCalendarUnit type = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+    // 3.利用日历对象比较两个时间的差值
+    NSDateComponents *cmps = [calendar components:type fromDate:nowDate toDate:expireDate options:0];
+    NSInteger day = cmps.day;
+    NSString *hour = cmps.hour < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.hour]:[NSString stringWithFormat:@"%ld",(long)cmps.hour];
+    NSString *minute = cmps.minute < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.minute]:[NSString stringWithFormat:@"%ld",(long)cmps.minute];
+    
+    // 4.输出结果
+    if (cmps.day > 0) {
+        self.leftTime.text = [NSString stringWithFormat:@"%ldd %@h",(long)day,AssectString(hour)];
+    }else{
+        self.leftTime.text = [NSString stringWithFormat:@"%@h %@m",AssectString(hour),AssectString(minute)];
+    }
+}
+
+//获取正确的时间
+- (NSDate*)localeDate:(NSDate*)date {
+    NSTimeZone *zone = [NSTimeZone systemTimeZone];
+    NSInteger interval = [zone secondsFromGMTForDate: date];
+    NSDate *localeDate = [date dateByAddingTimeInterval: interval];
+    return localeDate;
+}
+
+//pragma mark ---- 将时间戳转换成时间
+-(NSDate *)getLocateTime:(long)timeStamp {
+    NSDate *confromTimesp = [NSDate dateWithTimeIntervalSince1970:timeStamp];
+    return [self localeDate:confromTimesp];
+}
+@end

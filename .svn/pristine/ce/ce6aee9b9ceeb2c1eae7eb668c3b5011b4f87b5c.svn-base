@@ -1,0 +1,186 @@
+//
+//  ShopAssetsDetailViewController.m
+//  Cloud Pro
+//
+//  Created by leosun on 2020/7/8.
+//  Copyright © 2020 yunzhuan. All rights reserved.
+//
+
+#import "ShopAssetsDetailVC.h"
+#import "ShopAssetDetailTableViewCell.h"
+#import "ShopAssetsRecordModel.h"
+#import "ShopAssetsReceiveVC.h"
+#import "ShopAssetsDrawVC.h"
+#import "ShopAssetsSendVC.h"
+#import "ShopAssetsTradeDetailVC.h"
+#import "ShopTraceSourceVC.h"
+
+@interface ShopAssetsDetailVC ()<UITableViewDataSource,UITableViewDelegate,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+
+@end
+
+@implementation ShopAssetsDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self setData];
+    [self addRefresh];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getData:YES];
+
+}
+
+-(void)prepareUi{
+    self.topHeightConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopAssetDetailTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopAssetDetailTableViewCell"];
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#F2F6FA"];
+}
+
+-(void)addRefresh{
+    __weak typeof(self) wself = self;
+    self.tableview.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        [wself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [wself getData:NO];
+    }];
+}
+
+-(void)setData{
+    self.totalLabel.text = self.shopModel.total_price;
+    self.singleLabel.text = self.shopModel.price;
+    self.countLabel.text = self.shopModel.number;
+    self.addressLabel.text = [Manager takeoutTokenkey:ShopWalletAddress];
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.shopModel.small_image)]];
+    self.nameLabel.text = self.shopModel.name;
+    self.descLabel.text = self.shopModel.specification;
+}
+
+-(void)getData:(BOOL)ifFirst{
+    ifFirst?(page = 1):page++;
+    NSDictionary* dic=@{@"page":[NSString stringWithFormat:@"%d",page],@"good_id":[NSString stringWithFormat:@"%ld",self.shopModel.assetId]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:GoodTransRecordList param:dic loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                ifFirst?[weakself.datas removeAllObjects]:nil;
+                NSMutableArray<ShopAssetsRecordModel*> *applicationList = [ShopAssetsRecordModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        ifFirst?[weakself.tableview.mj_header endRefreshing]:[weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    ShopEmptyView *empty = [ShopEmptyView flagView];
+    empty.contentLabel.text = @"暂无数据";
+    empty.topConst.constant -= 40;
+    return empty;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)copyClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.addressLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)expandClick:(UIButton *)sender {
+    if (!sender.selected) {
+        self.midViewHeight.constant = 0;
+        self.botViewHeight.constant = 44;
+        self.midView.hidden = YES;
+    }else{
+        self.midView.hidden = NO;
+        self.midViewHeight.constant = 80;
+        self.botViewHeight.constant = 30;
+    }
+    sender.selected = !sender.selected;
+    [self.view layoutIfNeeded];
+}
+
+- (IBAction)receiveClick:(id)sender {
+    ShopAssetsReceiveVC *receive = [[ShopAssetsReceiveVC alloc] init];
+    [self.navigationController pushViewController:receive animated:YES];
+}
+
+- (IBAction)sendClick:(id)sender {
+    ShopAssetsSendVC *send = [[ShopAssetsSendVC alloc] init];
+    [self.navigationController pushViewController:send animated:YES];
+}
+
+- (IBAction)drawClick:(id)sender {
+    ShopAssetsDrawVC *draw = [[ShopAssetsDrawVC alloc] init];
+    [self.navigationController pushViewController:draw animated:YES];
+}
+
+- (IBAction)sourceClick:(id)sender {
+    ShopTraceSourceVC *sourceVC = [[ShopTraceSourceVC alloc] init];
+    [self.navigationController pushViewController:sourceVC animated:YES];
+}
+
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 60;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *view = [[UIView alloc] init];
+    view.backgroundColor = [UIColor colorWithRGBHex:@"#F2F6FA"];
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(16, 20, ksrcwidth - 16, 22.5)];
+    label.text = @"资产记录";
+    label.textColor = [UIColor colorWithRGBHex:@"#323236"];
+    label.font = [UIFont systemFontOfSize:16 weight:(UIFontWeightSemibold)];
+    [view addSubview:label];
+    
+    return view;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopAssetDetailTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopAssetDetailTableViewCell"];
+    cell.model = self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopAssetsTradeDetailVC *detail = [[ShopAssetsTradeDetailVC alloc] init];
+    detail.model = self.datas[indexPath.row];
+    [self.navigationController pushViewController:detail animated:YES];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+@end

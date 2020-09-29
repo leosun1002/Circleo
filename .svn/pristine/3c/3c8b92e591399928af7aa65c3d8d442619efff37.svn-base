@@ -1,0 +1,23 @@
+//
+//  AddressContentTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/16.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "ShopFriendsModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AddressContentTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UILabel *indexLabel;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (weak, nonatomic) IBOutlet UIView *remarkView;
+@property (weak, nonatomic) IBOutlet UILabel *remarkLabel;
+@property (nonatomic,strong) ShopFriendsModel *model;
+@end
+
+NS_ASSUME_NONNULL_END

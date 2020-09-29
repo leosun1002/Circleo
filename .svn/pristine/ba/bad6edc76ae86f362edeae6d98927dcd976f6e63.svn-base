@@ -1,0 +1,98 @@
+//
+//  BlockChainDataTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/22.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BlockChainDataTableViewCell.h"
+
+@implementation BlockChainDataTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.authenImgV.image = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?[UIImage imageNamed:@"icon_evidence_authen_eng"]:[UIImage imageNamed:@"icon_evidence_authen"];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself.subject sendNext:@""];
+    }];
+    [self.chainView addGestureRecognizer:tap];
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+- (IBAction)transacHashClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.transactionHashLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)blockHeightClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.heightLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)transacTimeClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.transactionTimeLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+- (IBAction)blockHashClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.blockHashLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)receiveAddressClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.receiveAddressLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)sendAddressClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.sendAddressLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+- (IBAction)amountClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.transactionAmountLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+-(void)setModel:(EvidenceDetailModel *)model{
+    _model = model;
+    self.transactionHashLabel.text = model.transaction_hash;
+    self.heightLabel.text = model.block_height;
+    self.transactionTimeLabel.text = model.transaction_time;
+    self.blockHashLabel.text = model.block_hash;
+    self.receiveAddressLabel.numberOfLines = 0;
+    self.receiveAddressLabel.text = model.receive_address;
+    self.receiveHeightConst.constant = [self calculateHeight:self.receiveAddressLabel];
+    self.receiveBgHeight.constant = [self calculateHeight:self.receiveAddressLabel] + 46;
+    self.sendAddressLabel.numberOfLines = 0;
+    self.sendAddressLabel.text = model.send_address;
+    self.sendHeightConst.constant = [self calculateHeight:self.sendAddressLabel];
+    self.sendBgHeight.constant = [self calculateHeight:self.sendAddressLabel] + 46;
+    self.transactionAmountLabel.text = model.transaction_amount;
+    self.signatureLabel.text = model.signature;
+    self.receiptLabel.text = model.result == 0?NSLocalizedString(@"Result：异常", nil):NSLocalizedString(@"Result：正常", nil);
+    self.gasUsedLabel.text = [NSString stringWithFormat:@"GasUsed：%@",AssectString(model.gas_used)];
+    self.secretLabel.text = model.transaction_ciphertext;
+}
+
+-(CGFloat)calculateHeight:(UILabel *)label{
+    CGSize size = [label.text boundingRectWithSize:CGSizeMake(label.width, MAXFLOAT) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:@{NSFontAttributeName:label.font} context:nil].size;
+    return size.height;
+}
+@end

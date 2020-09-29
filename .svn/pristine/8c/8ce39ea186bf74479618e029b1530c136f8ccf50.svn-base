@@ -1,0 +1,36 @@
+//
+//  HomePageTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "HomePageTableViewCell.h"
+
+@implementation HomePageTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(SolutionModel *)model{
+    _model = model;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:model.small_image] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+    self.titleLabel.text = model.title;
+    self.content.text = model.desc;
+    self.timeLabel.text = model.created_at;
+    if (model.browse_count >= 10000) {
+        self.seeCount.text = [GaoJingDu chu:@[[NSString stringWithFormat:@"%ld",model.browse_count],@"10000"] jindu:@"2"];
+    }else{
+        self.seeCount.text = [NSString stringWithFormat:@"%ld",model.browse_count];
+    }
+}
+@end

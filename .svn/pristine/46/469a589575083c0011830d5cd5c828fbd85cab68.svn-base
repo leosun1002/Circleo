@@ -1,0 +1,27 @@
+//
+//  DNBrowserSecretServiceTypeVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/1/3.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNBrowserSecretServiceTypeVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *botConst;
+@property (weak, nonatomic) IBOutlet UIView *payView;
+@property (weak, nonatomic) IBOutlet UIImageView *payImage;
+@property (weak, nonatomic) IBOutlet UIView *freeView;
+@property (weak, nonatomic) IBOutlet UIImageView *freeImage;
+
+///  0是免费文章   1是付费文章
+@property(nonatomic,assign) long serviceType;
+
+@property (strong, nonatomic) RACSubject *serviceSubject;
+@end
+
+NS_ASSUME_NONNULL_END

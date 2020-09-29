@@ -1,0 +1,158 @@
+//
+//  ShopAddressListVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/16.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopFriendsListVC.h"
+#import "AddressContentTableViewCell.h"
+#import "AddressIndexTableViewCell.h"
+#import "AddressIndexSelectedTableViewCell.h"
+
+@interface ShopFriendsListVC ()<UITableViewDelegate,UITableViewDataSource,UIGestureRecognizerDelegate>{
+    BOOL ifPress;
+    int index;
+}
+
+@property (weak, nonatomic) IBOutlet UIView *leftBgview;
+@property (weak, nonatomic) IBOutlet UITableView *leftTable;
+@property (weak, nonatomic) IBOutlet UITableView *rightTable;
+
+@end
+
+@implementation ShopFriendsListVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addCornerLayer];
+    [self addGesture];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+    [self.leftTable registerNib:[UINib nibWithNibName:@"AddressContentTableViewCell" bundle:nil] forCellReuseIdentifier:@"AddressContentTableViewCell"];
+    [self.rightTable registerNib:[UINib nibWithNibName:@"AddressIndexTableViewCell" bundle:nil] forCellReuseIdentifier:@"AddressIndexTableViewCell"];
+    [self.rightTable registerNib:[UINib nibWithNibName:@"AddressIndexSelectedTableViewCell" bundle:nil] forCellReuseIdentifier:@"AddressIndexSelectedTableViewCell"];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)addCornerLayer{
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0,ksrcwidth - 30, ksrcheight - navBarHeight) byRoundingCorners:UIRectCornerTopRight cornerRadii:CGSizeMake(20, 20)];
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+    maskLayer.frame = CGRectMake(0, 0,ksrcwidth - 30, ksrcheight - navBarHeight);
+    maskLayer.path = path.CGPath;
+    self.leftBgview.layer.mask = maskLayer;
+}
+
+-(void)addGesture{
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(rightTableTap:)];
+    longPress.minimumPressDuration = 0.01;
+    longPress.delegate = self;
+    [self.rightTable addGestureRecognizer:longPress];
+}
+
+-(void)rightTableTap:(UIGestureRecognizer *)longPress{
+    CGPoint point = [longPress locationInView:self.rightTable];
+    index =  point.y / 20;
+    if (longPress.state == UIGestureRecognizerStateBegan) {
+        ifPress = YES;
+    }else if (longPress.state == UIGestureRecognizerStateChanged) {
+        ifPress = YES;
+    }else if (longPress.state == UIGestureRecognizerStateEnded) {
+        if (!ifPress)return;
+        ifPress = NO;
+    }
+    [self.rightTable reloadData];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    if (tableView == self.leftTable) {
+        return 10;
+    }
+    
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    if (tableView == self.leftTable) {
+        return 70;
+    }
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    if (tableView == self.leftTable) {
+        UIView *view = [[UIView alloc] init];
+        view.backgroundColor = [UIColor whiteColor];
+        
+        UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(22.5, 30, 50, 25)];
+        nameLabel.text = @"A";
+        nameLabel.textColor = [UIColor colorWithRGBHex:@"#2982FF"];
+        nameLabel.font = [UIFont fontWithName:@"DINPro-Bold" size:25];
+        [view addSubview:nameLabel];
+        
+        UIView *line = [[UIView alloc] initWithFrame:CGRectMake(16, 70 - 0.5, self.leftTable.width - 16, 0.5)];
+        line.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+        line.alpha = 0.3;
+        [view addSubview:line];
+        
+        return view;
+    }
+    return [UIView new];
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (tableView == self.leftTable) {
+        return 10;
+    }
+    return 27;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.leftTable) {
+        return 80;
+    }
+    
+    //没有点击就是20 或者 index != indexPath.row
+    if (!ifPress || index != indexPath.row) return 20;
+    
+    return 60;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.leftTable) {
+        AddressContentTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"AddressContentTableViewCell"];
+        return cell;
+    }
+    
+    if (!ifPress || index != indexPath.row){
+        AddressIndexTableViewCell *indexCell = [tableView dequeueReusableCellWithIdentifier:@"AddressIndexTableViewCell"];
+        return indexCell;
+    }
+    AddressIndexSelectedTableViewCell *indexCell = [tableView dequeueReusableCellWithIdentifier:@"AddressIndexSelectedTableViewCell"];
+//    indexCell.backgroundColor = [UIColor redColor];
+    return indexCell;
+}
+
+
+#pragma -mark UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+    return YES;
+}
+
+@end

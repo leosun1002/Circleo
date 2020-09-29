@@ -1,0 +1,31 @@
+//
+//  DNSDetailModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSDetailModel : NSObject
+
+@property(nonatomic,assign) long detailid;
+@property(nonatomic,assign) long user_id;
+@property(nonatomic,assign) long payment_type;
+@property(nonatomic,assign) long source_type;
+@property(nonatomic,copy) NSString *domain_name;
+@property(nonatomic,copy) NSString *start_time;
+@property(nonatomic,copy) NSString *end_time;
+@property(nonatomic,copy) NSString *purchase_price;
+@property(nonatomic,copy) NSString *usdt_fee;
+@property(nonatomic,copy) NSString *unit_usdt_price;
+@property(nonatomic,copy) NSString *cny_fee;
+@property(nonatomic,copy) NSString *unit_price;
+@property(nonatomic,copy) NSString *currency_type;
+
+@end
+
+NS_ASSUME_NONNULL_END

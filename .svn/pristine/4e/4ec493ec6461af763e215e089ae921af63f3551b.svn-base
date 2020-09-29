@@ -1,0 +1,55 @@
+//
+//  DSPublishVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DSPublishVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+
+@property (weak, nonatomic) IBOutlet UIView *titleView;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UITextField *titleText;
+
+@property (weak, nonatomic) IBOutlet UIView *contentView;
+@property (weak, nonatomic) IBOutlet UILabel *contentLabel;
+@property (weak, nonatomic) IBOutlet UITextField *contentText;
+
+@property (weak, nonatomic) IBOutlet UIView *domainView;
+@property (weak, nonatomic) IBOutlet UILabel *domainLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *typView;
+@property (weak, nonatomic) IBOutlet UITextField *typeText;
+
+@property (weak, nonatomic) IBOutlet UITextField *nickText;
+
+@property (weak, nonatomic) IBOutlet UIView *chainView;
+@property (weak, nonatomic) IBOutlet UILabel *chainSelectLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *chainImg;
+@property (weak, nonatomic) IBOutlet UILabel *chainLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@property (weak, nonatomic) IBOutlet UIView *serviceView;
+@property (weak, nonatomic) IBOutlet UITextField *serviceText;
+
+@property (weak, nonatomic) IBOutlet UIView *serviceContentView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *serviceContentHeight;
+@property (weak, nonatomic) IBOutlet UIView *payView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *payHeight;
+
+@property (weak, nonatomic) IBOutlet UIView *topView;
+@property (weak, nonatomic) IBOutlet UILabel *topLabel;
+@property (weak, nonatomic) IBOutlet UILabel *freeCountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *payMoneyLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

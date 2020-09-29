@@ -1,0 +1,39 @@
+//
+//  AddressModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/28.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AddressCurrencyModel : NSObject
+
+@property(nonatomic,copy) NSString *images;
+@property(nonatomic,copy) NSString *minimum_withdrawal;
+@property(nonatomic,copy) NSString *handling_fee;
+@property(nonatomic,assign) long currencyid;
+@property(nonatomic,copy) NSString *created_at;
+@property(nonatomic,copy) NSString *cash_withdrawal;
+@property(nonatomic,copy) NSString *updated_at;
+@property(nonatomic,copy) NSString *name;
+
+@end
+
+@interface AddressModel : NSObject
+
+@property(nonatomic,copy) NSString *address;
+@property(nonatomic,assign) long currency_type;
+@property(nonatomic,copy) NSString *content;
+@property(nonatomic,assign) long addressid;
+@property(nonatomic,copy) NSString *create_at;
+@property(nonatomic,assign) long user_id;
+@property(nonatomic,copy) NSString *updated_at;
+@property(nonatomic,strong) AddressCurrencyModel *currency;
+
+@end
+
+NS_ASSUME_NONNULL_END

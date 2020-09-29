@@ -1,0 +1,28 @@
+//
+//  FeedbackVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface FeedbackVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITextField *titleText;
+@property (weak, nonatomic) IBOutlet UILabel *titleTipLabel;
+@property (weak, nonatomic) IBOutlet UITextView *content;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentTipLabel;
+@property (weak, nonatomic) IBOutlet UITextField *contactText;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,36 @@
+//
+//  DNSDetailChildView.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "JXPagerView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef enum{
+    DNSDetailChildViewTypeBind,  // 绑定
+    DNSDetailChildViewTypeUnBind,    // 未绑定
+}DNSDetailChildViewType;
+
+@interface DNSDetailChildView : UIView<JXPagerViewListViewDelegate,UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>
+
+/**
+ 页面类型
+ */
+@property (nonatomic,assign) DNSDetailChildViewType pageType;
+@property (nonatomic, copy) void(^scrollCallback)(UIScrollView *scrollView);
+@property (nonatomic,strong) UITableView *tableview;
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSString *manageid;
+@property(nonatomic,strong)RACSubject *subject;
+@property(nonatomic,strong)RACSubject *bindSubject;
+@property(nonatomic,strong)RACSubject *unBindSubject;
+@property(nonatomic,strong)RACSubject *changeBindSubject;
+
+-(void)refreshData:(NSString *)manageid;
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,855 @@
+//
+//  DNBrowserListVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNBrowserListVC.h"
+#import "DNBrowserTableViewCell.h"
+#import "DNBrowserNewsTableViewCell.h"
+#import "DNBrowserUnregister.h"
+#import "DNBrowserSale.h"
+#import "DNBrowserRegister.h"
+#import "DNSBrowserFooter.h"
+#import "DNBrowserDetailVC.h"
+#import "DNSShopNoDataCell.h"
+
+#import "DNSBrowserInfo.h"
+#import "DNSBrowserArticleModel.h"
+#import "DNBrowserHotArticle.h"
+
+#import "DNBrowserDetailVC.h"
+#import "NewsWebViewController.h"
+
+#import "DNBrowserListCollectionViewCell.h"
+#import "DNBrowserTagCollectionViewCell.h"
+#import "DNBrowserAssetsViewController.h"
+#import "MyEvidenceTableViewCell.h"
+#import "EvidenceHomeModel.h"
+#import "EvidenceBindVC.h"
+#import "BrowserUnbindDNVC.h"
+#import "EvidenceDetailVC.h"
+
+#import "MyWebsiteHomeTableViewCell.h"
+#import "MyWebsiteModel.h"
+#import "BuildWebsiteVC.h"
+#import "WebArticleManageVC.h"
+
+@interface DNBrowserListVC ()<UITableViewDelegate,UITableViewDataSource,UICollectionViewDataSource,UICollectionViewDelegate,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong) NSArray *types;
+@property(nonatomic,assign) NSInteger typeTag;//记录大分类
+@property(nonatomic,strong) NSMutableArray *subTypes;
+@property(nonatomic,strong) NSMutableArray *certiTypes;
+@property(nonatomic,assign) long subTypeTag;
+@property(nonatomic,strong) DNSBrowserInfo *domainInfo;
+@property(nonatomic,strong) NSMutableArray *articles;
+@property(nonatomic,strong) NSMutableArray *hots;
+@property(nonatomic,strong) NSMutableArray *certificates;
+@property(nonatomic,strong) NSMutableArray *websites;
+@property(nonatomic,strong) NSString *article_type_id;
+@property(nonatomic,assign) long deposit_certificate_category_id;
+
+@end
+
+@implementation DNBrowserListVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.heightConst.constant = navBarHeight;
+    [self prepareUi];
+    [self getData:YES];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self dismissLoading];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#f7f7f9"];
+    self.domainTable.backgroundColor = [UIColor whiteColor];
+    [self.domainTable registerNib:[UINib nibWithNibName:@"DNBrowserTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNBrowserTableViewCell"];
+    [self.articelTable registerNib:[UINib nibWithNibName:@"DNBrowserNewsTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNBrowserNewsTableViewCell"];
+    [self.certificateTable registerNib:[UINib nibWithNibName:@"MyEvidenceTableViewCell" bundle:nil] forCellReuseIdentifier:@"MyEvidenceTableViewCell"];
+    [self.websiteTable registerNib:[UINib nibWithNibName:@"MyWebsiteHomeTableViewCell" bundle:nil] forCellReuseIdentifier:@"MyWebsiteHomeTableViewCell"];
+
+    self.searchText.text = self.searchStr;
+    self.widthConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?51:31;
+    
+    self.flowLayout.itemSize = CGSizeMake(64, 44);
+    self.flowLayout.minimumLineSpacing = 0;
+    self.flowLayout.minimumInteritemSpacing = 0;
+    self.flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    [self.collect registerNib:[UINib nibWithNibName:@"DNBrowserListCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"DNBrowserListCollectionViewCell"];
+}
+
+- (IBAction)searchClick:(id)sender {
+    self.searchStr = [self removeSpaceAndNewline:self.searchText.text];
+    if ([self.searchStr isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请输入你要查询的内容", nil) location:centre];
+        return;
+    }
+    [self.view endEditing:YES];
+    [self.searchSubject sendNext:AssectString(self.searchStr)];
+    [self getData:YES];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    self.article_type_id = @"";
+    self.typeTag = 0;
+    self.subTypeTag = 0;
+    
+    if (self.searchStr.length == 30 && [self.searchStr hasPrefix:@"jydc"]) {
+        self.topTypeView.hidden = YES;//顶部隐藏
+        self.topTypeHeight.constant = 0;
+        self.domainTable.hidden = YES;
+        self.certificateTable.hidden = NO;
+        self.articelTable.hidden = YES;
+        self.websiteTable.hidden = YES;
+        [self getCertificateData:YES];
+        return;
+    }
+    
+    if (self.searchStr.length >= 30) {
+        self.topTypeView.hidden = YES;//顶部隐藏
+        self.topTypeHeight.constant = 0;
+        self.domainTable.hidden = YES;
+        self.certificateTable.hidden = YES;
+        self.articelTable.hidden = NO;
+        self.websiteTable.hidden = YES;
+        [self getArticleData:ifFresh];
+        return;
+    }
+    
+    //出现域名、存证、文章
+    if ([self.searchStr containsString:@"."]) {
+        self.topTypeView.hidden = NO;//顶部隐藏
+        self.topTypeHeight.constant = 44.5;
+        self.domainTable.hidden = NO;
+        self.articelTable.hidden = YES;
+        self.certificateTable.hidden = YES;
+        self.websiteTable.hidden = YES;
+        self.collectWidth.constant = 256;
+        self.types = [NSArray arrayWithObjects:NSLocalizedString(@"域名",nil),NSLocalizedString(@"文章",nil),NSLocalizedString(@"存证", nil),NSLocalizedString(@"网站", nil), nil];
+        [self.collect reloadData];
+        self.tagBgview.hidden = YES;
+        [self getDomainData];
+        return;
+    }
+    
+    self.topTypeView.hidden = NO;//顶部隐藏
+    self.topTypeHeight.constant = 44.5;
+    self.domainTable.hidden = YES;
+    self.certificateTable.hidden = YES;
+    self.articelTable.hidden = NO;
+    self.websiteTable.hidden = YES;
+    self.collectWidth.constant = 64;
+    self.types = [NSArray arrayWithObjects:NSLocalizedString(@"文章",nil), nil];
+    [self.collect reloadData];
+    self.tagBgview.hidden = NO;
+    [self getSubTypeData];
+    [self getArticleData:ifFresh];
+}
+
+//域名请求
+-(void)getDomainData{
+    WeakSelf(self);
+    NSDictionary *dict = @{@"domain_name":AssectString(self.searchStr)};
+    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:BrowserSearchDomain param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.domainInfo = [DNSBrowserInfo mj_objectWithKeyValues:json[@"data"][@"domain_names"]];
+                [weakself.domainTable reloadData];
+            }else{
+                [weakself showErrorView:weakself.bgview withBlock:^{
+                    [weakself getDomainData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.bgview withBlock:^{
+                [weakself getDomainData];
+            }];
+        }
+    }];
+}
+
+//获取文章
+-(void)getArticleData:(BOOL)ifFresh{
+    ifFresh?(page = 1):(page++);
+    WeakSelf(self);
+    NSDictionary *dict = @{@"domain_name":AssectString(self.searchStr),@"article_type_id":AssectString(self.article_type_id),@"page":[NSString stringWithFormat:@"%d",page]};
+    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:BrowserIndex param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                if (ifFresh) {
+                    [weakself.articles removeAllObjects];
+                    [weakself.hots removeAllObjects];
+
+                    NSMutableArray<DNSBrowserArticleModel*> *aritcle = [DNSBrowserArticleModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"article_chains"]];
+                    [weakself.articles addObjectsFromArray:aritcle];
+
+                    NSMutableArray<DNBrowserHotArticle*> *hot = [DNBrowserHotArticle mj_objectArrayWithKeyValuesArray:json[@"data"][@"hot_article"]];
+                    [weakself.hots addObjectsFromArray:hot];
+                }else{
+                    NSMutableArray<DNSBrowserArticleModel*> *aritcle = [DNSBrowserArticleModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"article_chains"]];
+                    [weakself.articles addObjectsFromArray:aritcle];
+                }
+            }
+        }
+        [weakself.articelTable reloadData];
+    }];
+}
+
+//获取存证
+-(void)getCertificateData:(BOOL)ifFresh{
+    ifFresh?(page = 1):(page++);
+    WeakSelf(self);
+    NSDictionary *dict = @{@"domain_name":AssectString(self.searchStr),@"page":[NSString stringWithFormat:@"%d",page],@"deposit_certificate_category_id":[NSString stringWithFormat:@"%ld",self.deposit_certificate_category_id]};
+    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:CertificateBrowser param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                ifFresh?[weakself.certificates removeAllObjects]:nil;
+                [json[@"data"][@"article_chains"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    MyEvidenceModel *model = [MyEvidenceModel mj_objectWithKeyValues:obj];
+                    model.status = 2;
+                    [weakself.certificates addObject:model];
+                }];
+            }
+        }
+        [weakself.certificateTable cyl_reloadData];
+    }];
+}
+
+-(void)getSubTypeData{
+    WeakSelf(self);
+//    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:BrowserArticleType param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+//        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.subTypes removeAllObjects];
+                [weakself.subTypes addObject:@{@"id":@"",@"name":NSLocalizedString(@"全部", nil)}];
+                [weakself.subTypes addObjectsFromArray:json[@"data"][@"article_types"]];
+                [weakself setTagListView];
+            }else{
+                [weakself showErrorView:weakself.bgview withBlock:^{
+                    [weakself getSubTypeData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.bgview withBlock:^{
+                [weakself getSubTypeData];
+            }];
+        }
+    }];
+}
+
+-(void)getCertificateIndex{
+    WeakSelf(self);
+//    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:CertificateIndex param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+//        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.certiTypes removeAllObjects];
+                EvidenceHomeModel *model = [[EvidenceHomeModel alloc] init];
+                model.name = NSLocalizedString(@"全部", nil);
+                [weakself.certiTypes addObject:model];
+                
+                NSMutableArray<EvidenceHomeModel*> *applicationList = [EvidenceHomeModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.certiTypes addObjectsFromArray:applicationList];
+                [weakself setCertifacateTagListView];
+            }else{
+                [weakself showErrorView:weakself.bgview withBlock:^{
+                    [weakself getCertificateIndex];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.bgview withBlock:^{
+                [weakself getCertificateIndex];
+            }];
+        }
+    }];
+}
+
+-(void)getWebsiteData{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    NSDictionary *dict = @{@"domain_name":AssectString(self.searchText.text)};
+    [WebServices getFormReqUrl:BrowserSeachWebsite param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.websites removeAllObjects];
+                NSMutableArray<MyWebsiteModel*> *applicationList = [MyWebsiteModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"article_chains"]];
+                [weakself.websites addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.websiteTable cyl_reloadData];
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)setTagListView{
+    //移除所有子类
+    [self.tagBgview.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    CGFloat contentSize = 0;
+    for (int i = 0; i < self.subTypes.count; i++) {
+        NSDictionary *dict = self.subTypes[i];
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.tag = i;
+        btn.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+        if (self.subTypeTag == i) {
+            [btn setTitleColor:[UIColor colorWithRGBHex:@"#FF5773"] forState:UIControlStateNormal];
+            btn.titleLabel.font = [UIFont systemFontOfSize:10 weight:(UIFontWeightMedium)];
+        }else{
+            [btn setTitleColor:[UIColor colorWithRGBHex:@"#777785"] forState:UIControlStateNormal];
+            btn.titleLabel.font = [UIFont systemFontOfSize:10];
+        }
+        btn.layer.cornerRadius = 9.5;
+        btn.layer.masksToBounds = YES;
+        [btn setTitle:AssectString(dict[@"name"]) forState:UIControlStateNormal];
+        [btn addTarget:self action:@selector(btnClick:) forControlEvents:UIControlEventTouchUpInside];
+        btn.frame = CGRectMake(contentSize, CGRectGetMidY(self.tagBgview.frame) - 10, [self calculateWidth:AssectString(dict[@"name"])], 20);
+        contentSize += [self calculateWidth:AssectString(dict[@"name"])] + 20;
+        [self.tagBgview addSubview:btn];
+    }
+    self.tagBgview.contentSize = CGSizeMake(contentSize, 0);
+}
+
+-(void)setCertifacateTagListView{
+    //移除所有子类
+    [self.tagBgview.subviews makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    CGFloat contentSize = 0;
+    for (int i = 0; i < self.certiTypes.count; i++) {
+        EvidenceHomeModel *model = self.certiTypes[i];
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        btn.tag = i;
+        btn.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+        if (self.subTypeTag == i) {
+            [btn setTitleColor:[UIColor colorWithRGBHex:@"#FF5773"] forState:UIControlStateNormal];
+            btn.titleLabel.font = [UIFont systemFontOfSize:10 weight:(UIFontWeightMedium)];
+        }else{
+            [btn setTitleColor:[UIColor colorWithRGBHex:@"#777785"] forState:UIControlStateNormal];
+            btn.titleLabel.font = [UIFont systemFontOfSize:10];
+        }
+        btn.layer.cornerRadius = 9.5;
+        btn.layer.masksToBounds = YES;
+        [btn setTitle:model.name forState:UIControlStateNormal];
+        [btn addTarget:self action:@selector(certiBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+        btn.frame = CGRectMake(contentSize, CGRectGetMidY(self.tagBgview.frame) - 10, [self calculateWidth:AssectString(model.name)], 20);
+        contentSize += [self calculateWidth:AssectString(model.name)] + 20;
+        [self.tagBgview addSubview:btn];
+    }
+    self.tagBgview.contentSize = CGSizeMake(contentSize, 0);
+}
+
+- (void)btnClick:(UIButton *)btn {
+    if (btn.tag == self.subTypeTag) return;
+    CGFloat scrollWidth = ksrcwidth - self.types.count * 60;
+    // 计算偏移量
+    CGFloat offsetX = btn.center.x - scrollWidth * 0.5;
+//    if (offsetX < 0) offsetX = 0;
+    // 获取最大滚动范围
+    CGFloat maxOffsetX = self.tagBgview.contentSize.width - scrollWidth;
+    if (offsetX > maxOffsetX) offsetX = maxOffsetX;
+    if (offsetX < 0) offsetX = 0;
+    // 滚动标题滚动条
+    [self.tagBgview setContentOffset:CGPointMake(offsetX, 0) animated:YES];
+    self.subTypeTag = btn.tag;
+    [self setTagListView];
+    NSDictionary *dict = self.subTypes[btn.tag];
+    self.article_type_id = [NSString stringWithFormat:@"%@",AssectString(dict[@"id"])];
+    [self getArticleData:YES];
+}
+
+- (void)certiBtnClick:(UIButton *)btn {
+    if (btn.tag == self.subTypeTag) return;
+    CGFloat scrollWidth = ksrcwidth - self.types.count * 60;
+    // 计算偏移量
+    CGFloat offsetX = btn.center.x - scrollWidth * 0.5;
+//    if (offsetX < 0) offsetX = 0;
+    // 获取最大滚动范围
+    CGFloat maxOffsetX = self.tagBgview.contentSize.width - scrollWidth;
+    if (offsetX > maxOffsetX) offsetX = maxOffsetX;
+    if (offsetX < 0) offsetX = 0;
+    // 滚动标题滚动条
+    [self.tagBgview setContentOffset:CGPointMake(offsetX, 0) animated:YES];
+    self.subTypeTag = btn.tag;
+    [self setCertifacateTagListView];
+    EvidenceHomeModel *model = self.certiTypes[btn.tag];
+    self.deposit_certificate_category_id = model.user.deposit_certificate_category_id;
+    [self getCertificateData:YES];
+}
+
+//计算高度
+-(CGFloat)caculateHeaderHeight{
+    ///1未注册，2挂单冻结中，3已注册 绑定地址中
+    long type = self.domainInfo.type;
+    if (type == 1) {
+        return [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?70:90;
+    }else if (type == 2){
+        return [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?130:150;
+    }else
+    
+    return self.domainInfo.public_chains.count == 0?109:109 + 46;
+}
+
+-(UIView *)caculateHeader{
+    ///1未注册，2挂单冻结中，3已注册 绑定地址中
+    long type = self.domainInfo.type;
+    if (type == 1) {
+        DNBrowserUnregister *header = [[DNBrowserUnregister alloc] init];
+        header.nameLabel.text = AssectString(self.domainInfo.domain_name);
+        return header;
+    }else if (type == 2){
+        DNBrowserSale *header = [[DNBrowserSale alloc] init];
+        header.nameLabel.text = AssectString(self.domainInfo.domain_name);
+        header.startLabel.text = [NSString stringWithFormat:NSLocalizedString(@"购买时间：%@", nil),AssectString(self.domainInfo.start_time)];
+        header.endLabel.text = [NSString stringWithFormat:NSLocalizedString(@"到期时间：%@", nil),AssectString(self.domainInfo.end_time)];
+        return header;
+    }
+    DNBrowserRegister *header = [[DNBrowserRegister alloc] init];
+    header.botTypeView.hidden = self.domainInfo.public_chains.count == 0;
+    header.nameLabel.text = AssectString(self.domainInfo.domain_name);
+    header.startLabel.text = [NSString stringWithFormat:NSLocalizedString(@"购买时间：%@", nil),AssectString(self.domainInfo.start_time)];
+    header.endLabel.text = [NSString stringWithFormat:NSLocalizedString(@"到期时间：%@", nil),AssectString(self.domainInfo.end_time)];
+    return header;
+}
+
+-(CGFloat)caculateFooterHeight{
+    if (self.hots.count == 0 && self.articles.count == 0) {
+        return  ksrcheight -  navBarHeight - 10 - 45.5;
+    }
+
+    CGFloat heigth = 0.01;
+    if (self.hots.count != 0) {
+        heigth += 175;
+    }
+    if (self.articles.count % 20 == 0 && self.articles.count != 0) {
+        heigth += 55.5;
+    }
+    return heigth;
+}
+
+-(UIView *)calculateFooter{
+    if (self.hots.count == 0 && self.articles.count == 0) {
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, ksrcheight -  navBarHeight - 10 - 45.5)];
+        view.backgroundColor = [UIColor whiteColor];
+        
+        EmptyView *empty = [[EmptyView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, ksrcheight -  navBarHeight - 10 - 45.5)];
+        empty.contents.text = NSLocalizedString(@"当前暂无文章", nil);
+        [view addSubview:empty];
+        return view;
+    }
+    
+    DNSBrowserFooter *footer = [[DNSBrowserFooter alloc] init];
+    WeakSelf(self);
+    [[footer.nextBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself getArticleData:NO];
+    }];
+    footer.subject = [RACSubject subject];
+    [footer.subject subscribeNext:^(NSString *search) {
+        weakself.searchStr = AssectString(search);
+        weakself.searchText.text = weakself.searchStr;
+        if ([weakself.searchStr isEqualToString:@""]) {
+            [weakself showMsg:NSLocalizedString(@"请输入你要查询的内容", nil) location:centre];
+            return;
+        }
+        [weakself getData:YES];
+    }];
+    footer.hots = self.hots;
+    
+    if (self.hots.count == 0) {
+        footer.hotView.hidden = YES;
+        footer.hotHeight.constant = 0;
+        footer.topView.hidden = YES;
+        footer.topHeiht.constant = 0;
+    }
+    if (self.articles.count % 20 != 0 || self.articles.count == 0) {
+        footer.nextBtn.hidden = YES;
+        footer.hextHeightConst.constant = 0;
+        footer.midView.hidden = YES;
+        footer.midHeightConst.constant = 0;
+    }
+    return footer;
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无数据", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    if (tableView == self.articelTable || tableView == self.certificateTable || tableView == self.websiteTable) {
+        return 0.01;
+    }
+    if (!self.domainInfo) {
+        return  ksrcheight -  navBarHeight - 10 - 45.5;
+    }
+    return [self caculateHeaderHeight];
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    if (tableView == self.articelTable || tableView == self.certificateTable || tableView == self.websiteTable) {
+        return [UIView new];
+    }
+    if (!self.domainInfo) {
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, ksrcheight -  navBarHeight - 10 - 45.5)];
+        view.backgroundColor = [UIColor whiteColor];
+        
+        EmptyView *empty = [[EmptyView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, ksrcheight -  navBarHeight - 10 - 45.5)];
+        [view addSubview:empty];
+        return view;
+    }
+    
+    return [self caculateHeader];
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    if (tableView == self.articelTable) {
+        return [self caculateFooterHeight];
+    }
+    if (tableView == self.certificateTable) {
+        return self.certificates.count != 0 && self.certificates.count%20==0?45.f:0;
+    }
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    if (tableView == self.articelTable) {
+        return [self calculateFooter];
+    }
+    if (tableView == self.certificateTable) {
+        DNSBrowserFooter *footer = [[DNSBrowserFooter alloc] init];
+        footer.midView.hidden = YES;
+        footer.midHeightConst.constant = 0;
+        footer.hotView.hidden = YES;
+        footer.hotHeight.constant = 0;
+        footer.topView.hidden = YES;
+        footer.topHeiht.constant = 0;
+        WeakSelf(self);
+        [[footer.nextBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            [weakself getCertificateData:NO];
+        }];
+        return footer;
+    }
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (tableView == self.articelTable) {
+        return self.articles.count;
+    }
+    if (tableView == self.certificateTable) {
+        return self.certificates.count;
+    }
+    if (tableView == self.websiteTable) {
+        return self.websites.count;
+    }
+    return self.domainInfo.public_chains.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.articelTable) {
+        return UITableViewAutomaticDimension;
+    }
+    if (tableView == self.certificateTable) {
+        return 96;
+    }
+    if (tableView == self.websiteTable) {
+        return 105.5;
+    }
+    return 45.5;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.articelTable) {
+        DNBrowserNewsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNBrowserNewsTableViewCell"];
+        cell.searchStr = AssectString(self.searchStr);
+        cell.article = self.articles[indexPath.row];
+        return cell;
+    }
+    if (tableView == self.domainTable) {
+        DNBrowserTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNBrowserTableViewCell"];
+        cell.model = self.domainInfo.public_chains[indexPath.row];
+        return cell;
+    }
+    if (tableView == self.websiteTable) {
+        MyWebsiteHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyWebsiteHomeTableViewCell"];
+        MyWebsiteModel *model = self.websites[indexPath.row];
+        [cell.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.website_template.phone_picture)]];
+        cell.nameLabel.text = model.name;
+        cell.domainNameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"网站域名 %@", nil),AssectString(model.domain_name.domain_name)];
+        cell.operateBtn.tag = indexPath.row;
+        [cell.operateBtn addTarget:self action:@selector(webOperateClick:) forControlEvents:UIControlEventTouchUpInside];
+        return cell;
+    }
+    if (tableView == self.certificateTable) {
+        MyEvidenceTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyEvidenceTableViewCell"];
+        cell.operateClick.tag = indexPath.row;
+        [cell.operateClick addTarget:self action:@selector(operateClick:) forControlEvents:UIControlEventTouchUpInside];
+        cell.model = self.certificates[indexPath.row];
+        return cell;
+    }
+    return nil;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (tableView == self.articelTable) {
+        DNSBrowserArticleModel *model = self.articles[indexPath.row];
+        DNBrowserDetailVC *detail = [[DNBrowserDetailVC alloc] init];
+        detail.articleid = model.articleid;
+        detail.articleTitle = model.title;
+        [self.navigationController pushViewController:detail animated:YES];
+        return;
+    }
+    if (tableView == self.domainTable) {
+        DNSPublicChain *chainInfo = self.domainInfo.public_chains[indexPath.row];
+        DNBrowserAssetsViewController *asset = [[DNBrowserAssetsViewController alloc] init];
+        asset.name = chainInfo.name;
+        asset.address = chainInfo.wallet_address;
+        [self.navigationController pushViewController:asset animated:YES];
+    }
+    if (tableView == self.certificateTable) {
+        MyEvidenceModel *model = self.certificates[indexPath.row];
+        EvidenceDetailVC *detail = [[EvidenceDetailVC alloc] init];
+        detail.deposit_certificate_id = model.myEvidenceId;
+        [self.navigationController pushViewController:detail animated:YES];
+    }
+    
+}
+
+-(void)operateClick:(UIButton *)sender{
+    UIAlertController *sheetVC = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    MyEvidenceModel *model = self.certificates[sender.tag];
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn3=[UIAlertAction actionWithTitle:NSLocalizedString(@"查看", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        EvidenceDetailVC *detail = [[EvidenceDetailVC alloc] init];
+        detail.deposit_certificate_id = model.myEvidenceId;
+        [weakself.navigationController pushViewController:detail animated:YES];
+
+    }];
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn3];
+    [sheetBtn3 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+-(void)webOperateClick:(UIButton *)sender{
+    MyWebsiteModel *model = self.websites[sender.tag];
+
+    UIAlertController *sheetVC = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"预览", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    UIAlertAction*  sheetBtn2=[UIAlertAction actionWithTitle:NSLocalizedString(@"网站设置", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        BuildWebsiteVC *buildweb = [[BuildWebsiteVC alloc] init];
+        buildweb.website_id = model.website_id;
+        buildweb.fromType = 1;
+        [weakself.navigationController pushViewController:buildweb animated:YES];
+    }];
+    UIAlertAction*  sheetBtn3=[UIAlertAction actionWithTitle:NSLocalizedString(@"文章管理", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        WebArticleManageVC *manageVC = [[WebArticleManageVC alloc] init];
+        manageVC.website_id = model.website_id;
+        [weakself.navigationController pushViewController:manageVC animated:YES];
+    }];
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn2];
+    [sheetBtn2 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn3];
+    [sheetBtn3 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+#pragma -mark getter UICollectionViewDelegate
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.types.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    DNBrowserListCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DNBrowserListCollectionViewCell" forIndexPath:indexPath];
+    cell.nameLabel.textColor = indexPath.item == self.typeTag?[UIColor colorWithRGBHex:@"#FF5773"]:[UIColor colorWithRGBHex:@"#9999A3"];
+    cell.bottomView.hidden = indexPath.item != self.typeTag;
+    cell.nameLabel.text = AssectString(self.types[indexPath.item]);
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (indexPath.item == self.typeTag) return;
+    if (indexPath.item == 0) {
+        self.typeTag = indexPath.item;
+        [self.collect reloadData];
+        self.tagBgview.hidden = YES;
+        self.domainTable.hidden = NO;
+        self.articelTable.hidden = YES;
+        self.certificateTable.hidden = YES;
+        self.websiteTable.hidden = YES;
+        [self getDomainData];
+    }else if (indexPath.item == 1) {
+        self.typeTag = indexPath.item;
+        [self.collect reloadData];
+        self.tagBgview.hidden = NO;
+        self.subTypeTag = 0;
+        [self getSubTypeData];
+        self.domainTable.hidden = YES;
+        self.articelTable.hidden = NO;
+        self.certificateTable.hidden = YES;
+        self.websiteTable.hidden = YES;
+        self.article_type_id = @"";
+        [self getArticleData:YES];
+    }else if (indexPath.item == 2){
+        self.typeTag = indexPath.item;
+        [self.collect reloadData];
+        self.tagBgview.hidden = NO;
+        self.subTypeTag = 0;
+        [self getCertificateIndex];
+        self.domainTable.hidden = YES;
+        self.articelTable.hidden = YES;
+        self.certificateTable.hidden = NO;
+        self.websiteTable.hidden = YES;
+        [self getCertificateData:YES];
+    }else if (indexPath.item == 3){
+        self.typeTag = indexPath.item;
+        [self.collect reloadData];
+        self.tagBgview.hidden = YES;
+        self.domainTable.hidden = YES;
+        self.articelTable.hidden = YES;
+        self.certificateTable.hidden = YES;
+        self.websiteTable.hidden = NO;
+        [self getWebsiteData];
+    }
+}
+ 
+#pragma -mark UIScrollViewDelegate
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    [self.view endEditing:YES];
+}
+
+-(void)dealWitJump:(DNSPublicChain *)chain{
+    if (chain.status != 2) return;
+    
+    if ([AssectString(chain.name) containsString:@"BTC"] || [AssectString(chain.name) containsString:@"ETH"]) {
+        NSString *url = [NSString stringWithFormat:@"https://tokenview.com/cn/search/%@",AssectString(chain.wallet_address)];
+        NewsWebViewController* webViewObj =  [[NewsWebViewController alloc] init];
+        webViewObj.loadUrl = AssectString(url);
+        webViewObj.titleStr = AssectString(chain.name);
+        [self.navigationController pushViewController:webViewObj animated:YES];
+        return;
+    }
+    
+    if ([AssectString(chain.name) containsString:@"NULS"]) {
+        NSString *url = [NSString stringWithFormat:@"https://nulscan.io/address/info?address=%@",AssectString(chain.wallet_address)];
+        NewsWebViewController* webViewObj =  [[NewsWebViewController alloc] init];
+        webViewObj.loadUrl = AssectString(url);
+        webViewObj.titleStr = AssectString(chain.name);
+        [self.navigationController pushViewController:webViewObj animated:YES];
+        return;
+    }
+    
+    [self showMsg:NSLocalizedString(@"暂未开放，敬请期待", nil) location:centre];
+    
+}
+
+-(CGFloat)calculateWidth:(NSString *)content{
+    //计算文本文字size
+    CGSize size = [content sizeWithAttributes:@{NSFontAttributeName: [UIFont boldSystemFontOfSize:10.f]}];
+    //获取宽高
+    CGSize statuseStrSize = CGSizeMake(ceilf(size.width), ceilf(size.height));
+    //打印宽高
+    NSLog(@"%@_width:%f_height:%f",NSStringFromCGSize(statuseStrSize),size.width,size.height);
+    return size.width + 20;
+}
+
+-(void)showErrorView:(UIView *)view withBlock:(ToastBlock)block{
+    EmptyView *errowView = [EmptyView flagView];
+    errowView.backImage.image = [UIImage imageNamed:@"defultPage_error"];
+    errowView.contents.text = NSLocalizedString(@"很抱歉，加载失败请重新加载!", nil);
+    errowView.frame = view.bounds;
+    errowView.reloadBtn.hidden = NO;
+    __weak typeof(EmptyView *)weakView = errowView;
+    [[errowView.reloadBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakView removeFromSuperview];
+        !block?:block();
+    }];
+    [view addSubview:errowView];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)articles{
+    if (!_articles) {
+        _articles = [NSMutableArray array];
+    }
+    return _articles;
+}
+
+-(NSMutableArray *)hots{
+    if (!_hots) {
+        _hots = [NSMutableArray array];
+    }
+    return _hots;
+}
+
+-(NSMutableArray *)subTypes{
+    if (!_subTypes) {
+        _subTypes = [NSMutableArray array];
+    }
+    return _subTypes;
+}
+
+-(NSMutableArray *)certiTypes{
+    if (!_certiTypes) {
+        _certiTypes = [NSMutableArray array];
+    }
+    return _certiTypes;
+}
+
+-(NSMutableArray *)certificates{
+    if (!_certificates) {
+        _certificates = [NSMutableArray array];
+    }
+    return _certificates;
+}
+
+-(NSMutableArray *)websites{
+    if (!_websites) {
+        _websites = [NSMutableArray array];
+    }
+    return _websites;
+}
+@end

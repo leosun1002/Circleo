@@ -1,0 +1,172 @@
+//
+//  ShopAssetsHomeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/14.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAssetsHomeVC.h"
+#import "ShopAssetsHomeTableViewCell.h"
+#import "ShopAssetModel.h"
+#import "ShopAssetsSearchVC.h"
+#import "ShopAssetsDetailVC.h"
+#import "ShopAssetsReceiveVC.h"
+#import "ShopAssetsDrawVC.h"
+#import "ShopAssetsSendVC.h"
+
+@interface ShopAssetsHomeVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UIView *searchView;
+@property(nonatomic,strong)NSMutableArray *hasDatas;
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSString *assetPrice;
+
+@property (weak, nonatomic) IBOutlet UILabel *totalLabel;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UISwitch *switchBtn;
+
+@end
+
+@implementation ShopAssetsHomeVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getData:YES];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#F2F6FA"];
+    self.heightConst.constant = IS_IPHONEX?44:20;
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopAssetsHomeTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopAssetsHomeTableViewCell"];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        ShopAssetsSearchVC *search = [[ShopAssetsSearchVC alloc] init];
+        search.type = SearchTypeDetail;
+        [weakself.navigationController pushViewController:search animated:YES];
+    }];
+    [self.searchView addGestureRecognizer:tap];
+}
+
+-(void)addRefresh{
+    __weak typeof(self) wself = self;
+    self.tableview.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        [wself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [wself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFirst{
+    NSString *assetCount = @"0";
+    self.assetPrice = @"0.00";
+    ifFirst?(page = 1):page++;
+    NSDictionary* dic=@{@"page":[NSString stringWithFormat:@"%d",page],@"name":@""};
+    WeakSelf(self);
+    __block typeof(NSString) *_blockassetCount = assetCount;
+    [WebServices getFormReqUrl:GoodList param:dic loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                if (ifFirst) {
+                    [weakself.datas removeAllObjects];
+                    [weakself.hasDatas removeAllObjects];
+                }
+                [json[@"data"][@"data"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    ShopAssetModel *modules = [ShopAssetModel mj_objectWithKeyValues:obj];
+                    _blockassetCount=  [GaoJingDu add:@[assetCount,AssectString(modules.number)] jindu:@"2"];
+                    weakself.assetPrice =  [GaoJingDu add:@[assetCount,AssectString(modules.total_price)] jindu:@"2"];
+                    [weakself.datas addObject:modules];
+                    if ([modules.number doubleValue] >0) {
+                        [weakself.hasDatas addObject:modules];
+                    }
+                }];
+                weakself.typeLabel.text = [NSString stringWithFormat:@"%@",json[@"data"][@"total_category"]];
+                weakself.countLabel.text = [NSString stringWithFormat:@"%@",json[@"data"][@"total_number"]];
+                weakself.totalLabel.text = [NSString stringWithFormat:@"≈%@",[GaoJingDu chu:@[AssectString(weakself.assetPrice),@"7"] jindu:@"4"]];
+            }
+        }
+        ifFirst?[weakself.tableview.mj_header endRefreshing]:[weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    ShopEmptyView *view = [ShopEmptyView flagView];
+    view.topConst.constant -= 40;
+    view.backgroundColor = [UIColor clearColor];
+    return view;
+}
+
+- (IBAction)switchClick:(UISwitch *)sender {
+    [self.tableview cyl_reloadData];
+}
+
+- (IBAction)receiveClick:(id)sender {
+    ShopAssetsReceiveVC *receive = [[ShopAssetsReceiveVC alloc] init];
+    [self.navigationController pushViewController:receive animated:YES];
+}
+
+- (IBAction)sendClick:(id)sender {
+    ShopAssetsSearchVC *search = [[ShopAssetsSearchVC alloc] init];
+    search.type = SearchTypeSend;
+    [self.navigationController pushViewController:search animated:YES];
+}
+
+- (IBAction)drawClick:(id)sender {
+    ShopAssetsSearchVC *search = [[ShopAssetsSearchVC alloc] init];
+    search.type = SearchTypeWithdraw;
+    [self.navigationController pushViewController:search animated:YES];
+}
+
+#pragma -mark UITableViewDataSource
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.switchBtn.on ? self.hasDatas.count:self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopAssetsHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopAssetsHomeTableViewCell"];
+    cell.model = self.switchBtn.on ? self.hasDatas[indexPath.row]:self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopAssetsDetailVC *detail = [[ShopAssetsDetailVC alloc] init];
+    detail.shopModel = self.switchBtn.on ? self.hasDatas[indexPath.row]:self.datas[indexPath.row];
+    [self.navigationController pushViewController:detail animated:YES];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)hasDatas{
+    if (!_hasDatas) {
+        _hasDatas = [NSMutableArray array];
+    }
+    return _hasDatas;
+}
+@end

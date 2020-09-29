@@ -1,0 +1,21 @@
+//
+//  BrowserCollectViewController.h
+//  ScmProject
+//
+//  Created by leosun on 2019/12/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BrowserCollectVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+///  1是收藏  2是付费
+@property(nonatomic, assign) long type;
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,44 @@
+<html>
+
+<head>
+	<script src="wicc-lib.min.js"></script>
+</head>
+
+<body>
+    <h2>Your Mnemonic words:</h2>
+    <p id="mnemonic"></p>
+	
+    <h2>Your first address</h2>
+    <p id="address"></p>
+
+	
+	<h2>Your address privateKey</h2>
+    <p id="privatekey"></p>
+    <script>
+		
+		//var strMne = 'mask flee odor hurt smart ritual access west fit aunt grunt word'
+		//var strMne = 'negative assume opera cousin sea devote lava reopen bulb gold interest bracket'
+		var strMne = 'insect rely squirrel ability diary void gasp learn spatial helmet town farm'
+	
+		NewWiccAddress(strMne);
+		
+		
+		var priKey = 'PhP8BGUu3dSDSLVFmUmqYSkpaPfjxtL4rFTG5ywbmcf26ZYc1j8y'
+		var regId = '2672710-2'
+		var value = 0.0001
+		var toadd = 'WeAJ4LUmoGM46Wa2uTKXKshWZGcL7Hkmy8'
+		var height = 2677065
+		var fee = 10009
+		
+		signTx(priKey,regId,value,toadd,height,fee)
+		//signTx()
+		/*
+		var priKey = 'PhP8BGUu3dSDSLVFmUmqYSkpaPfjxtL4rFTG5ywbmcf26ZYc1j8y'
+		var height = 2672694
+		registerTx(priKey,height)
+		*/
+		
+    </script>
+</body>
+
+</html>

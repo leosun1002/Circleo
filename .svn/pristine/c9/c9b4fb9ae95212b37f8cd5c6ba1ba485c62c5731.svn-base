@@ -1,0 +1,20 @@
+//
+//  WebsiteTemplateVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/5/20.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "WebSiteTempleModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebsiteTemplateVC : BaseViewController
+
+@property(nonatomic,strong)WebSiteTempleModel *model;
+@property(nonatomic,strong) RACSubject *subject;
+@end
+
+NS_ASSUME_NONNULL_END

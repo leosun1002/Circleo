@@ -1,0 +1,26 @@
+//
+//  PersonalCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PersonalCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIImageView *imageV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentLabel;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *lineConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *leftConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

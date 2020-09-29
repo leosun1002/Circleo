@@ -1,0 +1,21 @@
+//
+//  DNSHomeTradeVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "JXCategoryListContainerView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSHomeTradeVC : BaseViewController<JXCategoryListContentViewDelegate>
+
+@property(nonatomic,strong)UINavigationController *naviVC;
+
+-(void)goSearchVC;//进行搜索
+@end
+
+NS_ASSUME_NONNULL_END

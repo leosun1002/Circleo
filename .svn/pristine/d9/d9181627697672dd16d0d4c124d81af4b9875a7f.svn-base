@@ -1,0 +1,479 @@
+//
+//  DNSSearchVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSSearchVC.h"
+#import "DNSSearchTableViewCell.h"
+#import "DNSSearchModel.h"
+#import "DNSInformationVC.h"
+#import "DNSRenewViewController.h"
+#import "ZWTagListView.h"
+#import "DNSShopRecommendModel.h"
+#import "ShopCarViewController.h"
+
+@interface DNSSearchVC ()<UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate>
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSMutableArray *recDatas;
+@property(nonatomic,strong)NSString *domains;
+@property(nonatomic,strong)ZWTagListView *tagView;
+
+@end
+
+@implementation DNSSearchVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getRedCount];
+}
+
+-(void)prepareUi{
+    if (IS_IPHONEX) {
+        self.topConst.constant += 20;
+    }
+    self.botHeight.constant = 0;
+    [self.view addSubview:self.historyView];
+    [self.historyView addSubview:self.tagView];
+    [self getHistoryView];
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSSearchTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNSSearchTableViewCell"];
+    WeakSelf(self);
+    [[self.searchText rac_signalForControlEvents:(UIControlEventEditingDidEnd)] subscribeNext:^(id x) {
+        [weakself.searchText resignFirstResponder];
+    }];
+    
+    [[self.searchText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        NSString *search = [weakself removeSpaceAndNewline:weakself.searchText.text];
+        if ([search isEqualToString:@""]) {
+            [weakself getHistoryView];
+        }
+    }];
+    self.searchConst.constant = [[GDLocalizableController userLanguage] isEqualToString:CHINESE]?31:51;
+    
+    self.tableview.estimatedRowHeight = 0;
+    self.tableview.estimatedSectionHeaderHeight = 0;
+    self.tableview.estimatedSectionFooterHeight = 0;
+    
+    self.redCountLabel.adjustsFontSizeToFitWidth = YES;
+    
+    if ([AssectString(self.selectStr) isEqualToString:@""]) return;
+    self.searchText.text = self.selectStr;
+    [self searchClick:nil];
+}
+
+//获取红点数
+-(void)getRedCount{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:ShoppingCartRedCount param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                long count =  [json[@"data"][@"count"] longValue];
+                weakself.redCountLabel.hidden = count == 0;
+                if (count > 99) {
+                    weakself.redCountLabel.text = [NSString stringWithFormat:@"99+"];
+                }else{
+                    weakself.redCountLabel.text = [NSString stringWithFormat:@"%ld",count];
+                }
+            }
+        }
+    }];
+}
+
+-(void)searchClickData:(NSString *)searchData{
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        [weakself getSearchData:searchData withGroup:group];
+    });
+    
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        // 追加任务 2
+        [weakself getRecData:group];
+    });
+    
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        [weakself removeDuplicate];
+        [weakself dismissLoading];
+        [weakself addHistoryDatas:searchData];
+        weakself.historyView.hidden = YES;
+        //隐藏底部
+        weakself.bottomview.hidden = YES;
+        weakself.botHeight.constant = 0;
+        weakself.countlabel.text = @"0";
+        [weakself.tableview reloadData];
+    });
+}
+
+-(void)getSearchData:(NSString *)searchData withGroup:(dispatch_group_t)group{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:Domain param:@{@"name":searchData} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                [json[@"data"][@"domina_info"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    DNSSearchModel *modules = [DNSSearchModel mj_objectWithKeyValues:obj];
+                    modules.hasSelect = 0;
+                    [weakself.datas addObject:modules];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)getRecData:(dispatch_group_t)group{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:DomainHot param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.recDatas removeAllObjects];
+                [json[@"data"][@"recommended_domain_names"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    DNSShopRecommendModel *modules = [DNSShopRecommendModel mj_objectWithKeyValues:obj];
+                    modules.hasSelect = 0;
+                    [weakself.recDatas addObject:modules];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+//去除重复
+-(void)removeDuplicate{
+    NSMutableDictionary *dict = [NSMutableDictionary dictionary];
+    for (DNSSearchModel *model in self.datas) {
+        [dict setObject:model.domain_name forKey:model.domain_name];
+    }
+    for (DNSShopRecommendModel *recModel in [self.recDatas reverseObjectEnumerator]) {
+        NSString *value = [dict objectForKey:recModel.domain_name];
+        if (![AssectString(value) isEqualToString:@""]) {
+            [self.recDatas removeObject:recModel];
+        }
+    }
+}
+
+-(void)getHistoryView{
+    NSArray *tempDatas = [Manager takeUserArrays:history_Arrays];
+    self.historyView.hidden = NO;
+    [self.tagView removeFromSuperview];
+    self.tagView = nil;
+    [self.historyView addSubview:self.tagView];
+    NSMutableArray *historyArrays = [NSMutableArray array];
+    for (NSString *tempStr in tempDatas) {
+        NSString *searchStr = tempStr.length > 15?[NSString stringWithFormat:@"%@...",[tempStr substringToIndex:15]]:tempStr;
+        [historyArrays addObject:searchStr];
+    }
+    [self.tagView setTagWithTagArray:historyArrays];
+}
+
+-(void)addHistoryDatas:(NSString *)searchData{
+    if ([searchData isEqualToString:@""]) return;
+    NSMutableArray *historyArrays = [[Manager takeUserArrays:history_Arrays] mutableCopy];
+    if (!historyArrays) {
+        historyArrays = [NSMutableArray array];
+        [historyArrays addObject:searchData];
+        [Manager saveUserArrays:historyArrays key:history_Arrays];
+        return;
+    }
+    if ([historyArrays containsObject:searchData]) return;
+    
+    if (historyArrays.count == 10) {
+        [historyArrays insertObject:searchData atIndex:0];
+        [historyArrays removeLastObject];
+    }else{
+        [historyArrays insertObject:searchData atIndex:0];
+    }
+    [Manager saveUserArrays:historyArrays key:history_Arrays];
+}
+
+- (IBAction)shopCarClick:(id)sender {
+    ShopCarViewController *shopCar = [[ShopCarViewController alloc] init];
+    [self.navigationController pushViewController:shopCar animated:YES];
+}
+
+- (IBAction)cancelClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)searchClick:(id)sender {
+    [self.searchText resignFirstResponder];
+    NSString *search = [self removeSpaceAndNewline:self.searchText.text];
+    if ([search isEqualToString:@""]) return ;
+    NSCharacterSet *cs = [[NSCharacterSet characterSetWithCharactersInString:ENGALPHAN] invertedSet];
+    NSString *filtered = [[search componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+    if (![search isEqualToString:filtered]) {
+        [self showMsg:NSLocalizedString(@"目前只支持英文加数字的域名格式", nil) location:centre];
+        return;
+    }
+    if ([search containsString:@"."]) {
+        search = [search componentsSeparatedByString:@"."][0];
+    }
+    [self searchClickData:[search lowercaseString]];
+}
+
+- (IBAction)buyClick:(id)sender {
+    DNSRenewViewController *renuw = [[DNSRenewViewController alloc] init];
+    renuw.newType = 0;
+    renuw.domains = self.domains && ![self.domains isEqualToString:@""]?[self.domains substringToIndex:self.domains.length - 1]:self.domains;
+    [self.navigationController pushViewController:renuw animated:YES];
+}
+
+- (IBAction)deleteClick:(id)sender {
+    [Manager clearTokenkey:history_Arrays];
+    [self.tagView removeFromSuperview];
+    self.tagView = nil;
+}
+
+-(void)checkClick:(UIButton *)sender{
+    NSInteger tag = sender.tag;
+    NSInteger section = tag/10000;
+    NSInteger row = tag%10000;
+    DNSSearchModel *model = section == 0?self.datas[row]:self.recDatas[row];
+    DNSInformationVC *information = [[DNSInformationVC alloc] init];
+    information.model = model;
+    [self.navigationController pushViewController:information animated:YES];
+}
+
+-(void)selectClick:(UIButton *)sender{
+    NSInteger tag = sender.tag;
+    NSInteger section = tag/10000;
+    NSInteger row = tag%10000;
+    DNSSearchModel *model = section == 0?self.datas[row]:self.recDatas[row];
+    model.hasSelect = model.hasSelect == 0?1:0;
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:row inSection:section];
+    [self.tableview reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+    [self calculateCount];
+}
+
+-(void)calculateCount{
+    int count = 0;
+    self.domains = @"";
+    for (DNSSearchModel *model in self.datas) {
+        count += model.hasSelect;
+        if (model.hasSelect == 1) {
+            self.domains = [self.domains stringByAppendingString:[NSString stringWithFormat:@"%@,",model.domain_name]];
+        }
+    }
+    for (DNSShopRecommendModel *model in self.recDatas) {
+        count += model.hasSelect;
+        if (model.hasSelect == 1) {
+            self.domains = [self.domains stringByAppendingString:[NSString stringWithFormat:@"%@,",model.domain_name]];
+        }
+    }
+    self.bottomview.hidden = count == 0;
+    if (count == 0) {
+        self.botHeight.constant = 0;
+    }else{
+        self.botHeight.constant = IS_IPHONEX?92:82;
+    }
+    self.countlabel.text = [NSString stringWithFormat:@"%d",count];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 2;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    if (section == 0) {
+        return 0.001;
+    }else{
+        return self.recDatas.count == 0?0.01:70;
+    }
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    if (section == 0) {
+        return [UIView new];
+    }else{
+        if (self.recDatas.count == 0) {
+            return [UIView new];
+        }
+        UIView *view = [[UIView alloc] init];
+        
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(16, 50, ksrcwidth - 16, 15)];
+        label.text = NSLocalizedString(@"推荐域名", nil);
+        label.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        label.font = [UIFont boldSystemFontOfSize:14.f];
+        [view addSubview:label];
+        
+        return view;
+    }
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    if (section == 1) {
+        return 0.01;
+    }
+    if (self.datas.count == 0 && self.recDatas.count == 0) {
+        return self.tableview.height;
+    }
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    if (section == 1) {
+        return [UIView new];
+    }
+    if (self.datas.count == 0 && self.recDatas.count == 0) {
+        UILabel *label = [[UILabel alloc] initWithFrame:self.tableview.bounds];
+        label.text = NSLocalizedString(@"暂无历史搜索记录", nil);
+        label.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+        label.font = [UIFont systemFontOfSize:14];
+        label.textAlignment = NSTextAlignmentCenter;
+        return label;
+    }
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (section == 0) {
+        return self.datas.count;
+    }
+    return self.recDatas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (indexPath.section == 0) {
+        DNSSearchModel *model = self.datas[indexPath.row];
+        if (model.type == 0) {
+            return 103;
+        }
+        return 78;
+    }else{
+        DNSShopRecommendModel *recmodel = self.recDatas[indexPath.row];
+        if (recmodel.status == 0) {
+            return 103;
+        }
+        return 78;
+    }
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSSearchTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSSearchTableViewCell"];
+    if (indexPath.section == 0) {
+        cell.model = self.datas[indexPath.row];
+    }else{
+        cell.recModel = self.recDatas[indexPath.row];
+    }
+    cell.selectBtn.tag = indexPath.section *10000 + indexPath.row;
+    cell.checkBtn.tag = indexPath.section *10000 + indexPath.row;
+    [cell.selectBtn addTarget:self action:@selector(selectClick:) forControlEvents:UIControlEventTouchUpInside];
+    [cell.checkBtn addTarget:self action:@selector(checkClick:) forControlEvents:UIControlEventTouchUpInside];
+    cell.shopCarBtn.tag = 10000*indexPath.section + indexPath.row;
+    [cell.shopCarBtn addTarget:self action:@selector(addShopCar:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)addShopCar:(UIButton *)sender{
+    NSInteger section = sender.tag/10000;
+    NSInteger row = sender.tag%10000;
+    NSString *domain_name = @"";
+    if (section == 0) {
+        DNSSearchModel *model = self.datas[row];
+        domain_name = model.domain_name;
+    }else{
+        DNSShopRecommendModel *model = self.recDatas[row];
+        domain_name = model.domain_name;
+    }
+//    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    NSDictionary *dict = @{@"domain_names":domain_name};
+    [WebServices postFormReqUrl:ShoppingCartStore param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself getRedCount];
+                [weakself addAnimation];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)addAnimation{    
+    [UIView animateWithDuration:0.4 animations:^{
+        self.redCountLabel.transform = CGAffineTransformMakeScale(1.3, 1.3);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.25 animations:^{
+            self.redCountLabel.transform = CGAffineTransformIdentity;
+        }];
+    }];
+    
+    [UIView animateWithDuration:0.25 animations:^{
+         self.shopCarBtn.transform = CGAffineTransformMakeRotation(30 *M_PI / 180.0);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.25 animations:^{
+            self.shopCarBtn.transform = CGAffineTransformMakeRotation(-30 *M_PI / 180.0);
+        } completion:^(BOOL finished) {
+            self.shopCarBtn.transform = CGAffineTransformMakeRotation(0 *M_PI / 180.0);
+        }];
+    }];
+}
+
+#pragma -mark UITextFieldDelegate
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    NSLog(@"点击了搜索");
+    [textField resignFirstResponder];
+    return YES;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)recDatas{
+    if (!_recDatas) {
+        _recDatas = [NSMutableArray array];
+    }
+    return _recDatas;
+}
+
+#pragma -mark getter
+-(ZWTagListView *)tagView{
+    if (!_tagView) {
+        _tagView = [[ZWTagListView alloc]initWithFrame:CGRectMake(15, 65, ksrcwidth - 30, 200)];
+        _tagView.signalTagColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+        WeakSelf(self);
+        _tagView.Handle = ^(UILabel *selectLabel) {
+            NSString *selectStr = AssectString(selectLabel.text);
+            NSInteger tag = selectLabel.tag - 100;
+            NSArray *tempDatas = [Manager takeUserArrays:history_Arrays];
+            if (tempDatas.count > tag) {
+                selectStr = tempDatas[tag];
+            }
+            weakself.searchText.text = selectStr;
+            [weakself searchClickData:selectStr];
+        };
+    }
+    return _tagView;
+}
+@end

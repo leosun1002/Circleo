@@ -1,0 +1,72 @@
+//
+//  AgentTradeDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AgentTradeDetailVC.h"
+#import "WithdrawOrderModel.h"
+
+@interface AgentTradeDetailVC ()
+
+@end
+
+@implementation AgentTradeDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.topConst.constant = navBarHeight;
+    [self getData];
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [self dismissLoading];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    [WebServices postFormReqUrl:ConsumeRecordShow param:@{@"id":[NSString stringWithFormat:@"%ld",self.assetId]} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                WithdrawOrderModel *modules = [WithdrawOrderModel mj_objectWithKeyValues:json[@"data"][@"consume_record"]];
+                [weakself setData:modules];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)setData:(WithdrawOrderModel *)model{
+    self.nameLabel.text = AssectString(model.b_name);
+    self.cardNumberLabel.text = AssectString(model.card_number);
+    self.bankLabel.text = AssectString(model.bank_name);
+    self.moneyLabel.text = [NSString stringWithFormat:@"%@CNY",AssectString(model.withdrawal_money)];
+    self.statusLabel.text = model.status == 0?NSLocalizedString(@"处理中", nil):NSLocalizedString(@"提现成功", nil);
+    self.statusLabel.textColor = model.status == 0?[UIColor colorWithRGBHex:@"#F95947"]:[UIColor colorWithRGBHex:@"#5151F0"];
+    self.timeLabel.text = model.create_time;
+    self.sxfLabel.text = AssectString(model.service_charge);
+    self.dzLabel.text = AssectString(model.amount_money);
+    self.textView.text = model.remark;
+}
+@end

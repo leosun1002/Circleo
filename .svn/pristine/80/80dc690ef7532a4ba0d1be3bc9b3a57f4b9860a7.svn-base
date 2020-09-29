@@ -1,0 +1,26 @@
+//
+//  BrowserCoinSelectVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BrowserCoinSelectVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet UITextField *searchText;
+
+@property(nonatomic,assign) long articleid;
+@property(nonatomic,strong) NSString *chainid;
+@property(nonatomic,strong) RACSubject *chainSubject;
+
+///1 选择发布公链  0公链类型
+@property(nonatomic,assign) long type;
+@end
+
+NS_ASSUME_NONNULL_END

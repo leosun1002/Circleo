@@ -1,0 +1,40 @@
+//
+//  PersonHeaderReusableView.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PersonHeaderReusableView : UICollectionReusableView
+
+@property (weak, nonatomic) IBOutlet UIView *topbgview;
+@property (weak, nonatomic) IBOutlet UIImageView *headerBgImage;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImage;
+@property (weak, nonatomic) IBOutlet UILabel *levelName;
+@property (weak, nonatomic) IBOutlet UIImageView *levelHeader;
+
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *cnyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *usdtLabel;
+@property (weak, nonatomic) IBOutlet UIView *usdtView;
+@property (weak, nonatomic) IBOutlet UIView *cnyView;
+@property (weak, nonatomic) IBOutlet UIButton *avatarBtn;
+@property (weak, nonatomic) IBOutlet UILabel *levelLabel;
+@property (weak, nonatomic) IBOutlet UIButton *setBtn;
+@property (weak, nonatomic) IBOutlet UIView *agentView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topHeightConst;
+@property (weak, nonatomic) IBOutlet UIImageView *yqImageV;
+@property (weak, nonatomic) IBOutlet UILabel *yqLabel;
+
+@property (strong, nonatomic) UINavigationController *navicontroller;
+
+-(void)setData;
+@end
+
+NS_ASSUME_NONNULL_END

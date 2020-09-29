@@ -1,0 +1,589 @@
+//
+//  PersonAssetsVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PersonAssetsVC.h"
+#import "MyAssetTableViewCell.h"
+#import "CoinAssetsTableViewCell.h"
+#import "AssetsCountHeader.h"
+#import "AssetCoinHeader.h"
+#import "AssetConditionVC.h"
+#import "AssetCoinListVC.h"
+#import "MyAssetModel.h"
+#import "CurrencyModel.h"
+#import "DNSShopNoDataCell.h"
+#import "PersonTradeDetailVC.h"
+#import "PersonTradeResultVC.h"
+#import "AgentTradeDetailVC.h"
+#import "AgentUSDTPullDetailVC.h"
+
+@interface PersonAssetsVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property(assign,nonatomic)long type;//0 资产账户  1 收益账户  2 币币账户
+@property(strong,nonatomic)AssetsCountHeader *countView;
+@property(strong,nonatomic)AssetCoinHeader *coinView;
+@property(strong,nonatomic)NSMutableArray *pages;
+@property(strong,nonatomic)NSMutableArray *refreshs;//判断是否刷新过
+@property(strong,nonatomic)NSString *assetFilterStr;//资产条件
+@property(strong,nonatomic)NSString *incomeFilterStr;//资产条件
+@property(strong,nonatomic)NSMutableArray *filters;//
+
+@property(nonatomic,strong)NSMutableArray *assetDatas;
+@property(nonatomic,strong)NSMutableArray *incomeDatas;
+@property(nonatomic,strong)NSMutableArray *coinDatas;
+
+@end
+
+@implementation PersonAssetsVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.heightConst.constant = navBarHeight;
+    [self prepareUi];
+    [self addRefresh];
+    [self refreshData];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getUserInfo];
+    if (self.type == 2) {
+        [self getCoinList:YES];
+    }
+}
+
+-(void)prepareUi{
+    [self.assetTableview registerNib:[UINib nibWithNibName:@"MyAssetTableViewCell" bundle:nil] forCellReuseIdentifier:@"MyAssetTableViewCell"];
+    [self.assetTableview registerNib:[UINib nibWithNibName:@"DNSShopNoDataCell" bundle:nil] forCellReuseIdentifier:@"DNSShopNoDataCell"];
+    [self.incomeTableview registerNib:[UINib nibWithNibName:@"MyAssetTableViewCell" bundle:nil] forCellReuseIdentifier:@"MyAssetTableViewCell"];
+    [self.incomeTableview registerNib:[UINib nibWithNibName:@"DNSShopNoDataCell" bundle:nil] forCellReuseIdentifier:@"DNSShopNoDataCell"];
+    [self.coinTableview registerNib:[UINib nibWithNibName:@"CoinAssetsTableViewCell" bundle:nil] forCellReuseIdentifier:@"CoinAssetsTableViewCell"];
+    [self.coinTableview registerNib:[UINib nibWithNibName:@"DNSShopNoDataCell" bundle:nil] forCellReuseIdentifier:@"DNSShopNoDataCell"];
+    [self addTableviewHeader];
+    self.assetFilterStr = NSLocalizedString(@"全部", nil);
+    self.incomeFilterStr = NSLocalizedString(@"全部", nil);
+    
+    if (@available(iOS 11.0,*)) {
+        self.assetTableview.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+        self.assetTableview.estimatedRowHeight=0;
+        self.assetTableview.estimatedSectionFooterHeight=0;
+        
+        self.incomeTableview.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+        self.incomeTableview.estimatedRowHeight=0;
+        self.incomeTableview.estimatedSectionFooterHeight=0;
+        
+        self.coinTableview.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+        self.coinTableview.estimatedRowHeight=0;
+        self.coinTableview.estimatedSectionFooterHeight=0;
+    }else{
+        self.automaticallyAdjustsScrollViewInsets=NO;
+    }
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    
+    PersonWhiteGifHeader *header = [PersonWhiteGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(getNewDatas)];
+//    header.stateLabel.textColor = [UIColor whiteColor];
+//    header.lastUpdatedTimeLabel.textColor = [UIColor whiteColor];
+//    header.loadingView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+    self.assetTableview.mj_header = header;
+    
+    //使用这个加载  可以隐藏最后的一行字
+    self.assetTableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+    
+    PersonWhiteGifHeader *header1 = [PersonWhiteGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(getNewDatas)];
+//    header1.stateLabel.textColor = [UIColor whiteColor];
+//    header1.lastUpdatedTimeLabel.textColor = [UIColor whiteColor];
+//    header1.loadingView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+    self.incomeTableview.mj_header = header1;
+    
+    //使用这个加载  可以隐藏最后的一行字
+    self.incomeTableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+    
+    PersonWhiteGifHeader *header2 = [PersonWhiteGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(getNewDatas)];
+//    header2.stateLabel.textColor = [UIColor whiteColor];
+//    header2.lastUpdatedTimeLabel.textColor = [UIColor whiteColor];
+//    header2.loadingView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+    self.coinTableview.mj_header = header2;
+}
+
+-(void)getNewDatas{
+    [self getData:YES];
+}
+
+-(void)refreshData{
+    NSString *refresh = self.refreshs[self.type];
+    if ([refresh isEqualToString:@"0"]) {
+        if (self.type == 0) {
+            [self.assetTableview.mj_header beginRefreshing];
+        }else if (self.type == 1){
+            [self.incomeTableview.mj_header beginRefreshing];
+        }else{
+            [self.coinTableview.mj_header beginRefreshing];
+        }
+        [self.refreshs replaceObjectAtIndex:self.type withObject:@"1"];
+    }else{
+        if (self.type == 0) {
+            [self.assetTableview reloadData];
+        }else if (self.type == 1){
+            [self.incomeTableview reloadData];
+        }else{
+            [self.coinTableview reloadData];
+        }
+    }
+}
+
+-(void)refreshFromOtherPage{
+    if (self.type == 0) {
+        [self.assetTableview.mj_header beginRefreshing];
+        [self.refreshs replaceObjectAtIndex:1 withObject:@"0"];
+    }else{
+        [self.incomeTableview.mj_header beginRefreshing];
+        [self.refreshs replaceObjectAtIndex:0 withObject:@"0"];
+    }
+    [self.refreshs replaceObjectAtIndex:2 withObject:@"0"];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    [self getUserInfo];
+    if (self.type == 2) {
+        [self getCoinList:ifFresh];
+    }else if (self.type == 0){
+        [self getAsset:ifFresh];
+    }else{
+        [self getIncome:ifFresh];
+    }
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself addTableviewHeader];
+                if (weakself.type == 2) {
+                    [weakself.coinTableview reloadData];
+                }else if (weakself.type == 1){
+                    [weakself.incomeTableview reloadData];
+                }else{
+                    [weakself.assetTableview reloadData];
+                }
+            }
+        }
+    }];
+}
+
+-(void)getAsset:(BOOL)ifFresh{
+    NSString *pagestr = self.pages[self.type];
+    long page = [pagestr longLongValue];
+    ifFresh?(page = 1):page++;
+    [self.pages replaceObjectAtIndex:self.type withObject:[NSString stringWithFormat:@"%ld",page]];
+    NSString *filterStr = self.type == 0?AssectString(self.assetFilterStr):AssectString(self.incomeFilterStr);
+    NSInteger tag = 0;
+    if ([self.filters containsObject:filterStr]) {
+        tag = [self.filters indexOfObject:filterStr];
+    }
+    NSDictionary *dict = @{@"account_type":@"1",@"page":[NSString stringWithFormat:@"%ld",page],@"amount_type":tag == 0?@"":[NSString stringWithFormat:@"%ld",(long)tag]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:ConsumeRecord param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.assetDatas removeAllObjects];
+                NSMutableArray<MyAssetModel *> *applicationList = [MyAssetModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.assetDatas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.assetTableview.mj_header endRefreshing];
+        [weakself.assetTableview.mj_footer endRefreshing];
+        [weakself.assetTableview reloadData];
+    }];
+}
+
+-(void)getIncome:(BOOL)ifFresh{
+    NSString *pagestr = self.pages[self.type];
+    long page = [pagestr longLongValue];
+    ifFresh?(page = 1):page++;
+    [self.pages replaceObjectAtIndex:self.type withObject:[NSString stringWithFormat:@"%ld",page]];
+    NSString *filterStr = self.type == 0?AssectString(self.assetFilterStr):AssectString(self.incomeFilterStr);
+    NSInteger tag = 0;
+    if ([self.filters containsObject:filterStr]) {
+        tag = [self.filters indexOfObject:filterStr];
+    }
+    NSDictionary *dict = @{@"account_type":@"2",@"page":[NSString stringWithFormat:@"%ld",page],@"amount_type":tag == 0?@"":[NSString stringWithFormat:@"%ld",(long)tag]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:ConsumeRecord param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.incomeDatas removeAllObjects];
+                NSMutableArray<MyAssetModel *> *applicationList = [MyAssetModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.incomeDatas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.incomeTableview.mj_header endRefreshing];
+        [weakself.incomeTableview.mj_footer endRefreshing];
+        [weakself.incomeTableview reloadData];
+    }];
+}
+
+-(void)getCoinList:(BOOL)ifFresh{
+    NSDictionary *dict = @{@"name":@""};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:CurrencyIndex param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.coinDatas removeAllObjects];
+                NSMutableArray<CurrencyModel *> *applicationList = [CurrencyModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"currencys"]];
+                [weakself.coinDatas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.coinTableview.mj_header endRefreshing];
+        [weakself.coinTableview.mj_footer endRefreshing];
+        [weakself.coinTableview reloadData];
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)addTableviewHeader{
+    if (self.type == 2) {
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 50)];
+        view.backgroundColor = [UIColor whiteColor];
+
+        AssetCoinHeader *coinView = [[AssetCoinHeader alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 50)];
+        [coinView.assetBtn addTarget:self action:@selector(assetClick) forControlEvents:UIControlEventTouchUpInside];
+        [coinView.incomeBtn addTarget:self action:@selector(incomeClick) forControlEvents:UIControlEventTouchUpInside];
+        [coinView.coinBtn addTarget:self action:@selector(coinClick) forControlEvents:UIControlEventTouchUpInside];
+        [view addSubview:coinView];
+        self.coinTableview.tableHeaderView = view;
+        self.coinTableview.hidden = NO;
+        self.assetTableview.hidden = YES;
+        self.incomeTableview.hidden = YES;
+    }else if (self.type == 0){
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 250)];
+        view.backgroundColor = [UIColor whiteColor];
+
+        AssetsCountHeader *countView = [[AssetsCountHeader alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 250)];
+        [countView.assetBtn addTarget:self action:@selector(assetClick) forControlEvents:UIControlEventTouchUpInside];
+        [countView.incomeBtn addTarget:self action:@selector(incomeClick) forControlEvents:UIControlEventTouchUpInside];
+        [countView.coinBtn addTarget:self action:@selector(coinClick) forControlEvents:UIControlEventTouchUpInside];
+        countView.naviController = self.navigationController;
+        countView.type = self.type;
+        [view addSubview:countView];
+        self.assetTableview.tableHeaderView = view;
+        self.coinTableview.hidden = YES;
+        self.assetTableview.hidden = NO;
+        self.incomeTableview.hidden = YES;
+    }else{
+        UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 250)];
+        view.backgroundColor = [UIColor whiteColor];
+
+        AssetsCountHeader *countView = [[AssetsCountHeader alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 250)];
+        [countView.assetBtn addTarget:self action:@selector(assetClick) forControlEvents:UIControlEventTouchUpInside];
+        [countView.incomeBtn addTarget:self action:@selector(incomeClick) forControlEvents:UIControlEventTouchUpInside];
+        [countView.coinBtn addTarget:self action:@selector(coinClick) forControlEvents:UIControlEventTouchUpInside];
+        countView.naviController = self.navigationController;
+        countView.type = self.type;
+        [view addSubview:countView];
+        self.incomeTableview.tableHeaderView = view;
+        self.coinTableview.hidden = YES;
+        self.assetTableview.hidden = YES;
+        self.incomeTableview.hidden = NO;
+    }
+}
+
+-(void)assetClick{
+    if (self.type == 0) return;
+    self.type = 0;
+    [self addTableviewHeader];
+    [self refreshData];
+}
+
+-(void)incomeClick{
+    if (self.type == 1) return;
+    self.type = 1;
+    [self addTableviewHeader];
+    [self refreshData];
+}
+
+-(void)coinClick{
+    if (self.type == 2) return;
+    self.type = 2;
+    [self addTableviewHeader];
+    [self refreshData];
+}
+
+-(void)filterClick{
+    AssetConditionVC *condition = [[AssetConditionVC alloc] init];
+    condition.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    condition.filterStr = self.type == 0?AssectString(self.assetFilterStr):AssectString(self.incomeFilterStr);
+    condition.filterArray = self.type == 0?[NSMutableArray arrayWithObjects:NSLocalizedString(@"全部", nil),NSLocalizedString(@"平台收入", nil),NSLocalizedString(@"平台支出", nil),NSLocalizedString(@"交易收入", nil),NSLocalizedString(@"交易支出", nil),NSLocalizedString(@"系统收支", nil), nil]:[NSMutableArray arrayWithObjects:NSLocalizedString(@"全部", nil),NSLocalizedString(@"消费分成", nil),NSLocalizedString(@"推广收益", nil),NSLocalizedString(@"收益划转", nil),NSLocalizedString(@"收益支出", nil), nil];
+    condition.subject = [RACSubject subject];
+    WeakSelf(self);
+    [condition.subject subscribeNext:^(NSString *filter) {
+        weakself.type == 0?(weakself.assetFilterStr = filter):(weakself.incomeFilterStr = filter);
+        weakself.type == 0?[weakself.assetTableview setContentOffset:CGPointMake(0, 0) animated:YES]:[weakself.incomeTableview setContentOffset:CGPointMake(0, 0) animated:YES];
+        [weakself getNewDatas];
+    }];
+    [self presentViewController:condition animated:NO completion:^{
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    if (self.type == 2) {
+        return 0.01;
+    }
+    return 50;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    if (self.type == 2) {
+        return [UIView new];
+    }
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 50)];
+    view.backgroundColor = [UIColor whiteColor];
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(16, 15, ksrcwidth - 56, 20)];
+    label.text = NSLocalizedString(@"账户明细", nil);
+    label.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    label.font = [UIFont boldSystemFontOfSize:18];
+    [view addSubview:label];
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    button.frame = CGRectMake(ksrcwidth - 40, 10, 30, 30);
+    [button setImage:[UIImage imageNamed:@"icon_asset_filter"] forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(filterClick) forControlEvents:UIControlEventTouchUpInside];
+    [view addSubview:button];
+    return view;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    if (self.type != 2) return 0.01;
+    if (self.coinDatas.count == 0) return 0.01;
+    CGFloat totalHeight = 50 + self.coinDatas.count * 102 + navBarHeight;
+    if (totalHeight < ksrcheight) {
+        return  ksrcheight - totalHeight;
+    }
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    UIView *footerview = [[UIView alloc] init];
+    footerview.backgroundColor = [UIColor whiteColor];
+    return footerview;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (self.type == 0) {
+        if (self.assetDatas.count == 0) return 1;
+        return self.assetDatas.count;
+    }else if (self.type == 1){
+        if (self.incomeDatas.count == 0) return 1;
+        return self.incomeDatas.count;
+    }else{
+        if (self.coinDatas.count == 0) return 1;
+        return self.coinDatas.count;
+    }
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSMutableArray *datas = [NSMutableArray array];
+    if (self.type == 0) {
+        datas = self.assetDatas;
+    }else if (self.type == 1){
+        datas = self.incomeDatas;
+    }else{
+        datas = self.coinDatas;
+    }
+    
+    if (datas.count == 0) {
+        return self.type == 2?ksrcheight - 0.01 - navBarHeight:ksrcheight - 50 - navBarHeight;
+    }
+    
+    if (self.type == 2) {
+        return 102;
+    }
+    return 71;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSMutableArray *datas = [NSMutableArray array];
+    if (self.type == 0) {
+        datas = self.assetDatas;
+    }else if (self.type == 1){
+        datas = self.incomeDatas;
+    }else{
+        datas = self.coinDatas;
+    }
+    
+    if (datas.count == 0) {
+        DNSShopNoDataCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSShopNoDataCell"];
+        if (self.type == 0) {
+            cell.nameLabel.text = NSLocalizedString(@"资产账户暂无数据", nil);
+        }else if (self.type == 1){
+            cell.nameLabel.text = NSLocalizedString(@"收益账户暂无数据", nil);
+        }else{
+            cell.nameLabel.text = NSLocalizedString(@"币币账户暂无数据", nil);
+        }
+        return cell;
+    }
+    
+    if (tableView == self.coinTableview) {
+        CoinAssetsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"CoinAssetsTableViewCell"];
+        if (indexPath.row >= datas.count) return cell;
+        id model = datas[indexPath.row];
+        if ([model isKindOfClass:[CurrencyModel class]]) {
+            cell.model = (CurrencyModel *)model;
+        }
+        return cell;
+    }
+    MyAssetTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyAssetTableViewCell"];
+    if (indexPath.row >= datas.count) return cell;
+    id model = datas[indexPath.row];
+    if ([model isKindOfClass:[MyAssetModel class]]) {
+        cell.model = (MyAssetModel *)model;
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+   
+    NSMutableArray *datas = [NSMutableArray array];
+    if (self.type == 0) {
+        datas = self.assetDatas;
+    }else if (self.type == 1){
+        datas = self.incomeDatas;
+    }else{
+        datas = self.coinDatas;
+    }
+    
+    if (indexPath.row >= datas.count) return;
+    if (self.type == 2) {
+        AssetCoinListVC *coinList = [[AssetCoinListVC alloc] init];
+        CurrencyModel *model = datas[indexPath.row];
+        coinList.model = model;
+        [self.navigationController pushViewController:coinList animated:YES];
+    }else if (self.type == 0){
+        MyAssetModel *model = datas[indexPath.row];
+        //1CNY，2USDT
+        if (model.payment_method == 2) {
+            //6提现（提币），7充币
+            if (model.type != 6 && model.type != 7)return;
+            //0失败，1审核中，2成功
+            if (model.status != 2) return;
+            PersonTradeResultVC *result = [[PersonTradeResultVC alloc] init];
+            result.assetId = [NSString stringWithFormat:@"%ld",model.assetid];
+            [self.navigationController pushViewController:result animated:YES];
+        }else{
+            //1出帐，2入帐，3其它(不让进)
+            if (model.type != 6 && model.type != 7)return;
+            //0失败，1审核中，2成功
+            if (model.status != 2) return;
+            PersonTradeDetailVC *result = [[PersonTradeDetailVC alloc] init];
+            result.assetId = [NSString stringWithFormat:@"%ld",model.assetid];
+            [self.navigationController pushViewController:result animated:YES];
+        }
+    }else{
+        MyAssetModel *model = datas[indexPath.row];
+        //1CNY，2USDT
+        if (model.payment_method == 2) {
+            //6提现（提币），7充币
+            if (model.type != 6 && model.type != 7)return;
+            //0失败，1审核中，2成功
+            if (model.status != 2) return;
+            AgentUSDTPullDetailVC *result = [[AgentUSDTPullDetailVC alloc] init];
+            result.assetId = model.assetid;
+            [self.navigationController pushViewController:result animated:YES];
+        }else{
+            //1出帐，2入帐，3其它(不让进)
+            if (model.type != 6 && model.type != 7)return;
+            //0失败，1审核中，2成功
+            if (model.status != 2) return;
+            AgentTradeDetailVC *result = [[AgentTradeDetailVC alloc] init];
+            result.assetId = model.assetid;
+            [self.navigationController pushViewController:result animated:YES];
+        }
+    }
+}
+
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    CGFloat scrollY = scrollView.contentOffset.y;
+    if (scrollView == self.assetTableview) {
+        self.titleLabel.text = scrollY >= 45?NSLocalizedString(@"资产账户", nil):NSLocalizedString(@"钱包资产", nil);
+    }else if (scrollView == self.incomeTableview){
+        self.titleLabel.text = scrollY >= 45?NSLocalizedString(@"收益账户", nil):NSLocalizedString(@"钱包资产", nil);
+    }else{
+        self.titleLabel.text = scrollY >= 45?NSLocalizedString(@"币币账户", nil):NSLocalizedString(@"钱包资产", nil);
+    }
+    
+    if(scrollY<-100){
+        [scrollView setContentOffset:CGPointMake(0, -100)];
+    }
+}
+
+#pragma -mark getter
+-(NSMutableArray *)assetDatas{
+    if (!_assetDatas) {
+        _assetDatas = [NSMutableArray array];
+    }
+    return _assetDatas;
+}
+
+-(NSMutableArray *)incomeDatas{
+    if (!_incomeDatas) {
+        _incomeDatas = [NSMutableArray array];
+    }
+    return _incomeDatas;
+}
+
+-(NSMutableArray *)coinDatas{
+    if (!_coinDatas) {
+        _coinDatas = [NSMutableArray array];
+    }
+    return _coinDatas;
+}
+
+-(NSMutableArray *)pages{
+    if (!_pages) {
+        _pages = [NSMutableArray arrayWithObjects:@"1",@"1",@"1", nil];
+    }
+    return _pages;
+}
+
+-(NSMutableArray *)refreshs{
+    if (!_refreshs) {
+        _refreshs = [NSMutableArray arrayWithObjects:@"0",@"0",@"0", nil];
+    }
+    return _refreshs;
+}
+
+-(NSMutableArray *)filters{
+    if (!_filters) {
+//        交易类型：1 平台收入，2 平台支出，3 交易收入，4 交易支出，5 系统收支，6 消费分成，7 节点推广，8 收益划转，9 收益提币
+        _filters = [NSMutableArray arrayWithObjects:NSLocalizedString(@"全部", nil),NSLocalizedString(@"平台收入", nil),NSLocalizedString(@"平台支出", nil),NSLocalizedString(@"交易收入", nil),NSLocalizedString(@"交易支出", nil),NSLocalizedString(@"系统收支", nil),NSLocalizedString(@"消费分成", nil),NSLocalizedString(@"推广收益", nil),NSLocalizedString(@"收益划转", nil),NSLocalizedString(@"收益支出", nil), nil];
+    }
+    return _filters;
+}
+@end

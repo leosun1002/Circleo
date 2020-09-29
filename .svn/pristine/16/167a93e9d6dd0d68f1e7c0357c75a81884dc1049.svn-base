@@ -1,0 +1,47 @@
+//
+//  MallMyFuelTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallMyFuelTableViewCell.h"
+
+@implementation MallMyFuelTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(MyFuelRecordModel *)model{
+    _model = model;
+    self.timeLabel.text = model.created_at;
+    //充值到帐，2提货消耗，3赠送消耗，4系统赠送
+    if (model.type == 1) {
+        self.nameLabel.text = @"充值到帐";
+    }else if (model.type == 2){
+        self.nameLabel.text = @"提货消耗";
+    }else if (model.type == 3){
+        self.nameLabel.text = @"赠送消耗";
+    }else{
+        self.nameLabel.text = @"系统赠送";
+    }
+    //1进帐，2出帐
+    if (model.in_or_out == 1) {
+        self.numberLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        self.numberLabel.text = model.nuls_num;
+    }else{
+        self.numberLabel.textColor = [UIColor colorWithRGBHex:@"#FF5269"];
+        self.numberLabel.text = [NSString stringWithFormat:@"-%@",model.nuls_num];
+    }
+}
+
+@end

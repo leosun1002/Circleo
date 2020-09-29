@@ -1,0 +1,32 @@
+//
+//  WebsiteArticleManagerCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/6/3.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "WebsiteArticelModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebsiteArticleManagerCell : UITableViewCell
+
+@property(nonatomic,strong)WebsiteArticelModel *model;
+@property (weak, nonatomic) IBOutlet UIView *showView;
+@property (weak, nonatomic) IBOutlet UILabel *showLabel;
+@property (weak, nonatomic) IBOutlet UILabel *titlLabel;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UIView *chainsView;
+@property (weak, nonatomic) IBOutlet UIImageView *chainsImgV;
+@property (weak, nonatomic) IBOutlet UILabel *chainsLabel;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet UIButton *operateBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *titleWidth;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *chainsWidth;
+
+@end
+
+NS_ASSUME_NONNULL_END

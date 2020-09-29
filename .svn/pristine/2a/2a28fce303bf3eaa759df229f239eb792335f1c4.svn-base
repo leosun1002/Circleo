@@ -1,0 +1,24 @@
+//
+//  CardCouponSendVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/10.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface CardCouponSendVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet UIView *backview;
+@property (weak, nonatomic) IBOutlet UITextField *text;
+@property (strong, nonatomic) NSString *couponid;
+@property (weak, nonatomic) IBOutlet UIButton *sendBtn;
+@property (strong, nonatomic) RACSubject *sendSubject;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,160 @@
+//
+//  ShopAddFriendsVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAddFriendsVC.h"
+
+@interface ShopAddFriendsVC ()
+
+@property (weak, nonatomic) IBOutlet UITextField *nameText;
+@property (weak, nonatomic) IBOutlet UITextField *addressText;
+@property (weak, nonatomic) IBOutlet UITextField *remarkText;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+
+@end
+
+@implementation ShopAddFriendsVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    UILabel *label = [self.view viewWithTag:10];
+    if (self.opration == ShopFriendsOprationAdd) {
+        label.text = @"添加好友";
+    }else if (self.opration == ShopFriendsOprationEdit){
+        label.text = @"修改好友";
+    }else{
+        label.text = @"查看好友";
+    }
+    
+    
+    if (self.opration == ShopFriendsOprationEdit) {
+        self.nameText.text = self.model.name;
+        self.addressText.text = self.model.receiving_address;
+        self.remarkText.text = self.model.remarks;
+    }else{
+        self.nameText.text = self.model.name;
+        self.nameText.enabled = NO;
+        self.addressText.text = self.model.receiving_address;
+        self.addressText.enabled = NO;
+        self.remarkText.text = self.model.remarks;
+        self.remarkText.enabled = NO;
+        UIView *view = [self.view viewWithTag:11];
+        view.hidden = YES;
+        UIButton *btn = [self.view viewWithTag:12];
+        btn.hidden = YES;
+    }
+    
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)checkClick:(id)sender {
+    if (self.opration == ShopFriendsOprationAdd) {
+        [self addClick];
+    }else{
+        [self editClick];
+    }
+}
+
+-(void)addClick{
+    NSString *name = self.nameText.text;
+    NSString *address = self.addressText.text;
+    NSString *remark = self.remarkText.text;
+    NSString *psw = self.pswText.text;
+
+    if ([name isEqualToString:@""]) {
+        [self showMsg:@"请输入名称" location:centre];
+        return;
+    }
+    
+    if ([address isEqualToString:@""]) {
+        [self showMsg:@"请输入地址" location:centre];
+        return;
+    }
+    
+    if ([psw isEqualToString:@""]) {
+        [self showMsg:@"请输入安全密码" location:centre];
+        return;
+    }
+    
+    NSString *oldCheckPsw = [Manager takeoutTokenkey:JYTradePassword];
+    if (![[[psw md532BitUpper] md532BitLower] isEqualToString:oldCheckPsw]) {
+        [self showMsg:@"密码错误" location:centre];
+        return;
+    }
+    
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:YES];
+    NSDictionary *dict = @{@"name":name,@"receiving_address":address,@"remarks":remark};
+    [WebServices postFormReqUrl:AddressBookStore param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)editClick{
+    NSString *name = self.nameText.text;
+    NSString *address = self.addressText.text;
+    NSString *remark = self.remarkText.text;
+    NSString *psw = self.pswText.text;
+
+    if ([name isEqualToString:@""]) {
+        [self showMsg:@"请输入名称" location:centre];
+        return;
+    }
+    
+    if ([address isEqualToString:@""]) {
+        [self showMsg:@"请输入地址" location:centre];
+        return;
+    }
+    
+    if ([psw isEqualToString:@""]) {
+        [self showMsg:@"请输入安全密码" location:centre];
+        return;
+    }
+    
+    NSString *oldCheckPsw = [Manager takeoutTokenkey:JYTradePassword];
+    if (![[[psw md532BitUpper] md532BitLower] isEqualToString:oldCheckPsw]) {
+        [self showMsg:@"密码错误" location:centre];
+        return;
+    }
+    
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:YES];
+    NSDictionary *dict = @{@"id":[NSString stringWithFormat:@"%ld",self.model.friends_id],@"name":name,@"receiving_address":address,@"remarks":remark};
+    [WebServices postFormReqUrl:AddressBookEdit param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+@end

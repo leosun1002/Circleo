@@ -1,0 +1,27 @@
+//
+//  ShopAddFriendsVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "ShopFriendsModel.h"
+
+typedef enum : NSUInteger {
+    ShopFriendsOprationAdd,
+    ShopFriendsOprationEdit,
+    ShopFriendsOprationCheck,
+} ShopFriendsOpration;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopAddFriendsVC : BaseViewController
+
+@property(nonatomic,assign) ShopFriendsOpration opration;
+@property(nonatomic,assign) ShopFriendsModel *model;
+
+@end
+
+NS_ASSUME_NONNULL_END

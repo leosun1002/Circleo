@@ -1,0 +1,43 @@
+//
+//  MyEvidenceTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MyEvidenceTableViewCell.h"
+
+@implementation MyEvidenceTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(MyEvidenceModel *)model{
+    _model = model;
+    NSString *number_id = model.number_id;
+    if (number_id.length > 10) {
+        number_id = [NSString stringWithFormat:@"%@...%@",[number_id substringToIndex:10],[number_id substringFromIndex:number_id.length - 10]];
+    }
+    self.numberLabel.text = number_id;
+    self.nameLabel.text = model.title;
+    self.timeLabel.text = model.created_at;
+    if (model.status != 2) {
+        self.statusView.hidden = NO;
+        self.statusWidth.constant = model.status == 1 || model.status == 0?44:54;
+        self.statusImageV.image = model.status == 1 || model.status == 0?[UIImage imageNamed:@"icon_bind_evidence"]:[UIImage imageNamed:@"icon_bind_evidence_fail"];
+        self.statusLabel.text = model.status == 1 || model.status == 0?NSLocalizedString(@"存证中", nil):NSLocalizedString(@"存证失败", nil);
+        self.statusLabel.textColor = model.status == 1 || model.status == 0?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#F95947"];
+    }else{
+        self.statusView.hidden = YES;
+    }
+}
+@end

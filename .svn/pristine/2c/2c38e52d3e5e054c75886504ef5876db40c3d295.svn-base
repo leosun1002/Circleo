@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="MyAssetsCollectionViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="394" height="159"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="394" height="159"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="USDT_bgview" translatesAutoresizingMaskIntoConstraints="NO" id="JEX-Pe-h03">
+                        <rect key="frame" x="0.0" y="0.0" width="394" height="159"/>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2KF-Io-8gd">
+                        <rect key="frame" x="0.0" y="21" width="394" height="16"/>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
+                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tlc-sF-CW5">
+                        <rect key="frame" x="0.0" y="47" width="394" height="34.5"/>
+                        <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="30"/>
+                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" alpha="0.5" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="riE-ZA-hxV">
+                        <rect key="frame" x="0.0" y="89.5" width="394" height="17.5"/>
+                        <fontDescription key="fontDescription" name="Helvetica" family="Helvetica" pointSize="15"/>
+                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+            </view>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="2KF-Io-8gd" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="21" id="2gb-HV-bVX"/>
+                <constraint firstItem="JEX-Pe-h03" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="BaK-Ux-b7v"/>
+                <constraint firstItem="JEX-Pe-h03" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="BiY-q8-7ri"/>
+                <constraint firstItem="2KF-Io-8gd" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="DD9-Nt-QLO"/>
+                <constraint firstAttribute="trailing" secondItem="riE-ZA-hxV" secondAttribute="trailing" id="EkS-GX-VzL"/>
+                <constraint firstItem="tlc-sF-CW5" firstAttribute="top" secondItem="2KF-Io-8gd" secondAttribute="bottom" constant="10" id="FAx-Qm-Xtk"/>
+                <constraint firstItem="tlc-sF-CW5" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="J9P-jc-Esh"/>
+                <constraint firstAttribute="trailing" secondItem="2KF-Io-8gd" secondAttribute="trailing" id="Jkk-Iv-5h7"/>
+                <constraint firstAttribute="trailing" secondItem="JEX-Pe-h03" secondAttribute="trailing" id="U5M-3R-w2h"/>
+                <constraint firstItem="riE-ZA-hxV" firstAttribute="top" secondItem="tlc-sF-CW5" secondAttribute="bottom" constant="8" id="e1Z-Qt-1dh"/>
+                <constraint firstAttribute="bottom" secondItem="JEX-Pe-h03" secondAttribute="bottom" id="s50-iG-AMV"/>
+                <constraint firstItem="riE-ZA-hxV" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="sm7-om-C80"/>
+                <constraint firstAttribute="trailing" secondItem="tlc-sF-CW5" secondAttribute="trailing" id="zA8-jb-zIO"/>
+            </constraints>
+            <size key="customSize" width="394" height="159"/>
+            <connections>
+                <outlet property="bgimage" destination="JEX-Pe-h03" id="jUA-WT-wkt"/>
+                <outlet property="cnyLabel" destination="riE-ZA-hxV" id="ahY-yH-9ND"/>
+                <outlet property="countLabel" destination="tlc-sF-CW5" id="jiC-zj-RYk"/>
+                <outlet property="tipLabel" destination="2KF-Io-8gd" id="9w6-iQ-be8"/>
+            </connections>
+            <point key="canvasLocation" x="379.71014492753625" y="114.84375"/>
+        </collectionViewCell>
+    </objects>
+    <resources>
+        <image name="USDT_bgview" width="310" height="139"/>
+    </resources>
+</document>

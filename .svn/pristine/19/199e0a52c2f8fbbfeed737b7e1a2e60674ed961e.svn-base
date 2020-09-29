@@ -1,0 +1,23 @@
+//
+//  DNSShopBuySelectVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/28.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSShopBuySelectVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITextField *searchText;
+@property (weak, nonatomic) IBOutlet UIButton *searchBtn;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property(nonatomic,strong)RACSubject *nameSubject;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

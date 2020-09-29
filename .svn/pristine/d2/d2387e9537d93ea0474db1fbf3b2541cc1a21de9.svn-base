@@ -1,0 +1,24 @@
+//
+//  EvidenceCertificateView.h
+//  ScmProject
+//
+//  Created by leosun on 2020/4/27.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "EvidenceDetailModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface EvidenceCertificateView : UIView
+
+@property(nonatomic,strong)EvidenceDetailModel *model;
+@property (weak, nonatomic) IBOutlet UIView *backView;
+@property (weak, nonatomic) IBOutlet UIImageView *authenImgV;
+
+-(instancetype)initWithFrame:(CGRect)frame withModel:(EvidenceDetailModel *)model;
+
+@end
+
+NS_ASSUME_NONNULL_END

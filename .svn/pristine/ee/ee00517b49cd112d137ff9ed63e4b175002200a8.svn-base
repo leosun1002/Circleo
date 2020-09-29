@@ -1,0 +1,286 @@
+//
+//  ShopAssetsSendVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAssetsSendVC.h"
+#import "ShopFriendsListVC.h"
+#import "CallJsClass.h"
+#import "ShopAssetNewChargeVC.h"
+
+#define MaxLimit 200
+
+@interface ShopAssetsSendVC ()<UITextViewDelegate>
+
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *specLabel;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *friendBgView;
+@property (weak, nonatomic) IBOutlet UIView *friendsView;
+@property (weak, nonatomic) IBOutlet UILabel *friendNameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *friendAddLabel;
+@property (weak, nonatomic) IBOutlet UILabel *friendTipLabel;
+
+@property (weak, nonatomic) IBOutlet UITextField *countText;
+
+@property (weak, nonatomic) IBOutlet UILabel *remarkCount;
+@property (weak, nonatomic) IBOutlet UITextView *remarkText;
+@property (weak, nonatomic) IBOutlet UILabel *remarkPlaceLabel;
+
+//@property (weak, nonatomic) IBOutlet UILabel *xhLabel;
+//@property (weak, nonatomic) IBOutlet UILabel *xhTipLabel;
+@property (strong, nonatomic) NSString *ye;
+@property (weak, nonatomic) IBOutlet UILabel *yeLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@property (strong, nonatomic) NSString *receive_name;
+@property (strong, nonatomic) NSString *receive_address;
+
+@property (weak, nonatomic) IBOutlet UILabel *chargeTipLabel;
+@property (weak, nonatomic) IBOutlet UIButton *chargeBtn;
+
+
+@end
+
+@implementation ShopAssetsSendVC
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getFuel];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self addLayerAndShadow];
+
+    self.headV.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.headV.layer.borderWidth = 0.5f;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.shopModel.small_image)]];
+    self.nameLabel.text = self.shopModel.name;
+    self.specLabel.text = self.shopModel.specification;
+    self.countLabel.text = self.shopModel.number;
+    
+    WeakSelf(self);
+    [[self.countText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        weakself.countText.text = [weakself.countText PreciseFigures:0];
+        [weakself makeBtnEnable];
+    }];
+    
+    [[self.chargeBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself chargeClick];
+    }];
+}
+
+-(void)addLayerAndShadow{
+    self.chargeBtn.layer.cornerRadius = 15;
+
+    self.chargeBtn.layer.shadowColor = [UIColor colorWithRGBHex:@"#2982FF"].CGColor;
+    self.chargeBtn.layer.shadowOffset = CGSizeMake(1, 1);
+    self.chargeBtn.layer.shadowRadius = 15.f;
+    self.chargeBtn.layer.shadowOpacity = 0.4f;
+    [self.chargeBtn.layer setShadowPath:[[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, 84, 30)] CGPath]];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)friendClick:(id)sender {
+    ShopFriendsListVC *friendVc = [[ShopFriendsListVC alloc] init];
+    friendVc.status = ShopFriendsListSelect;
+    friendVc.subject = [RACSubject subject];
+    WeakSelf(self);
+    [friendVc.subject subscribeNext:^(NSDictionary *dict) {
+        weakself.receive_name = dict[@"name"];
+        weakself.receive_address = dict[@"receiving_address"];
+        weakself.friendTipLabel.hidden = YES;
+        weakself.friendsView.hidden = NO;
+        weakself.friendNameLabel.text = weakself.receive_name;
+        weakself.friendAddLabel.text = weakself.receive_address;
+        [weakself makeBtnEnable];
+    }];
+    [self.navigationController pushViewController:friendVc animated:YES];
+}
+
+- (IBAction)allClick:(id)sender {
+    self.countText.text = AssectString(self.shopModel.number);
+    [self makeBtnEnable];
+}
+
+-(void)chargeClick{
+    ShopAssetNewChargeVC *chargeVC = [[ShopAssetNewChargeVC alloc] init];
+    [self.navigationController pushViewController:chargeVC animated:YES];
+}
+
+-(void)getFuel{
+    WeakSelf(self);
+    [weakself showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:GetMyFuel param:@{} loadingTime:12.0f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.ye = AssectString(json[@"data"][@"my_fuel"]);
+                weakself.yeLabel.text = [NSString stringWithFormat:@"余额 %@",AssectString(json[@"data"][@"my_fuel"])];
+                if ([weakself.ye doubleValue] < 0.006) {
+                    weakself.chargeTipLabel.hidden = NO;
+                    weakself.chargeBtn.hidden = NO;
+                }else{
+                    weakself.chargeTipLabel.hidden = YES;
+                    weakself.chargeBtn.hidden = YES;
+                }
+                return ;
+            }
+        }
+        [weakself showErrorView:weakself.view withBlock:^{
+            [weakself getFuel];
+        }];
+    }];
+}
+
+- (IBAction)checkClick:(id)sender {
+    //获取nonce
+    [self getNonce];
+}
+
+-(void)getNonce{
+    NSString *ye = [self.yeLabel.text stringByReplacingOccurrencesOfString:@"余额 " withString:@""];
+    if (0.006 > [ye doubleValue]) {
+        [self showMsg:@"余额不足" location:centre];
+        return;
+    }
+    
+    [self showLoading:@"" allowsOpOperation:NO];
+    NSDictionary *dict = @{@"address":AssectString([Manager takeoutTokenkey:ShopWalletAddress])};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:MallGetNonce param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                NSString *nonce = AssectString(json[@"data"][@"nonce"]);
+                [weakself getSign:nonce];
+            }else{
+                [weakself dismissLoading];
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself dismissLoading];
+            [weakself showMsg:@"网络异常，请稍后重试" location:centre];
+        }
+    }];
+}
+
+-(void)getSign:(NSString *)nonce{
+    NSDictionary *resDict = @{@"fromaddr":AssectString([Manager takeoutTokenkey:ShopWalletAddress]),@"toaddr":AssectString(self.receive_address),@"contractID":[NSString stringWithFormat:@"%ld",self.shopModel.assetId],@"amount":self.countText.text,@"fee":@(10000),@"nonce":AssectString(nonce),@"remark":AssectString(self.remarkText.text),@"pri":AssectString([Manager takeoutTokenkey:ShopWalletPrivite]),@"pub":AssectString([Manager takeoutTokenkey:ShopWalletPublic]),@"contractAddress":@"NULSd6Hgt8nVqwgFAwTGgRz5fuh3myN3yXc1h"};
+    NSString* createAddressStr = [NSString stringWithFormat:@"transactionSignature('%@','%@','%@',%@,%@,'%@','%@','%@','%@','%@')",AssectString([Manager takeoutTokenkey:ShopWalletAddress]),resDict[@"toaddr"],resDict[@"contractID"],resDict[@"amount"],@"10000",resDict[@"nonce"],resDict[@"remark"],resDict[@"pri"],resDict[@"pub"],resDict[@"contractAddress"]];
+    WeakSelf(self);
+    [[CallJsClass OCCallJs] getAddressExecuFun:createAddressStr backResultBlock:^(id data) {
+        NSString *sign = data;
+        if (![AssectString(sign) isEqualToString:@""]) {
+            [weakself sendData:sign];
+        }else{
+            [weakself dismissLoading];
+            [weakself showMsg:@"签名失败" location:centre];
+        }
+    } backFailBlock:^(id data) {
+        [weakself dismissLoading];
+        [weakself showMsg:@"签名失败" location:centre];
+    } currencyName:NULS currentViewFun:self.view];;
+}
+
+-(void)sendData:(NSString *)sign{
+    NSDictionary *dict = @{@"number":AssectString(self.countText.text),@"good_id":[NSString stringWithFormat:@"%ld",self.shopModel.assetId],@"nickname":AssectString(self.receive_name),@"friend_address":AssectString(self.receive_address),@"remarks":AssectString(self.remarkText.text),@"sign":AssectString(sign)};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:MallSendAway param:dict loadingTime:12.0f callbackBlock:^(id result, NSInteger startCode, NSString *error) {
+        NSDictionary *json = result;
+        [weakself dismissLoading];
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];;
+            }
+        }else{
+            [weakself showMsg:@"网络异常，请稍后重试" location:centre];;
+        }
+    }];
+}
+
+#pragma -mark UITextViewDelegate
+- (void)textViewDidChange:(UITextView *)textView {
+    NSString *lang = [[textView textInputMode] primaryLanguage]; // 键盘输入模式
+    if ([lang isEqualToString:@"zh-Hans"]) { // 简体中文输入，包括简体拼音，健体五笔，简体手写
+        UITextRange *selectedRange = [textView markedTextRange];
+        //获取高亮部分
+        UITextPosition *position = [textView positionFromPosition:selectedRange.start offset:0];
+        // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
+        if (!position) {
+            if (textView.text.length > MaxLimit) {
+                textView.text = [textView.text substringToIndex:MaxLimit];
+                [self showMsg:NSLocalizedString(@"超出字数限制", nil) location:centre];
+            }
+        } else {
+            // 有高亮选择的字符串，则暂不对文字进行统计和限制
+        }
+    } else { // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
+        if (textView.text.length > MaxLimit) {
+            textView.text = [textView.text substringToIndex:MaxLimit];
+            [self showMsg:NSLocalizedString(@"超出字数限制", nil) location:centre];
+        }
+    }
+    [self updateRemainCount];
+    self.remarkPlaceLabel.hidden = textView.text.length != 0;
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    if ([self isText:textView beyondLimit:MaxLimit] && [text length] > 0) {
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)isText:(UITextView *)tv beyondLimit:(int)maxLimit{
+    NSString *lang = [[tv textInputMode] primaryLanguage];
+    if ([lang isEqualToString:@"zh-Hans"]) {
+        UITextRange *selectedRange = [tv markedTextRange];
+        UITextPosition *position = [tv positionFromPosition:selectedRange.start offset:0];
+        if (!position) {
+            if (tv.text.length > maxLimit) {
+                return YES;
+            }
+        }
+    } else {
+        if (tv.text.length > maxLimit) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (void)updateRemainCount {
+    self.remarkCount.text = [NSString stringWithFormat:@"%lu/200",(unsigned long)self.remarkText.text.length];
+}
+
+-(void)makeBtnEnable{
+    NSString *name = AssectString(self.receive_name);
+    NSString *address = AssectString(self.receive_address);
+    NSString *count = AssectString(self.countText.text);
+    if ([name isEqualToString:@""] || [address isEqualToString:@""] || [count isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+    }else{
+        self.checkBtn.enabled = YES;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#FF5269"];
+    }
+}
+@end

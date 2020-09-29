@@ -1,0 +1,127 @@
+//
+//  MallMyOrderVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallMyOrderVC.h"
+#import "SGPageTitleView.h"
+#import "SGPageTitleViewConfigure.h"
+#import "SGPageContentScrollView.h"
+#import "MallMyOrderChildVC.h"
+
+@interface MallMyOrderVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate>
+
+@property(nonatomic,weak)SGPageContentScrollView *mPageContentScrollView;
+@property(nonatomic,weak)SGPageTitleView *mPageTitleView;
+
+@property(nonatomic,strong)NSMutableArray *vcs;
+@property(nonatomic,copy)NSArray *titles;
+
+@end
+
+@implementation MallMyOrderVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self loadVCs];
+    [self prepareUi];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    [self.mPageContentScrollView removeFromSuperview];
+    [self.mPageTitleView removeFromSuperview];
+    
+    //配置容器
+    SGPageTitleViewConfigure *configure = [SGPageTitleViewConfigure pageTitleViewConfigure];
+    configure.titleGradientEffect = YES;
+    configure.indicatorFixedWidth = 25.f;
+    configure.indicatorStyle = SGIndicatorStyleFixed;
+    configure.indicatorColor = [UIColor colorWithRGBHex:@"#323236"];
+    configure.indicatorHeight = 2.0f;
+    configure.titleSelectedColor = [UIColor colorWithRGBHex:@"#323236"];
+    configure.titleSelectedFont = [UIFont systemFontOfSize:12 weight:(UIFontWeightSemibold)];
+    configure.titleColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    configure.titleFont = [UIFont systemFontOfSize:12 weight:(UIFontWeightSemibold)];
+    configure.showBottomSeparator = YES;
+    configure.bottomSeparatorColor = [UIColor colorWithRGBHex:@"#EEEFEE"];
+    //顶部Title数据源
+    SGPageTitleView *pageTitleView = [SGPageTitleView pageTitleViewWithFrame:CGRectMake(0, navBarHeight, ksrcwidth, 45) delegate:self titleNames:self.titles configure:configure];
+    pageTitleView.backgroundColor = [UIColor whiteColor];
+    _mPageTitleView = pageTitleView;
+    pageTitleView.selectedIndex = self.selectedPage;
+    [self.view addSubview:pageTitleView];
+    
+    SGPageContentScrollView *pageContentScrollView = [[SGPageContentScrollView alloc] initWithFrame:CGRectMake(0, navBarHeight + 45,ksrcwidth,ksrcheight - navBarHeight - 45) parentVC:self childVCs:[self.vcs copy]];
+    pageContentScrollView.delegatePageContentScrollView = self;
+    pageContentScrollView.isAnimated = NO;
+    pageContentScrollView.backgroundColor = [UIColor whiteColor];
+    _mPageContentScrollView = pageContentScrollView;
+    [self.view addSubview:pageContentScrollView];
+    for (int b=0; b<self.vcs.count; b++) {//全部加载出来
+        [pageContentScrollView setPageContentScrollViewCurrentIndex:b];
+    }
+    pageTitleView.selectedIndex = self.selectedPage;
+    [pageContentScrollView setPageContentScrollViewCurrentIndex:self.selectedPage];
+}
+
+-(void)loadVCs{
+    for (int i = 0; i<self.titles.count; i++) {
+        MallMyOrderChildVC *childVc = [[MallMyOrderChildVC alloc] init];
+        childVc.selectedPage = i;
+        childVc.navigation = self.navigationController;
+        [self.vcs addObject:childVc];
+    }
+}
+
+//顶部title切换完成调用
+- (void)pageTitleView:(SGPageTitleView *)pageTitleView selectedIndex:(NSInteger)selectedIndex{
+    [_mPageContentScrollView setPageContentScrollViewCurrentIndex:selectedIndex];
+    self.selectedPage=selectedIndex;
+    MallMyOrderChildVC *childVc = self.vcs[self.selectedPage];
+    [childVc getData];
+
+}
+
+//内容区域滚动后调用
+-(void)scrollCompleteDeleate:(NSInteger)index{
+    self.selectedPage=index;
+}
+
+- (void)pageContentScrollView:(SGPageContentScrollView *)pageContentScrollView progress:(CGFloat)progress originalIndex:(NSInteger)originalIndex targetIndex:(NSInteger)targetIndex {
+    [_mPageTitleView setPageTitleViewWithProgress:progress originalIndex:originalIndex targetIndex:targetIndex];
+}
+
+- (void)pageContentScrollView:(SGPageContentScrollView *)pageContentScrollView index:(NSInteger)index{
+    NSLog(@"点击%ld",(long)index);
+}
+
+-(void)pageContentScrollViewDidEndDecelerating:(SGPageContentScrollView *)pageContentScrollView index:(NSInteger)index{
+    NSLog(@"滚动%ld",(long)index);
+    self.selectedPage=index;
+    MallMyOrderChildVC *childVc = self.vcs[self.selectedPage];
+    [childVc getData];
+
+}
+
+#pragma -mark getter
+-(NSMutableArray *)vcs{
+    if (!_vcs) {
+        _vcs = [NSMutableArray array];
+    }
+    return _vcs;
+}
+
+-(NSArray *)titles{
+    if (!_titles) {
+        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"全部", nil),NSLocalizedString(@"待发货", nil),NSLocalizedString(@"待收货", nil),NSLocalizedString(@"已完成", nil), nil];
+    }
+    return _titles;
+}
+@end

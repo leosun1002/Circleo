@@ -1,0 +1,77 @@
+//
+//  AgentCenterHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AgentCenterHeader.h"
+#import "UpdateTipsVC.h"
+#import "AgentExplainVC.h"
+
+@implementation AgentCenterHeader
+
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"AgentCenterHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        [self prepareUi];
+        [self addGradientLayer:self.gradientView];
+    }
+    return self;
+}
+
+-(void)prepareUi{
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself.naviController pushViewController:[UpdateTipsVC new] animated:YES];
+    }];
+    [self.updateView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself.naviController pushViewController:[AgentExplainVC new] animated:YES];
+    }];
+    [self.explainView addGestureRecognizer:tap1];
+}
+
+-(void)addGradientLayer:(UIView *)bgview{
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, bgview.width, bgview.height);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor colorWithRGBHex:@"#EDD2B8"].CGColor,
+                       (id)[UIColor colorWithRGBHex:@"#D6AF91"].CGColor, nil];
+    [bgview.layer addSublayer:gradient];
+}
+
+-(void)setData{
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(userdict[JYUserImage])] placeholderImage:[UIImage imageNamed:@"pic_head"] options:SDWebImageAllowInvalidSSLCertificates];
+    if ([AssectString(userdict[JYUserName]) isEqualToString:@""]) {
+        self.nameLabel.text = AssectString(userdict[JYPhone]);
+    }else{
+        self.nameLabel.text = AssectString(userdict[JYUserName]);
+    }
+    self.levelLabel.text = userdict[JYGarde];
+    NSString *grade = AssectNumber(userdict[JYGrade]);
+    if ([grade isEqualToString:@"1"]) {
+        self.levelImage.image = [UIImage imageNamed:@"tips_normal"];
+    }else if ([grade isEqualToString:@"2"]){
+        self.levelImage.image = [UIImage imageNamed:@"tips_super"];
+    }else{
+        self.levelImage.image = [UIImage imageNamed:@"tips_create"];
+    }
+    self.ztLabel.text = AssectNumber(userdict[JYDirectCount]);
+    self.jtLabel.text = AssectNumber(userdict[JYIndirectCount]);
+    self.totalTg.text = [GaoJingDu add:@[AssectNumber(userdict[JYDirectCount]),AssectNumber(userdict[JYIndirectCount])] jindu:@"2"];
+    self.ymTotalLabel.text = AssectString(userdict[JYTotalRelease]);
+    self.ysfLabel.text = AssectString(userdict[JYWeekTotalRelease]);
+    self.syLabel.text = AssectString(userdict[JYConsumptionRelease]);
+    self.commImage.hidden = [userdict[JYUserTitle] isEqualToString:@"0"];
+    self.updateView.hidden = ![userdict[JYIsPartner] isEqualToString:@"0"];
+    self.updateImage.image = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?[UIImage imageNamed:@"button_levelup_eng"]:[UIImage imageNamed:@"button_levelup"];
+}
+@end

@@ -1,0 +1,104 @@
+//
+//  HomePageFooter.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "HomePageFooter.h"
+#import "HomeFooterCollectionCell.h"
+#import "HomeHelpCollectionViewCell.h"
+#import "SolutionModel.h"
+#import "HelpCenterVC.h"
+#import "NewsWebViewController.h"
+
+@implementation HomePageFooter
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"HomePageFooter" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        [self prepareUi];
+    }
+    return self;
+}
+
+-(void)prepareUi{
+    [self.collect registerNib:[UINib nibWithNibName:@"HomeFooterCollectionCell" bundle:nil] forCellWithReuseIdentifier:@"HomeFooterCollectionCell"];
+    
+    UICollectionViewFlowLayout * layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumInteritemSpacing = 0;
+    layout.minimumLineSpacing = 0;
+    layout.itemSize = CGSizeMake(ksrcwidth/3,130);
+    layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    [self.helpCollect setCollectionViewLayout:layout];
+    [self.helpCollect registerNib:[UINib nibWithNibName:@"HomeHelpCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"HomeHelpCollectionViewCell"];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        HelpCenterVC *helpVC = [[HelpCenterVC alloc] init];
+        [weakself.navigationVC pushViewController:helpVC animated:YES];
+    }];
+    [self.helpView addGestureRecognizer:tap];
+}
+
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    if (collectionView == self.collect) {
+        return self.solutions.count;
+    }
+    return self.helps.count;
+
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (collectionView == self.collect) {
+        HomeFooterCollectionCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"HomeFooterCollectionCell" forIndexPath:indexPath];
+        SolutionModel *model = self.solutions[indexPath.item];
+        [cell.imageV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.small_image)] placeholderImage:[UIImage imageNamed:@"placeImage_solution"] options:SDWebImageAllowInvalidSSLCertificates];
+        return cell;
+    }
+    HomeHelpCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"HomeHelpCollectionViewCell" forIndexPath:indexPath];
+    NSDictionary *help_dict = self.helps[indexPath.item];
+    [cell.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(help_dict[@"image"])] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+    cell.titleLabel.text = AssectString(help_dict[@"name"]);
+    SolutionModel *modules = [SolutionModel mj_objectWithKeyValues:help_dict[@"new_information"]];
+    cell.descLabel.text = AssectString(modules.title);
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (collectionView == self.collect) {
+        return;
+//        SolutionModel *model = self.solutions[indexPath.row];
+//        NSString *url = [NSString stringWithFormat:@"%@dns/h5?id=%ld",serviseShareIP,model.solution_id];
+//        NewsWebViewController* webViewObj =  [[NewsWebViewController alloc] init];
+//        webViewObj.loadUrl = AssectString(url);
+//        [self.navigationVC pushViewController:webViewObj animated:YES];
+    }else{
+        NSDictionary *help_dict = self.helps[indexPath.row];
+        SolutionModel *model = [SolutionModel mj_objectWithKeyValues:help_dict[@"new_information"]];
+        NSString *url = [NSString stringWithFormat:@"%@dns/h5?id=%ld",serviseShareIP,model.solution_id];
+        WebViewController* webViewObj =  [[WebViewController alloc] init];
+        webViewObj.solutionid = [NSString stringWithFormat:@"%ld",model.solution_id];
+        webViewObj.loadUrl = AssectString(url);
+        webViewObj.titleStr = model.title;
+        webViewObj.headUrl = AssectString(model.small_image);
+        [self.navigationVC pushViewController:webViewObj animated:YES];
+    }
+}
+
+
+#pragma -mark setter
+-(void)setSolutions:(NSMutableArray *)solutions{
+    _solutions = solutions;
+    [self.collect reloadData];
+}
+
+-(void)setHelps:(NSMutableArray *)helps{
+    _helps = helps;
+    [self.helpCollect reloadData];
+}
+@end

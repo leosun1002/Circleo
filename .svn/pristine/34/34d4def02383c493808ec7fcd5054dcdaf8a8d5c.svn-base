@@ -1,0 +1,228 @@
+//
+//  LoginWithPhoneVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "LoginWithPhoneVC.h"
+#import "RegisterVC.h"
+#import "ForgetPswVC.h"
+
+@interface LoginWithPhoneVC ()
+
+@property(nonatomic,assign) NSInteger loginType; // 0 代表手机号登录  1代表邮箱登录
+
+@end
+
+@implementation LoginWithPhoneVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)prepareUi{
+    self.loginType = 0;
+    
+    self.phoneText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.phoneText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor getColor:@"#FFFFFF" alpha:0.5]}];
+    self.codeText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.codeText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor getColor:@"#FFFFFF" alpha:0.5]}];
+
+    WeakSelf(self);
+    [[self.tipBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        weakself.loginType = weakself.loginType == 0?1:0;
+    }];
+    [[self.phoneText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeEnable:0];
+    }];
+    [[self.codeText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeEnable:1];
+    }];
+    [[self.codeBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself sendCode];
+    }];
+    [[self.loginBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself loginClick];
+    }];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        XWCountryCodeController *countryCode = [[XWCountryCodeController alloc] init];
+        countryCode.returnCountryCodeBlock = ^(NSString *countryName, NSString *code) {
+            weakself.areaLabel.text = [NSString stringWithFormat:@"＋%@",[weakself removeSpaceAndNewline:code]];
+        };
+        [weakself.navigationController pushViewController:countryCode animated:YES];
+    }];
+    [self.areaView addGestureRecognizer:tap];
+}
+
+- (IBAction)closeClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)setLoginType:(NSInteger)loginType{
+    _loginType = loginType;
+    if (loginType == 0) {
+        self.tipLabel.text = NSLocalizedString(@"手机号登录", nil);
+        [self.tipBtn setTitle:NSLocalizedString(@"邮箱登录", nil) forState:UIControlStateNormal];
+        self.areaView.hidden = NO;
+        self.phoneLeftConst.constant = 75;
+        self.phoneText.placeholder = NSLocalizedString(@"请输入手机号", nil);
+    }else{
+        self.tipLabel.text = NSLocalizedString(@"邮箱登录", nil);
+        [self.tipBtn setTitle:NSLocalizedString(@"手机号登录", nil) forState:UIControlStateNormal];
+        self.areaView.hidden = YES;
+        self.phoneLeftConst.constant = 15;
+        self.phoneText.placeholder = NSLocalizedString(@"请输入邮箱", nil);
+    }
+}
+
+- (IBAction)registerClick:(id)sender {
+    RegisterVC *registerVC = [[RegisterVC alloc] init];
+    [self.navigationController pushViewController:registerVC animated:YES];
+}
+
+- (IBAction)forgetClick:(id)sender {
+    ForgetPswVC *forget = [[ForgetPswVC alloc] init];
+    [self.navigationController pushViewController:forget animated:YES];
+}
+
+//判断登录是否可以点击
+-(void)makeEnable:(NSInteger)type{
+    NSString *phone = [self removeSpaceAndNewline:self.phoneText.text];
+    NSString *code = [self removeSpaceAndNewline:self.codeText.text];
+    if (type == 0) {
+        self.phoneText.text = phone;
+        if (![phone isEqualToString:@""]) {
+            self.codeBtn.enabled = YES;
+            self.codeBtn.alpha = 1.0;
+        }else{
+            self.codeBtn.enabled = NO;
+            self.codeBtn.alpha = 0.7;
+        }
+    }else{
+        self.codeText.text = code;
+    }
+    
+    if (![phone isEqualToString:@""] && ![code isEqualToString:@""]) {
+        self.loginBtn.enabled = YES;
+    }else{
+        self.loginBtn.enabled = NO;
+    }
+}
+
+-(void)sendCode{
+    NSString *phone = [self removeSpaceAndNewline:self.phoneText.text];
+    if ([phone isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请输入手机号", nil) location:centre];
+        return;
+    }
+    
+    NSString *area = [self.areaLabel.text containsString:@"＋"]?[self.areaLabel.text stringByReplacingOccurrencesOfString:@"＋" withString:@""]:self.areaLabel.text;
+    NSDictionary *dict = @{@"phone":phone,@"area":AssectString(area)};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices  postFormReqUrl:loginVerifyCode param:dict loadingTime:12 callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself countDown];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)loginClick{
+    NSString *phone = [self removeSpaceAndNewline:self.phoneText.text];
+    NSString *code = [self removeSpaceAndNewline:self.codeText.text];
+    NSDictionary *dict = @{@"phone":phone,@"code":code,@"type":@"3"};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [Manager clearTokenkey:access_token];//删除token
+    [WebServices  postFormReqUrl:login param:dict loadingTime:12 callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveToken:json[@"data"][@"access_token"] key:access_token];
+                [weakself getUserInfo];
+            }else{
+                [weakself dismissLoading];
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself dismissLoading];
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself loginin];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark 发送验证码
+-(void)countDown{
+    __block int timeout=60;//倒计时时间
+    WeakSelf(self);
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    dispatch_source_t _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0,queue);
+    dispatch_source_set_timer(_timer,dispatch_walltime(NULL, 0),1.0*NSEC_PER_SEC, 0); //每秒执行
+    dispatch_source_set_event_handler(_timer, ^{
+        if(timeout<=0)
+        { //倒计时结束，关闭
+            dispatch_source_cancel(_timer);
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                
+                //设置界面的按钮显示 根据自己需求设置
+                [weakself.codeBtn setTitle:NSLocalizedString(@"重发验证码", nil) forState:UIControlStateNormal];
+                weakself.codeBtn.enabled = YES;
+                weakself.codeBtn.alpha = 1;
+            });
+        }else{
+            int seconds = timeout % 100;
+            NSString *strTime = [NSString stringWithFormat:@"%.2d", seconds];
+            
+            dispatch_async(dispatch_get_main_queue(), ^{
+                //设置界面的按钮显示 根据自己需求设置
+                //NSLog(@"____%@",strTime);
+                [UIView beginAnimations:nil context:nil];
+                [UIView setAnimationDuration:1];
+                [weakself.codeBtn setTitle:[NSString stringWithFormat:@"%@s",strTime] forState:UIControlStateNormal];
+                [UIView commitAnimations];
+                weakself.codeBtn.enabled = NO;
+                weakself.codeBtn.alpha = 0.7;
+            });
+            timeout--;
+        }
+    });
+    dispatch_resume(_timer);
+}
+@end

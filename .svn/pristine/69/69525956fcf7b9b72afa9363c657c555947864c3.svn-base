@@ -1,0 +1,28 @@
+//
+//  BuyEvidenceVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/4/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BuyEvidenceVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (assign, nonatomic) long deposit_certificate_category_id;
+@property (strong, nonatomic) NSString *name;
+@property (strong, nonatomic) NSString *unit_price;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UILabel *needPayLabel;
+@property (weak, nonatomic) IBOutlet UILabel *usdtLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cnyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *totalLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

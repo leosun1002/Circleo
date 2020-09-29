@@ -1,0 +1,48 @@
+//
+//  AssetExchangeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AssetExchangeVC.h"
+
+@interface AssetExchangeVC ()
+
+@end
+
+@implementation AssetExchangeVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"闪兑", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self addGradientLayer:self.checkBtn];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+    
+    self.coinBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#DDDDDF"].CGColor;
+    self.coinBtn.layer.borderWidth = 1.f;
+    self.assetBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#DDDDDF"].CGColor;
+    self.assetBtn.layer.borderWidth = 1.f;
+    self.exchangeView.layer.borderColor = [UIColor colorWithRGBHex:@"#DDDDDF"].CGColor;
+    self.exchangeView.layer.borderWidth = 1.f;
+    self.getView.layer.borderColor = [UIColor colorWithRGBHex:@"#DDDDDF"].CGColor;
+    self.getView.layer.borderWidth = 1.f;
+}
+
+-(void)addGradientLayer:(UIView *)bgview{
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, ksrcwidth - 30, 45);
+    gradient.startPoint = CGPointMake(0, 0);
+    gradient.endPoint = CGPointMake(1, 0);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor getColor:@"#6647FF" alpha:1].CGColor,
+                       (id)[UIColor getColor:@"#7CB0FF" alpha:1].CGColor,nil];
+    [bgview.layer addSublayer:gradient];
+}
+
+@end

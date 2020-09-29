@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clipsSubviews="YES" contentMode="scaleToFill" id="iN0-l3-epB" customClass="DNSBrowserFooter">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="csa-S1-YdJ">
+                    <rect key="frame" x="0.0" y="10" width="375" height="45.5"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="45.5" id="Gfn-d2-rtR"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                    <inset key="titleEdgeInsets" minX="-45" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    <inset key="imageEdgeInsets" minX="73" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    <state key="normal" title="下一页" image="icon_browser_down">
+                        <color key="titleColor" red="0.31764705879999999" green="0.31764705879999999" blue="0.94117647059999998" alpha="1" colorSpace="calibratedRGB"/>
+                    </state>
+                </button>
+                <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FVx-Wg-QdI">
+                    <rect key="frame" x="0.0" y="65.5" width="375" height="165"/>
+                    <subviews>
+                        <label clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="大家都在搜" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Bsc-Nt-Vda">
+                            <rect key="frame" x="16" y="15" width="82" height="22.5"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="22.5" id="tWm-kw-pUF"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="16"/>
+                            <color key="textColor" red="0.094117647060000004" green="0.094117647060000004" blue="0.1019607843" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="dlf-H8-ps9">
+                            <rect key="frame" x="15" y="52.5" width="345" height="97.5"/>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Mtb-6Q-s02">
+                                <size key="itemSize" width="50" height="50"/>
+                                <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                            </collectionViewFlowLayout>
+                            <connections>
+                                <outlet property="dataSource" destination="iN0-l3-epB" id="UkD-rf-DQN"/>
+                                <outlet property="delegate" destination="iN0-l3-epB" id="FHz-Aq-PA3"/>
+                            </connections>
+                        </collectionView>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="dlf-H8-ps9" secondAttribute="bottom" constant="15" id="K2O-Av-q1D"/>
+                        <constraint firstItem="Bsc-Nt-Vda" firstAttribute="leading" secondItem="FVx-Wg-QdI" secondAttribute="leading" constant="16" id="YTO-aL-WlB"/>
+                        <constraint firstItem="Bsc-Nt-Vda" firstAttribute="top" secondItem="FVx-Wg-QdI" secondAttribute="top" constant="15" id="pDa-fp-64G"/>
+                        <constraint firstItem="dlf-H8-ps9" firstAttribute="top" secondItem="Bsc-Nt-Vda" secondAttribute="bottom" constant="15" id="t8N-zY-hl5"/>
+                        <constraint firstAttribute="trailing" secondItem="dlf-H8-ps9" secondAttribute="trailing" constant="15" id="tc2-5h-UxX"/>
+                        <constraint firstItem="dlf-H8-ps9" firstAttribute="leading" secondItem="FVx-Wg-QdI" secondAttribute="leading" constant="15" id="vpt-xN-Xke"/>
+                        <constraint firstAttribute="height" constant="165" id="xyC-pN-eoC"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wFy-au-ArD">
+                    <rect key="frame" x="0.0" y="55.5" width="375" height="10"/>
+                    <color key="backgroundColor" red="0.96862745100000003" green="0.96862745100000003" blue="0.97647058819999999" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="10" id="srb-5w-MiF"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vVw-no-xkk">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="10"/>
+                    <color key="backgroundColor" red="0.96862745098039216" green="0.96862745098039216" blue="0.97647058823529409" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="10" id="os5-w9-Xuu"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="csa-S1-YdJ" secondAttribute="trailing" id="2rz-fa-90q"/>
+                <constraint firstItem="FVx-Wg-QdI" firstAttribute="top" secondItem="wFy-au-ArD" secondAttribute="bottom" id="5Zo-Xt-l10"/>
+                <constraint firstItem="vVw-no-xkk" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="CPY-5B-Eua"/>
+                <constraint firstItem="vVw-no-xkk" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="RCu-1q-S3O"/>
+                <constraint firstItem="wFy-au-ArD" firstAttribute="top" secondItem="csa-S1-YdJ" secondAttribute="bottom" id="RzF-x3-Q2k"/>
+                <constraint firstAttribute="trailing" secondItem="FVx-Wg-QdI" secondAttribute="trailing" id="UjE-cu-Dvl"/>
+                <constraint firstAttribute="trailing" secondItem="vVw-no-xkk" secondAttribute="trailing" id="cgp-Lz-6su"/>
+                <constraint firstItem="wFy-au-ArD" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="eUb-qw-Ob5"/>
+                <constraint firstItem="csa-S1-YdJ" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="gBs-In-4oz"/>
+                <constraint firstAttribute="trailing" secondItem="wFy-au-ArD" secondAttribute="trailing" id="sP9-20-dlr"/>
+                <constraint firstItem="csa-S1-YdJ" firstAttribute="top" secondItem="vVw-no-xkk" secondAttribute="bottom" id="wHJ-3V-855"/>
+                <constraint firstItem="FVx-Wg-QdI" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="wZv-cO-rge"/>
+            </constraints>
+            <connections>
+                <outlet property="collect" destination="dlf-H8-ps9" id="zLJ-xY-9zr"/>
+                <outlet property="flowLayout" destination="Mtb-6Q-s02" id="jMr-ja-eH9"/>
+                <outlet property="hextHeightConst" destination="Gfn-d2-rtR" id="7LK-tn-Fzg"/>
+                <outlet property="hotHeight" destination="xyC-pN-eoC" id="RZ2-RW-NSy"/>
+                <outlet property="hotView" destination="FVx-Wg-QdI" id="8pG-3L-qqd"/>
+                <outlet property="midHeightConst" destination="os5-w9-Xuu" id="zDq-ds-OHw"/>
+                <outlet property="midView" destination="vVw-no-xkk" id="Q3a-iN-q0D"/>
+                <outlet property="nextBtn" destination="csa-S1-YdJ" id="M1O-ID-C57"/>
+                <outlet property="topHeiht" destination="srb-5w-MiF" id="Xry-ZD-xri"/>
+                <outlet property="topView" destination="wFy-au-ArD" id="OAS-kt-heK"/>
+            </connections>
+            <point key="canvasLocation" x="132" y="115"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="icon_browser_down" width="16" height="16"/>
+    </resources>
+</document>

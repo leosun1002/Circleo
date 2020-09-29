@@ -1,0 +1,23 @@
+//
+//  UpdateModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/7.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface UpdateModel : NSObject
+
+@property(nonatomic,assign)long status;
+@property(nonatomic,assign)long updateid;
+@property(nonatomic,copy)NSString *ios_version_number;
+@property(nonatomic,copy)NSString *ios_url;
+@property(nonatomic,copy)NSString *content;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,43 @@
+//
+//  BrowserPayDetailServiceVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/12/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DSPublishServiceVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *typeView;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *payView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *payHeight;
+@property (weak, nonatomic) IBOutlet UIView *topView;
+@property (weak, nonatomic) IBOutlet UIView *daysView;
+@property (weak, nonatomic) IBOutlet UILabel *daysLabel;
+@property (weak, nonatomic) IBOutlet UILabel *percentLabel;
+
+@property (weak, nonatomic) IBOutlet UITextField *countText;
+@property (weak, nonatomic) IBOutlet UITextField *moneyText;
+
+///  0是免费文章   1是付费文章  2是私密文章
+@property(nonatomic,assign) long serviceType;
+
+@property(nonatomic,assign) long is_sticky;
+@property(nonatomic,strong) NSString *sticky_configuration_string;
+@property(nonatomic,strong) NSString *sticky_configuration_id;
+@property(nonatomic,strong) NSString *free_word_count;
+@property(nonatomic,strong) NSString *charge_amount;
+
+@property(nonatomic,assign) long content_count;//文章的长度
+
+@property(nonatomic,strong)RACSubject *subject;
+@end
+
+NS_ASSUME_NONNULL_END

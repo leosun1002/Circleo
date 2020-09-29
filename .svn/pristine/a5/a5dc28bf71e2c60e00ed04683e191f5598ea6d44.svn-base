@@ -1,0 +1,23 @@
+//
+//  MyFuelChargeRecordModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/28.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyFuelChargeRecordModel : NSObject
+
+@property(nonatomic,assign) long record_id;
+@property(nonatomic,assign) long payment_method;
+@property(nonatomic,copy) NSString *nuls_num;
+@property(nonatomic,copy) NSString *created_at;
+@property(nonatomic,copy) NSString *chinese_num;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,26 @@
+//
+//  BankCardModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/31.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BankCardModel : NSObject
+
+@property(nonatomic,assign)long cardid;
+@property(nonatomic,assign)long user_id;
+@property(nonatomic,copy)NSString *name;
+@property(nonatomic,copy)NSString *card_number;
+@property(nonatomic,copy)NSString *bank_name;
+@property(nonatomic,copy)NSString *bank_card_image;
+@property(nonatomic,copy)NSString *created_at;
+@property(nonatomic,copy)NSString *updated_at;
+
+@end
+
+NS_ASSUME_NONNULL_END

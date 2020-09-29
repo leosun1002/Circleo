@@ -1,0 +1,33 @@
+//
+//  AssetsCountHeader.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AssetsCountHeader : UIView
+@property (weak, nonatomic) IBOutlet UIButton *assetBtn;
+@property (weak, nonatomic) IBOutlet UIButton *incomeBtn;
+@property (weak, nonatomic) IBOutlet UIButton *coinBtn;
+@property(assign,nonatomic)long type;//0 资产账户  1 收益账户  2 币币账户
+@property (weak, nonatomic) IBOutlet UIView *assetView;
+@property (weak, nonatomic) IBOutlet UIView *incomeView;
+@property (weak, nonatomic) IBOutlet UILabel *usdtLabel;
+@property (weak, nonatomic) IBOutlet UILabel *yueCnyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cnyLabel;
+@property (weak, nonatomic) IBOutlet UIView *chargeView;
+@property (weak, nonatomic) IBOutlet UIView *pushView;
+@property (weak, nonatomic) IBOutlet UIView *withdrawView;
+@property (weak, nonatomic) IBOutlet UIView *usdtTransView;
+@property (weak, nonatomic) IBOutlet UIView *cnyTransView;
+
+@property (strong, nonatomic) UINavigationController *naviController;
+
+@end
+
+NS_ASSUME_NONNULL_END

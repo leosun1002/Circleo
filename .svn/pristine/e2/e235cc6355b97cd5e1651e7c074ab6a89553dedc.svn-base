@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MallMyOrderVC">
+            <connections>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iV5-Nz-q5g">
+                    <rect key="frame" x="0.0" y="44" width="414" height="44"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="我的订单" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8Zb-Xj-kch">
+                            <rect key="frame" x="170" y="12" width="74" height="22"/>
+                            <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="18"/>
+                            <color key="textColor" red="0.1960784314" green="0.1960784314" blue="0.21176470589999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1El-f9-quj">
+                            <rect key="frame" x="10" y="8" width="30" height="30"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="30" id="W4J-LD-AtH"/>
+                                <constraint firstAttribute="height" constant="30" id="fVA-bT-Id0"/>
+                            </constraints>
+                            <state key="normal" image="icon_shop_back"/>
+                            <connections>
+                                <action selector="backClick:" destination="-1" eventType="touchUpInside" id="4ty-uV-WbT"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="44" id="Itv-xz-wyw"/>
+                        <constraint firstItem="1El-f9-quj" firstAttribute="centerY" secondItem="8Zb-Xj-kch" secondAttribute="centerY" id="izj-8r-Nde"/>
+                        <constraint firstAttribute="bottom" secondItem="8Zb-Xj-kch" secondAttribute="bottom" constant="10" id="ktn-L1-Vmk"/>
+                        <constraint firstItem="8Zb-Xj-kch" firstAttribute="centerX" secondItem="iV5-Nz-q5g" secondAttribute="centerX" id="oNl-j6-RTo"/>
+                        <constraint firstItem="1El-f9-quj" firstAttribute="leading" secondItem="iV5-Nz-q5g" secondAttribute="leading" constant="10" id="oUE-X9-iKG"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="iV5-Nz-q5g" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="2yx-7J-lH0"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="iV5-Nz-q5g" secondAttribute="trailing" id="GWi-DM-PbX"/>
+                <constraint firstItem="iV5-Nz-q5g" firstAttribute="top" secondItem="Q5M-cg-NOt" secondAttribute="top" id="oUo-2a-UnP"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="Q5M-cg-NOt"/>
+            <point key="canvasLocation" x="132" y="122"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="icon_shop_back" width="20" height="20"/>
+    </resources>
+</document>

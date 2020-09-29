@@ -1,0 +1,752 @@
+//
+//  DNBrowserDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNBrowserDetailVC.h"
+#import "BrowserDNListVC.h"
+#import "BrowserUnbindDNVC.h"
+#import "BrowserBindDNVC.h"
+#import "DNSMyBrowserModel.h"
+#import "BrowserCoinSelectVC.h"
+#import "NewsWebViewController.h"
+#import "DNBrowserSettingVC.h"
+#import "BrowserAwardCollectionViewCell.h"
+#import "DNBrowserDetailPayVC.h"
+#import "DNBrowserAwardListVC.h"
+#import "BrowserServicePayDetailVC.h"
+#import "DNBrowserDetailServiceVC.h"
+#import "DNBrowserSecretServiceVC.h"
+#import "WechatShareVC.h"
+
+@interface DNBrowserDetailVC ()<UIScrollViewDelegate,UICollectionViewDelegate,UICollectionViewDataSource>
+
+@property(nonatomic,weak) UIButton *rightBtn;
+@property(nonatomic,strong) NSString *domain_name_id;
+@property(nonatomic,strong) NSString *chain_id;
+
+@property(nonatomic,strong) DNSMyBrowserModel *model;
+
+///0小  1中  2大
+@property(nonatomic,assign) long fontType;
+///0灰  1绿  2黄
+@property(nonatomic,assign) long colorType;
+
+@property(nonatomic,strong) NSArray *appreciation_users;
+
+@end
+
+@implementation DNBrowserDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:AssectString(self.articleTitle) hiddeBack:NO];
+    [self prepareUI];
+    [self addRightBtn];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self dismissLoading];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getData:NO];
+}
+
+-(void)prepareUI{
+    self.topConst.constant = navBarHeight;
+    if (IS_IPHONEX) {
+        self.bottomHeightConst.constant += 20;
+    }
+    self.hideOrShowLabel.text = NSLocalizedString(@"展开更多信息", nil);
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        if ([AssectString(weakself.model.domain_names.domain_name) isEqualToString:@""]) {
+            [weakself showMsg:NSLocalizedString(@"域名未绑定", nil) location:centre];
+        }else{
+            BrowserDNListVC *dnList = [[BrowserDNListVC alloc] init];
+            dnList.articleid = weakself.articleid;
+            dnList.domain_name_id = weakself.domain_name_id;
+            [weakself.navigationController pushViewController:dnList animated:YES];
+        }
+    }];
+    [self.domainView  addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        BrowserCoinSelectVC *coinSelect = [[BrowserCoinSelectVC alloc] init];
+        coinSelect.articleid = weakself.articleid;
+        coinSelect.chainid = weakself.chain_id;
+        coinSelect.chainSubject = [RACSubject subject];
+        [coinSelect.chainSubject subscribeNext:^(NSString *chainid) {
+            weakself.chain_id = chainid;
+            [weakself getData:NO];
+        }];
+        [weakself.navigationController pushViewController:coinSelect animated:YES];
+    }];
+    [self.chainView  addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself hideOrShowClick];
+    }];
+    [self.hideOrShowView addGestureRecognizer:tap2];
+    
+    UITapGestureRecognizer *tap3 = [[UITapGestureRecognizer alloc] init];
+    [[tap3 rac_gestureSignal] subscribeNext:^(id x) {
+        NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+        NSString *userid = dict[JYId];
+        long publishUserid = weakself.model.user_id;
+        if ([userid longLongValue] == publishUserid) {
+            [weakself showMsg:NSLocalizedString(@"不能赞赏自己的文章", nil) location:centre];
+            return ;
+        }
+        
+        DNBrowserDetailPayVC *detail = [[DNBrowserDetailPayVC alloc] init];
+        detail.subject = [RACSubject subject];
+        [detail.subject subscribeNext:^(NSString *award) {
+            BrowserServicePayDetailVC *pay = [[BrowserServicePayDetailVC alloc] init];
+            pay.money = award;
+            pay.article_id = weakself.articleid;
+            pay.type = 0;
+            [weakself.navigationController pushViewController:pay animated:YES];
+        }];
+        detail.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        [weakself presentViewController:detail animated:NO completion:^{
+            
+        }];
+    }];
+    [self.awardView addGestureRecognizer:tap3];
+    
+    UITapGestureRecognizer *tap4 = [[UITapGestureRecognizer alloc] init];
+    [[tap4 rac_gestureSignal] subscribeNext:^(id x) {
+        DNBrowserAwardListVC *award = [[DNBrowserAwardListVC alloc] init];
+        award.articleid = weakself.articleid;
+        award.awardCount = weakself.appreciation_users.count;
+        award.modalPresentationStyle = UIModalPresentationFullScreen;
+        [weakself presentViewController:award animated:YES completion:^{
+            
+        }];
+    }];
+    [self.awardListView addGestureRecognizer:tap4];
+    
+    UITapGestureRecognizer *tap5 = [[UITapGestureRecognizer alloc] init];
+    [[tap5 rac_gestureSignal] subscribeNext:^(id x) {
+        if (weakself.secretType == 1 || weakself.model.status != 2)return ;
+        [weakself collectClick];
+    }];
+    [self.collectView addGestureRecognizer:tap5];
+    
+    UITapGestureRecognizer *tap6 = [[UITapGestureRecognizer alloc] init];
+    [[tap6 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself settingClick];
+    }];
+    [self.settingView addGestureRecognizer:tap6];
+    
+    UITapGestureRecognizer *tap7 = [[UITapGestureRecognizer alloc] init];
+    [[tap7 rac_gestureSignal] subscribeNext:^(id x) {
+        if (weakself.secretType == 1 || weakself.model.status != 2)return ;
+        if (weakself.model.is_toll == 1) {
+            [weakself showMsg:NSLocalizedString(@"付费文章不支持分享", nil) location:centre];
+            return;
+        }
+        [weakself shareClick];
+    }];
+    [self.shareView addGestureRecognizer:tap7];
+    
+    [[self.payBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+        NSString *userid = dict[JYId];
+        long publishUserid = weakself.model.user_id;
+        if ([userid longLongValue] == publishUserid) {
+            [weakself showMsg:NSLocalizedString(@"不能支付自己的文章", nil) location:centre];
+            return ;
+        }
+        BrowserServicePayDetailVC *pay = [[BrowserServicePayDetailVC alloc] init];
+        pay.money = AssectString(weakself.model.charge_amount);
+        pay.article_id = weakself.articleid;
+        pay.type = 1;
+        [weakself.navigationController pushViewController:pay animated:YES];
+    }];
+    
+//    //创建长按手势对象]
+//    UILongPressGestureRecognizer  *tapGesture = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(onClickUILable:)];
+//    //为label添加手势对象
+//    [self.contentLabale addGestureRecognizer:tapGesture];
+//    self.contentView.backgroundColor = [UIColor colorWithRGBHex:@"#f7f7f9"];
+    
+    self.flowLayout.itemSize = CGSizeMake(30, 30);
+    self.flowLayout.minimumLineSpacing = -5;
+    self.flowLayout.minimumInteritemSpacing = 0;
+    self.flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    [self.awardCollect registerNib:[UINib nibWithNibName:@"BrowserAwardCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"BrowserAwardCollectionViewCell"];
+    self.awardCollect.transform = CGAffineTransformMakeRotation(180 *M_PI / 180.0);
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 40,navBarHeight - 45, 30, 30)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 30, 30);
+    rightBtn.hidden = YES;
+    [rightBtn setImage:[UIImage imageNamed:@"icon_browser_operate"] forState:UIControlStateNormal];
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself bindOrUnbindClick];
+    }];
+    [view addSubview:_rightBtn = rightBtn];
+}
+
+////长按label调用的方法
+//-(void)onClickUILable:(UILongPressGestureRecognizer *)sender{
+//     //判断手势的状态
+//    if (sender.state == UIGestureRecognizerStateBegan){
+//        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+//        //长按手势开始
+//        pasteboard.string = self.contentLabale.text;
+//        [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+//    }
+//
+//}
+
+- (void)hideOrShowClick{
+    //未上链不让展开
+    if (self.model.status != 2) {
+        [self showMsg:NSLocalizedString(@"该文章未上链，无法展开", nil) location:centre];
+        return;
+    }
+    
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSString *userid = dict[JYId];
+    long publishUserid = self.model.user_id;
+    if ([userid longLongValue] != publishUserid && self.model.is_toll == 1) {
+        [self showMsg:NSLocalizedString(@"付费文章上链信息不公开", nil) location:centre];
+        return ;
+    }
+    
+    if (self.heigthConst.constant == 281) {
+        self.heigthConst.constant = 0;
+        self.backview.hidden = YES;
+        [self.view layoutIfNeeded];
+        self.hideOrShowLabel.text = NSLocalizedString(@"展开更多信息", nil);
+        self.hideOrShowImage.image = [UIImage imageNamed:@"icon_detail_down"];
+    }else{
+        self.heigthConst.constant = 281;
+        [self.view layoutIfNeeded];
+        self.backview.hidden = NO;
+        self.hideOrShowLabel.text = NSLocalizedString(@"收起更多信息", nil);
+        self.hideOrShowImage.image = [UIImage imageNamed:@"icon_detail_up"];
+    }
+}
+
+-(void)bindOrUnbindClick{
+    UIAlertController *sheetVC = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    WeakSelf(self);
+    UIAlertAction *sheetBtn1 = [UIAlertAction actionWithTitle:NSLocalizedString(@"解绑域名", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        BrowserUnbindDNVC *unbind = [[BrowserUnbindDNVC alloc] init];
+        unbind.type = 0;
+        unbind.articleid = weakself.articleid;
+        unbind.domain_name_id = weakself.domain_name_id;
+        unbind.subject = [RACSubject subject];
+        [unbind.subject subscribeNext:^(id x) {
+            weakself.domain_name_id = @"";
+            [weakself getData:NO];
+        }];
+        [weakself.navigationController pushViewController:unbind animated:YES];
+    }];
+    
+    UIAlertAction *sheetBtn2 = [UIAlertAction actionWithTitle:NSLocalizedString(@"绑定域名", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        BrowserBindDNVC *bind = [[BrowserBindDNVC alloc] init];
+        bind.articleid = weakself.articleid;
+        bind.subject = [RACSubject subject];
+        [bind.subject subscribeNext:^(id x) {
+            [weakself getData:NO];
+        }];
+        [weakself.navigationController pushViewController:bind animated:YES];
+    }];
+    
+    UIAlertAction *sheetBtn3 = [UIAlertAction actionWithTitle:NSLocalizedString(@"服务项", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if (weakself.secretType == 1) {
+            DNBrowserSecretServiceVC *service = [[DNBrowserSecretServiceVC alloc] init];
+            service.articleid = weakself.articleid;
+            service.article_count = weakself.model.content.length;
+            [weakself.navigationController pushViewController:service animated:YES];
+            return;
+        }
+        DNBrowserDetailServiceVC *service = [[DNBrowserDetailServiceVC alloc] init];
+        service.model = weakself.model;
+        [weakself.navigationController pushViewController:service animated:YES];
+    }];
+    
+    UIAlertAction *sheetBtn = [UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn2];
+    [sheetBtn2 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn3];
+    [sheetBtn3 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+- (void)settingClick{
+    DNBrowserSettingVC *setting = [[DNBrowserSettingVC alloc] init];
+    setting.fontType = self.fontType;
+    setting.colorType = self.colorType;
+    WeakSelf(self);
+    setting.fontSubject = [RACSubject subject];
+    [setting.fontSubject subscribeNext:^(NSString *fontStr) {
+        weakself.fontType = [fontStr longLongValue];
+    }];
+    setting.colorSubject = [RACSubject subject];
+    [setting.colorSubject subscribeNext:^(NSString *fontStr) {
+        weakself.colorType = [fontStr longLongValue];
+    }];
+    setting.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    [self presentViewController:setting animated:NO completion:^{
+        
+    }];
+}
+
+-(void)collectClick{
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    NSDictionary *dict = @{@"article_chain_id":[NSString stringWithFormat:@"%ld",self.articleid]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:BrowserAddFavorite param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself getData:YES];
+            }else{
+                [weakself dismissLoading];
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself dismissLoading];
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)shareClick{
+    WechatShareVC *share = [[WechatShareVC alloc] init];
+    share.modalPresentationStyle = UIModalPresentationOverFullScreen;
+    share.shareSubject = [RACSubject subject];
+    share.type = 0;
+    WeakSelf(self);
+    [share.shareSubject subscribeNext:^(NSString *tagStr) {
+        if ([tagStr intValue] == 10) {
+            [weakself shareWebPageToPlatformType:(UMSocialPlatformType_WechatSession)];
+        }else if ([tagStr intValue] == 11){
+            [weakself shareWebPageToPlatformType:(UMSocialPlatformType_WechatTimeLine)];
+        }else{
+            UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+            pasteboard.string = [NSString stringWithFormat:@"https://jie1.top/epi/#/appDetails?id=%ld",self.model.articleid];
+            [weakself showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+        }
+    }];
+    [self presentViewController:share animated:NO completion:^{
+        
+    }];
+}
+
+- (void)shareWebPageToPlatformType:(UMSocialPlatformType)platformType
+{
+    //创建分享消息对象
+    UMSocialMessageObject *messageObject = [UMSocialMessageObject messageObject];
+
+    //创建网页内容对象
+    UIImage* thumbImage =  [UIImage imageNamed:@"icon_share"];
+    
+    NSString *content = self.model.content.length >10?[NSString stringWithFormat:@"%@...",[self.model.content substringToIndex:10]]:AssectString(self.model.content);
+    UMShareWebpageObject *shareObject = [UMShareWebpageObject shareObjectWithTitle:AssectString(self.model.title) descr:content thumImage:thumbImage];
+    //设置网页地址
+    shareObject.webpageUrl = [NSString stringWithFormat:@"https://jie1.top/epi/#/appDetails?id=%ld",self.model.articleid];
+    //分享消息对象设置分享内容对象
+    messageObject.shareObject = shareObject;
+    //调用分享接口
+    [[UMSocialManager defaultManager] shareToPlatform:platformType messageObject:messageObject currentViewController:self completion:^(id data, NSError *error) {
+        if (error) {
+            UMSocialLogInfo(@"************Share fail with error %@*********",error);
+        }else{
+            if ([data isKindOfClass:[UMSocialShareResponse class]]) {
+                UMSocialShareResponse *resp = data;
+                //分享结果消息
+                UMSocialLogInfo(@"response message is %@",resp.message);
+                //第三方原始返回的数据
+                UMSocialLogInfo(@"response originalResponse data is %@",resp.originalResponse);
+
+            }else{
+                UMSocialLogInfo(@"response data is %@",data);
+            }
+        }
+    }];
+}
+
+-(void)getData:(BOOL)ifClick{
+    if (!ifClick) {
+        [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    }
+    NSDictionary *dict = @{@"id":[NSString stringWithFormat:@"%ld",self.articleid],@"domain_name_id":AssectString(self.domain_name_id),@"article_public_chain_id":AssectString(self.chain_id)};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:BrowserShow param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                DNSMyBrowserModel *model = [DNSMyBrowserModel mj_objectWithKeyValues:json[@"data"]];
+                [weakself setData:model withClick:ifClick];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData:ifClick];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData:ifClick];
+            }];
+        }
+    }];
+}
+
+-(void)setData:(DNSMyBrowserModel *)model withClick:(BOOL)ifClick{
+    _model = model;
+    self.articleid = model.articleid;
+    self.chain_id = [NSString stringWithFormat:@"%ld",model.article_public_chain_info.infoid];
+    self.articleTitle = AssectString(model.title);
+    [self setBanar:AssectString(self.articleTitle) hiddeBack:NO];
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.user[@"avatar"])] placeholderImage:[UIImage imageNamed:@"pic_head"]];
+    self.domain_name_id = [NSString stringWithFormat:@"%ld",model.domain_names.domainid];
+    self.domainLabel.text = [AssectString(model.domain_names.domain_name) isEqualToString:@""]?NSLocalizedString(@"未绑定", nil):AssectString(model.domain_names.domain_name);
+    self.domainLabel.textColor = [AssectString(model.domain_names.domain_name) isEqualToString:@""]?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#18181A"];
+    [self.chianImgV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.article_public_chain_info.image_address)]];
+    self.chainLabel.text = model.article_public_chain_info.name;
+    self.timeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"时间：  %@", nil),AssectString(model.article_public_chain_info.pivot[@"packing_time"])];
+    self.blockHeigthLabel.text = [NSString stringWithFormat:NSLocalizedString(@"块高：  %@", nil),AssectString(model.article_public_chain_info.pivot[@"block_height"])];
+    self.hashLabel.text = AssectString(model.article_public_chain_info.pivot[@"hash"]);
+    /// 0待上链，1上链中，2上链成功，3上链失败
+    if ([model.article_public_chain_info.pivot[@"status"]  longValue]== 0) {
+        self.statusLabel.text = NSLocalizedString(@"待上链", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else if ([model.article_public_chain_info.pivot[@"status"]  longValue] == 1){
+        self.statusLabel.text = NSLocalizedString(@"上链中", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else if ([model.article_public_chain_info.pivot[@"status"]  longValue] == 2){
+        self.statusLabel.text = NSLocalizedString(@"", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else{
+        self.statusLabel.text = NSLocalizedString(@"审核失败", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+    }
+    self.titleLabel.text = model.title;
+    
+    NSString *reading = [NSString stringWithFormat:@"%ld",model.reading];
+    if ([reading longLongValue] >= 10000) {
+        reading = [NSString stringWithFormat:@"%@w",[GaoJingDu chu:@[reading,@"10000"] jindu:@"2"]];
+    }
+    
+    NSString *total_word = [NSString stringWithFormat:@"%ld",model.total_word];
+    if ([total_word longLongValue] >= 10000) {
+        total_word = [NSString stringWithFormat:@"%@w",[GaoJingDu chu:@[total_word,@"10000"] jindu:@"2"]];
+    }
+
+    self.personLabel.text = AssectString(model.name);
+    self.readCounLabel.text = [NSString stringWithFormat:NSLocalizedString(@"阅读量%@ · 总字数%@", nil),reading,total_word];
+    self.publishTimeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"发布于 %@", nil),AssectString(model.create_time)];
+
+    self.contentLabale.text = model.content;
+    
+    self.colorType = [[Manager takeoutTokenkey:JYArticleColor] longLongValue];
+    self.fontType = [[Manager takeoutTokenkey:JYArticleFont] longLongValue];
+    
+    if (self.canEdit == 0) {
+        NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+        NSString *userid = dict[JYId];
+        long publishUserid = model.user_id;
+        if ([userid longLongValue] == publishUserid && model.status == 2) {
+            self.rightBtn.hidden = NO;
+        }else{
+            self.rightBtn.hidden = YES;
+        }
+    }
+    self.topView.hidden = model.is_sticky == 0;
+    self.tagBgLead.constant = model.is_sticky == 0?16:41;
+    //是否收藏
+    NSString *favor = [NSString stringWithFormat:@"%ld",model.favorites];
+    if ([favor longLongValue] >= 10000) {
+        favor = [NSString stringWithFormat:@"%@w",[GaoJingDu chu:@[favor,@"10000"] jindu:@"1"]];
+    }
+    if (model.is_favorite == 0) {
+        self.collectImage.image = [UIImage imageNamed:@"icon_browser_uncollect"];
+        self.collectLabel.textColor = [UIColor colorWithRGBHex:@"#555555"];
+        self.collectLabel.text = [NSString stringWithFormat:NSLocalizedString(@"收藏(%@)", nil),favor];
+    }else{
+        if (ifClick) {
+            LOTAnimationView *animation = [LOTAnimationView animationNamed:@"addCollect"];
+            animation.frame = CGRectMake(0,0, 44, 44);
+            [self.collectInnerView addSubview:animation];
+            self.collectImage.hidden = YES;
+            WeakSelf(self);
+            [animation playWithCompletion:^(BOOL animationFinished) {
+                [animation removeFromSuperview];
+                weakself.collectImage.hidden = NO;
+                weakself.collectImage.image = [UIImage imageNamed:@"icon_browser_collect"];
+            }];
+            dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.75 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                weakself.collectLabel.textColor = [UIColor colorWithRGBHex:@"#FF5773"];
+                weakself.collectLabel.text = [NSString stringWithFormat:NSLocalizedString(@"收藏(%@)", nil),favor];
+            });
+        }else{
+            self.collectImage.image = [UIImage imageNamed:@"icon_browser_collect"];
+            self.collectLabel.textColor = [UIColor colorWithRGBHex:@"#FF5773"];
+            self.collectLabel.text = [NSString stringWithFormat:NSLocalizedString(@"收藏(%@)", nil),favor];
+        }
+    }
+    self.typeView.hidden = [AssectString(model.article_type[@"name"]) isEqualToString:@""];
+    self.typeLabel.text = AssectString(model.article_type[@"name"]);
+
+    //如果未上链  不展示赞赏及支付信息
+    ///0是公开  1是私密
+    if (model.status != 2 || self.secretType == 1) {
+        self.secretView.hidden = YES;
+    }else{
+        self.secretView.hidden = NO;
+    }
+    
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSString *userid = dict[JYId];
+    long publishUserid = model.user_id;
+    if (model.is_toll == 0 || (model.is_toll == 1 && model.is_self_toll == 1)) {
+        self.lastLabel.text = @"END";
+        self.lastWidthConst.constant = [self calculateWidth:@"END"];
+        self.payBtn.hidden = YES;
+        self.awardBgview.hidden = NO;
+        if ([userid longLongValue] == publishUserid ) {
+            self.awardView.hidden = YES;
+            self.awardTipLabel.hidden = YES;
+            self.awardBgHeight.constant = 90;
+        }else{
+            self.awardView.hidden = NO;
+            self.awardTipLabel.hidden = NO;
+            self.awardBgHeight.constant = 160.5;
+        }
+        self.awardCountLabel.text = [NSString stringWithFormat:@"%ld",model.appreciation_users.count];
+        if (model.appreciation_users.count != 0) {
+            self.appreciation_users = model.appreciation_users.count > 6?[model.appreciation_users subarrayWithRange:NSMakeRange(0, 6)]:model.appreciation_users;
+            self.collectWidth.constant = 30 + (self.appreciation_users.count - 1)*25;
+            [self.awardCollect reloadData];
+        }
+        self.awardWidthConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?141:101;
+    }else{
+        //如果是自己的付费 则s展示t全部文章  而且隐藏支付按钮
+        if ([userid longLongValue] == publishUserid) {
+            self.lastLabel.text = @"END";
+            self.lastWidthConst.constant = [self calculateWidth:@"END"];
+            self.awardBgview.hidden = NO;
+            self.payBtn.hidden = YES;
+            self.awardBgHeight.constant = 90;
+            self.awardView.hidden = YES;
+            self.awardTipLabel.hidden = YES;
+            
+            self.awardCountLabel.text = [NSString stringWithFormat:@"%ld",model.appreciation_users.count];
+            if (model.appreciation_users.count != 0) {
+                self.appreciation_users = model.appreciation_users.count > 6?[model.appreciation_users subarrayWithRange:NSMakeRange(0, 6)]:model.appreciation_users;
+                self.collectWidth.constant = 30 + (self.appreciation_users.count - 1)*25;
+                [self.awardCollect reloadData];
+            }
+            self.awardWidthConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?141:101;
+        }else{
+            long fee_worlds = model.total_word - model.free_word_count;
+            self.lastLabel.text = [NSString stringWithFormat:NSLocalizedString(@"剩余%ld字未读，请付费后继续阅读", nil),fee_worlds];
+            self.lastWidthConst.constant = [self calculateWidth:[NSString stringWithFormat:NSLocalizedString(@"剩余%ld字未读，请付费后继续阅读", nil),fee_worlds]];
+            self.awardBgHeight.constant = 60.5;
+            self.payBtn.hidden = NO;
+            self.awardBgview.hidden = YES;
+            
+            NSString *payStr = [NSString stringWithFormat:NSLocalizedString(@"支付 %@CNY", nil),model.charge_amount];
+            NSMutableAttributedString *payAttrstr = [[NSMutableAttributedString alloc] initWithString:payStr];
+            [payAttrstr addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:15 weight:(UIFontWeightMedium)] range:[payStr rangeOfString:[NSString stringWithFormat:NSLocalizedString(@"支付 %@", nil),model.charge_amount]]];//用来设置颜色
+            [payAttrstr addAttribute:NSFontAttributeName value:[UIFont systemFontOfSize:12 weight:(UIFontWeightMedium)] range:[payStr rangeOfString:@"CNY"]];
+            [payAttrstr addAttribute:NSForegroundColorAttributeName value:[UIColor whiteColor] range:NSMakeRange(0, payStr.length)];
+            [self.payBtn setAttributedTitle:payAttrstr forState:UIControlStateNormal];
+        }
+    }
+    
+    CGFloat lead = 0;
+    for (NSDictionary *dict in model.article_labels) {
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(lead, 0, [self calculateWidth:AssectString(dict[@"name"])] + 14, 20)];
+        if ([dict[@"id"] longLongValue] == 1) {
+            label.backgroundColor = [UIColor colorWithRGBHex:@"#C76F63"];
+        }else if ([dict[@"id"] longLongValue] == 2){
+            label.backgroundColor = [UIColor colorWithRGBHex:@"#C79363"];
+        }else{
+            label.backgroundColor = [UIColor colorWithRGBHex:@"#7563C7"];
+        }
+        label.text = AssectString(dict[@"name"]);
+        label.textColor = [UIColor whiteColor];
+        label.font = [UIFont systemFontOfSize:10 weight:(UIFontWeightSemibold)];
+        label.textAlignment = NSTextAlignmentCenter;
+        label.layer.cornerRadius = 3;
+        label.layer.masksToBounds = YES;
+        [self.tagBgView addSubview:label];
+        lead = CGRectGetMaxX(label.frame) + 5;
+    }
+    
+    if (self.secretType == 1 || model.status != 2) {
+        self.collectLabel.alpha = 0.3;
+        self.shareLabel.alpha = 0.3;
+        self.collectImage.alpha = 0.3;
+        self.shareImage.alpha = 0.3;
+    }else{
+        self.collectLabel.alpha = 1;
+        self.shareLabel.alpha = 1;
+        self.collectImage.alpha = 1;
+        self.shareImage.alpha = 1;
+    }
+}
+
+- (IBAction)blockClick:(id)sender {
+    NSString *block = self.blockHeigthLabel.text;
+    block = [block stringByReplacingOccurrencesOfString:NSLocalizedString(@"块高：  ", nil) withString:@""];
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = block;
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)haskClick:(id)sender {
+    NSString *hash = self.hashLabel.text;
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = hash;
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)checkBtn:(id)sender {
+    NSString *name = AssectString(self.model.article_public_chain_info.name);
+    NSString *hash = AssectString(self.model.article_public_chain_info.pivot[@"hash"]);
+    if ([name containsString:@"BTC"] || [name containsString:@"ETH"]) {
+        NSString *url = [NSString stringWithFormat:@"https://tokenview.com/cn/search/%@",hash];
+        NewsWebViewController* webViewObj =  [[NewsWebViewController alloc] init];
+        webViewObj.loadUrl = AssectString(url);
+        webViewObj.titleStr = name;
+        [self.navigationController pushViewController:webViewObj animated:YES];
+        return;
+    }
+
+    if ([name containsString:@"NULS"]) {
+        NSString *url = [NSString stringWithFormat:@"https://nulscan.io/transaction/info?hash=%@",hash];
+        NewsWebViewController* webViewObj =  [[NewsWebViewController alloc] init];
+        webViewObj.loadUrl = AssectString(url);
+        webViewObj.titleStr = name;
+        [self.navigationController pushViewController:webViewObj animated:YES];
+        return;
+    }
+}
+
+#pragma -mark getter
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.appreciation_users.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    BrowserAwardCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"BrowserAwardCollectionViewCell" forIndexPath:indexPath];
+    NSDictionary *dict = self.appreciation_users[self.appreciation_users.count - 1 - indexPath.item];
+    [cell.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(dict[@"avatar"])] placeholderImage:[UIImage imageNamed:@"pic_head"]];
+    cell.headV.alpha = [self getheadVAlpha:indexPath.item];
+    cell.transform = CGAffineTransformMakeRotation(180 *M_PI / 180.0);
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    DNBrowserAwardListVC *award = [[DNBrowserAwardListVC alloc] init];
+    award.articleid = self.articleid;
+    award.awardCount = self.model.appreciation_users.count;
+    award.modalPresentationStyle = UIModalPresentationFullScreen;
+    [self presentViewController:award animated:YES completion:^{
+        
+    }];
+}
+
+-(CGFloat)getheadVAlpha:(NSInteger)tag{
+    NSInteger count = self.appreciation_users.count;
+    if (count == 1) return 1.f;
+    CGFloat midAlpha = (1 - 0.3)/(count - 1);
+    CGFloat alpha = 1 - midAlpha*(count - 1 - tag);
+    return alpha;
+}
+
+#pragma -mark UIScrollViewDelegate
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (scrollView.contentOffset.y <= 0) {
+        [scrollView setContentOffset:CGPointMake(0, 0)];
+    }
+}
+ 
+#pragma -mark setter
+-(void)setFontType:(long)fontType{
+    _fontType = fontType;
+    if (fontType == 0) {
+        self.titleLabel.font = [UIFont systemFontOfSize:15 weight:(UIFontWeightMedium)];
+        self.contentLabale.font = [UIFont systemFontOfSize:12];
+        [self setParagraph:12*0.65];
+    }else if (fontType == 1){
+        self.titleLabel.font = [UIFont systemFontOfSize:18 weight:(UIFontWeightMedium)];
+        self.contentLabale.font = [UIFont systemFontOfSize:15];
+        [self setParagraph:15*0.65];
+    }else{
+        self.titleLabel.font = [UIFont systemFontOfSize:21 weight:(UIFontWeightMedium)];
+        self.contentLabale.font = [UIFont systemFontOfSize:18];
+        [self setParagraph:18*0.65];
+    }
+}
+
+-(void)setColorType:(long)colorType{
+    _colorType = colorType;
+    if (colorType == 0) {
+        self.contentView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+        self.bottomView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+    }else if (colorType == 1){
+        self.contentView.backgroundColor = [UIColor colorWithRGBHex:@"#E5F0E1"];
+        self.bottomView.backgroundColor = [UIColor colorWithRGBHex:@"#E5F0E1"];
+    }else{
+        self.contentView.backgroundColor = [UIColor colorWithRGBHex:@"#FAEBDC"];
+        self.bottomView.backgroundColor = [UIColor colorWithRGBHex:@"#FAEBDC"];
+    }
+}
+
+#pragma -mark getter
+-(NSArray *)appreciation_users{
+    if (!_appreciation_users) {
+        _appreciation_users = [NSArray array];
+    }
+    return _appreciation_users;
+}
+
+-(void)setParagraph:(CGFloat)lineGraph{
+    NSMutableParagraphStyle *paragraphStyle = [NSMutableParagraphStyle new];
+    paragraphStyle.lineSpacing = lineGraph - (self.contentLabale.font.lineHeight - self.contentLabale.font.pointSize);
+    NSMutableDictionary *attributes = [NSMutableDictionary dictionary];
+    [attributes setObject:paragraphStyle forKey:NSParagraphStyleAttributeName];
+    self.contentLabale.attributedText = [[NSAttributedString alloc] initWithString:self.model.content attributes:attributes];
+}
+
+-(CGFloat)calculateWidth:(NSString *)content{
+    //计算文本文字size
+    CGSize size = [content sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:10]}];
+//    //获取宽高
+//    CGSize statuseStrSize = CGSizeMake(ceilf(size.width), ceilf(size.height));
+//    //打印宽高
+//    NSLog(@"%@_width:%f_height:%f",NSStringFromCGSize(statuseStrSize),size.width,size.height);
+    return size.width + 2;
+}
+@end

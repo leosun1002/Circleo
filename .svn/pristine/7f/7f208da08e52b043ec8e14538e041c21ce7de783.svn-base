@@ -1,0 +1,38 @@
+//
+//  DNBrowserSettingVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/12/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNBrowserSettingVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UIView *bgView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UIButton *smallBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *smallWidth;
+@property (weak, nonatomic) IBOutlet UIButton *midBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *midWidth;
+@property (weak, nonatomic) IBOutlet UIButton *bigBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bigWidth;
+
+@property (weak, nonatomic) IBOutlet UIButton *grayBtn;
+@property (weak, nonatomic) IBOutlet UIButton *greenBtn;
+@property (weak, nonatomic) IBOutlet UIButton *yellowBtn;
+
+///0小  1中  2大
+@property(nonatomic,assign) long fontType;
+///0灰  1绿  2黄
+@property(nonatomic,assign) long colorType;
+
+@property(nonatomic,strong) RACSubject *fontSubject;
+@property(nonatomic,strong) RACSubject *colorSubject;
+
+@end
+
+NS_ASSUME_NONNULL_END

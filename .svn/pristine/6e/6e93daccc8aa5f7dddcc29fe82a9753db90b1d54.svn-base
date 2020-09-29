@@ -1,0 +1,47 @@
+//
+//  PaydDetailFooter.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "CurrencyModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PaydDetailFooter : UIView<UITextFieldDelegate>
+@property (weak, nonatomic) IBOutlet UIView *noDisCountView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *noDisCountHeight;
+@property (weak, nonatomic) IBOutlet UIView *countView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *countHeight;
+@property (weak, nonatomic) IBOutlet UILabel *cnyTip;
+@property (weak, nonatomic) IBOutlet UILabel *usdtPrice;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UIView *payTypeView;
+
+@property (weak, nonatomic) IBOutlet UIView *couponView;
+@property (weak, nonatomic) IBOutlet UIView *couponContentView;
+@property (weak, nonatomic) IBOutlet UILabel *cnyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *usdtLabel;
+@property (weak, nonatomic) IBOutlet UILabel *noCouponLabel;
+@property (weak, nonatomic) IBOutlet UILabel *couponTipLabel;
+
+@property (assign, nonatomic) NSInteger payType;// 0支付宝 1微信 2cny余额 3usdt余额
+
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *payName;
+@property (weak, nonatomic) IBOutlet UILabel *yueLabel;
+@property (weak, nonatomic) IBOutlet UIView *pswView;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+@property (weak, nonatomic) IBOutlet UILabel *couponTagLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *couponTagConst;
+
+@property (strong, nonatomic) CurrencyModel *currencyModel;//币币账户
+
+//获取高度
+-(CGFloat)getPayHeight:(NSInteger)payType withNewtype:(long)newType;
+@end
+
+NS_ASSUME_NONNULL_END

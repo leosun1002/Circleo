@@ -1,0 +1,33 @@
+//
+//  DNSShopVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "JXCategoryListContainerView.h"
+#import "DNSFilterModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef enum{
+    DNSShopVCTypeSell,  // 卖
+    DNSShopVCTypeBuy,    // 买
+}DNSShopVCType;
+
+@interface DNSShopVC : BaseViewController <JXCategoryListContentViewDelegate>
+
+@property(nonatomic,strong) RACSubject *filterSubject;
+@property(nonatomic,strong) RACSubject *selectSubject;
+@property(nonatomic,strong) RACSubject *clearSubject;//清楚搜索框里面的数据
+@property(nonatomic,assign)DNSShopVCType pageType;
+@property(nonatomic,strong)UINavigationController *naviController;
+
+-(void)refreshWithFilter:(DNSFilterModel *)filterModel;
+-(void)goSearch:(NSString *)goSearch;//搜索
+-(void)refreshWithNoMj;//每次切换都做刷新
+@end
+
+NS_ASSUME_NONNULL_END

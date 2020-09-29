@@ -1,0 +1,35 @@
+//
+//  DNSShopSelectModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/6.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSShopSelectModel : NSObject
+
+/**
+ 0未绑定，1已绑定
+ */
+@property(nonatomic,assign)long is_bind;
+/**
+ 0未到期，1要到期了
+ */
+@property(nonatomic,assign)long is_expire;
+@property(nonatomic,assign)long selectid;
+/**
+ 0未冻结可挂卖，1已冻结不能持卖
+ */
+@property(nonatomic,assign)long is_frozen;
+@property(nonatomic,assign)long user_id;
+@property(nonatomic,copy)NSString *end_time;
+@property(nonatomic,assign)long count;
+@property(nonatomic,copy)NSString *domain_name;
+
+@end
+
+NS_ASSUME_NONNULL_END

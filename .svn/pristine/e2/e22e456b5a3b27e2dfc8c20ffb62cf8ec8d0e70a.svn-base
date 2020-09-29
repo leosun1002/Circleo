@@ -1,0 +1,41 @@
+//
+//  DNSUnbindAddressVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "DNSBindModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSUnbindAddressVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *topbgview;
+@property (strong, nonatomic) NSString *domain_name_id;
+@property (strong, nonatomic) DNSBindModel *model;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *paymentLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *markLabel;
+@property (weak, nonatomic) IBOutlet UIView *markView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *markConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *markTop;
+@property (weak, nonatomic) IBOutlet UIImageView *payImg;
+@property (weak, nonatomic) IBOutlet UILabel *payLabel;
+@property (weak, nonatomic) IBOutlet UILabel *yueLabel;
+@property (weak, nonatomic) IBOutlet UIView *selectView;
+@property (weak, nonatomic) IBOutlet UIView *pswView;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *pswHeightConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

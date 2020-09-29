@@ -1,0 +1,46 @@
+//
+//  MyIncomeCNYView.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/19.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+// 头部View高
+#define JXTableHeaderViewHeight 130
+// 菜单项View高
+#define JXheightForHeaderInSection 45
+#define kNavBarAndStatusBarHeight 0
+
+#import "JXPagerListRefreshView.h"
+#import "JXCategoryView.h"
+#import "MyIncomeChildView.h"
+#import "MyCnyIncomeHeader.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyIncomeCNYView : UIView<JXPagerViewDelegate, JXCategoryViewDelegate>
+
+@property (nonatomic, weak) UINavigationController *naviController;
+/**
+ 顶部View（自定义View）
+ */
+@property (nonatomic,strong) MyCnyIncomeHeader *assetHeader;
+/**
+ 菜单项View
+ */
+@property (nonatomic,strong) JXCategoryTitleView *categoryView;
+/**
+ 内容View
+ */
+@property (nonatomic, strong) JXPagerListRefreshView *pagingView;
+/**
+ 菜单项标题数组
+ */
+@property (nonatomic,copy) NSArray *itemArr;
+
+@end
+
+NS_ASSUME_NONNULL_END

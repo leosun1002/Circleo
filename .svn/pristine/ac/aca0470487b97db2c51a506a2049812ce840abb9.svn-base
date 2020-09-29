@@ -1,0 +1,34 @@
+//
+//  DNSManageModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSManageModel : NSObject
+
+//0未绑定，1已绑定
+@property(nonatomic,assign)long is_bind;
+@property(nonatomic,assign)long manageid;
+@property(nonatomic,assign)long user_id;
+@property(nonatomic,copy)NSString *end_time;
+@property(nonatomic,assign)long count;
+/**
+ 0未冻结，1已冻结
+ */
+@property(nonatomic,assign)long is_frozen;
+/**
+ 0未到期，1要到期了
+ */
+@property(nonatomic,assign)long is_expire;
+@property(nonatomic,copy)NSString *domain_name;
+@property(nonatomic,assign)long hasClick;//0未选中  1已选中
+
+@end
+
+NS_ASSUME_NONNULL_END

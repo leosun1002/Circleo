@@ -1,0 +1,24 @@
+//
+//  ShopAssetsSearchVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/14.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+typedef enum : NSUInteger {
+    SearchTypeDetail,
+    SearchTypeSend,
+    SearchTypeWithdraw,
+} SearchType;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopAssetsSearchVC : BaseViewController
+
+@property(nonatomic,assign)SearchType type;
+@end
+
+NS_ASSUME_NONNULL_END

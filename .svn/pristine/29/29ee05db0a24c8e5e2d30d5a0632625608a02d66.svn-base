@@ -1,0 +1,23 @@
+//
+//  DNBrowserAwardListVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/12/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNBrowserAwardListVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (assign, nonatomic) long articleid;
+@property (assign, nonatomic) NSUInteger awardCount;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,25 @@
+//
+//  WebSiteDomainBindVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/6/6.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "JXCategoryListContainerView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebSiteDomainBindVC : BaseViewController<JXCategoryListContentViewDelegate>
+
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (nonatomic,strong) UINavigationController *navigationVc;
+@property(nonatomic,assign) long website_id;
+
+@property(nonatomic,strong) RACSubject *subject;
+@end
+
+NS_ASSUME_NONNULL_END

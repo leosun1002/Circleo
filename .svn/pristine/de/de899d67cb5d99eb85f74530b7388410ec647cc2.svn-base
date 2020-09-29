@@ -1,0 +1,61 @@
+//
+//  BuyEvidenceVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BuyEvidenceVC.h"
+#import "BuyEvidenceDetailVC.h"
+
+@interface BuyEvidenceVC ()
+
+//购买次数
+@property(nonatomic,assign)long count;
+@end
+
+@implementation BuyEvidenceVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.topConst.constant = navBarHeight;
+    [self setBanar:NSLocalizedString(@"购买存证", nil) hiddeBack:NO];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.count = 1;
+    self.titleLabel.text = self.name;
+    self.nameLabel.text = self.name;
+}
+
+- (IBAction)goPayClick:(id)sender {
+    BuyEvidenceDetailVC *payDetail = [[BuyEvidenceDetailVC alloc] init];
+    payDetail.deposit_certificate_category_id = self.deposit_certificate_category_id;
+    payDetail.name = self.name;
+    payDetail.unit_price = self.unit_price;
+    payDetail.count = self.count;
+    [self.navigationController pushViewController:payDetail animated:YES];
+}
+
+- (IBAction)minusClick:(id)sender {
+    if (self.count <= 1) return;
+    self.count -= 1;
+}
+
+- (IBAction)addClick:(id)sender {
+    self.count += 1;
+}
+
+#pragma -mark setter
+-(void)setCount:(long)count{
+    _count = count;
+    NSString *countstr = [NSString stringWithFormat:@"%ld",count];
+    self.countLabel.text = countstr;
+    self.totalLabel.text = countstr;
+    self.needPayLabel.text = [GaoJingDu cheng:@[AssectString(self.unit_price),countstr] jindu:@"2"];
+    self.usdtLabel.text = [GaoJingDu chu:@[[GaoJingDu cheng:@[AssectString(self.unit_price),countstr] jindu:@"2"],@"7"] jindu:@"2"];
+    self.cnyLabel.text = [GaoJingDu cheng:@[AssectString(self.unit_price),countstr] jindu:@"2"];
+}
+@end

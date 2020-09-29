@@ -1,0 +1,50 @@
+//
+//  DNSSellOrderVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSSellOrderVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) NSString *selectid;
+
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *buyTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *expireTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sellLabel;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *pulishTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *lastTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentLabel;
+@property (weak, nonatomic) IBOutlet UILabel *buyLable;
+@property (weak, nonatomic) IBOutlet UILabel *yeLabel;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (strong, nonatomic) RACSubject *successSubject;
+
+@property (weak, nonatomic) IBOutlet UIView *buyView;
+@property (weak, nonatomic) IBOutlet UILabel *buyerLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *buyerHeightConst;
+
+@property (weak, nonatomic) IBOutlet UILabel *priceTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *markTipLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *payTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *buyUnitLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sellUnitLabel;
+
+@property (weak, nonatomic) IBOutlet UIScrollView *backScroll;
+
+/// 0是卖  1是买
+@property(nonatomic,assign) long type;
+@end
+
+NS_ASSUME_NONNULL_END

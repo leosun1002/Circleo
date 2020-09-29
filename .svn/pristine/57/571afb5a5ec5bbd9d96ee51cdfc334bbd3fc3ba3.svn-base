@@ -1,0 +1,50 @@
+<html>
+
+<head>
+    <script src="./build.js"></script>
+    <script src="./ethereumjs-util.js"></script>
+    <script src="./sjcl-bip39.js"></script>
+    <script src="./wordlist_english.js"></script>
+    <script src="./jsbip39.js"></script>
+    <script src="./bitcoinjs-3.3.2.js"></script>
+    <script src="./vee-api.js"></script>
+    <script>
+        function create(){
+        
+            //! 传入助记词创建地址/导入助记词创建地址
+            var res =newAddress("a12345679")
+            console.log("..."+res)
+            
+            
+            //! 导入私钥
+            var res_1 =importPriKey("4ff33d65c43ffba654bc0a1943cc0d119f24c6c5d8ea9cec1b7947d8e088eec7")
+            console.log("......"+res_1)
+            
+            //! 转账签名
+            var fromaddr="FCMc6Hgg57RipXK7sDkmpByxCJGmdeVL9uBv"
+            var toaddr="FCMc6HghDhpZApenNzkfqTeJf8o3Km7ZE4zk"
+            var contractAddress=""
+            var amount=1000000000
+            var fee=100000
+            var nonce="0000000000000000"
+            var remark=""
+            var pri="2e6d2aad5e7b294c1cc9718072ea6e0c55c279f022e0fa67d0f878248d02c3bd"
+            var pub="022fae6292b047b16b0aa37651270bc95a1c3becfc434a1344598bee8d5f768769"
+
+
+            var res_2 =transactionSignature(fromaddr, toaddr,amount,fee,nonce, remark,pri,pub)
+            console.log("...sign..."+res_2)
+        }
+        
+    </script>
+</head>
+<body>
+    <button class="btn generate" onclick="create()">生成</button>
+    
+   
+</body>
+
+
+
+</html>
+

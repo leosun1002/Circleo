@@ -1,0 +1,99 @@
+//
+//  MyCardCouponView.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/9.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MyCardCouponView.h"
+
+@implementation MyCardCouponView
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"MyCardCouponView" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        [self prepareUI];
+    }
+    return self;
+}
+
+-(void)prepareUI{
+    self.leftCircle.layer.borderWidth = 1.f;
+    self.rightCircle.layer.borderWidth = 1.f;
+    
+    self.couponTipLabel.transform = CGAffineTransformMakeRotation(-M_PI*0.07);
+}
+
+-(void)setModel:(CardCouponModel *)model{
+    /// 0未使用，1已使用，2已过期
+    if (model.cover_id != 0) {
+        [self setColorWithType:@"#AAAAB5"];
+        self.amountLabel.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+        self.unitLabel.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+        self.tipCouponImage.hidden = NO;
+        self.couponTipLabel.hidden = NO;
+        self.couponTipLabel.text = NSLocalizedString(@"已赠送", nil);
+        self.titleTrailConst.constant = 10;
+        self.sendBtn.hidden = YES;
+        self.amountLabel.text = [GaoJingDu jian:@[AssectNumber(model.price),AssectNumber(model.used_price)] jindu:@"2"];
+    }else if (model.status == 0) {
+        [self setColorWithType:@"#FF9429"];
+        self.amountLabel.textColor = [UIColor colorWithRGBHex:@"#FF7029"];
+        self.unitLabel.textColor = [UIColor colorWithRGBHex:@"#FF7029"];
+        self.tipCouponImage.hidden = YES;
+        self.couponTipLabel.hidden = YES;
+        self.titleTrailConst.constant = 10;
+        self.sendBtn.hidden = model.gift_status != 0;
+        self.amountLabel.text = [GaoJingDu jian:@[AssectNumber(model.price),AssectNumber(model.used_price)] jindu:@"2"];
+    } else if (model.status == 1){
+        [self setColorWithType:@"#AAAAB5"];
+        self.amountLabel.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+        self.unitLabel.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+        self.tipCouponImage.hidden = NO;
+        self.couponTipLabel.hidden = NO;
+        self.couponTipLabel.text = NSLocalizedString(@"已使用", nil);
+        self.titleTrailConst.constant = 10;
+        self.sendBtn.hidden = YES;
+        self.amountLabel.text = AssectNumber(model.used_price);
+    }else{
+        [self setColorWithType:@"#AAAAB5"];
+        self.amountLabel.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+        self.unitLabel.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+        self.tipCouponImage.hidden = YES;
+        self.couponTipLabel.hidden = YES;
+        self.titleTrailConst.constant = 10;
+        self.sendBtn.hidden = YES;
+        self.amountLabel.text = [GaoJingDu jian:@[AssectNumber(model.price),AssectNumber(model.used_price)] jindu:@"2"];
+    }
+    
+    self.amountLabel.adjustsFontSizeToFitWidth = YES;
+    self.unitLabel.text = model.money_type == 1?@"CNY":@"USDT";
+    self.titleLabel.text = model.name;
+    if (model.limitations.count == 0) {
+        self.conditionHeightConst.constant = 0;
+    }else{
+        self.conditionHeightConst.constant = 15;
+        LimitationModel *limitation = model.limitations[0];
+        self.conditionLabel.text = AssectString(limitation.name);
+    }
+    self.detailBtn.hidden = model.limitations.count <= 1;
+    self.timeLabel.text = [NSString stringWithFormat:@"%@-%@",AssectString(model.start_time),AssectString(model.end_time)];
+    
+    self.sendConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?60:48;
+    self.couponTagConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?54:40;
+
+}
+
+-(void)setColorWithType:(NSString *)colorStr{
+    self.topView.backgroundColor = [UIColor colorWithRGBHex:colorStr];
+    self.leftTopView.backgroundColor = [UIColor colorWithRGBHex:colorStr];
+    self.leftBottomView.backgroundColor = [UIColor colorWithRGBHex:colorStr];
+    self.rightTopView.backgroundColor = [UIColor colorWithRGBHex:colorStr];
+    self.rightBottomView.backgroundColor = [UIColor colorWithRGBHex:colorStr];
+    self.bottomView.backgroundColor = [UIColor colorWithRGBHex:colorStr];
+    self.leftCircle.layer.borderColor = [UIColor colorWithRGBHex:colorStr].CGColor;
+    self.rightCircle.layer.borderColor = [UIColor colorWithRGBHex:colorStr].CGColor;
+}
+@end

@@ -1,0 +1,25 @@
+//
+//  ShopMyOrderModel.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/28.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopMyOrderModel.h"
+
+@implementation ShopMyOrderInfoModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"info_id":@"id"};
+}
+
+@end
+
+@implementation ShopMyOrderModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"order_id":@"id"};
+}
+
+@end

@@ -1,0 +1,113 @@
+//
+//  MallOutputPswVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallOutputPswVC.h"
+#import "CallJsClass.h"
+
+@interface MallOutputPswVC ()
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (weak, nonatomic) IBOutlet UIView *leftView;
+@property (weak, nonatomic) IBOutlet UIView *rightView;
+@property (weak, nonatomic) IBOutlet UITextView *textView;
+@property (weak, nonatomic) IBOutlet UILabel *subTipLabel;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@end
+
+@implementation MallOutputPswVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    if (self.putType == MallInPut) {
+        self.titleLabel.text = @"导入账户";
+        self.tipLabel.text = @"请输入导入账户私钥";
+        self.tipLabel.textColor = [UIColor colorWithRGBHex:@"#55555E"];
+        self.leftView.backgroundColor = [UIColor colorWithRGBHex:@"#19181A"];
+        self.rightView.backgroundColor = [UIColor colorWithRGBHex:@"#19181A"];
+        self.subTipLabel.text = @"输入私钥导入账户，将覆盖当前账户，需谨慎操作";
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#323236"];
+        [self.checkBtn setTitle:@"确认导入" forState:UIControlStateNormal];
+    }else{
+        self.titleLabel.text = @"导出账户";
+        self.tipLabel.text = @"当前账户私钥";
+        self.tipLabel.textColor = [UIColor colorWithRGBHex:@"#2982FF"];
+        self.leftView.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+        self.rightView.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+        self.textView.text = AssectString([Manager takeoutTokenkey:ShopWalletPrivite]);
+        self.textView.editable = NO;
+        self.subTipLabel.text = @"私钥可以完全控制该账户所有资产，不要分享给他人，请妥善保存";
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+        [self.checkBtn setTitle:@"复制私钥" forState:UIControlStateNormal];
+    }
+}
+
+- (IBAction)checkClick:(id)sender {
+    if (self.putType == MallOutPut) {
+        UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+        pasteboard.string = AssectString([Manager takeoutTokenkey:ShopWalletPrivite]);
+        [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+    }else{
+        if ([self.textView.text isEqualToString:@""]) {
+            [self showMsg:@"请填写私钥" location:centre];
+            return;
+        }
+        [self importPriviteKey:self.textView.text];
+    }
+}
+
+-(void)importPriviteKey:(NSString *)priviteStr{
+    [self showLoading:@"" allowsOpOperation:NO];
+    NSString *createAddressStr = [NSString stringWithFormat:@"importPriKey('%@')", priviteStr];
+    WeakSelf(self);
+    [[CallJsClass OCCallJs] getAddressExecuFun:createAddressStr backResultBlock:^(id data) {
+        NSDictionary* dict = [NSString dictionaryWithJsonString:data];
+        if(dict){
+            [weakself shopLogin:dict];
+        }else{
+            [weakself dismissLoading];
+            [weakself showMsg:@"导入失败，请稍后重试" location:centre];
+        }
+    } backFailBlock:^(id data) {
+        [weakself dismissLoading];
+        [weakself showMsg:@"导入失败，请稍后重试" location:centre];
+    } currencyName:NULS currentViewFun:self.view];
+}
+
+-(void)shopLogin:(NSDictionary *)dict{
+    NSArray *datas = [NSArray arrayWithObjects:@{@"key_address":AssectString(dict[@"address"])},@{@"key_password":AssectString(dict[@"pub"])}, nil];
+    NSDictionary *requestDict = [SignGenerated signedShopAfterDic:datas];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:ShopLogin param:requestDict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if (json != nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]) {
+                [Manager saveToken:AssectString(json[@"data"][@"access_token"]) key:access_token];
+                [Manager saveToken:AssectString(dict[@"address"]) key:ShopWalletAddress];
+                [Manager saveToken:AssectString(dict[@"pri"]) key:ShopWalletPrivite];
+                [Manager saveToken:AssectString(dict[@"pub"]) key:ShopWalletPublic];
+                [weakself showMsg:json[@"msg"] location:centre];
+                weakself.textView.text = @"";
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:@"网络异常，请稍后重试" location:centre];
+        }
+    }];
+}
+
+@end

@@ -1,0 +1,28 @@
+//
+//  ShopAssetRecordDetailModel.h
+//  Cloud Pro
+//
+//  Created by leosun on 2020/7/10.
+//  Copyright © 2020 yunzhuan. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopAssetRecordDetailModel : NSObject
+
+@property(nonatomic,assign) long number;
+@property(nonatomic,assign) long number_mode;
+@property(nonatomic,copy) NSString *hash_content;
+@property(nonatomic,copy) NSString *receiving_address;
+@property(nonatomic,copy) NSString *fuel_costs;
+@property(nonatomic,copy) NSString *send_address;
+@property(nonatomic,assign) long status;
+@property(nonatomic,copy) NSString *created_at;
+@property(nonatomic,copy) NSString *user_info;
+@property(nonatomic,assign) long type;
+
+@end
+
+NS_ASSUME_NONNULL_END

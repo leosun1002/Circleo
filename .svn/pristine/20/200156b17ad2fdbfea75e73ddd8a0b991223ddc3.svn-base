@@ -1,0 +1,21 @@
+//
+//  CarouselCollectionViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/5/20.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface CarouselCollectionViewCell : UICollectionViewCell
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *leadConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *trailConst;
+@property (weak, nonatomic) IBOutlet UIImageView *imgV;
+@property (weak, nonatomic) IBOutlet UIButton *delBtn;
+
+@end
+
+NS_ASSUME_NONNULL_END

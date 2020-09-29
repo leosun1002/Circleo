@@ -1,0 +1,120 @@
+//
+//  ShopTraceSourceRecordVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopTraceSourceRecordVC.h"
+#import "ShopTraceSourceRecordCell.h"
+#import "SourceListModel.h"
+
+@interface ShopTraceSourceRecordVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property (strong, nonatomic) NSMutableArray *datas;
+@property (weak, nonatomic) IBOutlet UIView *selectBgview;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UILabel *codeLabel;
+
+@end
+
+@implementation ShopTraceSourceRecordVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self getData];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self dismissLoading];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#323236"];
+    
+    self.selectBgview.layer.shadowColor = [UIColor colorWithRGBHex:@"#2D3540"].CGColor;
+    self.selectBgview.layer.shadowOffset = CGSizeMake(1, 1);
+    self.selectBgview.layer.shadowRadius = 3.0f;
+    self.selectBgview.layer.shadowOpacity = 0.1f;
+    [self.selectBgview.layer setShadowPath:[[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, ksrcwidth - 32, 55)] CGPath]];
+    
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopTraceSourceRecordCell" bundle:nil] forCellReuseIdentifier:@"ShopTraceSourceRecordCell"];
+    
+    self.codeLabel.text = AssectString(self.code);
+}
+
+-(void)getData{
+    NSDictionary *dict = @{@"itmesCode":AssectString(self.code)};
+    [self showLoading:@"" allowsOpOperation:YES];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:SourceDetailList param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                NSMutableArray<SourceListModel*> *applicationList = [SourceListModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+                [weakself.tableview reloadData];
+                return ;
+            }
+        }
+        [weakself showErrorView:weakself.view withBlock:^{
+            [weakself getData];
+        }];
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 20;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *view = [[UIView alloc] init];
+    view.backgroundColor = [UIColor whiteColor];
+    return view;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 20;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    UIView *view = [[UIView alloc] init];
+    view.backgroundColor = [UIColor whiteColor];
+    return view;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return UITableViewAutomaticDimension;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopTraceSourceRecordCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopTraceSourceRecordCell"];
+    cell.model = self.datas[indexPath.row];
+    return cell;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

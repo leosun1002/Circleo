@@ -1,0 +1,148 @@
+//
+//  DNSDetailSelectVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSDetailSelectVC.h"
+#import "DNSDetailSelectCell.h"
+#import "DNSBindModel.h"
+#import "DNSUnbindVC.h"
+
+@interface DNSDetailSelectVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSMutableArray *selectDats;
+
+@end
+
+@implementation DNSDetailSelectVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"域名详情", nil) hiddeBack:NO];
+    [self addRefresh];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSDetailSelectCell" bundle:nil] forCellReuseIdentifier:@"DNSDetailSelectCell"];
+    self.nameLabel.text = self.domain_name;
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        if (weakself.datas.count != 0) {
+            [weakself.tableview cyl_reloadData];
+            [weakself.tableview.mj_header endRefreshing];
+            [weakself calculateCount];
+        }else{
+            [weakself getData];
+        }
+    }];
+}
+
+
+-(void)getData{
+    NSDictionary *dict = @{@"id":AssectString(self.manageid),@"type":@"1"};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:DomainNameBind param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                NSMutableArray<DNSBindModel*> *applicationList = [DNSBindModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"bind_public_chains"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+                [weakself calculateCount];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无已绑定域名", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSDetailSelectCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSDetailSelectCell"];
+    cell.model = self.datas[indexPath.row];
+    cell.selectbtn.tag = indexPath.row;
+    [cell.selectbtn addTarget:self action:@selector(selectClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+- (IBAction)allClick:(UIButton *)sender {
+    if (self.datas.count == 0) return;
+    for (DNSBindModel *model in self.datas) {
+        model.hasClick = !sender.selected;
+    }
+    [self.tableview cyl_reloadData];
+    [self calculateCount];
+}
+
+-(void)selectClick:(UIButton *)sender{
+    if (self.datas.count == 0) return;
+    DNSBindModel *model = self.datas[sender.tag];
+    model.hasClick = !model.hasClick;
+    [self.tableview cyl_reloadData];
+    [self calculateCount];
+}
+
+- (IBAction)checkClick:(id)sender {
+    DNSUnbindVC *unbind = [[DNSUnbindVC alloc] init];
+    unbind.datas = self.selectDats;
+    unbind.manageid = self.manageid;
+    [self.navigationController pushViewController:unbind animated:YES];
+}
+
+-(void)calculateCount{
+    if (self.datas.count == 0) return;
+    self.allLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count];
+    //选中的s
+    [self.selectDats removeAllObjects];
+    for (DNSBindModel *model in self.datas) {
+        if (model.hasClick) {
+            [self.selectDats addObject:model];
+        }
+    }
+    self.selectLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.selectDats.count];
+    self.checkBtn.alpha = self.selectDats.count > 0?1:0.7;
+    self.checkBtn.enabled = self.selectDats.count > 0;
+    self.allBtn.selected = self.datas.count == self.selectDats.count;
+}
+
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)selectDats{
+    if (!_selectDats) {
+        _selectDats = [NSMutableArray array];
+    }
+    return _selectDats;
+}
+@end
+

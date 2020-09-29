@@ -1,0 +1,28 @@
+//
+//  DNSExpireCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSManageModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSExpireCell : UITableViewCell
+
+@property(nonatomic,strong)DNSManageModel *model;
+@property (weak, nonatomic) IBOutlet UIButton *selectBtn;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *endLabel;
+@property (weak, nonatomic) IBOutlet UIView *unbindView;
+@property (weak, nonatomic) IBOutlet UIView *bindView;
+@property (weak, nonatomic) IBOutlet UILabel *bindTipLabel;
+@property (weak, nonatomic) IBOutlet UIButton *operateBtn;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

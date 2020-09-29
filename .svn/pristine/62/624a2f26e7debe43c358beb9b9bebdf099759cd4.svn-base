@@ -1,0 +1,29 @@
+//
+//  WebViewController.h
+//  Cloud Pro
+//
+//  Created by zhoudong on 2018/8/13.
+//  Copyright © 2018年 yunzhuan. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+@interface WebViewController : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property(nonatomic,strong)NSString *loadUrl;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property(nonatomic,strong)NSString *solutionid;
+@property(nonatomic,strong)NSString *titleStr;
+@property(nonatomic,strong)NSString *headUrl;
+
+@property (weak, nonatomic) IBOutlet UIButton *readBtn;
+@property (weak, nonatomic) IBOutlet UIButton *shareBtn;
+
+@property (weak, nonatomic) IBOutlet UIView *zanView;
+@property (weak, nonatomic) IBOutlet UIView *zanInnerView;
+@property (weak, nonatomic) IBOutlet UIImageView *zan_image;
+@property (weak, nonatomic) IBOutlet UILabel *zanLabel;
+
+
+@end

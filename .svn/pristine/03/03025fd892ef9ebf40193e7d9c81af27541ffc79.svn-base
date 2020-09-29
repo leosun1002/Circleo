@@ -1,0 +1,84 @@
+//
+//  MallDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallDetailVC.h"
+#import "MallDetailHeader.h"
+#import "MallDetailTableViewCell.h"
+#import "MallDetailChainDataVC.h"
+#import "MallDataSpecsVC.h"
+#import "MallCheckOrderVC.h"
+
+@interface MallDetailVC ()<UITableViewDataSource,UITableViewDelegate>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+
+@end
+
+@implementation MallDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallDetailTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallDetailTableViewCell"];
+}
+
+- (IBAction)checkClick:(id)sender {
+    MallCheckOrderVC *check = [[MallCheckOrderVC alloc] init];
+    [self.navigationController pushViewController:check animated:YES];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 255 + 0.5 + 86 + 48.5*3 + 5 + 62.5;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    MallDetailHeader *header = [[MallDetailHeader alloc] init];
+    WeakSelf(self);
+    [[header.canshuBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        MallDetailChainDataVC *chainData = [[MallDetailChainDataVC alloc] init];
+        [weakself.navigationController pushViewController:chainData animated:YES];
+    }];
+    [[header.guigeBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        MallDataSpecsVC *specs = [[MallDataSpecsVC alloc] init];
+        specs.modalPresentationStyle = UIModalPresentationFullScreen;
+        [weakself presentViewController:specs animated:YES completion:^{
+            
+        }];
+    }];
+    return header;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 1;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallDetailTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallDetailTableViewCell"];
+    return cell;
+}
+@end

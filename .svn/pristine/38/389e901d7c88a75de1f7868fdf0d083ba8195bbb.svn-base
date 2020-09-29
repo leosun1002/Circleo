@@ -1,0 +1,26 @@
+//
+//  DNBrowserAssetsTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/16.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "DNBrowserAssetsTableViewCell.h"
+
+@implementation DNBrowserAssetsTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.bgview.layer.borderColor = [UIColor colorWithRGBHex:@"#E6E6E6"].CGColor;
+    self.bgview.layer.borderWidth = 0.5f;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

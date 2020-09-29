@@ -1,0 +1,87 @@
+//
+//  BusiCooperationVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BusiCooperationVC.h"
+#import "JieyiXieyiVC.h"
+
+@interface BusiCooperationVC ()
+
+@end
+
+@implementation BusiCooperationVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"关于我们", nil) hiddeBack:NO];
+    self.topConst.constant += navBarHeight;
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.versionLabel.text = [self getVersion];
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        NSURL *URL = [NSURL URLWithString:@"https://jie1.top/#/"];
+        if (@available(iOS 10.0, *)) {
+            [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:^(BOOL success) {
+                
+            }];
+        } else {
+            // Fallback on earlier versions
+        }
+    }];
+    [self.nameView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+      [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+          JieyiXieyiVC *xieyi = [[JieyiXieyiVC alloc] init];
+          xieyi.type = 1;
+          [weakself.navigationController pushViewController:xieyi animated:YES];
+      }];
+      [self.xieyiView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+      [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+          JieyiXieyiVC *xieyi = [[JieyiXieyiVC alloc] init];
+          xieyi.type = 2;
+          [weakself.navigationController pushViewController:xieyi animated:YES];
+      }];
+      [self.yinsiView addGestureRecognizer:tap2];
+}
+
+- (IBAction)wxFzBtn:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.wxlabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)sjBtn:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.phonelabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)emailBtn:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.emaillabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+-(NSString *)getVersion{
+//    NSString *app_Version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    NSString *app_Version = AppVersion;
+    NSString* environment = @"";
+    if(SERVICE_LINK_FLAG ==1){
+        environment = @"测试环境";
+    }else{
+        environment = @"";
+    }
+    return [NSString stringWithFormat:@"v%@%@",app_Version,environment];
+}
+@end

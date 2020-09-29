@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PersonRightSettingVC">
+            <connections>
+                <outlet property="tableview" destination="ZQL-hX-IAr" id="QEH-0X-T8f"/>
+                <outlet property="topConst" destination="1a1-cg-Uzu" id="P32-Qc-NGa"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+                <outlet property="widthConst" destination="7V4-fR-dYr" id="9Zq-4h-HkS"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="60" estimatedRowHeight="-1" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="ZQL-hX-IAr">
+                    <rect key="frame" x="0.0" y="30" width="300" height="836"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="300" id="7V4-fR-dYr"/>
+                    </constraints>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="IfG-yI-07m"/>
+                        <outlet property="delegate" destination="-1" id="KRW-7r-M9g"/>
+                    </connections>
+                </tableView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="ZQL-hX-IAr" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="30" id="1a1-cg-Uzu"/>
+                <constraint firstAttribute="bottom" secondItem="ZQL-hX-IAr" secondAttribute="bottom" constant="30" id="8D7-bg-jYb"/>
+                <constraint firstItem="ZQL-hX-IAr" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="tPO-iV-oek"/>
+            </constraints>
+            <point key="canvasLocation" x="132" y="119"/>
+        </view>
+    </objects>
+</document>

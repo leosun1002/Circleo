@@ -1,0 +1,22 @@
+//
+//  DNBrowserTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSBrowserInfo.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNBrowserTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+
+@property (nonatomic,strong) DNSPublicChain *model;
+@end
+
+NS_ASSUME_NONNULL_END

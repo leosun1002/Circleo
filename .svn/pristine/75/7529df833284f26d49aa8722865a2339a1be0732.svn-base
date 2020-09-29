@@ -1,0 +1,300 @@
+//
+//  ShopFeedbackVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopFeedbackVC.h"
+#import "MallFeedbackCollectionViewCell.h"
+#import "TZImagePickerController.h"
+#import "HZPhotoBrowser.h"
+
+#define MaxLimit 200
+#define MAX_STARWORDS_LENGTH 20
+
+@interface ShopFeedbackVC () <UICollectionViewDelegate,UICollectionViewDataSource,UITextViewDelegate,UITextFieldDelegate,TZImagePickerControllerDelegate>
+
+@property (weak, nonatomic) IBOutlet UICollectionView *collectView;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UITextField *titleText;
+@property (weak, nonatomic) IBOutlet UILabel *titleCount;
+
+@property (weak, nonatomic) IBOutlet UITextView *contentText;
+@property (weak, nonatomic) IBOutlet UILabel *contentCountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *placeHolderLabel;
+
+@property(nonatomic,strong)NSMutableArray *images;
+
+@end
+
+@implementation ShopFeedbackVC
+
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:@"UITextFieldTextDidChangeNotification" object:self.titleText];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [[NSNotificationCenter defaultCenter]addObserver:self selector:@selector(textFieldEditChanged:) name:@"UITextFieldTextDidChangeNotification" object:self.titleText];\
+    WeakSelf(self);
+    [[self.checkBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself checkClick];
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    self.flowLayout.itemSize = CGSizeMake((ksrcwidth - 60)/3, (ksrcwidth - 60)/3);
+    self.flowLayout.minimumLineSpacing = 15;
+    self.flowLayout.minimumInteritemSpacing = 15;
+    self.flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    
+    [self.collectView registerNib:[UINib nibWithNibName:@"MallFeedbackCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"MallFeedbackCollectionViewCell"];
+}
+
+#pragma -mark
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.images.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    MallFeedbackCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"MallFeedbackCollectionViewCell" forIndexPath:indexPath];
+    cell.bgview.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    cell.bgview.layer.borderWidth = 1.0f;
+    NSString *urlStr = self.images[indexPath.item];
+    cell.closeBtn.tag = indexPath.item;
+    [cell.closeBtn addTarget:self action:@selector(closeClick:) forControlEvents:UIControlEventTouchUpInside];
+    if ([urlStr isEqualToString:@"icon_feed_back_add"]) {
+        cell.imgV.image = [UIImage imageNamed:urlStr];
+        cell.imgVWidth.constant = 24;
+        cell.imgVHeight.constant = 24;
+        cell.closeBtn.hidden = YES;
+    } else {
+        [cell.imgV sd_setImageWithURL:[NSURL URLWithString:urlStr] placeholderImage:[UIColor createColorImg:@"#DDDDDE"]];
+        cell.imgVWidth.constant = (ksrcwidth - 60)/3;
+        cell.imgVHeight.constant = (ksrcwidth - 60)/3;
+        cell.closeBtn.hidden = NO;
+    }
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    NSString *urlStr = self.images[indexPath.item];
+    if ([urlStr isEqualToString:@"icon_feed_back_add"]) {
+        if (self.images.count >= 4) {
+            [self showMsg:@"最多上传3张图片" location:centre];
+            return;
+        }
+        [self uploadImage];
+    }else{
+        [self fullScreenClick:indexPath.item];
+    }
+}
+
+-(void)closeClick:(UIButton *)sender{
+    [self.images removeObjectAtIndex:sender.tag];
+    [self.collectView reloadData];
+    [self makeBtnEnable];
+}
+
+-(void)fullScreenClick:(NSInteger)tag{
+    HZPhotoBrowser *browser = [[HZPhotoBrowser alloc] init];
+    browser.isFullWidthForLandScape = YES;
+    browser.isNeedLandscape = YES;
+    browser.currentImageIndex = 0;
+    browser.imageArray = [NSArray arrayWithObjects:AssectString(self.images[tag]), nil];
+    [browser show];
+}
+
+-(void)uploadImage{
+    TZImagePickerController *imagePC=[[TZImagePickerController alloc]initWithMaxImagesCount:1 delegate:self];//设置多选最多支持的最大数量，设置代理
+    WeakSelf(self);
+    imagePC.modalPresentationStyle = UIModalPresentationFullScreen;
+    imagePC.preferredLanguage = [GDLocalizableController userLanguage];
+    [imagePC setDidFinishPickingPhotosWithInfosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto, NSArray<NSDictionary *> *infos) {
+        UIImage *image = photos[0];
+        [weakself upLoadImage:image];
+    }];
+    [self presentViewController:imagePC animated:YES completion:nil];//跳转
+}
+
+#pragma -mark 上传图片
+-(void)upLoadImage:(UIImage *)image{
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postImageFormReqUrl:FeedUploadImage images:@[image] param:@{} loadingTime:30.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                NSArray *image_path = json[@"data"][@"image_path"];
+                if (image_path.count > 0) {
+                    [weakself.images insertObject:AssectString(image_path[0]) atIndex:0];
+                    [weakself.collectView reloadData];
+                    [weakself makeBtnEnable];
+                }
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)checkClick{
+    NSString *title = AssectString(self.titleText.text);
+    NSString *content = AssectString(self.contentText.text);
+    NSMutableArray *temps = self.images;
+    [temps removeLastObject];
+    NSDictionary *dict = @{@"title":title,@"content":content,@"images":temps};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:ShopMessageStore param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark textFieldEditChanged
+-(void)textFieldEditChanged:(NSNotification *)obj
+{
+    UITextField *textField = (UITextField *)obj.object;
+    NSString *toBeString = textField.text;
+    NSString *lang = [textField.textInputMode primaryLanguage];
+    if ([lang isEqualToString:@"zh-Hans"])// 简体中文输入
+    {
+        //获取高亮部分
+        UITextRange *selectedRange = [textField markedTextRange];
+        UITextPosition *position = [textField positionFromPosition:selectedRange.start offset:0];
+
+        // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
+        if (!position)
+        {
+            if (toBeString.length > MAX_STARWORDS_LENGTH)
+            {
+                textField.text = [toBeString substringToIndex:MAX_STARWORDS_LENGTH];
+                self.titleCount.text = [NSString stringWithFormat:@"%lu/20",(unsigned long)textField.text.length];
+                [self makeBtnEnable];
+            }
+        }
+        self.titleCount.text = [NSString stringWithFormat:@"%lu/20",(unsigned long)textField.text.length];
+        [self makeBtnEnable];
+    }
+    // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
+    else
+    {
+        if (toBeString.length > MAX_STARWORDS_LENGTH)
+        {
+            NSRange rangeIndex = [toBeString rangeOfComposedCharacterSequenceAtIndex:MAX_STARWORDS_LENGTH];
+            if (rangeIndex.length == 1)
+            {
+                textField.text = [toBeString substringToIndex:MAX_STARWORDS_LENGTH];
+                self.titleCount.text = [NSString stringWithFormat:@"%lu/20",(unsigned long)textField.text.length];
+                [self makeBtnEnable];
+            }
+            else
+            {
+                NSRange rangeRange = [toBeString rangeOfComposedCharacterSequencesForRange:NSMakeRange(0, MAX_STARWORDS_LENGTH)];
+                textField.text = [toBeString substringWithRange:rangeRange];
+                self.titleCount.text = [NSString stringWithFormat:@"%lu/20",(unsigned long)textField.text.length];
+                [self makeBtnEnable];
+            }
+        }
+        self.titleCount.text = [NSString stringWithFormat:@"%lu/20",(unsigned long)textField.text.length];
+        [self makeBtnEnable];
+    }
+}
+
+#pragma -mark UITextViewDelegate
+- (void)textViewDidChange:(UITextView *)textView {
+    NSString *lang = [[textView textInputMode] primaryLanguage]; // 键盘输入模式
+    if ([lang isEqualToString:@"zh-Hans"]) { // 简体中文输入，包括简体拼音，健体五笔，简体手写
+        UITextRange *selectedRange = [textView markedTextRange];
+        //获取高亮部分
+        UITextPosition *position = [textView positionFromPosition:selectedRange.start offset:0];
+        // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
+        if (!position) {
+            if (textView.text.length > MaxLimit) {
+                textView.text = [textView.text substringToIndex:MaxLimit];
+                [self showMsg:NSLocalizedString(@"超出字数限制", nil) location:centre];
+            }
+        } else {
+            // 有高亮选择的字符串，则暂不对文字进行统计和限制
+        }
+    } else { // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
+        if (textView.text.length > MaxLimit) {
+            textView.text = [textView.text substringToIndex:MaxLimit];
+            [self showMsg:NSLocalizedString(@"超出字数限制", nil) location:centre];
+        }
+    }
+    [self updateRemainCount];
+    self.placeHolderLabel.hidden = textView.text.length != 0;
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    if ([self isText:textView beyondLimit:MaxLimit] && [text length] > 0) {
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)isText:(UITextView *)tv beyondLimit:(int)maxLimit{
+    NSString *lang = [[tv textInputMode] primaryLanguage];
+    if ([lang isEqualToString:@"zh-Hans"]) {
+        UITextRange *selectedRange = [tv markedTextRange];
+        UITextPosition *position = [tv positionFromPosition:selectedRange.start offset:0];
+        if (!position) {
+            if (tv.text.length > maxLimit) {
+                return YES;
+            }
+        }
+    } else {
+        if (tv.text.length > maxLimit) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (void)updateRemainCount {
+    self.contentCountLabel.text = [NSString stringWithFormat:@"%lu/200",(unsigned long)self.contentText.text.length];
+    [self makeBtnEnable];
+}
+
+-(void)makeBtnEnable{
+    NSString *title = AssectString(self.titleText.text);
+    NSString *content = AssectString(self.contentText.text);
+    NSInteger imgCount = self.images.count;
+    if (title.length <=0 || content.length <= 0 || imgCount <= 1) {
+        self.checkBtn.enabled = NO;
+    }else{
+        self.checkBtn.enabled = YES;
+    }
+}
+
+#pragma -mark getter
+-(NSMutableArray *)images{
+    if(!_images){
+        _images = [NSMutableArray arrayWithObjects:@"icon_feed_back_add", nil];
+    }
+    return _images;
+}
+@end

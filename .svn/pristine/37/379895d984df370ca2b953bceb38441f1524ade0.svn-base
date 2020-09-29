@@ -1,0 +1,21 @@
+//
+//  PersonSettingVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PersonSettingVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIView *lineView;
+
+@end
+
+NS_ASSUME_NONNULL_END

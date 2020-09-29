@@ -1,0 +1,93 @@
+//
+//  DNBrowserDetailVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNBrowserDetailVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heigthConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomHeightConst;
+@property (weak, nonatomic) IBOutlet UIView *backview;
+@property (weak, nonatomic) IBOutlet UIView *domainView;
+@property (weak, nonatomic) IBOutlet UIView *chainView;
+@property (assign, nonatomic) long articleid;
+@property (strong, nonatomic) NSString *articleTitle;
+
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+
+@property (weak, nonatomic) IBOutlet UILabel *domainLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *chianImgV;
+@property (weak, nonatomic) IBOutlet UILabel *chainLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *blockHeigthLabel;
+@property (weak, nonatomic) IBOutlet UILabel *hashLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *publishTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *personLabel;
+@property (weak, nonatomic) IBOutlet UILabel *readCounLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *contentLabale;
+
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet UIView *hideOrShowView;
+@property (weak, nonatomic) IBOutlet UILabel *hideOrShowLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *hideOrShowImage;
+@property (weak, nonatomic) IBOutlet UIScrollView *contentView;
+
+//是否可以操作  1是不能
+@property(nonatomic,assign) long canEdit;
+
+@property (weak, nonatomic) IBOutlet UILabel *lastLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *lastWidthConst;
+
+@property (weak, nonatomic) IBOutlet UIView *awardBgview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *awardBgHeight;
+
+@property (weak, nonatomic) IBOutlet UILabel *awardCountLabel;
+@property (weak, nonatomic) IBOutlet UICollectionView *awardCollect;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *collectWidth;
+@property (weak, nonatomic) IBOutlet UIButton *payBtn;
+@property (weak, nonatomic) IBOutlet UIView *awardView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *awardWidthConst;
+@property (weak, nonatomic) IBOutlet UIView *awardListView;
+@property (weak, nonatomic) IBOutlet UILabel *awardTipLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *collectView;
+@property (weak, nonatomic) IBOutlet UIView *collectInnerView;
+
+@property (weak, nonatomic) IBOutlet UIImageView *collectImage;
+@property (weak, nonatomic) IBOutlet UILabel *collectLabel;
+
+
+@property (weak, nonatomic) IBOutlet UIView *shareView;
+@property (weak, nonatomic) IBOutlet UIImageView *shareImage;
+@property (weak, nonatomic) IBOutlet UILabel *shareLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *settingView;
+
+@property (weak, nonatomic) IBOutlet UIView *bottomView;
+
+@property (weak, nonatomic) IBOutlet UIImageView *topView;
+
+@property (weak, nonatomic) IBOutlet UIView *typeView;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *tagBgView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *tagBgLead;
+
+///0是公开  1是私密
+@property(nonatomic,assign) long secretType;
+@property (weak, nonatomic) IBOutlet UIView *secretView;
+
+@end
+
+NS_ASSUME_NONNULL_END

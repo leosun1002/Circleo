@@ -1,0 +1,30 @@
+//
+//  SourceListModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/8/3.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SourceListModel : NSObject
+
+@property(nonatomic,assign) long userId;
+@property(nonatomic,copy) NSString *address;
+@property(nonatomic,copy) NSString *userName;
+@property(nonatomic,assign) long source_id;
+@property(nonatomic,assign) long goodsId;
+@property(nonatomic,copy) NSString *code;
+///0全部，1购买，2提取，3二手，9提货
+@property(nonatomic,assign) long types;
+@property(nonatomic,copy) NSString *updatedAt;
+@property(nonatomic,copy) NSString *createdAt;
+@property(nonatomic,copy) NSString *path;
+@property(nonatomic,copy) NSString *note;
+
+@end
+
+NS_ASSUME_NONNULL_END

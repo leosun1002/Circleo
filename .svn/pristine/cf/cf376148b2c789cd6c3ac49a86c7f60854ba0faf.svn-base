@@ -1,0 +1,190 @@
+//
+//  EvidencePhotoVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/22.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "EvidencePhotoVC.h"
+#import "TZImagePickerController.h"
+#import "DNSPublishContentVC.h"
+#import "LZImageBrowserManger.h"
+#import "AuthenVC.h"
+
+@interface EvidencePhotoVC ()<TZImagePickerControllerDelegate,UITextFieldDelegate>
+
+@property(nonatomic,strong)UIImage *image;
+@property(nonatomic,strong)CAGradientLayer *gradient;
+
+@end
+
+@implementation EvidencePhotoVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:AssectString(self.model.name) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.photoBgview.layer.borderColor = [UIColor colorWithRGBHex:@"#DDDDDD"].CGColor;
+    self.photoBgview.layer.borderWidth = 0.5;
+    self.tagText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.tagText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.tagText.enabled = NO;
+    self.remarkText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.remarkText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.remarkText.enabled = NO;
+
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        if (weakself.image) {
+            [weakself showFullScreenImage];
+        }else{
+            [weakself avararClick];
+        }
+    }];
+    [self.photoBgview addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself inputContent:2];
+    }];
+    [self.tagView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself inputContent:3];
+    }];
+    [self.remarkView addGestureRecognizer:tap2];
+    
+    [[self.delBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        weakself.image = nil;
+    }];
+    
+    [[self.checkBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself checkClick];
+    }];
+}
+
+-(void)avararClick{
+    TZImagePickerController *imagePC=[[TZImagePickerController alloc]initWithMaxImagesCount:1 delegate:self];//设置多选最多支持的最大数量，设置代理
+    WeakSelf(self);
+    imagePC.preferredLanguage = [GDLocalizableController userLanguage];
+    imagePC.modalPresentationStyle = UIModalPresentationFullScreen;
+    [imagePC setDidFinishPickingPhotosWithInfosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto, NSArray<NSDictionary *> *infos) {
+        weakself.image = photos[0];
+    }];
+    [self presentViewController:imagePC animated:YES completion:nil];//跳转
+}
+
+-(void)showFullScreenImage{
+    //初始化 manger
+    LZImageBrowserManger *imageBrowserManger = [LZImageBrowserManger imageBrowserMangerWithUrlStr:@[@""] originImageViews:@[self.evidenceImgV] originController:self forceTouch:NO forceTouchActionTitles:@[NSLocalizedString(@"赞", nil), NSLocalizedString(@"评论", nil), NSLocalizedString(@"收藏", nil)] forceTouchActionComplete:^(NSInteger selectIndex, NSString *title) {
+        //Nslog(@"[^"]*[u4E00-u9FA5]+[^"n]*?",(long)selectIndex, title);
+    }];
+    [imageBrowserManger showImageBrowser];
+}
+
+-(void)inputContent:(NSInteger)type{
+    DNSPublishContentVC *content = [[DNSPublishContentVC alloc] init];
+    content.type = type;
+    content.selectStr = type == 2?AssectString(self.tagText.text):AssectString(self.remarkText.text);
+    content.subject = [RACSubject subject];
+    WeakSelf(self);
+    [content.subject subscribeNext:^(NSString *title) {
+        if (type == 2) {
+            weakself.tagText.text = title;
+        }else{
+            weakself.remarkText.text = title;
+        }
+        [weakself makeBtnEnable];
+    }];
+    [self.navigationController pushViewController:content animated:YES];
+}
+
+-(void)checkClick{
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    NSDictionary *dict = @{@"type":@"1",@"title":AssectString(self.tagText.text),@"remark":AssectString(self.remarkText.text),@"deposit_certificate_category_id":[NSString stringWithFormat:@"%ld",self.model.user.deposit_certificate_category_id]};
+    [WebServices postImageFormReqUrl:CertificateCreate image:self.image param:dict loadingTime:30.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.navigationController popViewControllerAnimated:YES];
+            }else if ([AssectString(json[@"code"]) isEqualToString:@"2"]){
+                [weakself gotoAuthen];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)gotoAuthen{
+    UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:NSLocalizedString(@"暂未实名认证", nil) message:NSLocalizedString(@"是否实名认证", nil) preferredStyle:UIAlertControllerStyleAlert];
+    
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"确认", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        AuthenVC *authen = [[AuthenVC alloc] init];
+        [weakself.navigationController pushViewController:authen animated:YES];
+    }];
+    
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+#pragma -mark getter
+-(void)setImage:(UIImage *)image{
+    _image = image;
+    self.evidenceImgV.image = image;
+    self.delBtn.hidden = !image;
+    [self makeBtnEnable];
+}
+
+-(void)makeBtnEnable{
+    NSString *tagStr = AssectString([self removeSpaceAndNewline:self.tagText.text]);
+    NSString *remarkStr = AssectString([self removeSpaceAndNewline:self.remarkText.text]);
+    if ([tagStr isEqualToString:@""] || [remarkStr isEqualToString:@""] || !self.image) {
+        self.checkBtn.enabled = NO;
+       [self removeLayerFromBtn];
+    }else{
+        self.checkBtn.enabled = YES;
+        [self addGradientLayer];
+    }
+}
+
+-(void)addGradientLayer{
+    [self removeLayerFromBtn];
+    
+    self.gradient = [CAGradientLayer layer];
+    self.gradient.frame = CGRectMake(0, 0, ksrcwidth - 30, 45);
+    self.gradient.startPoint = CGPointMake(0, 0);
+    self.gradient.endPoint = CGPointMake(1, 0);
+    self.gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor getColor:@"#6647FF" alpha:1].CGColor,
+                       (id)[UIColor getColor:@"#7CB0FF" alpha:1].CGColor,nil];
+    [self.checkBtn.layer addSublayer:self.gradient];
+    [self.view bringSubviewToFront:self.checkLabel];
+}
+
+//移除Button上的layer
+-(void)removeLayerFromBtn{
+    NSArray<CALayer *> *subLayers = self.checkBtn.layer.sublayers;
+    NSArray<CALayer *> *removedLayers = [subLayers filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        return [evaluatedObject isKindOfClass:[CAGradientLayer class]];
+    }]];
+    [removedLayers enumerateObjectsUsingBlock:^(CALayer * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        [obj removeFromSuperlayer];
+    }];
+}
+@end

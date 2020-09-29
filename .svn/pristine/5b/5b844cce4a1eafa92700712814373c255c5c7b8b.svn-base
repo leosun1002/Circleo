@@ -1,0 +1,202 @@
+//
+//  PersonSettingVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PersonSettingVC.h"
+#import "PersonSettingTableViewCell.h"
+#import "UpdateVC.h"
+#import "AdvanceAuthenVC.h"
+#import "UpdateVC.h"
+#import "AboutUSVC.h"
+#import "FeedbackVC.h"
+#import "JieyiXieyiVC.h"
+#import "LanguageSelectVC.h"
+
+@interface PersonSettingVC ()<UITableViewDelegate,UITableViewDataSource,UIScrollViewDelegate>
+
+@property(nonatomic,copy)NSArray *datas;
+@end
+
+@implementation PersonSettingVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"PersonSettingTableViewCell" bundle:nil] forCellReuseIdentifier:@"PersonSettingTableViewCell"];
+}
+
+- (IBAction)logoutClick:(id)sender {
+    UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:NSLocalizedString(@"退出登录", nil) message:NSLocalizedString(@"是否退出登录", nil) preferredStyle:UIAlertControllerStyleAlert];
+    
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"确认", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [weakself loginout];
+    }];
+    
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+- (NSString *)fileSizeWithInterge:(NSInteger)size{
+    // 1k = 1024, 1m = 1024k
+    if (size < 1024) {// 小于1k
+        return [NSString stringWithFormat:@"%ldB",(long)size];
+    }else if (size < 1024 * 1024){// 小于1m
+        CGFloat aFloat = size/1024;
+        return [NSString stringWithFormat:@"%.0fK",aFloat];
+    }else if (size < 1024 * 1024 * 1024){// 小于1G
+        CGFloat aFloat = size/(1024 * 1024);
+        return [NSString stringWithFormat:@"%.1fM",aFloat];
+    }else{
+        CGFloat aFloat = size/(1024*1024*1024);
+        return [NSString stringWithFormat:@"%.1fG",aFloat];
+    }
+}
+
+-(NSString *)getVersion{
+//    NSString *app_Version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+    NSString *app_Version = AppVersion;
+    NSString* environment = @"";
+    if(SERVICE_LINK_FLAG ==1){
+        environment = @"测试环境";
+    }else{
+        
+        environment = @"";
+    }
+    
+    return [NSString stringWithFormat:@"v%@%@",app_Version,environment];
+}
+
+#pragma -makr getter
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 70.f;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    if (section == 0) {
+        UIView *view = [[UIView alloc] init];
+        UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(16, 10, ksrcwidth - 16, 34)];
+        label.text = NSLocalizedString(@"通用设置", nil);
+        label.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        label.font = [UIFont boldSystemFontOfSize:24.f];
+        [view addSubview:label];
+        return view;
+    }
+    return [UIView new];
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01f;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 4;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    PersonSettingTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PersonSettingTableViewCell"];
+    cell.nameLabel.text = self.datas[indexPath.row];
+    cell.rowImage.hidden = indexPath.row == 2 || indexPath.row == 3;
+    cell.tipLabel.hidden = indexPath.row == 1;
+    cell.trailConst.constant = indexPath.row == 0?30:15;
+    if (indexPath.row == 2) {
+        NSUInteger intg = [[SDImageCache sharedImageCache] getSize];
+        cell.tipLabel.text = [NSString stringWithFormat:@"%@",[self fileSizeWithInterge:intg]];
+    }else if (indexPath.row == 3){
+        cell.tipLabel.text = [self getVersion];
+    }else{
+        cell.tipLabel.text = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?@"English":@"简体中文";
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (indexPath.row == 2) {
+        [[SDImageCache sharedImageCache] clearMemory];
+        [[SDImageCache sharedImageCache] clearDiskOnCompletion:nil];
+        [self showMsg:NSLocalizedString(@"清理完成", nil) location:centre];
+        [self.tableview reloadData];
+    }else if (indexPath.row == 3){
+        [self upVerFun];
+    }else if (indexPath.row == 0 ){
+         LanguageSelectVC *language = [[LanguageSelectVC alloc] init];
+         [self.navigationController pushViewController:language animated:YES];
+     }else{
+        [self showMsg:NSLocalizedString(@"暂未开放，敬请期待", nil) location:centre];
+    }
+}
+
+-(void)upVerFun{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:VersionUpdate param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                UpdateModel *modules = [UpdateModel mj_objectWithKeyValues:json[@"data"][@"version"]];
+                [weakself popViewWithModel:modules];
+            }
+        }
+    }];
+}
+
+-(void)popViewWithModel:(UpdateModel *)model{
+    //0 不提示， 1 提示更新， 2 强制更新
+    if (model.status == 0){
+        [self showMsg:NSLocalizedString(@"您已是最新版本", nil) location:centre];
+        return;
+    }
+    
+    UpdateVC *update = [[UpdateVC alloc] init];
+    update.model = model;
+    update.type = 2;
+    update.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    [self presentViewController:update animated:NO completion:^{
+        
+    }];
+}
+
+#pragma -mark UIScrollViewDelegate
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (scrollView == self.tableview) {
+        CGFloat scrollY = scrollView.contentOffset.y;
+        self.titleLabel.hidden = scrollY < 40;
+        self.lineView.hidden = scrollY < 40;
+    }
+}
+
+#pragma -mark getter
+-(NSArray *)datas{
+    if (!_datas) {
+        _datas = [NSArray arrayWithObjects:NSLocalizedString(@"切换语言", nil),NSLocalizedString(@"通知设置", nil),/**NSLocalizedString(@"关于我们", nil),*/NSLocalizedString(@"清理缓存", nil),NSLocalizedString(@"版本更新", nil), nil];
+    }
+    return _datas;
+}
+
+@end

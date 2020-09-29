@@ -1,0 +1,24 @@
+//
+//  MessageCenterTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MessageModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MessageCenterTableViewCell : UITableViewCell
+@property(nonatomic,strong)MessageModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *checkImg;
+@property (weak, nonatomic) IBOutlet UILabel *checkLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

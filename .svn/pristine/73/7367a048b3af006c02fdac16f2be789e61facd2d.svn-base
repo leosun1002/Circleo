@@ -1,0 +1,31 @@
+function createaddress(words){
+	
+	//! 初始化助几词
+	var mnemonics = { "english": new Mnemonic("english") };
+	var mnemonic = mnemonics["english"];
+ 
+	//! 生成种子
+	var seed = mnemonic.toSeed(words, '');
+	console.log('seed:'+seed);
+	var addr = getAddress(seed);
+	
+	console.log(addr);
+	
+	return addr	
+}
+
+function createTxSign(to,value,fixedFee,utxo,words){
+	
+	//! 初始化助几词
+	var mnemonics = { "english": new Mnemonic("english") };
+	var mnemonic = mnemonics["english"];
+
+	//! 生成种子
+	var seed = mnemonic.toSeed(words, '');
+	console.log('seed:'+seed);
+	var sign = getSign(seed,to,value,fixedFee,utxo)
+	
+	console.log('sign:'+sign);
+	
+	return sign	
+}

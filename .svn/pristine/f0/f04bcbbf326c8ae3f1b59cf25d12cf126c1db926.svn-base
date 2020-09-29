@@ -1,0 +1,134 @@
+//
+//  AddressAddVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AddressAddVC.h"
+#import "ScanViewController.h"
+#import "DNSCoinSelectVC.h"
+#import "CurrencyModel.h"
+
+@interface AddressAddVC ()<UITextViewDelegate>
+
+@property(nonatomic,weak)UIButton *rightBtn;
+@property(nonatomic,copy)NSString *currencyid;
+
+
+@end
+
+@implementation AddressAddVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"添加地址", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+        
+    self.addressText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.addressText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.pswText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.pswText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    
+    self.selectView.layer.shadowColor = [UIColor colorWithRGBHex:@"#1F1F4D"].CGColor;//阴影颜色
+    self.selectView.layer.shadowOffset = CGSizeMake(2, 2);//偏移距离
+    self.selectView.layer.shadowOpacity = 0.1f;//不透明度
+    self.selectView.layer.shadowRadius = 5;//半径
+    
+    self.nameLabel.text = NSLocalizedString(@"未选择", nil);
+    self.nameLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        DNSCoinSelectVC *select = [[DNSCoinSelectVC alloc] init];
+        select.type = 2;
+        select.subject = [RACSubject subject];
+        [select.subject subscribeNext:^(CurrencyModel *model) {
+            if (!model) return;
+            weakself.nameLabel.text = AssectString(model.name);
+            [weakself.coinV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.images)] placeholderImage:[UIColor createColorImg:@"#f7f7f9"]];
+            weakself.currencyid = [NSString stringWithFormat:@"%ld",model.currencyid];
+        }];
+        [weakself.navigationController pushViewController:select animated:YES];
+    }];
+    [weakself.selectView addGestureRecognizer:tap];
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 65,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    [rightBtn setTitle:NSLocalizedString(@"保存", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself saveClick];
+    }];
+    [view addSubview:_rightBtn = rightBtn];
+}
+
+-(void)saveClick{
+    if ([AssectString(self.currencyid) isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请选择币种", nil) location:centre];
+        return;
+    }
+    
+    NSString *address = AssectString([self removeSpaceAndNewline:self.addressText.text]);
+    if ([address isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请输入提币地址", nil) location:centre];
+        return;
+    }
+    
+    NSString *mark = AssectString([self removeSpaceAndNewline:self.markText.text]);
+    
+    NSString *psw = AssectString(self.pswText.text);
+    if ([psw isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请输入资产密码", nil) location:centre];
+        return;
+    }
+    
+    WeakSelf(self);
+    NSDictionary *dict = @{@"address":address,@"content":mark,@"pay_password":[psw md532BitUpper],@"currency_id":AssectString(self.currencyid)};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:WalletAddressStore param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.navigationController popViewControllerAnimated:YES];
+                [weakself.subject sendNext:@""];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+- (IBAction)saoClick:(id)sender {
+    ScanViewController *scan = [[ScanViewController alloc] init];
+    scan.modalPresentationStyle = UIModalPresentationFullScreen;
+    WeakSelf(self);
+    scan.scanBlock = ^(NSString *scanData) {
+        weakself.addressText.text = scanData;
+    };
+    [self presentViewController:scan animated:YES completion:^{
+    }];
+}
+
+#pragma -mark UITextViewDelegate
+-(void)textViewDidChange:(UITextView *)textView{
+    self.markTipLabel.hidden = textView.text.length != 0;
+}
+@end

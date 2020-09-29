@@ -1,0 +1,49 @@
+//
+//  ShopAssetDetailTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/14.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAssetDetailTableViewCell.h"
+
+@implementation ShopAssetDetailTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.bgview.layer.cornerRadius = 10.f;
+    
+    self.bgview.layer.shadowColor = [UIColor colorWithRGBHex:@"#2D3540"].CGColor;
+    self.bgview.layer.shadowOffset = CGSizeMake(3, 3);
+    self.bgview.layer.shadowRadius = 3.0f;
+    self.bgview.layer.shadowOpacity = 0.1f;
+    [self.bgview.layer setShadowPath:[[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, ksrcwidth - 32, 70)] CGPath]];
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(ShopAssetsRecordModel *)model{
+    _model = model;
+    if (model.type == 1) {
+        self.nameLabel.text = @"购买";
+    }else if (model.type == 2){
+        self.nameLabel.text = @"转赠";
+    }else if (model.type == 3){
+        self.nameLabel.text = @"接收";
+    }else if (model.type == 4){
+        self.nameLabel.text = @"提货";
+    }
+    self.hashLabel.text = model.hashContent;
+    self.countLabel.text = [NSString stringWithFormat:@"%@%ld",model.type == 1||model.type == 3?@"":@"-",model.number];
+    self.countLabel.textColor = model.type == 1||model.type == 3?[UIColor colorWithRGBHex:@"#18181A"]:[UIColor colorWithRGBHex:@"#FF5269"];
+    self.numberLabel.text = [NSString stringWithFormat:@"≈%@ CNY",model.price];
+}
+
+@end

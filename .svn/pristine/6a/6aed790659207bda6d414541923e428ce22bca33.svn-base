@@ -1,0 +1,25 @@
+//
+//  DNSCoinSelectCollectionCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSCoinSelectModel.h"
+#import "CurrencyModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSCoinSelectCollectionCell : UICollectionViewCell
+
+@property(nonatomic,strong) DNSCoinSelectModel *model;
+@property(nonatomic,strong) CurrencyModel *currencyModel;
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

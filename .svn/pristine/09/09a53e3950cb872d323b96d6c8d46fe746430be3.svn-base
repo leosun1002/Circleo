@@ -1,0 +1,28 @@
+//
+//  PersonTradeDetailVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PersonTradeDetailVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cardNumLabel;
+@property (weak, nonatomic) IBOutlet UILabel *bankLabel;
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sxfLabel;
+@property (weak, nonatomic) IBOutlet UILabel *dzLabel;
+@property (weak, nonatomic) IBOutlet UITextView *textView;
+@property (strong, nonatomic) NSString *assetId;
+
+@end
+
+NS_ASSUME_NONNULL_END

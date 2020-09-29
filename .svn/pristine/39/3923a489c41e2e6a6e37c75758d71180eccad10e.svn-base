@@ -1,0 +1,38 @@
+//
+//  AddressContentTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/16.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "AddressContentTableViewCell.h"
+
+@implementation AddressContentTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(ShopFriendsModel *)model{
+    _model = model;
+    self.indexLabel.text = model.index;
+    self.indexLabel.backgroundColor = model.color;
+    self.nameLabel.text = model.name;
+    self.addressLabel.text = model.receiving_address;
+    if ([AssectString(model.remarks) isEqualToString:@""]) {
+        self.remarkView.hidden = YES;
+    }else{
+        self.remarkView.hidden = NO;
+        self.remarkLabel.text = model.remarks;
+    }
+}
+
+@end

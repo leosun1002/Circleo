@@ -1,0 +1,78 @@
+//
+//  CardCouponSendVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/10.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "CardCouponSendVC.h"
+#import <IQKeyboardManager.h>
+
+@interface CardCouponSendVC ()
+
+@end
+
+@implementation CardCouponSendVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor clearColor];
+    [self animationAlert:self.backview];
+}
+
+- (IBAction)delClick:(id)sender {
+    self.bgview.alpha = 0.01;
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+}
+
+- (IBAction)sendClick:(id)sender {
+    if ([[self removeSpaceAndNewline:self.text.text] isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请输入好友手机号/邀请码", nil) location:centre];
+        return;
+    }
+    
+    NSDictionary *dict = @{@"kachin_id":AssectString(self.couponid),@"user_info":self.text.text};
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    self.sendBtn.enabled = NO;
+    WeakSelf(self);
+    [WebServices postFormReqUrl:GiveKachin param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    weakself.sendBtn.hidden = YES;
+                    weakself.bgview.alpha = 0.01;
+                    [weakself dismissViewControllerAnimated:YES completion:^{
+                        [weakself.sendSubject sendNext:@""];
+                    }];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+- (void)animationAlert:(UIView *)view{
+    /* 放大缩小 */
+    
+    // 设定为缩放
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"position.y"];
+    
+    // 动画选项设定
+    animation.duration = 0.25; // 动画持续时间
+    animation.repeatCount = 1; // 重复次数
+    animation.removedOnCompletion = NO;
+    animation.fillMode = kCAFillModeForwards;
+    animation.fromValue = @(ksrcheight + 230/2);
+    animation.toValue = @(ksrcheight - 230/2);
+    
+    // 添加动画
+    [view.layer addAnimation:animation forKey:@"AnimationMoveY"];
+}
+@end

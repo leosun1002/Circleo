@@ -1,0 +1,72 @@
+//
+//  MallDetialHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallDetailHeader.h"
+
+@implementation MallDetailHeader
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"MallDetailHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        [self addScrollview];
+        [self.pageBgview addSubview:self.pageControl];
+    }
+    return self;
+}
+
+-(void)addScrollview{
+    SDCycleScrollView *cycleScrollView = [SDCycleScrollView cycleScrollViewWithFrame:CGRectMake(0, 0, ksrcwidth, 235) delegate:self placeholderImage:[UIImage new]];
+    cycleScrollView.backgroundColor = [UIColor whiteColor];
+    cycleScrollView.showPageControl = NO;
+    cycleScrollView.pageControlAliment = SDCycleScrollViewPageContolAlimentCenter;
+    cycleScrollView.currentPageDotImage = [UIImage imageNamed:@"dot_bg_select"];
+    cycleScrollView.autoScrollTimeInterval = 3.f;
+    cycleScrollView.pageDotImage = [UIImage imageNamed:@"dot_bg_unselect"];
+    cycleScrollView.pageControlDotSize = CGSizeMake(4.f, 4.f);
+    cycleScrollView.pageControlStyle = SDCycleScrollViewPageContolStyleAnimated;
+    [self.scrollBgview addSubview:_cycleScrollView = cycleScrollView];
+}
+
+#pragma -mark SDCycleScrollViewDelegate
+
+-(void)cycleScrollView:(SDCycleScrollView *)cycleScrollView didScrollToIndex:(NSInteger)index{
+    self.pageControl.currentPage = index;
+}
+
+#pragma -mark setter
+-(void)setDetailModel:(ShopDetailModel *)detailModel{
+    if (!detailModel) return;
+    _detailModel = detailModel;
+    self.priceLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(detailModel.price)];
+    self.content.text = self.detailModel.name;
+    self.speclabel.text = self.detailModel.specification;
+    self.serviceLabel.text = self.detailModel.service;
+    
+    NSArray *temps = [detailModel.good_images valueForKey:@"image_address"];
+    self.cycleScrollView.imageURLStringsGroup = [temps copy];
+    self.pageControl.numberOfPages = temps.count;
+}
+
+#pragma -mark getter
+-(JhPageControl *)pageControl{
+    if (!_pageControl) {
+        _pageControl = [[JhPageControl alloc] init];
+        _pageControl.backgroundColor = [UIColor whiteColor];
+        _pageControl.frame = CGRectMake(0, 0, ksrcwidth , 6);
+        _pageControl.currentPage = 0;
+        _pageControl.otherColor = [UIColor colorWithRGBHex:@"#D8DBDF"];
+        _pageControl.currentColor = [UIColor colorWithRGBHex:@"#18181A"];
+        _pageControl.PageControlContentMode = JhPageControlContentModeCenter; //设置对齐方式
+        _pageControl.controlSpacing = 10.0;  //间距
+        _pageControl.marginSpacing = 0.f;  //距离初始位置 间距  默认10
+        _pageControl.PageControlStyle = JhPageControlStyelDotAndRectangle;//长条样式
+    }
+    return _pageControl;
+}
+@end

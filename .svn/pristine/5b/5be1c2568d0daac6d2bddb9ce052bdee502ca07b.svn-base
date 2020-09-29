@@ -1,0 +1,27 @@
+//
+//  AddressAddVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AddressAddVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITextField *addressText;
+@property (weak, nonatomic) IBOutlet UITextView *markText;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+@property (weak, nonatomic) IBOutlet UILabel *markTipLabel;
+@property (strong, nonatomic) RACSubject *subject;
+
+@property (weak, nonatomic) IBOutlet UIView *selectView;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *coinV;
+
+@end
+
+NS_ASSUME_NONNULL_END

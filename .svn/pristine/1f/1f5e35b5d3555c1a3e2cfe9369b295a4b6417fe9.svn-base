@@ -1,0 +1,50 @@
+//
+//  ReceiptWayVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "ReceiptWayVC.h"
+#import "BankCardListVC.h"
+#import "AlipayOrWechatVC.h"
+
+@interface ReceiptWayVC ()
+
+@end
+
+@implementation ReceiptWayVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"收款方式", nil) hiddeBack:NO];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        BankCardListVC *bankCar = [[BankCardListVC alloc] init];
+        [weakself.navigationController pushViewController:bankCar animated:YES];
+    }];
+    [self.bankview addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        AlipayOrWechatVC *alipay = [[AlipayOrWechatVC alloc] init];
+        [weakself.navigationController pushViewController:alipay animated:YES];
+    }];
+    [self.alipayview addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        AlipayOrWechatVC *wechat = [[AlipayOrWechatVC alloc] init];
+        [weakself.navigationController pushViewController:wechat animated:YES];
+    }];
+    [self.wechatview addGestureRecognizer:tap2];
+}
+@end

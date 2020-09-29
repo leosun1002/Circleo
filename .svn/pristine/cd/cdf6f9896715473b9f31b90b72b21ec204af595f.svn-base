@@ -1,0 +1,30 @@
+//
+//  DNSManageCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSManageModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSManageCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthConst;
+@property (weak, nonatomic) IBOutlet UIImageView *bind_bgview;
+@property (weak, nonatomic) IBOutlet UILabel *bindTip;
+@property (weak, nonatomic) IBOutlet UILabel *bindNum;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *endLabel;
+@property (weak, nonatomic) IBOutlet UIButton *opereateBtn;
+@property (weak, nonatomic) IBOutlet UILabel *frozenLabel;
+@property (weak, nonatomic) IBOutlet UIView *bindview;
+@property (weak, nonatomic) IBOutlet UIView *unbindview;
+
+@property (weak, nonatomic) DNSManageModel *model;
+
+@end
+
+NS_ASSUME_NONNULL_END

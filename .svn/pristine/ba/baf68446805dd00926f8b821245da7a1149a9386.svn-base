@@ -1,0 +1,24 @@
+//
+//  PersonAssetsVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PersonAssetsVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UITableView *assetTableview;
+@property (weak, nonatomic) IBOutlet UITableView *incomeTableview;
+
+@property (weak, nonatomic) IBOutlet UITableView *coinTableview;
+
+-(void)refreshFromOtherPage;
+@end
+
+NS_ASSUME_NONNULL_END

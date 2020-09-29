@@ -1,0 +1,203 @@
+//
+//  AgentWithdrawVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AgentWithdrawVC.h"
+#import "BankCardListVC.h"
+#import "BankCardModel.h"
+#import "PayResultVC.h"
+#import "TransPswInputVC.h"
+
+@interface AgentWithdrawVC ()<UITextViewDelegate>
+
+@property(nonatomic,strong)NSString *cnyYe;
+@property(nonatomic,assign)long cardid;
+
+@end
+
+@implementation AgentWithdrawVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.heightConst.constant = navBarHeight;
+    [self prepareUi];
+    [self getData];
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [self dismissLoading];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getUserInfo];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+    
+    self.pullText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.pullText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.sfxText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.sfxText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.dzText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.dzText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself selectCardClick];
+    }];
+    [weakself.topBgView addGestureRecognizer:tap];
+    [[self.pullText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        NSString *pull = [weakself.pullText PreciseFigures:2];
+        weakself.pullText.text = pull;
+        [weakself calculateCount];
+        [weakself makeBtnEnable];
+    }];
+    [[self.checkBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        TransPswInputVC *psw = [[TransPswInputVC alloc] init];
+        psw.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        psw.subject = [RACSubject subject];
+        [psw.subject subscribeNext:^(NSString *psw) {
+            [weakself checkClick:psw];
+        }];
+        [weakself presentViewController:psw animated:NO completion:^{
+            
+        }];;
+    }];
+    [self setData];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself setData];
+            }
+        }
+    }];
+}
+
+-(void)setData{
+    NSDictionary *userDict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.cnyYe = AssectNumber(userDict[JYIncomeCnyMoney]);
+    NSString *placeholder = [NSString stringWithFormat:NSLocalizedString(@"当前可提 %@", nil),self.cnyYe];
+    self.pullText.placeholder = placeholder;
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:DomainPaymentFee param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.sfxText.text = AssectNumber(json[@"data"][@"cny_payment_fee"]);
+                NSString *minWithdraw = AssectNumber(json[@"data"][@"cny_minimum_withdrawal"]);
+                NSString *maxWithdraw = AssectNumber(json[@"data"][@"cny_highest_withdrawal"]);
+                NSString *tipStr = [NSString stringWithFormat:NSLocalizedString(@"注：手续费为%@CNY，最低提现金额%@CNY，最高为%@CNY额度。预计1-2个工作日到账！", nil),AssectNumber(json[@"data"][@"cny_payment_fee"]),minWithdraw,maxWithdraw];
+                weakself.tipLabel.text = tipStr;
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)checkClick:(NSString *)psw{
+    NSString *pull = AssectNumber(self.pullText.text);
+    NSString *sxf = AssectNumber(self.sfxText.text);
+    NSString *dz = AssectNumber(self.dzText.text);
+    
+    NSArray *datas = [NSArray arrayWithObjects:@{@"bank_card_id":[NSString stringWithFormat:@"%ld",self.cardid]},@{@"withdrawal_money":pull},@{@"payment_fee":sxf},@{@"actual_money":dz},@{@"remark":self.marText.text},@{@"type":@"2"},@{@"pay_password":[psw md532BitUpper]}, nil];
+    NSDictionary *dict = [SignGenerated signedAfterDic:datas];
+//    NSDictionary *dict = @{@"bank_card_id":[NSString stringWithFormat:@"%ld",self.cardid],@"withdrawal_money":pull,@"payment_fee":sxf,@"actual_money":dz,@"remark":self.marText.text,@"type":@"2",@"pay_password":[psw md532BitUpper]};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:Withdrawal param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                PayResultVC *result = [[PayResultVC alloc] init];
+                result.type = 2;
+                result.subject = [RACSubject subject];
+                result.modalPresentationStyle = UIModalPresentationFullScreen;
+                [result.subject subscribeNext:^(id x) {
+//                    [weakself.navigationController popToRootViewControllerAnimated:YES];
+                    [weakself popToNav:weakself.navigationController withPopVC:@"MyIncomeAssetVC"];
+                }];
+                [weakself presentViewController:result animated:YES completion:^{
+                    
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)allClick:(id)sender {
+    self.pullText.text = self.cnyYe;
+    [self calculateCount];
+    [self makeBtnEnable];
+}
+
+- (void)selectCardClick{
+    BankCardListVC *cardList = [[BankCardListVC alloc] init];
+    cardList.subject = [RACSubject subject];
+    WeakSelf(self);
+    [cardList.subject subscribeNext:^(BankCardModel *model) {
+        weakself.cardid = model.cardid;
+        weakself.cardSelectView.hidden = ![AssectString(model.name) isEqualToString:@""];
+        weakself.nameLabel.text = model.name;
+        weakself.bankNumLabel.text = model.card_number;
+        weakself.bankNameLabel.text = model.bank_name;
+        [weakself makeBtnEnable];
+    }];
+    [self.navigationController pushViewController:cardList animated:YES];
+}
+
+-(void)calculateCount{
+    NSString *pull = AssectNumber(self.pullText.text);
+    NSString *sxf = AssectNumber(self.sfxText.text);
+    if ([pull doubleValue] <= [sxf doubleValue]) {
+        self.dzText.text = @"0.00";
+        return;
+    }
+    self.dzText.text = [GaoJingDu jian:@[pull,sxf] jindu:@"2"];
+}
+
+-(void)makeBtnEnable{
+    NSString *dz = self.dzText.text;
+    if ([dz doubleValue] > 0 && self.cardSelectView.hidden) {
+        self.checkBtn.enabled = YES;
+        self.checkBtn.alpha = 1.f;
+    }else{
+        self.checkBtn.enabled = NO;
+        self.checkBtn.alpha = 0.7;
+    }
+}
+
+#pragma -mark UITextViewDelegate
+-(void)textViewDidChange:(UITextView *)textView{
+    self.markTip.hidden = textView.text.length != 0;
+}
+@end

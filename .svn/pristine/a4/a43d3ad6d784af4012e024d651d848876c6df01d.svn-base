@@ -1,0 +1,57 @@
+//
+//  DNSShopSellVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "JXCategoryListContainerView.h"
+
+typedef enum{
+    DNSShopSellVCTypeSell,  // 卖
+    DNSShopSellVCTypeBuy,    // 买
+}DNSShopSellVCType;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSShopSellVC : BaseViewController<JXCategoryListContentViewDelegate>
+
+@property (nonatomic,assign) DNSShopSellVCType pageType;
+@property (weak, nonatomic) IBOutlet UIView *sellSelectview;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UITextField *text;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UITextView *contentText;
+@property (weak, nonatomic) IBOutlet UILabel *placeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *daysLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sxfLabel;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *timeHeightConst;
+@property (strong, nonatomic) RACSubject *selectSubject;
+@property (strong, nonatomic) RACSubject *xieyiSubject;
+@property (weak, nonatomic) IBOutlet UIView *bgView;
+
+@property (weak, nonatomic) IBOutlet UILabel *sellTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *priceTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *markTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *kyLabel;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+
+@property (weak, nonatomic) IBOutlet UIView *payview;
+@property (weak, nonatomic) IBOutlet UIView *pswView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *payHeightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *pswHeightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomHeightConst;
+
+@property (weak, nonatomic) IBOutlet UILabel *succeccTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *unitTipLabel;
+
+
+-(void)setData:(NSDictionary *)dict;
+
+@end
+
+NS_ASSUME_NONNULL_END

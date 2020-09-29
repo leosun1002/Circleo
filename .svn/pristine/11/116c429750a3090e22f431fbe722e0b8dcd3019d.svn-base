@@ -1,0 +1,186 @@
+//
+//  WebPublishArticleVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/5/21.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebPublishArticleVC.h"
+#import "CHSwitch.h"
+#import "DNSFilterSelectVC.h"
+#import "DNSPublishContentVC.h"
+#import "BrowserPayDetailVC.h"
+#import "BrowserCoinSelectVC.h"
+
+@interface WebPublishArticleVC ()
+
+@property(nonatomic,assign)long navigationId;
+@property(nonatomic,strong)NSString *chain_id;
+@property(nonatomic,weak)CHSwitch *displaySiwtch;
+@property(nonatomic,strong)NSDictionary *selectDict;
+@end
+
+@implementation WebPublishArticleVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"发布文章", nil) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    CHSwitch *displaySiwtch = [[CHSwitch alloc] initWithFrame:CGRectMake(ksrcwidth - 60, 12.5, 45, 45)];
+    displaySiwtch.tintColor = [UIColor colorWithRGBHex:@"#EEEEF0"];
+    displaySiwtch.onTintColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    displaySiwtch.shadow = NO;
+    displaySiwtch.tag = 10;
+    [self.showView addSubview:_displaySiwtch = displaySiwtch];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself getNavtionData];
+    }];
+    [self.navigationView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself selectTitle];
+    }];
+    [self.titleView addGestureRecognizer:tap2];
+    
+    UITapGestureRecognizer *tap3 = [[UITapGestureRecognizer alloc] init];
+    [[tap3 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself selectContent];
+    }];
+    [self.contentView addGestureRecognizer:tap3];
+    
+    UITapGestureRecognizer *tap4 = [[UITapGestureRecognizer alloc] init];
+    [[tap4 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself selectChain];
+    }];
+    [self.chainView addGestureRecognizer:tap4];
+    
+    [[self.checkBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself checkClick];
+    }];
+}
+
+-(void)getNavtionData{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:YES];
+    NSDictionary *dict = @{@"website_id":[NSString stringWithFormat:@"%ld",self.website_id]};
+    [WebServices postFormReqUrl:WebsiteCategoryNavigation param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself selectNavigation:json[@"data"][@"data"]];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)selectNavigation:(NSArray *)datas{
+    DNSFilterSelectVC *select = [[DNSFilterSelectVC alloc] init];
+    select.dataType = 3;
+    select.datas = datas;
+    select.selectStr = [NSString stringWithFormat:@"%ld",self.navigationId];
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.subject = [RACSubject subject];
+    WeakSelf(self);
+    [select.subject subscribeNext:^(NSDictionary *dict) {
+        weakself.navigationId = [dict[@"id"] longLongValue];
+        weakself.navigationText.text = AssectString(dict[@"name"]);
+        [weakself checkEnable];
+    }];
+    [self presentViewController:select animated:NO completion:nil];
+}
+
+-(void)selectTitle{
+    DNSPublishContentVC *content = [[DNSPublishContentVC alloc] init];
+    content.type = 0;
+    content.selectStr = AssectString(self.titleText.text);
+    content.subject = [RACSubject subject];
+    WeakSelf(self);
+    [content.subject subscribeNext:^(NSString *title) {
+        weakself.titleText.text = title;
+        weakself.titleTipLabel.text = [NSString stringWithFormat:NSLocalizedString(@"标题(%lu字)", nil),(unsigned long)title.length];
+        [weakself checkEnable];
+    }];
+    [self.navigationController pushViewController:content animated:YES];
+}
+
+-(void)selectContent{
+    DNSPublishContentVC *content = [[DNSPublishContentVC alloc] init];
+    content.type = 1;
+    content.selectStr = AssectString(self.contentText.text);
+    content.subject = [RACSubject subject];
+    WeakSelf(self);
+    [content.subject subscribeNext:^(NSString *title) {
+        weakself.contentText.text = title;
+        weakself.contentTipLabel.text = [NSString stringWithFormat:NSLocalizedString(@"正文(%lu字)", nil),(unsigned long)title.length];
+        [weakself checkEnable];
+    }];
+    [self.navigationController pushViewController:content animated:YES];
+}
+
+-(void)selectChain{
+    BrowserCoinSelectVC *coinSelect = [[BrowserCoinSelectVC alloc] init];
+    coinSelect.type = 1;
+    coinSelect.chainSubject = [RACSubject subject];
+    WeakSelf(self);
+    [coinSelect.chainSubject subscribeNext:^(NSDictionary *dict) {
+        weakself.selectDict = dict;
+        weakself.chain_id = [NSString stringWithFormat:@"%ld",[dict[@"id"] longValue]];
+        weakself.chainLabel.text = AssectString(dict[@"name"]);
+        [weakself.chianImage sd_setImageWithURL:[NSURL URLWithString:AssectString(dict[@"image_address"])] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+        weakself.chainLabel.hidden = NO;
+        weakself.chianImage.hidden = NO;
+        weakself.chainSelectLabel.hidden = YES;
+        [weakself checkEnable];
+    }];
+    [weakself.navigationController pushViewController:coinSelect animated:YES];
+}
+
+-(void)checkEnable{
+    if ([[NSString stringWithFormat:@"%ld",self.navigationId] isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        return;
+    }
+    
+    if ([AssectString(self.titleText.text) isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        return;
+    }
+    
+    if ([AssectString(self.contentText.text) isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        return;
+    }
+    
+    self.checkBtn.enabled = YES;
+    self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#5151F0"];
+}
+
+-(void)checkClick{
+    BrowserPayDetailVC *payDetail = [[BrowserPayDetailVC alloc] init];
+    payDetail.titleStr = AssectString(self.titleText.text);
+    payDetail.content = AssectString(self.contentText.text);
+    payDetail.website_id = self.website_id;
+    payDetail.dict = self.selectDict;
+    payDetail.display_status = self.displaySiwtch.on ? 1:0;
+    payDetail.website_category_navigation_id = self.navigationId;
+    payDetail.payFromType = 1;
+    [self.navigationController pushViewController:payDetail animated:YES];
+}
+
+@end

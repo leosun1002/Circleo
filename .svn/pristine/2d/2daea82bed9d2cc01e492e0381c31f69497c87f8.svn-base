@@ -1,0 +1,315 @@
+//
+//  ShopCarViewController.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "ShopCarViewController.h"
+#import "ShopCarTableViewCell.h"
+#import "ShopCarUnuseVC.h"
+#import "ShopCarClearVC.h"
+#import "ShopCarModel.h"
+#import "DNSRenewViewController.h"
+
+@interface ShopCarViewController ()<UITableViewDataSource,UITableViewDelegate,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,assign) int type;
+@property(nonatomic,strong) NSMutableArray *datas;
+@property(nonatomic,strong) NSMutableArray *selectDats;
+@property(nonatomic,weak) UIButton *rightBtn;
+
+@end
+
+@implementation ShopCarViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"购物车", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self addRightBtn];
+    self.type = 0;
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    if (IS_IPHONEX) {
+        self.botHeightConst.constant += 15;
+    }
+    self.delBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#979797"].CGColor;
+    self.delBtn.layer.borderWidth = 1.f;
+    
+    self.quickBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#F95947"].CGColor;
+    self.quickBtn.layer.borderWidth = 1.f;
+    
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopCarTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopCarTableViewCell"];
+    
+    WeakSelf(self);
+    [[self.delBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself delClick:weakself.selectDats];
+    }];
+    
+    [[self.quickBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        NSMutableArray *unuseDatas = [weakself calculateUnseDatas:weakself.datas];
+        ShopCarClearVC *clearVC = [[ShopCarClearVC alloc] init];
+        clearVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        clearVC.unuseDatas = unuseDatas;
+        clearVC.delSubject = [RACSubject subject];
+        [clearVC.delSubject subscribeNext:^(NSMutableArray *selectDatas) {
+            [weakself delClick:selectDatas];
+        }];
+        [weakself presentViewController:clearVC animated:NO completion:^{
+            
+        }];
+    }];
+    
+    if (@available(iOS 11.0,*)) {
+        self.tableview.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+        self.tableview.estimatedRowHeight=0;
+        self.tableview.estimatedSectionFooterHeight=0;
+    }else{
+        self.automaticallyAdjustsScrollViewInsets=NO;
+    }
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 65,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    [rightBtn setTitle:NSLocalizedString(@"编辑", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself switchCancelAllSelect];
+        weakself.type = weakself.type == 0?1:0;
+        [weakself.rightBtn setTitle:weakself.type == 0?NSLocalizedString(@"编辑", nil):NSLocalizedString(@"完成", nil) forState:UIControlStateNormal];
+    }];
+    [view addSubview:_rightBtn = rightBtn];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)delClick:(NSMutableArray *)datas{
+    if (datas.count == 0) return;
+    NSString *delStr = @"";
+    for (ShopCarModel *model in datas) {
+        delStr = [delStr stringByAppendingString:[NSString stringWithFormat:@"%ld,",model.carid]];
+    }
+    if ([delStr containsString:@","]) {
+        delStr = [delStr substringToIndex:delStr.length - 1];
+    }
+    NSDictionary *dict = @{@"ids":delStr};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:ShoppingCartDestroy param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.tableview.mj_header beginRefreshing];
+                [weakself calculateCount];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    WeakSelf(self);
+    [WebServices getFormReqUrl:ShoppingCartIndex param:@{@"page":[NSString stringWithFormat:@"%d",page]} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<ShopCarModel *> *applicationList = [ShopCarModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"shopping_cart"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+                [weakself calculateCount];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+#pragma CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *empty = [EmptyView flagView];
+    empty.contents.text = NSLocalizedString(@"购物车当前暂无域名", nil);
+    return empty;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopCarTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopCarTableViewCell"];
+    cell.model = self.datas[indexPath.row];
+    cell.selectBtn.tag = indexPath.row;
+    [cell.selectBtn addTarget:self action:@selector(selectClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)selectClick:(UIButton *)sender{
+    [self.selectDats removeAllObjects];
+    if (self.datas.count == 0) return;
+    ShopCarModel *model = self.datas[sender.tag];
+    model.hasSelect = model.hasSelect == 1?0:1;
+    [self.tableview cyl_reloadData];
+    [self calculateCount];
+}
+
+-(void)switchCancelAllSelect{
+    for (ShopCarModel *model in self.datas) {
+        model.hasSelect = 0;
+    }
+    [self.tableview cyl_reloadData];
+    [self calculateCount];
+}
+
+- (IBAction)allClick:(UIButton *)sender {
+    for (ShopCarModel *model in self.datas) {
+        model.hasSelect = !sender.selected;
+    }
+    [self.tableview cyl_reloadData];
+    [self calculateCount];
+}
+
+- (IBAction)delAllClick:(UIButton *)sender {
+    for (ShopCarModel *model in self.datas) {
+        model.hasSelect = !sender.selected;
+    }
+    [self.tableview cyl_reloadData];
+    [self calculateCount];
+}
+
+- (IBAction)buyClick:(id)sender {
+    NSMutableArray *unuseDatas = [self calculateUnseDatas:self.selectDats];
+    if (unuseDatas.count == 0) {
+        NSString *domain_name = @"";
+        for (ShopCarModel *model in self.selectDats) {
+            domain_name = [domain_name stringByAppendingString:[NSString stringWithFormat:@"%@,",model.domain_name]];
+        }
+        DNSRenewViewController *renuw = [[DNSRenewViewController alloc] init];
+        renuw.newType = 0;
+        renuw.domains = domain_name && ![domain_name isEqualToString:@""]?[domain_name substringToIndex:domain_name.length - 1]:domain_name;
+        [self.navigationController pushViewController:renuw animated:YES];
+        return;
+    }
+    
+    ShopCarUnuseVC *carUnse = [[ShopCarUnuseVC alloc] init];
+    carUnse.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    carUnse.unuseDatas = unuseDatas;
+    WeakSelf(self);
+    carUnse.paysubject = [RACSubject subject];
+    [carUnse.paysubject subscribeNext:^(id x) {
+        NSString *domain_name = @"";
+        for (ShopCarModel *model in weakself.selectDats) {
+            if (model.status == 0) {
+                domain_name = [domain_name stringByAppendingString:[NSString stringWithFormat:@"%@,",model.domain_name]];
+            }
+        }
+        if ([domain_name isEqualToString:@""]) {
+            [weakself showMsg:NSLocalizedString(@"当前没有可购买域名", nil) location:centre];
+            return;
+        }
+        DNSRenewViewController *renuw = [[DNSRenewViewController alloc] init];
+        renuw.newType = 0;
+        renuw.domains = domain_name && ![domain_name isEqualToString:@""]?[domain_name substringToIndex:domain_name.length - 1]:domain_name;
+        [weakself.navigationController pushViewController:renuw animated:YES];
+    }];
+    [self presentViewController:carUnse animated:NO completion:^{
+        
+    }];
+}
+
+-(void)calculateCount{
+    [self.selectDats removeAllObjects];
+    if (self.datas.count == 0){
+        self.selectLabel.text = @"0";
+        self.allLabel.text = @"0";
+        self.delSelectLabel.text = @"0";
+        self.delAllLabel.text = @"0";
+        self.delAllBtn.selected = NO;
+        self.allBtn.selected = NO;
+        self.buyBtn.alpha = 0.7;
+        self.buyBtn.enabled = NO;
+        return;
+    }
+    self.allLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count];
+    self.delAllLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count];
+    //选中的s
+    for (ShopCarModel *model in self.datas) {
+        if (model.hasSelect == 1) {
+            [self.selectDats addObject:model];
+        }
+    }
+    self.selectLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.selectDats.count];
+    self.delSelectLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.selectDats.count];
+    self.buyBtn.alpha = self.selectDats.count > 0?1:0.7;
+    self.buyBtn.enabled = self.selectDats.count > 0;
+    self.allBtn.selected = self.datas.count == self.selectDats.count;
+    self.delAllBtn.selected = self.datas.count == self.selectDats.count;
+}
+
+//计算无用的数据
+-(NSMutableArray *)calculateUnseDatas:(NSMutableArray *)datas{
+    if (datas.count == 0) return [NSMutableArray array];
+    NSMutableArray *unuseDatas = [NSMutableArray array];
+    for (ShopCarModel *model in datas) {
+        if (model.status == 1) {
+            [unuseDatas addObject:model];
+        }
+    }
+    return unuseDatas;
+}
+
+#pragma -mark setter
+-(void)setType:(int)type{
+    _type = type;
+    self.buyView.hidden = type != 0;
+    self.delView.hidden = type == 0;
+}
+
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)selectDats{
+    if (!_selectDats) {
+        _selectDats = [NSMutableArray array];
+    }
+    return _selectDats;
+}
+@end

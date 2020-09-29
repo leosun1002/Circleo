@@ -1,0 +1,39 @@
+//
+//  MyWebsiteModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/6/3.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyWebsiteTemplateModel : NSObject
+
+@property(nonatomic,strong) NSString *phone_picture;
+@property(nonatomic,strong) NSString *pc_picture;
+
+@end
+
+@interface MyWebsiteDomainModel : NSObject
+
+@property(nonatomic,strong) NSString *domain_name;
+@property(nonatomic,assign) long domain_id;
+
+@end
+
+@interface MyWebsiteModel : NSObject
+
+@property(nonatomic,assign) long website_id;
+@property(nonatomic,assign) long website_template_id;
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,strong) MyWebsiteDomainModel *domain_name;
+@property(nonatomic,strong) MyWebsiteTemplateModel *website_template;
+
+
+
+@end
+
+NS_ASSUME_NONNULL_END

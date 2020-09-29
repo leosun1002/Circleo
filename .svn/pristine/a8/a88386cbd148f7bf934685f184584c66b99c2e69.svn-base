@@ -1,0 +1,26 @@
+//
+//  ForgetPswVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ForgetPswVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITextField *phoneText;
+@property (weak, nonatomic) IBOutlet UITextField *codeText;
+@property (weak, nonatomic) IBOutlet UIButton *codeBtn;
+@property (weak, nonatomic) IBOutlet UIView *areaView;
+@property (weak, nonatomic) IBOutlet UILabel *areaLabel;
+@property (assign, nonatomic) long type;//1无密码，设置密码  0忘记密码
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

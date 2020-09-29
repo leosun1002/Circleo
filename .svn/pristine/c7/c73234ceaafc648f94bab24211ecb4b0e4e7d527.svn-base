@@ -1,0 +1,34 @@
+//
+//  DNSCoinSelectCollectionCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSCoinSelectCollectionCell.h"
+
+@implementation DNSCoinSelectCollectionCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+-(void)setModel:(DNSCoinSelectModel *)model{
+    _model = model;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.log_image)] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+    self.nameLabel.text = model.name_simple;
+    self.bgview.backgroundColor = model.hasSelect?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#F7F7F9"];
+    self.nameLabel.textColor = model.hasSelect?[UIColor colorWithRGBHex:@"#FFFFFF"]:[UIColor colorWithRGBHex:@"#555555"];
+}
+
+-(void)setCurrencyModel:(CurrencyModel *)currencyModel{
+    _currencyModel = currencyModel;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(currencyModel.images)] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+    self.nameLabel.text = currencyModel.name;
+    self.bgview.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+    self.nameLabel.textColor = [UIColor colorWithRGBHex:@"#555555"];
+}
+
+@end

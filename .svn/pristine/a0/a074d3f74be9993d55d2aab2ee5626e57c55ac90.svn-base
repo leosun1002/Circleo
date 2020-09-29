@@ -1,0 +1,31 @@
+//
+//  AgentChildView.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "JXPagerView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+typedef enum{
+    AgentChildViewTypeDirect,  // 绑定
+    AgentChildViewTypeIndirect,    // 未绑定
+}AgentChildViewType;
+
+@interface AgentChildView : UIView<JXPagerViewListViewDelegate,UITableViewDelegate,UITableViewDataSource>
+
+/**
+ 页面类型
+ */
+@property (nonatomic,assign) AgentChildViewType pageType;
+@property (nonatomic, copy) void(^scrollCallback)(UIScrollView *scrollView);
+@property (nonatomic,strong) UITableView *tableview;
+
+-(void)refreshData;
+@end
+
+NS_ASSUME_NONNULL_END

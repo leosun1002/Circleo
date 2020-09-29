@@ -1,0 +1,132 @@
+//
+//  ProductInformationVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "ProductInformationVC.h"
+#import "ProductTableViewCell.h"
+#import "ProductHeader.h"
+#import "SolutionModel.h"
+#import "WebViewController.h"
+
+@interface ProductInformationVC ()<UITableViewDataSource,UITableViewDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@end
+
+@implementation ProductInformationVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self setBanar:NSLocalizedString(@"产品动态", nil) hiddeBack:NO];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)prepareUi{
+    if (@available(iOS 11.0,*)) {
+        self.tableview.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+        self.tableview.estimatedRowHeight=0;
+        self.tableview.estimatedSectionFooterHeight=0;
+    }else{
+        self.automaticallyAdjustsScrollViewInsets=NO;
+    }
+    
+    [self.tableview registerNib:[UINib nibWithNibName:@"ProductTableViewCell" bundle:nil] forCellReuseIdentifier:@"ProductTableViewCell"];
+    self.topConst.constant = navBarHeight;
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    WeakSelf(self);
+    [WebServices postFormReqUrl:NewInformationMore param:@{@"type":@"1",@"page":[NSString stringWithFormat:@"%d",page],@"new_type":@""} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<SolutionModel *> *applicationList = [SolutionModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview reloadData];
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 180;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    ProductHeader *header = [[ProductHeader alloc] init];
+    return header;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ProductTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ProductTableViewCell"];
+    SolutionModel *model = self.datas[indexPath.row];
+    cell.titleLabel.text = model.title;
+    cell.contentLabel.text = model.desc;
+    cell.timeLabel.text = model.created_at;
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    SolutionModel *model = self.datas[indexPath.row];
+    NSString *url = [NSString stringWithFormat:@"%@dns/h5?id=%ld",serviseShareIP,model.solution_id];
+//    NewsWebViewController* webViewObj =  [[NewsWebViewController alloc] init];
+//    webViewObj.loadUrl = AssectString(url);
+//    webViewObj.titleStr = model.title;
+//    [self.navigationController pushViewController:webViewObj animated:YES];
+    WebViewController* webViewObj =  [[WebViewController alloc] init];
+    webViewObj.solutionid = [NSString stringWithFormat:@"%ld",model.solution_id];
+    webViewObj.loadUrl = AssectString(url);
+    webViewObj.titleStr = model.title;
+    webViewObj.headUrl = AssectString(model.small_image);
+    [self.navigationController pushViewController:webViewObj animated:YES];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

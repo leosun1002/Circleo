@@ -1,0 +1,79 @@
+//
+//  SetPswVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "SetPswVC.h"
+
+@interface SetPswVC ()
+
+@end
+
+@implementation SetPswVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:@"" hiddeBack:NO];
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)prepareUi{
+    self.titleLabel.text = self.type == 1?NSLocalizedString(@"设置密码", nil):NSLocalizedString(@"忘记密码", nil);
+    self.topConst.constant = navBarHeight;
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 65,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    [rightBtn setTitle:NSLocalizedString(@"完成", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself resetPSw];
+    }];
+    [view addSubview:rightBtn];
+}
+
+-(void)resetPSw{
+    NSString *psw = [self removeSpaceAndNewline:self.pswText.text];
+    NSString *retryPsw = [self removeSpaceAndNewline:self.retryPswText.text];
+    if (psw.length >20 || psw.length < 8) {
+        [self showMsg:NSLocalizedString(@"请输入8-20位密码", nil) location:centre];
+        return;
+    }
+    
+    if (![psw isEqualToString:retryPsw]) {
+        [self showMsg:NSLocalizedString(@"两次密码不一致", nil) location:centre];
+        return;
+    }
+    
+    NSDictionary *dict = @{@"phone":self.phone,@"password":[psw md532BitUpper],@"password_confirmation":[retryPsw md532BitUpper]};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices  postFormReqUrl:forgetResetPassword param:dict loadingTime:12 callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself popToNav:weakself.navigationController withPopVC:@"LoginVC"];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+@end

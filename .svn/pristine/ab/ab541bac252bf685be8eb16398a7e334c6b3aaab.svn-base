@@ -1,0 +1,25 @@
+//
+//  DNSDiscountModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSDiscountModel : NSObject
+
+@property(nonatomic,strong)NSString *pay_cny_price;
+@property(nonatomic,strong)NSString *pay_usdt_price;
+@property(nonatomic,strong)NSString *discount_cny_price;
+@property(nonatomic,strong)NSString *discount_usdt_price;
+@property(nonatomic,strong)NSString *exces;
+//1节点优惠，2超出折扣
+@property(nonatomic,assign)long type;
+@property(nonatomic,strong)NSString *discount_name;
+@end
+
+NS_ASSUME_NONNULL_END

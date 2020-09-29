@@ -1,0 +1,56 @@
+//
+//  DNSDetailChildHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSDetailChildHeader.h"
+
+@implementation DNSDetailChildHeader
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"DNSDetailChildHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+    }
+    return self;
+}
+
+-(void)getData:(NSString *)manageid{
+    if (self.model) return;
+    NSDictionary *dict = @{@"id":manageid};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:DomainNameDetail param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.model = [DNSDetailModel mj_objectWithKeyValues:json[@"data"][@"domain_info"]];
+                [weakself setData];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)setData{
+    self.nameLabel.text = self.model.domain_name;
+//    self.purchaseLabel.text = self.model.purchase_price;
+//    //1CNY，2USDT，3支付宝
+//    self.unitLabel.text = self.model.payment_type == 2?@"USDT":@"CNY";
+//    if (self.model.payment_type == 2) {
+//        self.usdtLabel.text = AssectString(self.model.purchase_price);
+//        self.cnyLabel.text = [GaoJingDu cheng:@[AssectNumber(self.model.purchase_price),@"7"] jindu:@"2"];
+//    }else{
+//        self.usdtLabel.text = [GaoJingDu chu:@[AssectNumber(self.model.purchase_price),@"7"] jindu:@"2"];
+//        self.cnyLabel.text = AssectString(self.model.purchase_price);
+//    }
+    self.usdtLabel.text = AssectString(self.model.purchase_price);
+    self.unitLabel.text = AssectString(self.model.currency_type);
+    self.buyLabel.text = self.model.start_time;
+    self.endLabel.text = self.model.end_time;
+}
+@end

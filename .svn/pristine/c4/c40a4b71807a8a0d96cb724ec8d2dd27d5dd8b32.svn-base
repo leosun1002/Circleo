@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="ShopChargeCollectionViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="292" height="218"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="292" height="218"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wHx-iW-NB6">
+                        <rect key="frame" x="2" y="2" width="288" height="214"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="燃料" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vb7-Cz-q4b">
+                                <rect key="frame" x="0.0" y="13" width="288" height="15"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="15" id="llg-0s-2P2"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                                <color key="textColor" red="0.25882352939999997" green="0.28627450980000002" blue="0.40784313729999999" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="5元" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="7ZS-7N-iUF">
+                                <rect key="frame" x="0.0" y="35" width="288" height="12"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="12" id="Uew-Kr-lF6"/>
+                                </constraints>
+                                <viewLayoutGuide key="safeArea" id="Esg-om-Fkw"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                                <color key="textColor" red="0.63529411764705879" green="0.65490196078431373" blue="0.74901960784313726" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="Vb7-Cz-q4b" secondAttribute="trailing" id="7AH-Ub-40Z"/>
+                            <constraint firstItem="7ZS-7N-iUF" firstAttribute="top" secondItem="Vb7-Cz-q4b" secondAttribute="bottom" constant="7" id="BkL-GE-3pJ"/>
+                            <constraint firstItem="Vb7-Cz-q4b" firstAttribute="leading" secondItem="wHx-iW-NB6" secondAttribute="leading" id="GLr-x4-KjJ"/>
+                            <constraint firstItem="7ZS-7N-iUF" firstAttribute="leading" secondItem="wHx-iW-NB6" secondAttribute="leading" id="MUa-pO-g1x"/>
+                            <constraint firstAttribute="trailing" secondItem="7ZS-7N-iUF" secondAttribute="trailing" id="OXM-Vo-ucG"/>
+                            <constraint firstItem="Vb7-Cz-q4b" firstAttribute="top" secondItem="wHx-iW-NB6" secondAttribute="top" constant="13" id="egK-XE-va4"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="wHx-iW-NB6" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" constant="2" id="CSG-BD-74Z"/>
+                <constraint firstAttribute="bottom" secondItem="wHx-iW-NB6" secondAttribute="bottom" constant="2" id="WdD-I0-YEE"/>
+                <constraint firstItem="wHx-iW-NB6" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" constant="2" id="aTO-vA-o8F"/>
+                <constraint firstAttribute="trailing" secondItem="wHx-iW-NB6" secondAttribute="trailing" constant="2" id="b21-1w-ZAZ"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="SEy-5g-ep8"/>
+            <size key="customSize" width="292" height="218"/>
+            <connections>
+                <outlet property="bgview" destination="wHx-iW-NB6" id="w3z-Hw-Shy"/>
+                <outlet property="moneyLabel" destination="7ZS-7N-iUF" id="XyZ-HI-7Y5"/>
+                <outlet property="nameLabel" destination="Vb7-Cz-q4b" id="EIh-lW-Lds"/>
+            </connections>
+            <point key="canvasLocation" x="36.231884057971016" y="14.0625"/>
+        </collectionViewCell>
+    </objects>
+</document>

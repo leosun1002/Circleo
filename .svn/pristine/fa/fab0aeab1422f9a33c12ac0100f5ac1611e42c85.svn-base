@@ -1,0 +1,228 @@
+
+//
+//  MyIncomeAssetVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MyIncomeAssetVC.h"
+#import "MyAssetsCollectionViewCell.h"
+#import "MyIncomeCNYView.h"
+#import "MyIncomeUSDTView.h"
+#import "AgentTransferVC.h"
+#import "AgentIncomeDetailVC.h"
+#import "AdvanceAuthenVC.h"
+#import "SetTradePasswordVC.h"
+#import "AuthenVC.h"
+
+@interface MyIncomeAssetVC ()<UICollectionViewDelegate,UICollectionViewDataSource>{
+    int isRefresh;
+}
+
+@property(nonatomic,strong)MyIncomeUSDTView *usdtView;
+@property(nonatomic,strong)MyIncomeCNYView *cnyView;
+
+@end
+
+@implementation MyIncomeAssetVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.heightConst.constant = navBarHeight;
+    if (IS_IPHONEX) {
+        self.botConst.constant += 10;
+    }
+    [self prepareUi];
+    isRefresh = 0;
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [self getUserInfo];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    self.navigationController.interactivePopGestureRecognizer.enabled = YES;
+}
+
+-(void)prepareUi{
+    [self.collect registerNib:[UINib nibWithNibName:@"MyAssetsCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"MyAssetsCollectionViewCell"];
+    
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.05 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        weakself.type == 0?:[weakself.collect setContentOffset:CGPointMake(325 - (ksrcwidth - 310 - 25), 0) animated:NO];
+    });
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    if (isRefresh == 0) {
+        [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+        isRefresh = 1;
+    }
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself.collect reloadData];
+                [weakself reloadViewAndBtn];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getUserInfo];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getUserInfo];
+            }];
+        }
+    }];
+}
+
+-(void)reloadViewAndBtn{
+    if (self.type == 0) {
+        if (!self.usdtView) {
+            [self createUsdtView];
+        }
+    }else{
+        if (!self.cnyView) {
+            [self createCnyView];
+        }
+    }
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)checkClick:(id)sender {
+    [self judgeUserInfo];
+    CGFloat scrollx = self.collect.contentOffset.x;
+    AgentTransferVC *transfer = [[AgentTransferVC alloc] init];
+    transfer.type = scrollx > 0?1:0;
+    [self.navigationController pushViewController:transfer animated:YES];
+}
+
+-(void)judgeUserInfo{
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSString *payPsw = userdict[JYPayPassword];
+    NSString *authen = userdict[JYAuthentication];
+    if ([payPsw isEqualToString:@"0"] || ![authen isEqualToString:@"1"]) {
+        AdvanceAuthenVC *advance = [[AdvanceAuthenVC alloc] init];
+        advance.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        WeakSelf(self);
+        advance.pswSubject = [RACSubject subject];
+        [advance.pswSubject subscribeNext:^(id x) {
+            SetTradePasswordVC *setPsw = [[SetTradePasswordVC alloc] init];
+            [weakself.navigationController pushViewController:setPsw animated:YES];
+        }];
+        advance.authenSubject = [RACSubject subject];
+        [advance.authenSubject subscribeNext:^(NSString *authen) {
+            //0未，1是，2审核中，3失败
+            if ([authen isEqualToString:@"0"] || [authen isEqualToString:@"3"]) {
+                AuthenVC *authen = [[AuthenVC alloc] init];
+                [weakself.navigationController pushViewController:authen animated:YES];
+            }else{
+                [weakself showMsg:NSLocalizedString(@"正在审核中", nil) location:centre];
+            }
+        }];
+        [self presentViewController:advance animated:NO completion:^{
+            
+        }];
+        return;
+    }
+}
+
+- (IBAction)detailClick:(id)sender {
+    AgentIncomeDetailVC *detail = [[AgentIncomeDetailVC alloc] init];
+    [self.navigationController pushViewController:detail animated:YES];
+}
+
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView{
+    return 1;
+}
+
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return 2;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    MyAssetsCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"MyAssetsCollectionViewCell" forIndexPath:indexPath];
+    cell.bgimage.image = indexPath.item == 0?[UIImage imageNamed:@"USDT_bgview"]:[UIImage imageNamed:@"CNY_bgview"];
+    NSDictionary *userDict = [Manager takeoutUserTokenkey:JYLoginuser];
+    if (indexPath.row == 0) {
+        NSString *usdtMoney = AssectNumber(userDict[JYIncomeUsdtMoney]);
+        NSString *usdtNotMoney = AssectNumber(userDict[JYIncomeUsdtNotMoney]);
+        cell.tipLabel.text = NSLocalizedString(@"总USDT资产", nil);
+        cell.countLabel.text = [GaoJingDu add:@[usdtMoney,usdtNotMoney] jindu:@"4"];
+        cell.cnyLabel.text = [NSString stringWithFormat:@"≈ %@CNY",[GaoJingDu cheng:@[[GaoJingDu add:@[usdtMoney,usdtNotMoney] jindu:@"4"],@"7"] jindu:@"2"]];
+        cell.cnyLabel.hidden = NO;
+    }else{
+        NSString *cnyMoney = AssectNumber(userDict[JYIncomeCnyMoney]);
+        NSString *cnyNotMoney = AssectNumber(userDict[JYIncomeCnyNotMoney]);
+        cell.tipLabel.text = NSLocalizedString(@"总CNY资产", nil);
+        cell.countLabel.text = [GaoJingDu add:@[cnyMoney,cnyNotMoney] jindu:@"2"];
+        cell.cnyLabel.hidden = YES;
+    }
+    return cell;
+}
+
+#pragma -mark UIScrollViewdelegate
+-(void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    if (scrollView != self.collect) return;
+    
+    CGFloat scrollx = scrollView.contentOffset.x;
+    [self loadScrolledView:scrollx];
+}
+
+-(void)loadScrolledView:(CGFloat)scrollx{
+    //0是usdt 1是cny
+    if (self.type == 1) {
+        if (scrollx <= 0) {
+            if (!self.usdtView) {
+                [self createUsdtView];
+            }
+            self.cnyView.hidden = YES;
+            self.usdtView.hidden = NO;
+        }else{
+            self.cnyView.hidden = NO;
+            self.usdtView.hidden = YES;
+        }
+    }else{
+        if (scrollx > 0) {
+            if (!self.cnyView) {
+                [self createCnyView];
+            }
+            self.cnyView.hidden = NO;
+            self.usdtView.hidden = YES;
+        }else{
+            self.cnyView.hidden = YES;
+            self.usdtView.hidden = NO;
+        }
+    }
+}
+
+#pragma -mark getter
+-(void)createUsdtView{
+    self.usdtView = [[MyIncomeUSDTView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, self.backview.height)];
+    self.usdtView.naviController = self.navigationController;
+    [self.backview addSubview:self.usdtView];
+}
+
+-(void)createCnyView{
+    self.cnyView = [[MyIncomeCNYView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, self.backview.height)];
+    self.cnyView.naviController = self.navigationController;
+    [self.backview addSubview:self.cnyView];
+}
+
+@end

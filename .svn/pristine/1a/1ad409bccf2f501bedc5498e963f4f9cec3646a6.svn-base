@@ -1,0 +1,246 @@
+//
+//  MyTeamVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MyTeamVC.h"
+#import "MyTeamTableViewCell.h"
+#import "AgentWithdrawVC.h"
+#import "AgentTradeDetailVC.h"
+#import "AgentUSDTPullVC.h"
+#import "AgentUSDTPullDetailVC.h"
+#import "MyTeamModel.h"
+#import "DNSNoDataTableViewCell.h"
+
+@interface MyTeamVC ()<UITableViewDelegate,UITableViewDataSource>{
+    BOOL hasRefresh;
+}
+
+@property(nonatomic,strong)NSMutableArray <NSMutableArray *> *datas;
+@property(nonatomic,strong)NSMutableArray *pages;
+
+@end
+
+@implementation MyTeamVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self addRefresh];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    if (IS_IPHONEX) {
+        self.topConst.constant += 20;
+        self.heightConst.constant += 20;
+    }
+    [self.tableview registerNib:[UINib nibWithNibName:@"MyTeamTableViewCell" bundle:nil] forCellReuseIdentifier:@"MyTeamTableViewCell"];
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSNoDataTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNSNoDataTableViewCell"];
+    [self setData];
+    [self.tableview.mj_header beginRefreshing];
+
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)setData{
+    NSDictionary *userDict = [Manager takeoutUserTokenkey:JYLoginuser];
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(userDict[JYUserImage])] placeholderImage:[UIImage imageNamed:@"pic_head"] options:SDWebImageAllowInvalidSSLCertificates];
+    self.nameLabel.text = AssectString(userDict[JYPhone]);
+    self.levelName.text = userDict[JYGarde];
+    NSString *gardType = AssectNumber(userDict[JYGardeType]);
+    if ([gardType isEqualToString:@"1"]) {
+        self.levelImage.image = [UIImage imageNamed:@"tips_normal"];
+    }else if ([gardType isEqualToString:@"2"]){
+        self.levelImage.image = [UIImage imageNamed:@"tips_super"];
+    }else{
+        self.levelImage.image = [UIImage imageNamed:@"tips_create"];
+    }
+    self.supNameLabel.text = [AssectString(userDict[JYDirectPhone]) isEqualToString:@""]?@"--":AssectString(userDict[JYDirectPhone]);
+    self.commonImage.hidden = [userDict[JYUserTitle] isEqualToString:@"0"];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    NSInteger page = [self.pages[self.type] integerValue];
+    NSMutableArray *datas = self.datas[self.type];
+    ifFresh?(page = 1):page++;
+    [self.pages replaceObjectAtIndex:self.type withObject:[NSString stringWithFormat:@"%ld",(long)page]];
+    NSDictionary *dict = @{@"type":[NSString stringWithFormat:@"%ld",self.type+1],@"page":[NSString stringWithFormat:@"%ld",(long)page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:MyTeamIndex param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[datas removeAllObjects];
+                NSMutableArray<MyTeamModel*> *applicationList = [MyTeamModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [datas addObjectsFromArray:applicationList];
+                [weakself.datas replaceObjectAtIndex:weakself.type withObject:datas];
+            }
+        }
+        [weakself.tableview reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+-(void)pushClick:(NSInteger)tag{
+    if (tag == 10) {
+        self.type = 0;
+    }else{
+        self.type = 1;
+    }
+    if (!hasRefresh) {
+        [self.tableview.mj_header beginRefreshing];
+        hasRefresh = YES;
+    }else{
+        [self.tableview reloadData];
+    }
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *empty = [EmptyView flagView];
+    return empty;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 70;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    NSDictionary *userDict = [Manager takeoutUserTokenkey:JYLoginuser];
+    UIView *view = [[UIView alloc] init];
+    view.backgroundColor = [UIColor whiteColor];
+    
+    UIButton *ztBtn = [[UIButton alloc] initWithFrame:CGRectMake(73, 20, 100, 40)];
+    NSString *ztStr = [NSString stringWithFormat:NSLocalizedString(@"直推(%@)", nil),AssectString(userDict[JYDirectCount])];
+    [ztBtn setTitle:ztStr forState:UIControlStateNormal];
+    if (self.type == 0) {
+        ztBtn.backgroundColor = [UIColor colorWithRGBHex:@"#323236"];
+        [ztBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        ztBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#323236"].CGColor;
+    }else{
+        ztBtn.backgroundColor = [UIColor whiteColor];
+        [ztBtn setTitleColor:[UIColor colorWithRGBHex:@"#18181A"] forState:UIControlStateNormal];
+        ztBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#979797"].CGColor;
+    }
+    ztBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+    WeakSelf(self);
+    [[ztBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself pushClick:10];
+    }];
+    ztBtn.layer.cornerRadius = 20.5;
+    ztBtn.layer.masksToBounds = YES;
+    ztBtn.layer.borderWidth = 1.f;
+    [view addSubview:ztBtn];
+    
+    UIButton *jtBtn = [[UIButton alloc] initWithFrame:CGRectMake(ksrcwidth - 73 - 100, 20, 100, 40)];
+    NSString *jtStr = [NSString stringWithFormat:NSLocalizedString(@"间推(%@)", nil),AssectString(userDict[JYIndirectCount])];
+    [jtBtn setTitle:jtStr forState:UIControlStateNormal];
+    if (self.type == 0) {
+        jtBtn.backgroundColor = [UIColor whiteColor];
+        [jtBtn setTitleColor:[UIColor colorWithRGBHex:@"#18181A"] forState:UIControlStateNormal];
+        jtBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#979797"].CGColor;
+    }else{
+        jtBtn.backgroundColor = [UIColor colorWithRGBHex:@"#323236"];
+        [jtBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        jtBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#323236"].CGColor;
+    }
+    jtBtn.titleLabel.font = [UIFont systemFontOfSize:15];
+    [[jtBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself pushClick:11];
+    }];
+    jtBtn.layer.cornerRadius = 20.5;
+    jtBtn.layer.masksToBounds = YES;
+    jtBtn.layer.borderWidth = 1.f;
+    jtBtn.layer.contentsScale = [[UIScreen mainScreen] scale];
+    [view addSubview:jtBtn];
+    return view;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.001;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    NSMutableArray *datas = self.datas[self.type];
+    if (datas.count == 0) {
+        return 1;
+    }
+    return datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSMutableArray *datas = self.datas[self.type];
+    if (datas.count == 0) {
+        return ksrcheight - 70 - 165;
+    }
+    return 71;
+
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSMutableArray *datas = self.datas[self.type];
+    if (datas.count == 0) {
+        DNSNoDataTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSNoDataTableViewCell"];
+        cell.nameLabel.text = NSLocalizedString(@"您还未推荐好友注册域名,\n快去分享吧!", nil);
+        return cell;
+    }
+    MyTeamTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyTeamTableViewCell"];
+    cell.model = datas[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+//    [self.navigationController pushViewController:[AgentUSDTPullDetailVC new] animated:YES];
+}
+
+#pragma -mark getter
+-(NSMutableArray<NSMutableArray *> *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray arrayWithObjects:[NSMutableArray array],[NSMutableArray array], nil];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)pages{
+    if (!_pages) {
+        _pages = [NSMutableArray arrayWithObjects:@"1",@"1", nil];
+    }
+    return _pages;
+}
+@end

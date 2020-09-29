@@ -1,0 +1,302 @@
+//
+//  DNSShopSellVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSShopSellVC.h"
+#import "JieyiXieyiVC.h"
+
+@interface DNSShopSellVC ()<UITextViewDelegate>
+
+@property(nonatomic,strong)NSString *domain_name_id;
+@property(nonatomic,strong)NSString *days;
+@property(nonatomic,strong)NSString *sxf;
+
+@end
+
+@implementation DNSShopSellVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self getData];
+    if (self.pageType == DNSShopSellVCTypeBuy) {
+        NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+        NSString *yue = [NSString stringWithFormat:NSLocalizedString(@"（可用：%@）", nil),AssectNumber(dict[JYUsdtMoney])];
+        self.kyLabel.text = yue;
+        [self getUserInfo];
+    }
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self dismissLoading];
+}
+
+-(void)prepareUi{
+    WeakSelf(self);
+    self.view.backgroundColor = [UIColor clearColor];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself.selectSubject sendNext:weakself.pageType == DNSShopSellVCTypeSell?@"1":@"2"];
+    }];
+    [self.sellSelectview addGestureRecognizer:tap];
+    
+    self.text.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.text.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#9999A3"],NSFontAttributeName:[UIFont systemFontOfSize:11]}];
+    [[self.text rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        weakself.text.text = [weakself.text PreciseFigures:2];
+        [weakself makeBtnEnable];
+    }];
+    [[self.pswText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeBtnEnable];
+    }];
+    
+    self.pswText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.pswText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    
+    self.timeHeightConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?101:71;
+    
+    [self addScrollCornerRadius];
+    
+    if (self.pageType == DNSShopSellVCTypeBuy) {
+        self.sellTipLabel.text = NSLocalizedString(@"选择求购域名", nil);
+        self.priceTipLabel.text = NSLocalizedString(@"求购价格(USDT)", nil);
+        self.timeTipLabel.text = NSLocalizedString(@"求购时长", nil);
+        self.markTipLabel.text = NSLocalizedString(@"求购备注(选填)", nil);
+        self.payview.hidden = NO;
+        self.pswView.hidden = NO;
+        self.payHeightConst.constant = 90;
+        self.pswHeightConst.constant = 80;
+        self.bottomHeightConst.constant = 83;
+        self.succeccTipLabel.hidden = YES;
+        self.sxfLabel.hidden = YES;
+        self.unitTipLabel.hidden = YES;
+        [self.checkBtn setTitle:NSLocalizedString(@"确认求购", nil) forState:UIControlStateNormal];
+        self.placeLabel.text = NSLocalizedString(@"高价求购，诚信可靠", nil);
+    }else{
+        self.payview.hidden = YES;
+        self.pswView.hidden = YES;
+        self.payHeightConst.constant = 0;
+        self.pswHeightConst.constant = 0;
+    }
+}
+
+-(void)addScrollCornerRadius{
+    self.bgView.layer.cornerRadius = 10;
+    self.bgView.layer.masksToBounds = YES;
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    [WebServices getFormReqUrl:DomainPaymentFee param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.daysLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%@天", nil),AssectString(json[@"data"][@"hang_sale_time"])];
+                weakself.days = AssectString(json[@"data"][@"hang_sale_time"]);
+                weakself.sxfLabel.text = [NSString stringWithFormat:@"%@%%",[GaoJingDu cheng:@[AssectString(json[@"data"][@"hang_sale_percentage"]),@"100"] jindu:@"2"]];
+                weakself.sxf = AssectString(json[@"data"][@"hang_sale_percentage"]);
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+//    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+                NSString *yue = [NSString stringWithFormat:NSLocalizedString(@"（可用：%@）", nil),AssectNumber(dict[JYUsdtMoney])];
+                weakself.kyLabel.text = yue;
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getUserInfo];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getUserInfo];
+            }];
+        }
+    }];
+}
+
+-(void)setData:(NSDictionary *)dict{
+    self.nameLabel.text = AssectString(dict[@"domain_name"]);
+    self.domain_name_id = AssectString(dict[@"manageid"]);
+    [self makeBtnEnable];
+}
+
+-(void)makeBtnEnable{
+    NSString *domain_name = AssectString(self.nameLabel.text);
+    NSString *price = AssectString(self.text.text);
+    NSString *psw = AssectString(self.pswText.text);
+
+    if (self.pageType == DNSShopSellVCTypeBuy){
+        if ([domain_name isEqualToString:@""] || [price isEqualToString:@""] || [psw isEqualToString:@""] ) {
+            self.checkBtn.enabled = NO;
+        }else{
+            self.checkBtn.enabled = YES;
+        }
+    }else{
+       if ([domain_name isEqualToString:@""] || [price isEqualToString:@""]) {
+            self.checkBtn.enabled = NO;
+        }else{
+            self.checkBtn.enabled = YES;
+        }
+    }
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSString *price = AssectString(self.text.text);
+    if ([price doubleValue] < 0.1) {
+        [self showMsg:NSLocalizedString(@"挂卖价格不得低于0.1USDT", nil) location:centre];
+        return;
+    }
+    if ([price doubleValue] > 999999999.99) {
+        [self showMsg:NSLocalizedString(@"挂卖价格不得高于999999999.99USDT", nil) location:centre];
+        return;
+    }
+    NSDictionary *dict = [NSDictionary dictionary];
+    if (self.pageType == DNSShopSellVCTypeSell) {
+        dict = @{@"domain_name_id":AssectString(self.domain_name_id),@"price":price,@"sale_day":AssectString(self.days),@"type":@"1",@"content":[AssectString(self.contentText.text) isEqualToString:@""]?NSLocalizedString(@"界一域名，自用投资两不误！", nil):AssectString(self.contentText.text)};
+    }else{
+        dict = @{@"domain_name_id":AssectString(self.domain_name_id),@"price":price,@"sale_day":AssectString(self.days),@"type":@"1",@"content":[AssectString(self.contentText.text) isEqualToString:@""]?NSLocalizedString(@"高价求购，诚信可靠", nil):AssectString(self.contentText.text),@"pay_password":[AssectString(self.pswText.text) md532BitUpper]};
+
+    }
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    self.checkBtn.enabled = NO;
+    WeakSelf(self);
+    [WebServices postFormReqUrl:self.pageType == DNSShopSellVCTypeSell?DomainHangSaleStore:DomainHangSaleBuy param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself dealWithDone];
+                    [[NSNotificationCenter defaultCenter] postNotificationName:@"RefreshTradeList" object:nil];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself makeBtnEnable];
+            }
+        }else{
+            [weakself makeBtnEnable];
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)dealWithDone{
+    self.nameLabel.text = @"";
+    self.text.text = @"";
+    self.contentText.text = @"";
+    self.pswText.text = @"";
+    [self makeBtnEnable];
+    self.placeLabel.hidden = NO;
+    if (self.pageType == DNSShopSellVCTypeBuy) {
+        [self getUserInfo];
+    }
+}
+
+- (IBAction)xieyiClick:(id)sender {
+    [self.xieyiSubject sendNext:@""];
+}
+
+-(void)showErrorView:(UIView *)view withBlock:(ToastBlock)block{
+    EmptyView *errowView = [EmptyView flagView];
+    errowView.backImage.image = [UIImage imageNamed:@"defultPage_error"];
+    errowView.contents.text = NSLocalizedString(@"很抱歉，加载失败请重新加载!", nil);
+    errowView.frame = CGRectMake(0, 0, ksrcwidth, ksrcheight - navBarHeight - 65);
+    errowView.reloadBtn.hidden = NO;
+    __weak typeof(EmptyView *)weakView = errowView;
+    [[errowView.reloadBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakView removeFromSuperview];
+        !block?:block();
+    }];
+    [view addSubview:errowView];
+}
+
+#pragma -mark UITextViewDelegate
+- (void)textViewDidChange:(UITextView *)textView {
+    int maxLimit = 80;
+    NSString *lang = [[textView textInputMode] primaryLanguage]; // 键盘输入模式
+    if ([lang isEqualToString:@"zh-Hans"]) { // 简体中文输入，包括简体拼音，健体五笔，简体手写
+        UITextRange *selectedRange = [textView markedTextRange];
+        //获取高亮部分
+        UITextPosition *position = [textView positionFromPosition:selectedRange.start offset:0];
+        // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
+        if (!position) {
+            if (textView.text.length > maxLimit) {
+                textView.text = [textView.text substringToIndex:maxLimit];
+                [self showMsg:NSLocalizedString(@"超出字数限制", nil) location:centre];
+            }
+        } else {
+            // 有高亮选择的字符串，则暂不对文字进行统计和限制
+        }
+    } else { // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
+        if (textView.text.length > maxLimit) {
+            textView.text = [textView.text substringToIndex:maxLimit];
+            [self showMsg:NSLocalizedString(@"超出字数限制", nil) location:centre];
+        }
+    }
+    self.countLabel.text = [NSString stringWithFormat:@"%lu/80",(unsigned long)textView.text.length];
+    self.placeLabel.hidden = textView.text.length != 0;
+    [self makeBtnEnable];
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    int maxLimit = 80;
+    if ([self isText:textView beyondLimit:maxLimit] && [text length] > 0) {
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)isText:(UITextView *)tv beyondLimit:(int)maxLimit{
+    NSString *lang = [[tv textInputMode] primaryLanguage];
+    if ([lang isEqualToString:@"zh-Hans"]) {
+        UITextRange *selectedRange = [tv markedTextRange];
+        UITextPosition *position = [tv positionFromPosition:selectedRange.start offset:0];
+        if (!position) {
+            if (tv.text.length > maxLimit) {
+                return YES;
+            }
+        }
+    } else {
+        if (tv.text.length > maxLimit) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+#pragma mark - JXCategoryListContentViewDelegate
+- (UIView *)listView {
+    return self.view;
+}
+
+- (void)listDidAppear {}
+
+- (void)listDidDisappear {}
+
+@end

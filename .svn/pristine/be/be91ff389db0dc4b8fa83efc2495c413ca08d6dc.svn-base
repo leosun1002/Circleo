@@ -1,0 +1,101 @@
+//
+//  UpdateVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "UpdateVC.h"
+
+@interface UpdateVC ()
+
+@end
+
+@implementation UpdateVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    if (self.type == 1) {
+        [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    }else{
+        [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+    }
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    [self animationAlert:self.backview];
+    self.versionLabel.text = [NSString stringWithFormat:@"V%@",self.model.ios_version_number];
+    self.updateContent.text = AssectString(self.model.content);
+    if (self.model.status == 1) {
+        self.botView.hidden = NO;
+        self.botBtn.hidden = YES;
+    }else{
+        self.botView.hidden = YES;
+        self.botBtn.hidden = NO;
+    }
+}
+
+- (IBAction)cancelBtn:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+}
+
+- (IBAction)updateClick:(id)sender {
+    NSURL *URL = [NSURL URLWithString:AssectString(self.model.ios_url)];
+    if (@available(iOS 10.0, *)) {
+        [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:^(BOOL success) {
+            
+        }];
+    } else {
+        // Fallback on earlier versions
+    }
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+}
+
+- (IBAction)qzUpdateClick:(id)sender {
+    NSURL *URL = [NSURL URLWithString:AssectString(self.model.ios_url)];
+    if (@available(iOS 10.0, *)) {
+        [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:^(BOOL success) {
+            
+        }];
+    } else {
+        // Fallback on earlier versions
+    }
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+}
+
+
+- (void)animationAlert:(UIView *)view{
+    /* 放大缩小 */
+    
+    // 设定为缩放
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:@"transform.scale"];
+    
+    // 动画选项设定
+    animation.duration = 0.25; // 动画持续时间
+    animation.repeatCount = 1; // 重复次数
+    animation.removedOnCompletion = NO;
+    
+    // 缩放倍数
+    animation.fromValue = [NSNumber numberWithFloat:0.0]; // 开始时的倍率
+    animation.toValue = [NSNumber numberWithFloat:1.0]; // 结束时的倍率
+    
+    // 添加动画
+    [view.layer addAnimation:animation forKey:@"scale-layer"];
+}
+
+
+
+@end

@@ -1,0 +1,260 @@
+//
+//  DNSCoinSelectVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSCoinSelectVC.h"
+#import "DNSCoinSelectCollectionCell.h"
+#import "DNSCoinSelectModel.h"
+#import "DNSBindAddressVC.h"
+#import "CurrencyModel.h"
+
+@interface DNSCoinSelectVC ()<UICollectionViewDelegate,UICollectionViewDataSource>{
+    
+}
+
+@property(nonatomic,strong) NSMutableArray *originDatas;
+@property(nonatomic,strong) NSMutableArray *datas;
+@property(nonatomic,weak) UIButton *rightBtn;
+@property(nonatomic,assign) long selecttag;
+
+@property(nonatomic,strong) NSString *searchStr;
+
+@end
+
+@implementation DNSCoinSelectVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:self.type == 0?NSLocalizedString(@"搜索币种", nil):NSLocalizedString(@"选择币种", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self addRefresh];
+    [self addRightBtn];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.baseLine.hidden = YES;
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    self.baseLine.hidden = NO;
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 65,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    [rightBtn setTitle:NSLocalizedString(@"绑定", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    rightBtn.hidden = YES;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        DNSBindAddressVC *bindVc = [[DNSBindAddressVC alloc] init];
+        bindVc.domain_name_id = weakself.domain_name_id;
+
+        DNSCoinSelectModel *selectModel;
+        for (DNSCoinSelectModel *model in weakself.datas) {
+            if (model.selectid == weakself.selecttag) {
+                selectModel = model;
+            }
+        }
+        if (!selectModel) return;
+        
+        DNSBindModel *bindModel = [[DNSBindModel alloc] init];
+        bindModel.log_image = selectModel.log_image;
+        bindModel.bindid = selectModel.selectid;
+        bindModel.name = selectModel.name;
+        bindVc.model = bindModel;
+        [weakself.navigationController pushViewController:bindVc animated:YES];
+    }];
+    [view addSubview:_rightBtn = rightBtn];
+}
+
+-(void)addRefresh{
+    [self.collect.mj_header beginRefreshing];
+}
+
+-(void)getData{
+    if (self.type == 0) {
+        [self getSearchData];
+    }else{
+        [self getSelectData];
+    }
+}
+
+-(void)getSearchData{
+    NSDictionary *dict = @{@"id":AssectString(self.manageid)};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:DomainNameSelect param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.originDatas removeAllObjects];
+                [json[@"data"][@"public_chains"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    DNSCoinSelectModel *modules = [DNSCoinSelectModel mj_objectWithKeyValues:obj];
+                    if (modules.selectid == weakself.selecttag) {
+                        modules.hasSelect = YES;
+                    }
+                    [weakself.originDatas addObject:modules];
+                }];
+            }
+        }
+        [weakself reloadSearchData];
+        [weakself.collect.mj_header endRefreshing];
+    }];
+}
+
+-(void)getSelectData{
+    NSDictionary *dict = @{@"name":AssectString(self.searchStr)};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:self.type==1 || self.type==3?CurrencyIndex:Currencyselect param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                NSMutableArray<CurrencyModel *> *applicationList = [CurrencyModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"currencys"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.collect.mj_header endRefreshing];
+        [weakself.collect reloadData];
+    }];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    
+    [self.collect registerNib:[UINib nibWithNibName:@"DNSCoinSelectCollectionCell" bundle:nil] forCellWithReuseIdentifier:@"DNSCoinSelectCollectionCell"];
+    
+    UICollectionViewFlowLayout * layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumInteritemSpacing = 10;
+    layout.minimumLineSpacing = 15;
+    layout.itemSize = CGSizeMake((ksrcwidth - 30 - 30)/4,35);
+    layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    [self.collect setCollectionViewLayout:layout];
+    
+    WeakSelf(self);
+    self.collect.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData];
+    }];
+    
+    [[self.searchText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        if (weakself.type == 0) {
+            [weakself reloadSearchData];
+        }
+    }];
+    
+    [[self.searchText rac_signalForControlEvents:(UIControlEventEditingDidEnd)] subscribeNext:^(id x) {
+        if (weakself.type == 1 || weakself.type == 2 || weakself.type == 3) {
+            weakself.searchStr = [weakself removeSpaceAndNewline:weakself.searchText.text];
+            [weakself.collect.mj_header beginRefreshing];
+        }
+    }];
+}
+
+-(void)reloadSearchData{
+    if (self.originDatas.count == 0) {
+        self.datas = self.originDatas;
+        [self.collect reloadData];
+        [self setRightBtnHidden];
+        return;
+    }
+    NSString *search = [self removeSpaceAndNewline:self.searchText.text];
+    if ([search isEqualToString:@""]) {
+        self.datas = self.originDatas;
+        [self.collect reloadData];
+        [self setRightBtnHidden];
+        return;
+    }
+    NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name contains %@",[search uppercaseString]];
+    NSArray *array = [self.originDatas filteredArrayUsingPredicate:predicate];
+    self.datas = [NSMutableArray arrayWithArray:array];
+    [self.collect reloadData];
+    [self setRightBtnHidden];
+}
+
+-(void)setRightBtnHidden{
+    BOOL ifHidden = YES;
+    for (DNSCoinSelectModel *modules in self.datas) {
+        if (modules.hasSelect) {
+            ifHidden = NO;
+            break;
+        }
+    }
+    self.rightBtn.hidden = ifHidden;
+}
+
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    DNSCoinSelectCollectionCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DNSCoinSelectCollectionCell" forIndexPath:indexPath];
+    if (self.type == 0) {
+        cell.model = self.datas[indexPath.item];
+    }else{
+        cell.currencyModel = self.datas[indexPath.item];
+    }
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.type == 1) {
+        CurrencyModel *currencyModel = self.datas[indexPath.item];
+        [self.subject sendNext:[NSString stringWithFormat:@"%ld",currencyModel.currencyid]];
+        [self.navigationController popViewControllerAnimated:YES];
+        return;
+    }
+    
+    if (self.type == 2) {
+        CurrencyModel *currencyModel = self.datas[indexPath.item];
+        [self.subject sendNext:currencyModel];
+        [self.navigationController popViewControllerAnimated:YES];
+        return;
+    }
+    
+    if (self.type == 3) {
+        CurrencyModel *currencyModel = self.datas[indexPath.item];
+        [self.subject sendNext:currencyModel];
+        [self.navigationController popViewControllerAnimated:YES];
+        return;
+    }
+    
+    DNSCoinSelectModel *selectModel = self.datas[indexPath.item];
+    if (selectModel.hasSelect) {
+        selectModel.hasSelect = NO;
+    }else{
+        for (DNSCoinSelectModel *model in self.datas) {
+            model.hasSelect = NO;
+        }
+        selectModel.hasSelect = YES;
+    }
+    [self reloadSearchData];
+    self.selecttag = selectModel.selectid;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)originDatas{
+    if (!_originDatas) {
+        _originDatas = [NSMutableArray array];
+    }
+    return _originDatas;
+}
+
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

@@ -1,0 +1,43 @@
+//
+//  ShopAssetChargeRecordChildViewController.m
+//  Cloud Pro
+//
+//  Created by leosun on 2020/7/13.
+//  Copyright © 2020 yunzhuan. All rights reserved.
+//
+
+#import "ShopAssetChargeRecordVC.h"
+#import "ShopAssetChargeRecordTableViewCell.h"
+
+@interface ShopAssetChargeRecordVC ()<UITableViewDelegate,UITableViewDataSource>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+
+@end
+
+@implementation ShopAssetChargeRecordVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUI];
+}
+
+-(void)prepareUI{
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopAssetChargeRecordTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopAssetChargeRecordTableViewCell"];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopAssetChargeRecordTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopAssetChargeRecordTableViewCell"];
+    return cell;
+}
+@end

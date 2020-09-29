@@ -1,0 +1,33 @@
+//
+//  DNSBuyModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSBuyModel : NSObject
+
+@property(nonatomic,assign) long buyid;
+@property(nonatomic,copy) NSString *order_number;
+@property(nonatomic,assign) long years;
+@property(nonatomic,copy) NSString *domain_name;
+@property(nonatomic,copy) NSString *cny_price;
+@property(nonatomic,copy) NSString *create_at;
+@property(nonatomic,copy) NSString *cny_fee;
+@property(nonatomic,assign) long user_id;
+@property(nonatomic,copy) NSString *start_time;
+@property(nonatomic,copy) NSString *usdt_fee;
+@property(nonatomic,copy) NSString *updated_at;
+@property(nonatomic,copy) NSString *end_time;
+@property(nonatomic,copy) NSString *usdt_price;
+@property(nonatomic,copy) NSString *unit_price;
+@property(nonatomic,copy) NSString *content;
+
+@end
+
+NS_ASSUME_NONNULL_END

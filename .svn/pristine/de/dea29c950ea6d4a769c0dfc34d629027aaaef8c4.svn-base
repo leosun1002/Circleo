@@ -1,0 +1,26 @@
+//
+//  DNSOrderManageChildVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSOrderManageChildVC : BaseViewController
+
+@property (assign, nonatomic) NSInteger type;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet UIView *headerBgview;
+@property(nonatomic,strong)NSString *canRefresh;
+@property(nonatomic,strong)NSString *status;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bgTopConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

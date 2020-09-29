@@ -1,0 +1,267 @@
+//
+//  DNSOrderDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSOrderDetailVC.h"
+#import "DNSOrderModel.h"
+#import "NSTimer+Block.h"
+#import "DNSOrderManageVC.h"
+
+@interface DNSOrderDetailVC ()
+
+@property(nonatomic,weak)UIButton *rightBtn;
+@property(nonatomic,weak) NSTimer *timer;
+/// 1挂卖中，2已出售，3已取消， 99已购买 4求购中
+@property(nonatomic,assign) long status;
+
+@end
+
+@implementation DNSOrderDetailVC
+
+-(void)dealloc{
+    [self tearDownTimer];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"订单详情", nil) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    [self getData];
+    [self addRightBtn];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self dismissLoading];
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 75,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    rightBtn.hidden = YES;
+    [rightBtn setTitle:NSLocalizedString(@"取消订单", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#323236"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself cancelOrder];
+    }];
+    [view addSubview:_rightBtn = rightBtn];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    [WebServices postFormReqUrl:DomainHangSaleOrder param:@{@"id":AssectString(self.order_id)} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                DNSOrderModel *model = [DNSOrderModel mj_objectWithKeyValues:json[@"data"]];
+                [weakself setData:model];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)cancelOrder{
+    UIAlertController *sheetVC = [UIAlertController alertControllerWithTitle:self.status == 1?NSLocalizedString(@"是否取消挂卖单", nil):NSLocalizedString(@"是否取消求购单", nil) message:nil preferredStyle:UIAlertControllerStyleAlert];
+    
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1 = [UIAlertAction actionWithTitle:NSLocalizedString(@"确认", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [weakself cancelClick];
+    }];
+    
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+-(void)cancelClick{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:DomainHangSaleOrderDestroy param:@{@"id":AssectString(self.order_id)} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                if (weakself.jumptype == 1) {
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }else{
+                    [weakself popToVC:@"DNSOrderManageVC"];
+                }
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，清稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)setData:(DNSOrderModel *)model{
+    self.nameLabel.text = model.domain_name;
+    self.buyTimeLabel.text = model.start_time;
+    self.expireTimeLabel.text = model.end_time;
+    
+    NSString *sale_phone = model.sale_phone;
+    if (sale_phone.length > 9) {
+        sale_phone = [sale_phone substringToIndex:9];
+        sale_phone = [sale_phone stringByAppendingFormat:@"..."];
+    }
+    self.saleLabel.text = sale_phone;
+    
+    NSString *buy_phone = model.buy_phone;
+    if (buy_phone.length > 9) {
+        buy_phone = [buy_phone substringToIndex:9];
+        buy_phone = [buy_phone stringByAppendingFormat:@"..."];
+    }
+    self.buyerLabel.text = buy_phone;
+    // 1挂卖中，2已出售，3已取消， 99已购买
+    if (model.order_status == 1) {
+        self.stateLabel.text = NSLocalizedString(@"挂卖中", nil);
+        self.stateLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+        self.payTypeView.hidden = YES;
+        self.payTypeHeightConst.constant = 0;
+        self.payTyepLabel.text = @"";
+        self.lastTimeTipLabel.text = NSLocalizedString(@"剩余挂卖时间", nil);
+        self.rightBtn.hidden = NO;
+        [self addTimer:model];
+    }else if (model.order_status == 2){
+        self.stateLabel.text = NSLocalizedString(@"已售出", nil);
+        self.stateLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        self.payTypeView.hidden = NO;
+        self.payTypeHeightConst.constant = 51;
+        self.payTyepLabel.text = NSLocalizedString(@"USDT 资产支付", nil);
+        self.lastTimeTipLabel.text = NSLocalizedString(@"售出时间", nil);
+        self.lastTimeLabel.text = model.buy_time;
+    }else if (model.order_status == 3){
+        self.stateLabel.text = NSLocalizedString(@"已取消", nil);
+        self.stateLabel.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+        self.payTypeView.hidden = YES;
+        self.payTypeHeightConst.constant = 0;
+        self.payTyepLabel.text = @"";
+        self.lastTimeTipLabel.text = NSLocalizedString(@"取消时间", nil);
+        self.lastTimeLabel.text = model.cancel_time;
+    }else if (model.order_status == 4){
+        self.stateLabel.text = NSLocalizedString(@"求购中", nil);
+        self.stateLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+        self.payTypeView.hidden = YES;
+        self.payTypeHeightConst.constant = 0;
+        self.payTyepLabel.text = @"";
+        self.lastTimeTipLabel.text = NSLocalizedString(@"剩余求购时间", nil);
+        self.rightBtn.hidden = NO;
+        [self addTimer:model];
+    }else{
+        self.stateLabel.text = NSLocalizedString(@"已购买", nil);
+        self.stateLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        self.payTypeView.hidden = NO;
+        self.payTypeHeightConst.constant = 51;
+        self.payTyepLabel.text = NSLocalizedString(@"USDT 资产支付", nil);
+        self.lastTimeTipLabel.text = NSLocalizedString(@"购买时间", nil);
+        self.lastTimeLabel.text = model.buy_time;
+    }
+    self.fromLabel.text = NSLocalizedString(@"域名交易", nil);
+    self.priceLabel.text = [NSString stringWithFormat:@"%@ USDT",AssectString(model.price)];
+    self.typeLabel.text = model.type == 1?NSLocalizedString(@"一口价", nil):@"";
+    self.publishLabel.text = model.sale_time;
+    
+    self.status = model.order_status;
+}
+
+//添加倒计时
+- (void)addTimer:(DNSOrderModel *)model{
+    [self tearDownTimer];
+    WeakSelf(self);
+    self.timer = [NSTimer repeatWithInterval:1.f block:^(NSTimer * _Nonnull timer) {
+        [weakself caculateSurplusTime:model];
+    }];
+}
+
+- (void)tearDownTimer {
+    [self.timer invalidate];
+    self.timer = nil;
+}
+
+-(void)caculateSurplusTime:(DNSOrderModel *)model{
+    // 1.将时间转换为date
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"YYYY-MM-dd HH:mm:ss";
+//    NSDate *expireDate = [self localeDate:[formatter dateFromString:model.end_time]];
+    NSDate *publishDate = [self localeDate:[formatter dateFromString:AssectString(model.sale_time)]];
+    NSDate *expireDate = [publishDate dateByAddingTimeInterval:model.sale_day*60*60*24];
+
+    NSDate* nowDate = [self localeDate:[NSDate date]];
+    
+    //1比较大小
+    if ([[expireDate earlierDate:nowDate] isEqualToDate:expireDate]) {
+        self.lastTimeLabel.text = NSLocalizedString(@"该域名已经过期", nil);
+        [self tearDownTimer];
+        self.rightBtn.hidden = YES;
+        return;
+    }
+    
+    // 2.创建日历
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSCalendarUnit type = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+    // 3.利用日历对象比较两个时间的差值
+    NSDateComponents *cmps = [calendar components:type fromDate:nowDate toDate:expireDate options:0];
+    // 4.输出结果
+//    if (cmps.day > 0) {
+//        self.lastTimeLabel.text = [NSString stringWithFormat:@"%ldd %ldh",(long)cmps.day,(long)cmps.hour];
+//    }else{
+//        self.lastTimeLabel.text = [NSString stringWithFormat:@"%ld:%ld:%ld",(long)cmps.hour,cmps.minute,cmps.second];
+//    }
+    NSInteger day = cmps.day;
+    NSString *hour = cmps.hour < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.hour]:[NSString stringWithFormat:@"%ld",(long)cmps.hour];
+    NSString *minute = cmps.minute < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.minute]:[NSString stringWithFormat:@"%ld",(long)cmps.minute];
+    NSString *second = cmps.second < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.second]:[NSString stringWithFormat:@"%ld",(long)cmps.second];
+    
+    // 4.输出结果
+    if (cmps.day > 0) {
+        self.lastTimeLabel.text = [NSString stringWithFormat:@"%ldd %@:%@:%@",(long)day,hour,minute,second];
+    }else{
+        self.lastTimeLabel.text = [NSString stringWithFormat:@"%@:%@:%@",hour,minute,second];
+    }
+}
+
+//获取正确的时间
+- (NSDate*)localeDate:(NSDate*)date {
+    NSTimeZone *zone = [NSTimeZone systemTimeZone];
+    NSInteger interval = [zone secondsFromGMTForDate: date];
+    NSDate *localeDate = [date dateByAddingTimeInterval: interval];
+    return localeDate;
+}
+
+-(void)popToVC:(NSString* )vcStr{
+    for (UIViewController *controller in self.navigationController.viewControllers) {
+        if([controller isKindOfClass:NSClassFromString(vcStr)]){
+            DNSOrderManageVC *order = (DNSOrderManageVC *)controller;
+            [self.navigationController popToViewController:order animated:NO];
+            [order refreshData];
+            break;
+        }
+    }
+}
+@end

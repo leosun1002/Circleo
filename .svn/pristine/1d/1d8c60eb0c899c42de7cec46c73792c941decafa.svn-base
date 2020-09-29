@@ -1,0 +1,124 @@
+//
+//  AssetConditionVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AssetConditionVC.h"
+#import "AssetConditionCollectionViewCell.h"
+
+@interface AssetConditionVC ()<UICollectionViewDelegate,UICollectionViewDataSource>
+
+@end
+
+@implementation AssetConditionVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    
+    self.flowOut.minimumInteritemSpacing = 7;
+    self.flowOut.minimumLineSpacing = 7;
+    self.flowOut.itemSize = CGSizeMake((ksrcwidth - 44)/3,45);
+    self.flowOut.scrollDirection = UICollectionViewScrollDirectionVertical;
+    
+    [self.collecview registerNib:[UINib nibWithNibName:@"AssetConditionCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"AssetConditionCollectionViewCell"];
+    
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.08 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [UIView animateWithDuration:0.25 animations:^{
+            weakself.backview.y = ksrcheight - 300;
+            weakself.bgview.alpha = 0.3;
+        }];
+    });
+}
+
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.filterArray.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    AssetConditionCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"AssetConditionCollectionViewCell" forIndexPath:indexPath];
+    if (self.type == 1) {
+        NSDictionary *dict = self.filterArray[indexPath.item];
+        cell.nameLabel.text = AssectString(dict[@"name"]);
+        NSString *selectid = [NSString stringWithFormat:@"%lld",[dict[@"id"] longLongValue]];
+        if ([selectid isEqualToString:AssectString(self.filterStr)]) {
+            cell.nameLabel.textColor = [UIColor colorWithRGBHex:@"#FF5773"];
+            cell.nameLabel.layer.borderColor = [UIColor colorWithRGBHex:@"#FF5773"].CGColor;
+            cell.nameLabel.layer.borderWidth = 1.f;
+            cell.nameLabel.backgroundColor = [UIColor getColor:@"#FF5773" alpha:0.02];
+        }else{
+            cell.nameLabel.textColor = [UIColor colorWithRGBHex:@"#555555"];
+            cell.nameLabel.layer.borderColor = [UIColor colorWithRGBHex:@"#F7F7F9"].CGColor;
+            cell.nameLabel.layer.borderWidth = 1.f;
+            cell.nameLabel.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+        }
+        return cell;
+    }
+    
+    NSString *filter = self.filterArray[indexPath.item];
+    cell.nameLabel.text = AssectString(filter);
+    if ([AssectString(filter) isEqualToString:AssectString(self.filterStr)]) {
+        cell.nameLabel.textColor = [UIColor colorWithRGBHex:@"#5151F0"];
+        cell.nameLabel.layer.borderColor = [UIColor colorWithRGBHex:@"#5151F0"].CGColor;
+        cell.nameLabel.layer.borderWidth = 1.f;
+        cell.nameLabel.backgroundColor = [UIColor colorWithRGBHex:@"#F5F5FE"];
+    }else{
+        cell.nameLabel.textColor = [UIColor colorWithRGBHex:@"#555555"];
+        cell.nameLabel.layer.borderColor = [UIColor colorWithRGBHex:@"#F7F7F9"].CGColor;
+        cell.nameLabel.layer.borderWidth = 1.f;
+        cell.nameLabel.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+    }
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.type == 0) {
+        NSString *filter = self.filterArray[indexPath.item];
+        if ([AssectString(filter) isEqualToString:AssectString(self.filterStr)]) return;
+        [self.subject sendNext:AssectString(filter)];
+    }else{
+        NSDictionary *dict = self.filterArray[indexPath.item];
+        NSString *selectid = [NSString stringWithFormat:@"%lld",[dict[@"id"] longLongValue]];
+        if ([selectid isEqualToString:AssectString(self.filterStr)]) return;
+        [self.subject sendNext:dict];
+    }
+    
+    self.bgview.alpha = 0;
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        self.backview.y = ksrcheight;
+        self.bgview.alpha = 0;
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            
+        }];
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [UIView animateWithDuration:0.25 animations:^{
+        self.backview.y = ksrcheight;
+        self.bgview.alpha = 0;
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            
+        }];
+    }];
+
+}
+
+@end

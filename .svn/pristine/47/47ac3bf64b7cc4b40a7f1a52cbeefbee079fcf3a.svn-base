@@ -1,0 +1,33 @@
+//
+//  DNSOrderManageHeader.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSOrderManageHeader : UIView
+@property (weak, nonatomic) IBOutlet UIButton *typeBtn;
+@property (weak, nonatomic) IBOutlet UIButton *stateBtn;
+@property (weak, nonatomic) IBOutlet UIButton *dateBtn;
+
+
+@property (weak, nonatomic) IBOutlet UIView *typeView;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *typeImage;
+
+@property (weak, nonatomic) IBOutlet UIView *stateView;
+@property (weak, nonatomic) IBOutlet UILabel *stateLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *stateImg;
+
+@property (weak, nonatomic) IBOutlet UIView *dateView;
+@property (weak, nonatomic) IBOutlet UILabel *dataLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *dateImg;
+
+@end
+
+NS_ASSUME_NONNULL_END

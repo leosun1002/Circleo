@@ -1,0 +1,22 @@
+//
+//  ChangeTradePswDoneVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/8.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ChangeTradePswDoneVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+@property (weak, nonatomic) IBOutlet UITextField *retryText;
+@property (strong, nonatomic) NSString *phone;
+@property (strong, nonatomic) NSString *code;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,25 @@
+//
+//  DNSUnbindVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSUnbindVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) NSMutableArray *datas;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+
+@property (strong, nonatomic) NSString *manageid;
+
+@end
+
+NS_ASSUME_NONNULL_END

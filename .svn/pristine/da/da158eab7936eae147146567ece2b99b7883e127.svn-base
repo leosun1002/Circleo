@@ -1,0 +1,31 @@
+//
+//  AgentUSDTPullVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AgentUSDTPullVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UIView *backview;
+@property (weak, nonatomic) IBOutlet UILabel *usdtLabel;
+@property (weak, nonatomic) IBOutlet UILabel *zhCnyLabel;
+
+@property (weak, nonatomic) IBOutlet UITextField *addressText;
+@property (weak, nonatomic) IBOutlet UITextField *countText;
+@property (weak, nonatomic) IBOutlet UITextField *sxfText;
+@property (weak, nonatomic) IBOutlet UITextField *dzText;
+@property (weak, nonatomic) IBOutlet UITextView *markText;
+@property (weak, nonatomic) IBOutlet UILabel *markLabel;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

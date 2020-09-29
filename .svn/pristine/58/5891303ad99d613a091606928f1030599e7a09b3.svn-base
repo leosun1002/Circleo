@@ -1,0 +1,28 @@
+//
+//  DNSDatePickerVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSDatePickerVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet UIView *backview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomConst;
+@property (weak, nonatomic) IBOutlet UIPickerView *yearPicker;
+@property (weak, nonatomic) IBOutlet UIPickerView *monthPicker;
+@property (weak, nonatomic) IBOutlet UIPickerView *dayPicker;
+@property (strong, nonatomic) RACSubject *daySubject;
+
+//选中时间
+@property(nonatomic,strong)NSString *selectYear;
+@property(nonatomic,strong)NSString *selectMonth;
+@property(nonatomic,strong)NSString *selectDay;
+@end
+
+NS_ASSUME_NONNULL_END

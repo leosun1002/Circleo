@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" rowHeight="425" id="KGk-i7-Jjw" customClass="DNSShopNoDataCell">
+            <rect key="frame" x="0.0" y="0.0" width="634" height="425"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="634" height="425"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="defultPage_noData" translatesAutoresizingMaskIntoConstraints="NO" id="KCo-be-Bt2">
+                        <rect key="frame" x="129.5" y="60" width="375" height="345"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="375" id="WnS-fF-Ys1"/>
+                            <constraint firstAttribute="height" constant="345" id="yQ7-dT-mID"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="您搜索的域名暂未进行挂卖或注册，请前往平台搜索查看域名详细情况" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Mtf-yE-unO">
+                        <rect key="frame" x="55" y="326" width="524" height="16"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" red="0.46666666666666667" green="0.46666666666666667" blue="0.52156862745098043" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="KCo-be-Bt2" firstAttribute="centerX" secondItem="H2p-sc-9uM" secondAttribute="centerX" id="5Dx-Dv-ngs"/>
+                    <constraint firstAttribute="trailing" secondItem="Mtf-yE-unO" secondAttribute="trailing" constant="55" id="JsA-7K-zlz"/>
+                    <constraint firstItem="Mtf-yE-unO" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="55" id="NDb-yP-ugS"/>
+                    <constraint firstItem="Mtf-yE-unO" firstAttribute="top" secondItem="KCo-be-Bt2" secondAttribute="top" constant="266" id="Su5-pM-AjS"/>
+                    <constraint firstItem="KCo-be-Bt2" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="60" id="hVL-pL-GPg"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="nameLabel" destination="Mtf-yE-unO" id="bmk-qP-iKY"/>
+                <outlet property="topConst" destination="hVL-pL-GPg" id="Hyq-bt-Ir2"/>
+            </connections>
+            <point key="canvasLocation" x="86.956521739130437" y="71.316964285714278"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="defultPage_noData" width="375" height="345"/>
+    </resources>
+</document>

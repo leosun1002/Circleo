@@ -1,0 +1,61 @@
+//
+//  ShopTraceSourceRecordCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopTraceSourceRecordCell.h"
+
+@interface ShopTraceSourceRecordCell ()
+
+@property (weak, nonatomic) IBOutlet UIView *topView;
+@property (weak, nonatomic) IBOutlet UIImageView *lineView;
+@property (weak, nonatomic) IBOutlet UIView *tqBGview;
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+
+@end
+
+@implementation ShopTraceSourceRecordCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.topView.layer.cornerRadius = 5.0f;
+    self.topView.layer.borderColor = [UIColor colorWithRGBHex:@"#55555E"].CGColor;
+    self.topView.layer.borderWidth = 2.5f;
+    
+    [self drawLineByImageView:self.lineView];
+    [self.bgview bringSubviewToFront:self.tqBGview];
+}
+
+- (void)drawLineByImageView:(UIImageView *)imageView {
+    UIGraphicsBeginImageContext(imageView.frame.size);   //开始画线 划线的frame
+    [imageView.image drawInRect:CGRectMake(0, 0, imageView.frame.size.width, imageView.frame.size.height)];
+    //设置线条终点形状
+    CGContextSetLineCap(UIGraphicsGetCurrentContext(), kCGLineCapRound);
+    
+    CGContextRef line = UIGraphicsGetCurrentContext();
+    // 设置颜色
+    CGContextSetStrokeColorWithColor(line, [UIColor colorWithRGBHex:@"#AAAAB5"].CGColor);
+    
+    
+    CGFloat lengths[] = {5,4};//先画4个点再画2个点
+    CGContextSetLineDash(line,0, lengths,2);//注意2(count)的值等于lengths数组的长度
+    
+    CGContextMoveToPoint(line, imageView.width/2, 0);    //开始画线
+    CGContextAddLineToPoint(line,imageView.width/2, imageView.height);
+    CGContextStrokePath(line);
+    // UIGraphicsGetImageFromCurrentImageContext()返回的就是image
+    UIImage *image =   UIGraphicsGetImageFromCurrentImageContext();
+    imageView.image = image;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

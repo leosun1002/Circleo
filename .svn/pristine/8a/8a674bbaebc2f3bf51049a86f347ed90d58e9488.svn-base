@@ -1,0 +1,26 @@
+//
+//  WechatShareVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/12/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WechatShareVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomConst;
+@property (strong, nonatomic) RACSubject *shareSubject;
+
+@property (weak, nonatomic) IBOutlet UIImageView *saveImage;
+@property (weak, nonatomic) IBOutlet UILabel *saveLabel;
+
+/// 0是链接  1是图片
+@property (assign, nonatomic) long type;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,30 @@
+//
+//  EvidenceDataTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/4/22.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "EvidenceDetailModel.h"
+NS_ASSUME_NONNULL_BEGIN
+
+@interface EvidenceDataTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)EvidenceDetailModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *numberLabel;
+@property (weak, nonatomic) IBOutlet UILabel *domainLabel;
+@property (weak, nonatomic) IBOutlet UILabel *fingerprintLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sizeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *memoryLabel;
+@property (weak, nonatomic) IBOutlet UILabel *remarkLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UIView *headerView;
+@property (weak, nonatomic) IBOutlet UIView *domainView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *domianHeight;
+
+@end
+
+NS_ASSUME_NONNULL_END

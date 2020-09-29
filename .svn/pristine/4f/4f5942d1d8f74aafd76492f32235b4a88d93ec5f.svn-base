@@ -1,0 +1,27 @@
+//
+//  DNSPublishContentVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSPublishContentVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITextView *contentText;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *botConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *placeTopConst;
+@property (weak, nonatomic) IBOutlet UILabel *placeLabel;
+///0标题 1是内容  2是存证标签   3存证备注 4网站名 5手机号 6邮箱 7地址 8菜单标题
+@property(nonatomic,assign) long type;
+@property(nonatomic,strong)RACSubject *subject;
+@property(nonatomic,strong)NSString *selectStr;
+
+@end
+
+NS_ASSUME_NONNULL_END

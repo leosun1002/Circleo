@@ -1,0 +1,60 @@
+//
+//  WebsiteArticleManagerCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/6/3.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebsiteArticleManagerCell.h"
+
+@implementation WebsiteArticleManagerCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(WebsiteArticelModel *)model{
+    _model = model;
+    self.showView.backgroundColor = model.display_status == 0?[UIColor colorWithRGBHex:@"#55555E"]:[UIColor colorWithRGBHex:@"#5151F0"];
+    self.showLabel.text = model.display_status == 0?NSLocalizedString(@"隐藏", nil):NSLocalizedString(@"展示", nil);
+
+    /// 0未上链，1上链中，2上链成功，3上链失败
+    if (model.chain_status == 0) {
+        self.statusLabel.text = NSLocalizedString(@"未上链", nil);
+    }else if (model.chain_status == 1){
+        self.statusLabel.text = NSLocalizedString(@"上链中", nil);
+    }else if (model.chain_status == 3){
+        self.statusLabel.text = NSLocalizedString(@"上链失败", nil);
+    }else{
+        self.statusLabel.text = @"";
+    }
+    self.titlLabel.text = model.title;
+    self.titleWidth.constant = ksrcwidth - 15 - [self calculateWidth:self.showLabel] - 14 - 5- 15 - [self calculateWidth:self.statusLabel] - 10;
+    self.timeLabel.text = model.time;
+    [self.chainsImgV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.website_article_chain.image_address)]];
+    self.chainsLabel.text = model.website_article_chain.name;
+    if ([AssectString(model.website_article_chain.name) isEqualToString:@""]) {
+        self.chainsWidth.constant = 0;
+        self.chainsView.hidden = YES;
+    }else{
+        self.chainsWidth.constant = 19 + [self calculateWidth:self.chainsLabel] + 15;
+        self.chainsView.hidden = NO;
+    }
+    self.typeLabel.text = model.website_category_navigation.name;
+}
+
+-(CGFloat)calculateWidth:(UILabel *)label{
+    //计算文本文字size
+    CGSize size = [label.text sizeWithAttributes:@{NSFontAttributeName: label.font}];
+    return size.width;
+}
+
+@end

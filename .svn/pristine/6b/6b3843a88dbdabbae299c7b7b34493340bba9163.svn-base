@@ -1,0 +1,106 @@
+//
+//  ShopPersonHomeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopPersonHomeVC.h"
+#import "ShopPersonHomeCollectionViewCell.h"
+#import "ShopFriendsListVC.h"
+#import "ShopAddressListVC.h"
+#import "MallSafeCenterVC.h"
+#import "MallMyFuelVC.h"
+#import "ShopFeedbackVC.h"
+#import "ShopAboutUsVC.h"
+#import "MallMyOrderVC.h"
+
+@interface ShopPersonHomeVC ()<UICollectionViewDelegate,UICollectionViewDataSource>
+@property (weak, nonatomic) IBOutlet UIView *ruelBgview;
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+@property(nonatomic,strong) NSArray *datas;
+@end
+
+@implementation ShopPersonHomeVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+    [self addLayer];
+    [self addCollect];
+}
+
+-(void)addLayer{
+    self.ruelBgview.layer.cornerRadius = 15;
+    
+    self.ruelBgview.layer.shadowColor = [UIColor colorWithRGBHex:@"#1163D6"].CGColor;
+    self.ruelBgview.layer.shadowOffset = CGSizeMake(1, 1);
+    self.ruelBgview.layer.shadowRadius = 15.f;
+    self.ruelBgview.layer.shadowOpacity = 1.f;
+    [self.ruelBgview.layer setShadowPath:[[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, 90, 30)] CGPath]];
+}
+
+- (IBAction)orderClick:(id)sender {
+    MallMyOrderVC *orderVc = [[MallMyOrderVC alloc] init];
+    [self.navigationController pushViewController:orderVc animated:YES];
+}
+
+-(void)addCollect{
+    self.flowLayout.itemSize = CGSizeMake(ksrcwidth/4, 60);
+    self.flowLayout.minimumLineSpacing = 0;
+    self.flowLayout.minimumInteritemSpacing = 0;
+    self.flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    
+    [self.collect registerNib:[UINib nibWithNibName:@"ShopPersonHomeCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"ShopPersonHomeCollectionViewCell"];
+}
+
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    ShopPersonHomeCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"ShopPersonHomeCollectionViewCell" forIndexPath:indexPath];
+    cell.nameLabel.text = self.datas[indexPath.item][@"name"];
+    cell.imageV.image = [UIImage imageNamed:self.datas[indexPath.item][@"image"]];
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    NSDictionary *dict = self.datas[indexPath.item];
+    if ([dict[@"name"] isEqualToString:@"通讯录"]) {
+        ShopFriendsListVC *friendsVC = [[ShopFriendsListVC alloc] init];
+        [self.navigationController pushViewController:friendsVC animated:YES];
+    }if ([dict[@"name"] isEqualToString:@"地址管理"]) {
+        ShopAddressListVC *addressVC = [[ShopAddressListVC alloc] init];
+        [self.navigationController pushViewController:addressVC animated:YES];
+    }if ([dict[@"name"] isEqualToString:@"账户安全"]) {
+        MallSafeCenterVC *safeVC = [[MallSafeCenterVC alloc] init];
+        [self.navigationController pushViewController:safeVC animated:YES];
+    }if ([dict[@"name"] isEqualToString:@"我的燃料"]) {
+        MallMyFuelVC *myFuelVC = [[MallMyFuelVC alloc] init];
+        [self.navigationController pushViewController:myFuelVC animated:YES];
+    }if ([dict[@"name"] isEqualToString:@"留言反馈"]) {
+        ShopFeedbackVC *feedbackVC = [[ShopFeedbackVC alloc] init];
+        [self.navigationController pushViewController:feedbackVC animated:YES];
+    }if ([dict[@"name"] isEqualToString:@"关于我们"]) {
+        ShopAboutUsVC *aboutus = [[ShopAboutUsVC alloc] init];
+        [self.navigationController pushViewController:aboutus animated:YES];
+    }
+}
+
+#pragma -mark getter
+-(NSArray *)datas{
+    if (!_datas) {
+        _datas = [NSArray arrayWithObjects:@{@"name":@"我的燃料",@"image":@"service_mall_ruel"},
+                                           @{@"name":@"通讯录",@"image":@"service_mall_message"},
+                                           @{@"name":@"地址管理",@"image":@"service_mall_address"},
+                                           @{@"name":@"账户安全",@"image":@"service_mall_safe"},
+                                           @{@"name":@"留言反馈",@"image":@"service_mall_feed"},
+                @{@"name":@"关于我们",@"image":@"service_mall_about"},nil];
+    }
+    return _datas;
+}
+@end

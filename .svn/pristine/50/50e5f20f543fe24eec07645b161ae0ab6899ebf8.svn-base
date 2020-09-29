@@ -1,0 +1,51 @@
+//
+//  MallDetailChainDataHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallDetailChainDataHeader.h"
+
+@interface MallDetailChainDataHeader ()
+@property (weak, nonatomic) IBOutlet UIImageView *imgV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *totalLabel;
+@property (weak, nonatomic) IBOutlet UILabel *lastLabel;
+@property (weak, nonatomic) IBOutlet UILabel *businessLabel;
+@property (weak, nonatomic) IBOutlet UILabel *productLabel;
+@property (weak, nonatomic) IBOutlet UILabel *proDescLabel;
+@property (weak, nonatomic) IBOutlet UILabel *proNumberLabel;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+
+@end
+
+@implementation MallDetailChainDataHeader
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"MallDetailChainDataHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        self.imgV.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+        self.imgV.layer.borderWidth = 0.5f;
+    }
+    return self;
+}
+
+-(void)setModel:(ShopChainModel *)model{
+    if (!model) return;
+    _model = model;
+    [self.imgV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.small_image)]];
+    self.nameLabel.text = model.name;
+    self.totalLabel.text = [NSString stringWithFormat:@"%ld",model.total_number];
+    self.lastLabel.text = [NSString stringWithFormat:@"%ld",model.last_number];
+    self.businessLabel.text = model.publisher;
+    self.productLabel.text = model.name;
+    self.proDescLabel.text = model.introduction;
+    self.proNumberLabel.text = model.good_number;
+    self.priceLabel.text = model.price;
+
+}
+@end

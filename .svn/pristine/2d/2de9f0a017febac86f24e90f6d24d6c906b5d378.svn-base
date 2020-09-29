@@ -1,0 +1,32 @@
+//
+//  MyUSDTIncomeHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MyUSDTIncomeHeader.h"
+
+@implementation MyUSDTIncomeHeader
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"MyUSDTIncomeHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        [self setData];
+    }
+    return self;
+}
+
+-(void)setData{
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.sevnIncome.text = AssectNumber(userdict[JYUSDTSevenMoney]);
+    self.sevenIncomeCny.text = [NSString stringWithFormat:@"≈ %@CNY",[GaoJingDu cheng:@[AssectNumber(userdict[JYUSDTSevenMoney]),@"7"] jindu:@"4"]];
+    self.usdtLabel.text = AssectNumber(userdict[JYIncomeUsdtMoney]);
+    self.cnyLabel.text = [NSString stringWithFormat:@"≈ %@CNY",[GaoJingDu cheng:@[AssectNumber(userdict[JYIncomeUsdtMoney]),@"7"] jindu:@"4"]];
+    self.djLabel.text = AssectNumber(userdict[JYIncomeUsdtNotMoney]);
+    self.djCnyLabel.text = [NSString stringWithFormat:@"≈ %@CNY",[GaoJingDu cheng:@[AssectNumber(userdict[JYIncomeUsdtNotMoney]),@"7"] jindu:@"4"]]
+    ;
+}
+@end

@@ -1,0 +1,169 @@
+//
+//  ShopAssetNewChargeViewController.m
+//  Cloud Pro
+//
+//  Created by leosun on 2020/7/13.
+//  Copyright © 2020 yunzhuan. All rights reserved.
+//
+
+#import "ShopAssetNewChargeVC.h"
+#import "ShopChargeCollectionViewCell.h"
+#import <AlipaySDK/AlipaySDK.h>
+#import "ShopAssetChargeRecordVC.h"
+
+@interface ShopAssetNewChargeVC ()<UICollectionViewDelegate,UICollectionViewDataSource>{
+    NSInteger tag;
+}
+
+@property (weak, nonatomic) IBOutlet UICollectionView *collectview;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+@property(nonatomic,strong) NSMutableArray *datas;
+@property (weak, nonatomic) IBOutlet UILabel *yeLabel;
+
+
+@end
+
+@implementation ShopAssetNewChargeVC
+
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:zfbPaySuccessful object:nil];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self notificationCenter];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    tag = 0;
+    [self getFuelConfig];
+}
+
+-(void)prepareUi{
+    self.flowLayout.itemSize = CGSizeMake((ksrcwidth - 24 - 30)/3, 60);
+    self.flowLayout.minimumLineSpacing = 10;
+    self.flowLayout.minimumInteritemSpacing = 10;
+    self.flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    
+    [self.collectview registerNib:[UINib nibWithNibName:@"ShopChargeCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"ShopChargeCollectionViewCell"];
+}
+
+-(void)notificationCenter{
+    WeakSelf(self);
+    [[[NSNotificationCenter defaultCenter] rac_addObserverForName:zfbPaySuccessful object:nil]subscribeNext:^(id x) {
+        ShopAssetChargeRecordVC *record = [[ShopAssetChargeRecordVC alloc] init];
+        [weakself.navigationController pushViewController:record animated:YES];
+    }];
+}
+
+-(void)getFuelConfig{
+    [self showLoading:@"" allowsOpOperation:YES];
+    WeakSelf(self);
+    [WebServices getFormReqUrl:FuelConfiguration param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                [weakself.datas removeAllObjects];
+                [json[@"data"][@"data"] enumerateObjectsUsingBlock:^(NSDictionary *obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    idx == 0?weakself.yeLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(obj[@"chinese_num"])]:nil;
+                    [weakself.datas addObject:obj];
+                }];
+                [weakself.collectview reloadData];
+                return;
+            }
+        }
+        [weakself showErrorView:weakself.view withBlock:^{
+            [weakself getFuelConfig];
+        }];
+    }];
+}
+
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    ShopChargeCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"ShopChargeCollectionViewCell" forIndexPath:indexPath];
+    if (tag == indexPath.item) {
+        cell.layer.borderColor = [UIColor colorWithRGBHex:@"#424968"].CGColor;
+        cell.layer.borderWidth = 1.0f;
+    }else{
+        cell.layer.borderColor = [UIColor colorWithRGBHex:@"#D7D7D7"].CGColor;
+        cell.layer.borderWidth = 1.0f;
+    }
+    NSDictionary *dict = self.datas[indexPath.item];
+    cell.nameLabel.text = [NSString stringWithFormat:@"%@ 燃料",AssectString(dict[@"nuls_num"])];
+    cell.moneyLabel.text = [NSString stringWithFormat:@"%@元",AssectString(dict[@"chinese_num"])];
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (tag == indexPath.item) return;
+    tag = indexPath.item;
+    [self.collectview reloadData];
+    NSDictionary *dict = self.datas[tag];
+    self.yeLabel.text = [NSString stringWithFormat:@"¥%@",AssectString(dict[@"chinese_num"])];
+}
+
+- (IBAction)recordClick:(id)sender {
+    ShopAssetChargeRecordVC *record = [[ShopAssetChargeRecordVC alloc] init];
+    [self.navigationController pushViewController:record animated:YES];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSDictionary *configDict = self.datas[tag];
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:YES];
+    NSDictionary *dict = @{@"fuel_configuration_id":[NSString stringWithFormat:@"%@",configDict[@"id"]],@"payment_method":@"1"};
+    [WebServices postFormReqUrl:FuelRecharge param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself openAliPay:json[@"data"][@"payment"]];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)openAliPay:(id)sign{
+    if (![sign isKindOfClass:[NSString class]]){
+        [self showMsg:NSLocalizedString(@"支付失败，请稍后重试", nil) location:centre];
+        return;
+    }
+    WeakSelf(self);
+    [[AlipaySDK defaultService] payOrder:AssectString(sign) fromScheme:AlipayScheme callback:^(NSDictionary *resultDic) {
+        NSLog(@"%@",resultDic[@"memo"]);
+        NSString * status =   resultDic[@"resultStatus"];
+        if ([status isEqualToString:@"9000"]) {
+            [weakself showMsg:NSLocalizedString(@"支付成功", nil) location:centre];
+            ShopAssetChargeRecordVC *record = [[ShopAssetChargeRecordVC alloc] init];
+            [weakself.navigationController pushViewController:record animated:YES];
+        }
+        else if([status isEqualToString:@"6001"]){
+            [weakself showMsg:NSLocalizedString(@"取消支付", nil) location:centre];
+        }
+        else{
+            [weakself showMsg:NSLocalizedString(@"支付失败", nil) location:centre];
+        }
+        
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

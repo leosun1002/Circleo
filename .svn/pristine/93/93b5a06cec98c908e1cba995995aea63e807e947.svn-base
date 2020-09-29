@@ -1,0 +1,24 @@
+//
+//  BrowserDNFilterVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BrowserDNFilterVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) NSString *selectStr;
+
+@property (strong, nonatomic) RACSubject *selectSubject;
+/// 1是从存证中搜索   0是从文章里搜搜  2是从网站搜索
+@property (assign, nonatomic) long  type;
+
+@end
+
+NS_ASSUME_NONNULL_END

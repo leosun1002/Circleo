@@ -1,0 +1,245 @@
+//
+//  MallDataSpecsVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/16.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallDataSpecsVC.h"
+#import "NewPagedFlowView.h"
+#import "PGIndexBannerSubiew.h"
+#import "ZWTagListView2.h"
+
+@interface MallDataSpecsVC ()<NewPagedFlowViewDelegate,NewPagedFlowViewDataSource>{
+    NSInteger index;
+    CGFloat height;
+}
+
+@property(nonatomic,strong)UIScrollView *scrollview;
+@property(nonatomic,strong)UIButton *closeBtn;
+@property(nonatomic,weak)NewPagedFlowView *pageFlowView;
+@property(nonatomic,weak)UIView *pageControllView;
+@property(nonatomic,weak)UIView *contentView;
+@property(nonatomic,weak)UIView *countView;
+
+@property(nonatomic,weak)UIView *bottomView;
+
+@end
+
+@implementation MallDataSpecsVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.view addSubview:self.closeBtn];
+    [self.view addSubview:self.scrollview];
+    [self addCollectView];
+    [self addPageControl];
+    [self addContentView];
+    [self addSpecsView];
+    [self addCountView];
+    
+    //底部view
+    [self addBottomView];
+    
+}
+
+#pragma -mark 添加滚动
+-(void)addCollectView{
+    NewPagedFlowView *pageFlowView = [[NewPagedFlowView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 185)];
+    pageFlowView.delegate = self;
+    pageFlowView.dataSource = self;
+    pageFlowView.minimumPageAlpha = 0.1;
+    pageFlowView.isCarousel = YES;
+    pageFlowView.leftRightMargin = 40;
+    pageFlowView.topBottomMargin = 40;
+    pageFlowView.orientation = NewPagedFlowViewOrientationHorizontal;
+    pageFlowView.isOpenAutoScroll = NO;
+    pageFlowView.backgroundColor = [UIColor whiteColor];
+    [self.scrollview addSubview:_pageFlowView = pageFlowView];
+    [pageFlowView reloadData];
+}
+
+#pragma -mark 添加pageControllView
+-(void)addPageControl{
+    UIView *pageControllView = [[UIView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.pageFlowView.frame) + 25, ksrcwidth, 10)];
+    pageControllView.backgroundColor = [UIColor redColor];
+    [self.scrollview addSubview:_pageControllView = pageControllView];
+}
+
+#pragma -mark 添加价格
+-(void)addContentView{
+    UIView *contentView = [[UIView alloc] initWithFrame:CGRectMake(0,CGRectGetMaxY(self.pageControllView.frame) + 20, ksrcheight, 40)];
+    [self.scrollview addSubview:_contentView = contentView];
+    
+    UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(16, 0, 200, 25)];
+    nameLabel.text = @"¥1334";
+    nameLabel.textColor = [UIColor colorWithRGBHex:@"#323236"];
+    nameLabel.font = [UIFont fontWithName:@"DINPro-Bold" size:25];
+    [contentView addSubview:nameLabel];
+    
+    UILabel *specLabel = [[UILabel alloc] initWithFrame:CGRectMake(ksrcwidth - 100 - 16, CGRectGetMidY(nameLabel.frame) - 9, 100, 18)];
+    specLabel.text = @"已选 红色";
+    specLabel.textAlignment = NSTextAlignmentRight;
+    specLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    specLabel.font = [UIFont systemFontOfSize:13];
+    [contentView addSubview:specLabel];
+    
+    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(0, contentView.height - 0.5, ksrcwidth, 0.5)];
+    line.backgroundColor = [UIColor colorWithRGBHex:@"#E6E9ED"];
+    [contentView addSubview:line];
+}
+
+#pragma -mark 添加规格View
+-(void)addSpecsView{
+    height = CGRectGetMaxY(self.contentView.frame);
+    for (int i = 0; i < 3; i++) {
+        UIView *specView = [[UIView alloc] initWithFrame:CGRectMake(0, height, ksrcwidth, 73.5)];
+        specView.backgroundColor = [UIColor whiteColor];
+        [self.scrollview addSubview:specView];
+        
+        UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(15, 16, ksrcwidth - 15, 18.5)];
+        nameLabel.text = @"颜色";
+        nameLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+        nameLabel.font = [UIFont systemFontOfSize:13 weight:(UIFontWeightSemibold)];
+        [specView addSubview:nameLabel];
+     
+        ZWTagListView2 *tagView = [[ZWTagListView2 alloc]initWithFrame:CGRectMake(0, CGRectGetMaxY(nameLabel.frame) + 10, ksrcwidth, 40)];
+        tagView.signalTagColor = [UIColor whiteColor];
+        [tagView setTagWithTagArray:[NSArray arrayWithObjects:@"大",@"中",@"小",@"大",@"中",@"小", nil]];
+        tagView.Handle = ^(NSString *selectArr) {
+            NSLog(@"a");
+        };
+        [specView addSubview:tagView];
+        specView.height = CGRectGetMaxY(tagView.frame);
+        height += specView.height;
+    }
+}
+
+-(void)addCountView{
+    UIView *countView = [[UIView alloc] initWithFrame:CGRectMake(0, height, ksrcwidth, 40)];
+    [self.scrollview addSubview:_countView = countView];
+    
+    UILabel *countLabel = [[UILabel alloc] initWithFrame:CGRectMake(16, 20.5, 50, 18)];
+    countLabel.text = @"数量";
+    countLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    countLabel.font = [UIFont systemFontOfSize:13 weight:(UIFontWeightSemibold)];
+    [countView addSubview:countLabel];
+    
+    
+    UIView *addView = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 105, CGRectGetMidY(countLabel.frame) - 15, 90, 30)];
+    addView.layer.cornerRadius = 15;
+    addView.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    addView.layer.borderWidth = 1.0f;
+    [countView addSubview:addView];
+    
+    UIButton * minusBtn = [UIButton buttonWithType:(UIButtonTypeCustom)];
+    minusBtn.frame = CGRectMake(0, 0, 30, 30);
+    minusBtn.layer.cornerRadius = 15;
+    [minusBtn setImage:[UIImage imageNamed:@"icon_mall_minus"] forState:(UIControlStateNormal)];
+    [addView addSubview:minusBtn];
+    
+    UILabel *addLabel = [[UILabel alloc] initWithFrame:CGRectMake(CGRectGetMaxX(minusBtn.frame), 0, 30, 30)];
+    addLabel.text = @"1";
+    addLabel.textColor = [UIColor colorWithRGBHex:@"#323236"];
+    addLabel.font = [UIFont fontWithName:@"DINPro-Medium" size:13];
+    addLabel.textAlignment = NSTextAlignmentCenter;
+    [addView addSubview:addLabel];
+    
+    UIButton * addBtn = [UIButton buttonWithType:(UIButtonTypeCustom)];
+    addBtn.frame = CGRectMake(CGRectGetMaxX(addLabel.frame), 0, 30, 30);
+    addBtn.layer.cornerRadius = 15;
+    [addBtn setImage:[UIImage imageNamed:@"icon_mall_add"] forState:(UIControlStateNormal)];
+    [addView addSubview:addBtn];
+    
+    self.scrollview.contentSize = CGSizeMake(0, CGRectGetMaxY(self.countView.frame) + 20);
+}
+
+-(void)addBottomView{
+    UIView *bottomView = [[UIView alloc] initWithFrame:CGRectMake(0, ksrcheight - 54, ksrcwidth, 54)];
+    [self.view addSubview:_bottomView = bottomView];
+        
+    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 0.5)];
+    line.backgroundColor = [UIColor colorWithRGBHex:@"#E6E9ED"];
+    [bottomView addSubview:line];
+    
+    UIButton *shopCarButton = [[UIButton alloc] initWithFrame:CGRectMake(7, 7, (ksrcwidth - 21)/2, 40)];
+    [shopCarButton setTitle:@"加入购物袋" forState:UIControlStateNormal];
+    [shopCarButton setTitleColor:[UIColor colorWithRGBHex:@"#2982FF"] forState:(UIControlStateNormal)];
+    shopCarButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    shopCarButton.layer.borderColor = [UIColor colorWithRGBHex:@"#2982FF"].CGColor;
+    shopCarButton.layer.borderWidth = 1.0f;
+    [bottomView addSubview:shopCarButton];
+    
+    UIButton *buyButton = [[UIButton alloc] initWithFrame:CGRectMake(CGRectGetMaxX(shopCarButton.frame) + 7, 7, (ksrcwidth - 21)/2, 40)];
+    [buyButton setTitle:@"立即购买" forState:UIControlStateNormal];
+    buyButton.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+    [buyButton setTitleColor:[UIColor whiteColor] forState:(UIControlStateNormal)];
+    buyButton.titleLabel.font = [UIFont systemFontOfSize:15];
+    [bottomView addSubview:buyButton];
+}
+
+#pragma mark NewPagedFlowView Delegate
+- (CGSize)sizeForPageInFlowView:(NewPagedFlowView *)flowView {
+    return CGSizeMake(160, 160);
+}
+
+- (void)didSelectCell:(UIView *)subView withSubViewIndex:(NSInteger)subIndex {
+    NSLog(@"点击了第%ld张图",(long)subIndex + 1);
+}
+
+#pragma mark NewPagedFlowView Datasource
+- (NSInteger)numberOfPagesInFlowView:(NewPagedFlowView *)flowView {
+    return 3;
+}
+
+-(void)didScrollToPage:(NSInteger)pageNumber inFlowView:(NewPagedFlowView *)flowView{
+    index = pageNumber;
+}
+
+- (PGIndexBannerSubiew *)flowView:(NewPagedFlowView *)flowView cellForPageAtIndex:(NSInteger)index{
+    PGIndexBannerSubiew *bannerView = (PGIndexBannerSubiew *)[flowView dequeueReusableCell];
+    if (!bannerView) {
+        bannerView = [[PGIndexBannerSubiew alloc] initWithFrame:CGRectMake(0, 0, 160, 160) withType:0];
+        bannerView.tag = index;
+        bannerView.layer.cornerRadius = 4;
+        bannerView.layer.masksToBounds = NO;
+    }
+    bannerView.mainImageView.backgroundColor = [UIColor redColor];
+    bannerView.layer.shadowColor = [UIColor colorWithRGBHex:@"#64648C"].CGColor;//阴影颜色
+    bannerView.layer.shadowOffset = CGSizeMake(0, 5);//偏移距离
+    bannerView.layer.shadowOpacity = 0.5f;//不透明度
+    bannerView.layer.shadowRadius = 5;//半径
+    bannerView.layer.shadowPath = [UIBezierPath bezierPathWithRect:CGRectMake(0, 0, 160, 160)].CGPath;
+    return bannerView;
+}
+
+#pragma -mark getter
+-(UIButton *)closeBtn{
+    if (!_closeBtn) {
+        CGFloat height = IS_IPHONEX?58:34;
+        _closeBtn = [[UIButton alloc] initWithFrame:CGRectMake(ksrcwidth - 40, height, 30, 30)];
+        [_closeBtn setImage:[UIImage imageNamed:@"icon_close_black"] forState:UIControlStateNormal];
+        WeakSelf(self);
+        [[_closeBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            [weakself dismissViewControllerAnimated:YES completion:^{
+                
+            }];
+        }];
+    }
+    return _closeBtn;
+}
+
+-(UIScrollView *)scrollview{
+    if (!_scrollview) {
+        _scrollview = [[UIScrollView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(_closeBtn.frame) + 10, ksrcwidth, ksrcheight - CGRectGetMaxY(_closeBtn.frame) - 10 - 54)];
+        _scrollview.backgroundColor = [UIColor whiteColor];
+    }
+    return _scrollview;
+}
+
+@end

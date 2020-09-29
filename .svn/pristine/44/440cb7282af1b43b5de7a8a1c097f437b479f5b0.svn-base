@@ -1,0 +1,100 @@
+//
+//  MyAssetTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/19.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MyAssetTableViewCell.h"
+
+@implementation MyAssetTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(MyAssetModel *)model{
+    _model = model;
+    self.timeLabel.text = model.create_time;
+    self.nameLabel.text = model.title;
+    
+    //1CNY，2USDT
+    self.unitLabel.text = model.payment_method == 2?@"USDT":@"CNY";
+    if (model.in_or_out == 1){
+        self.moneyLabel.text = [NSString stringWithFormat:@"-%@",model.amount_money];
+        self.unitLabel.textColor = [UIColor colorWithRGBHex:@"#F95946"];
+        self.moneyLabel.textColor = [UIColor colorWithRGBHex:@"#F95946"];
+    }else{
+        self.moneyLabel.text = [NSString stringWithFormat:@"%@",model.amount_money];
+        self.unitLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        self.moneyLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }
+        
+    if (![AssectString(model.domain_names) isEqualToString:@""]) {
+        self.statusLabel.text = model.domain_names;
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    }else{
+        if (model.status == 0) {
+            self.statusLabel.text = NSLocalizedString(@"失败", nil);
+            self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+        }else if (model.status == 1){
+            self.statusLabel.text = model.type == 6 || model.type == 7?NSLocalizedString(@"审核中", nil):NSLocalizedString(@"处理中", nil);
+            self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        }else{
+            self.statusLabel.text = NSLocalizedString(@"成功", nil);
+            self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+        }
+    }
+}
+
+-(void)setRecordModel:(CurrencyRecordModel *)recordModel{
+    _recordModel = recordModel;
+    self.timeLabel.text = recordModel.created_at;
+    /// 1购买域名，2提币，3充币
+    if (recordModel.type == 1) {
+        self.nameLabel.text = NSLocalizedString(@"购买域名", nil);
+    }else if (recordModel.type == 2){
+        self.nameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%@ 提币", nil),AssectString(recordModel.currency.name)];
+    }else if (recordModel.type == 3){
+        self.nameLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%@ 充币", nil),AssectString(recordModel.currency.name)];
+    }
+    
+    self.unitLabel.text = AssectString(recordModel.currency.name);
+    /// 1出帐，2进帐
+    if (recordModel.in_out == 1){
+        self.moneyLabel.text = [NSString stringWithFormat:@"-%@",recordModel.actual_price];
+        self.unitLabel.textColor = [UIColor colorWithRGBHex:@"#F95946"];
+        self.moneyLabel.textColor = [UIColor colorWithRGBHex:@"#F95946"];
+    }else{
+        self.moneyLabel.text = [NSString stringWithFormat:@"%@",recordModel.actual_price];
+        self.unitLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        self.moneyLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }
+
+    if (![AssectString(recordModel.domain_names) isEqualToString:@""]) {
+        self.statusLabel.text = AssectString(recordModel.domain_names);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    }else{
+        /// 0待审核，1成功，2失败
+        if (recordModel.status == 2) {
+            self.statusLabel.text = NSLocalizedString(@"失败", nil);
+            self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+        }else if (recordModel.status == 0){
+            self.statusLabel.text = NSLocalizedString(@"审核中", nil);
+            self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        }else{
+            self.statusLabel.text = NSLocalizedString(@"成功", nil);
+            self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+        }
+    }
+}
+
+@end

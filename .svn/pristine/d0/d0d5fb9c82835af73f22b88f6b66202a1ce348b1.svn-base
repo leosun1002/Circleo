@@ -1,0 +1,66 @@
+//
+//  MallSafeCenterVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallSafeCenterVC.h"
+#import "MallSetPasswordVC.h"
+#import "MallSetNickNameVC.h"
+#import "MallCheckPasswordVC.h"
+#import "MallOutputPswVC.h"
+
+@interface MallSafeCenterVC ()
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIButton *importBtn;
+
+@end
+
+@implementation MallSafeCenterVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    if (IS_IPHONEX) {
+        self.topConst.constant += 24;
+        self.heightConst.constant += 24;
+    }
+    self.importBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.importBtn.layer.borderWidth = 1.0f;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)nickClick:(id)sender {
+    MallSetNickNameVC *nickVC = [[MallSetNickNameVC alloc] init];
+    [self.navigationController pushViewController:nickVC animated:YES];
+}
+
+- (IBAction)importClick:(id)sender {
+    MallCheckPasswordVC *check = [[MallCheckPasswordVC alloc] init];
+    [self.navigationController pushViewController:check animated:YES];
+}
+
+- (IBAction)pswClick:(id)sender {
+    MallSetPasswordVC *psw = [[MallSetPasswordVC alloc] init];
+    [self.navigationController pushViewController:psw animated:YES];
+}
+
+- (IBAction)outportClick:(id)sender {
+    MallOutputPswVC *output = [[MallOutputPswVC alloc] init];
+    output.putType = MallInPut;
+    [self.navigationController pushViewController:output animated:YES];
+}
+
+- (IBAction)authenClick:(id)sender {
+}
+
+@end

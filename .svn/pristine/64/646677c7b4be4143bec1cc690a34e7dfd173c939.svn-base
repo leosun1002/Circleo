@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15400" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15404"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AddressManageVC">
+            <connections>
+                <outlet property="heiConst" destination="HxX-yI-2fa" id="oBd-jX-i9L"/>
+                <outlet property="tableview" destination="C3D-PT-uK8" id="YuK-Z5-F3O"/>
+                <outlet property="topConst" destination="yv5-WJ-yhj" id="rYg-Mu-Wxn"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="51Q-fx-Dnh">
+                    <rect key="frame" x="0.0" y="814" width="414" height="82"/>
+                    <subviews>
+                        <imageView clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="jianbian_dibu" translatesAutoresizingMaskIntoConstraints="NO" id="cBN-gS-ARK">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="82"/>
+                        </imageView>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qOc-V1-T4F">
+                            <rect key="frame" x="0.0" y="17" width="414" height="65"/>
+                            <subviews>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="BD7-Ye-9FP">
+                                    <rect key="frame" x="15" y="10" width="384" height="45"/>
+                                    <color key="backgroundColor" red="0.31764705879999999" green="0.31764705879999999" blue="0.94117647059999998" alpha="1" colorSpace="calibratedRGB"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="45" id="8UX-5A-2pt"/>
+                                    </constraints>
+                                    <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                                    <inset key="titleEdgeInsets" minX="0.0" minY="0.0" maxX="-20" maxY="0.0"/>
+                                    <state key="normal" title="添加地址" image="icon_add">
+                                        <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </state>
+                                    <state key="selected" image="icon_add"/>
+                                    <state key="highlighted" image="icon_add"/>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="5"/>
+                                    </userDefinedRuntimeAttributes>
+                                    <connections>
+                                        <action selector="addCardClick:" destination="-1" eventType="touchUpInside" id="zLa-Di-oOy"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstItem="BD7-Ye-9FP" firstAttribute="leading" secondItem="qOc-V1-T4F" secondAttribute="leading" constant="15" id="Cnv-i7-qrY"/>
+                                <constraint firstItem="BD7-Ye-9FP" firstAttribute="top" secondItem="qOc-V1-T4F" secondAttribute="top" constant="10" id="DRH-gm-mil"/>
+                                <constraint firstAttribute="trailing" secondItem="BD7-Ye-9FP" secondAttribute="trailing" constant="15" id="UD3-7F-ueh"/>
+                            </constraints>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" red="0.96862745100000003" green="0.96862745100000003" blue="0.97647058819999999" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="cBN-gS-ARK" secondAttribute="trailing" id="7fb-bL-Eyp"/>
+                        <constraint firstAttribute="bottom" secondItem="qOc-V1-T4F" secondAttribute="bottom" id="97Y-kt-WD0"/>
+                        <constraint firstAttribute="height" constant="82" id="HxX-yI-2fa"/>
+                        <constraint firstAttribute="trailing" secondItem="qOc-V1-T4F" secondAttribute="trailing" id="LvC-KU-URJ"/>
+                        <constraint firstItem="cBN-gS-ARK" firstAttribute="leading" secondItem="51Q-fx-Dnh" secondAttribute="leading" id="M3w-Nj-Dn9"/>
+                        <constraint firstItem="cBN-gS-ARK" firstAttribute="top" secondItem="51Q-fx-Dnh" secondAttribute="top" id="Nqi-jA-S37"/>
+                        <constraint firstAttribute="bottom" secondItem="cBN-gS-ARK" secondAttribute="bottom" id="OLC-5G-cGl"/>
+                        <constraint firstItem="qOc-V1-T4F" firstAttribute="leading" secondItem="51Q-fx-Dnh" secondAttribute="leading" id="wCa-DY-bnl"/>
+                        <constraint firstItem="qOc-V1-T4F" firstAttribute="top" secondItem="51Q-fx-Dnh" secondAttribute="top" constant="17" id="wr0-Pi-K6M"/>
+                    </constraints>
+                </view>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="grouped" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="C3D-PT-uK8">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="814"/>
+                    <color key="backgroundColor" red="0.96862745100000003" green="0.96862745100000003" blue="0.97647058819999999" alpha="1" colorSpace="calibratedRGB"/>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="BDr-pQ-njC"/>
+                        <outlet property="delegate" destination="-1" id="yiE-Wd-t9w"/>
+                    </connections>
+                </tableView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="C3D-PT-uK8" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="7VT-aO-5Dh"/>
+                <constraint firstAttribute="bottom" secondItem="51Q-fx-Dnh" secondAttribute="bottom" id="FtA-XA-NFp"/>
+                <constraint firstItem="51Q-fx-Dnh" firstAttribute="top" secondItem="C3D-PT-uK8" secondAttribute="bottom" id="bay-AN-026"/>
+                <constraint firstAttribute="trailing" secondItem="51Q-fx-Dnh" secondAttribute="trailing" id="cUH-Gg-tea"/>
+                <constraint firstItem="51Q-fx-Dnh" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="kpd-LM-hhc"/>
+                <constraint firstAttribute="trailing" secondItem="C3D-PT-uK8" secondAttribute="trailing" id="wSm-OQ-bYX"/>
+                <constraint firstItem="C3D-PT-uK8" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="yv5-WJ-yhj"/>
+            </constraints>
+            <point key="canvasLocation" x="133" y="106"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="icon_add" width="16" height="16"/>
+        <image name="jianbian_dibu" width="375" height="72"/>
+    </resources>
+</document>

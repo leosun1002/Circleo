@@ -1,0 +1,28 @@
+//
+//  PayDetailTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSBuyModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PayDetailTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)DNSBuyModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *yearLabel;
+@property (weak, nonatomic) IBOutlet UILabel *salePrice;
+@property (weak, nonatomic) IBOutlet UILabel *salePriceTip;
+@property (weak, nonatomic) IBOutlet UILabel *servicePrice;
+/**
+ 0是购买  1是续费
+ */
+@property (assign, nonatomic) long newType;
+@end
+
+NS_ASSUME_NONNULL_END

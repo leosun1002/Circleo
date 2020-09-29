@@ -1,0 +1,19 @@
+//
+//  EvidenceDetailVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/4/22.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface EvidenceDetailVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property(nonatomic,assign) long deposit_certificate_id;
+@end
+
+NS_ASSUME_NONNULL_END

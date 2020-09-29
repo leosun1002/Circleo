@@ -1,0 +1,50 @@
+//
+//  DNSBrowserFooter.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSBrowserFooter.h"
+#import "HotArticleCollectionViewCell.h"
+#import "DNBrowserHotArticle.h"
+
+@implementation DNSBrowserFooter
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"DNSBrowserFooter" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        [self prepareUi];
+    }
+    return self;
+}
+
+-(void)prepareUi{
+    self.flowLayout.itemSize = CGSizeMake((ksrcwidth - 30 - 7)/2, 45);
+    self.flowLayout.minimumLineSpacing = 7;
+    self.flowLayout.minimumInteritemSpacing = 7;
+    self.flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    
+    [self.collect registerNib:[UINib nibWithNibName:@"HotArticleCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"HotArticleCollectionViewCell"];
+}
+
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.hots.count >4?4:self.hots.count;;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    HotArticleCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"HotArticleCollectionViewCell" forIndexPath:indexPath];
+    DNBrowserHotArticle *hotModel = self.hots[indexPath.item];
+    cell.nameLabel.text = hotModel.title;
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    DNBrowserHotArticle *hotModel = self.hots[indexPath.item];
+    [self.subject sendNext:AssectString(hotModel.title)];
+}
+
+@end

@@ -1,0 +1,221 @@
+//
+//  DNSManageChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSExpireChildVC.h"
+#import "DNSDetailVC.h"
+#import "DNSExpireCell.h"
+#import "DNSManageModel.h"
+#import "DNSRenewViewController.h"
+
+@interface DNSExpireChildVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong) NSMutableArray *selectDats;
+@property(nonatomic,assign)NSInteger page;
+@property(nonatomic,strong)NSString *refresh;
+
+@end
+
+@implementation DNSExpireChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.page = 1;
+    self.refresh = @"0";
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSExpireCell" bundle:nil] forCellReuseIdentifier:@"DNSExpireCell"];
+    self.tableview.estimatedRowHeight = 0;
+    self.tableview.estimatedSectionHeaderHeight = 0;
+    self.tableview.estimatedSectionFooterHeight = 0;
+    
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getDatas:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getDatas:NO];
+    }];
+}
+
+-(void)refreshData{
+    if ([self.refresh isEqualToString:@"0"]) {
+        [self.tableview.mj_header beginRefreshing];
+        self.refresh = @"1";
+    }
+}
+
+-(void)getDatas:(BOOL)ifFresh{
+    ifFresh?(self.page = 1):(self.page ++);
+    NSDictionary *dict = @{@"type":@"4",@"page":[NSString stringWithFormat:@"%ld",(long)self.page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:DomainNameManage param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                [json[@"data"][@"data"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    DNSManageModel *model = [DNSManageModel mj_objectWithKeyValues:obj];
+                    model.hasClick = 0;
+                    [weakself.datas addObject:model];
+                }];
+                [weakself calculateCount];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无即将到期域名", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSExpireCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSExpireCell"];
+    cell.model = self.datas[indexPath.row];
+    cell.selectBtn.tag = indexPath.row;
+    [cell.selectBtn addTarget:self action:@selector(selectClick:) forControlEvents:UIControlEventTouchUpInside];
+    cell.operateBtn.tag = indexPath.row;
+    [cell.operateBtn addTarget:self action:@selector(operateClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (self.datas.count == 0) return;
+    DNSManageModel *model = self.datas[indexPath.row];
+    if (model.is_frozen == 1) {
+        [self showMsg:NSLocalizedString(@"该域名已被冻结", nil) location:centre];
+        return;
+    }
+    DNSDetailVC *detail = [[DNSDetailVC alloc] init];
+    detail.manageid = [NSString stringWithFormat:@"%ld",model.manageid];
+    [self.navigationController pushViewController:detail animated:YES];
+}
+
+-(void)selectClick:(UIButton *)sender{
+    [self.selectDats removeAllObjects];
+    if (self.datas.count == 0) return;
+    DNSManageModel *model = self.datas[sender.tag];
+    model.hasClick = model.hasClick == 1?0:1;
+    [self.tableview cyl_reloadData];
+    [self calculateCount];
+}
+
+-(void)operateClick:(UIButton *)sender{
+    if (self.datas.count == 0) return;
+    DNSManageModel *model = self.datas[sender.tag];
+    
+    UIAlertController *sheetVC = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"查看域名详情", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if (model.is_frozen == 1) {
+            [weakself showMsg:NSLocalizedString(@"该域名已被冻结", nil) location:centre];
+            return;
+        }
+        DNSDetailVC *detail = [[DNSDetailVC alloc] init];
+        detail.manageid = [NSString stringWithFormat:@"%ld",model.manageid];
+        [weakself.navigationController pushViewController:detail animated:YES];
+    }];
+    UIAlertAction*  sheetBtn2=[UIAlertAction actionWithTitle:NSLocalizedString(@"域名续费", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if (model.is_frozen == 1) {
+            [weakself showMsg:NSLocalizedString(@"该域名已被冻结", nil) location:centre];
+            return;
+        }
+        DNSRenewViewController *renuw = [[DNSRenewViewController alloc] init];
+        renuw.newType = 1;
+        renuw.domains = [NSString stringWithFormat:@"%ld",model.manageid];
+        [weakself.navigationController pushViewController:renuw animated:YES];
+    }];
+
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn2];
+    [sheetBtn2 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+
+- (IBAction)allClick:(UIButton *)sender {
+    for (DNSManageModel *model in self.datas) {
+        model.hasClick = !sender.selected;
+    }
+    [self.tableview cyl_reloadData];
+    [self calculateCount];
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSString *domains = @"";
+    for (DNSManageModel *model in self.selectDats) {
+        domains = [domains stringByAppendingFormat:@"%@", [NSString stringWithFormat:@"%ld,",model.manageid]];
+    }
+    DNSRenewViewController *renuw = [[DNSRenewViewController alloc] init];
+    renuw.newType = 1;
+    renuw.domains = [domains hasSuffix:@","]?[domains substringToIndex:domains.length - 1]:domains;
+    [self.navigationController pushViewController:renuw animated:YES];
+}
+
+-(void)calculateCount{
+    [self.selectDats removeAllObjects];
+    if (self.datas.count == 0){
+        self.selectLabel.text = @"0";
+        self.allLabel.text = @"0";
+        self.allBtn.selected = NO;
+        self.checkBtn.alpha = 0.7;
+        self.checkBtn.enabled = NO;
+        return;
+    }
+    self.allLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count];
+    //选中的s
+    for (DNSManageModel *model in self.datas) {
+        if (model.hasClick == 1) {
+            [self.selectDats addObject:model];
+        }
+    }
+    self.selectLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.selectDats.count];
+    self.checkBtn.alpha = self.selectDats.count > 0?1:0.7;
+    self.checkBtn.enabled = self.selectDats.count > 0;
+    self.allBtn.selected = self.datas.count == self.selectDats.count;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)selectDats{
+    if (!_selectDats) {
+        _selectDats = [NSMutableArray array];
+    }
+    return _selectDats;
+}
+@end

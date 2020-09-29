@@ -1,0 +1,73 @@
+//
+//  DNSMyBrowserModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ChainArticleInfo : NSObject
+
+@property(nonatomic,assign)long infoid;
+/// 0未对应，1对应
+@property(nonatomic,assign)long type;
+@property(nonatomic,copy) NSString *name;
+@property(nonatomic,copy) NSString *image_address;
+@property(nonatomic,strong) NSDictionary *pivot;
+
+@end
+
+@interface DomainNames : NSObject
+
+@property(nonatomic,assign)long domainid;
+@property(nonatomic,copy) NSString *domain_name;
+@property(nonatomic,strong) NSDictionary *pivot;
+
+@end
+
+@interface DNSMyBrowserModel : NSObject
+
+/// 0待上链，1上链中，2上链成功，3上链失败
+@property(nonatomic,assign) long status;
+@property(nonatomic,copy) NSString *content;
+@property(nonatomic,strong) DomainNames *domain_names;
+@property(nonatomic,assign) long articleid;
+@property(nonatomic,assign) long user_id;
+@property(nonatomic,copy) NSString *created_at;
+@property(nonatomic,copy) NSString *title;
+@property(nonatomic,strong) ChainArticleInfo *article_public_chain_info;
+@property(nonatomic,copy) NSString *time;
+@property(nonatomic,copy) NSString *create_time;
+@property(nonatomic,copy) NSString *name;
+@property(nonatomic,assign) long article_type_id;//文章类别ID
+@property(nonatomic,strong) NSDictionary *article_type;//文章类别信息
+@property(nonatomic,strong) NSArray *article_labels;//文章标签
+
+/// 0未收藏，1已收藏
+@property(nonatomic,assign) long is_favorite;
+@property(nonatomic,assign) long favorites;   //收藏数量
+@property(nonatomic,strong) NSArray *appreciation_users;   //赞赏用户信息
+///如果是付费文章我自己是否已经付过费了，0未付费，1已经付过费了
+@property(nonatomic,assign) long is_self_toll;
+/// 0未审核，1审核通过，2审核失败
+@property(nonatomic,assign) long is_review;
+@property(nonatomic,assign) long free_word_count;   //免费字数
+/// 0不付费，1付费
+@property(nonatomic,assign) long is_toll;   //免费字数
+@property(nonatomic,assign) long appreciates;   //文章赞赏量
+@property(nonatomic,strong) NSString *charge_amount;   //付费金额
+@property(nonatomic,assign) long total_word;   //文章内容总字数
+/// 是否置顶，0不置顶，1置顶
+@property(nonatomic,assign) long is_sticky;
+@property(nonatomic,strong) NSDictionary *sticky_info;
+@property(nonatomic,assign) long reading;
+@property(nonatomic,strong) NSDictionary *user;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,321 @@
+//
+//  DNSPublishContentVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSPublishContentVC.h"
+
+@interface DNSPublishContentVC ()<UITextViewDelegate>
+
+@property(nonatomic,weak)UILabel *numLable;
+@property(nonatomic,assign)int MaxLimit;
+
+@end
+
+@implementation DNSPublishContentVC
+
+-(void)dealloc{
+    //增加监听，当键盘出现或改变时收出消息
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillShowNotification object:nil];
+    //增加监听，当键退出时收出消息
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.topConst.constant += navBarHeight;
+    self.placeTopConst.constant += navBarHeight;
+    [self prepareUi];
+    [self addRightBtn];
+    [self addKeyboardNotification];
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    CGFloat width = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?80:60;
+
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - width - 5,navBarHeight - 35, width, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, width, 20);
+    [rightBtn setTitle:NSLocalizedString(@"确定", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#323236"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.type == 0) {
+            NSString *title = [weakself.contentText.text stringByReplacingOccurrencesOfString:@" " withString:@""];
+            title = [title stringByReplacingOccurrencesOfString:@"\n" withString:@""];
+            if ([title isEqualToString:@""]) {
+                [weakself showMsg:NSLocalizedString(@"请输入标题", nil) location:centre];
+                return ;
+            }
+            [weakself.subject sendNext:title];
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }else if(weakself.type == 1){
+            if ([weakself.contentText.text isEqualToString:@""]) {
+                [weakself showMsg:NSLocalizedString(@"请输入内容", nil) location:centre];
+                return ;
+            }
+            [weakself.subject sendNext:weakself.contentText.text];
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }else if(weakself.type == 2){
+            if ([weakself.contentText.text isEqualToString:@""]) {
+                [weakself showMsg:NSLocalizedString(@"请输入存证标签", nil) location:centre];
+                return ;
+            }
+            [weakself.subject sendNext:weakself.contentText.text];
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }else if(weakself.type == 3){
+            if ([weakself.contentText.text isEqualToString:@""]) {
+                [weakself showMsg:NSLocalizedString(@"请输入存证备注", nil) location:centre];
+                return ;
+            }
+            [weakself.subject sendNext:weakself.contentText.text];
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }else if(weakself.type == 4){
+            if ([weakself.contentText.text isEqualToString:@""]) {
+                [weakself showMsg:NSLocalizedString(@"请输入网站名", nil) location:centre];
+                return ;
+            }
+            [weakself.subject sendNext:weakself.contentText.text];
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }else if(weakself.type == 5){
+            if ([weakself.contentText.text isEqualToString:@""]) {
+                [weakself showMsg:NSLocalizedString(@"请输入电话", nil) location:centre];
+                return ;
+            }
+            if (weakself.contentText.text.length != 11) {
+                [weakself showMsg:NSLocalizedString(@"请输入正确的电话号码", nil) location:centre];
+                return ;
+            }
+            NSCharacterSet *cs = [[NSCharacterSet characterSetWithCharactersInString:NUMBERALPHAN] invertedSet];
+            NSString *filtered = [[weakself.contentText.text componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+            if (![weakself.contentText.text isEqualToString:filtered]) {
+                [weakself showMsg:NSLocalizedString(@"请输入正确的电话号码", nil) location:centre];
+                return;
+            }
+            
+            [weakself.subject sendNext:weakself.contentText.text];
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }else if(weakself.type == 6){
+            if ([weakself.contentText.text isEqualToString:@""]) {
+                [weakself showMsg:NSLocalizedString(@"请输入邮箱", nil) location:centre];
+                return ;
+            }
+            [weakself.subject sendNext:weakself.contentText.text];
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }else if(weakself.type == 7){
+            if ([weakself.contentText.text isEqualToString:@""]) {
+                [weakself showMsg:NSLocalizedString(@"请输入地址", nil) location:centre];
+                return ;
+            }
+            [weakself.subject sendNext:weakself.contentText.text];
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }else if(weakself.type == 8){
+            if ([weakself.contentText.text isEqualToString:@""]) {
+                [weakself showMsg:NSLocalizedString(@"请输入菜单标题", nil) location:centre];
+                return ;
+            }
+            if ([weakself.contentText.text containsString:@","]) {
+                [weakself showMsg:NSLocalizedString(@"菜单标题包含非法字符", nil) location:centre];
+                return ;
+            }
+            [weakself.subject sendNext:weakself.contentText.text];
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }
+    }];
+    [view addSubview:rightBtn];
+}
+
+-(void)prepareUi{
+    if (self.type == 0) {
+        [self setBanar:NSLocalizedString(@"标题", nil) hiddeBack:NO];
+        self.placeLabel.text = NSLocalizedString(@"请输入标题（限50字）", nil);
+        self.contentText.text = AssectString(self.selectStr);
+        self.placeLabel.hidden = ![AssectString(self.selectStr) isEqualToString:@""];
+        self.contentText.delegate = self;
+        [self updateRemainCount];
+        self.MaxLimit = 50;
+    }else if (self.type == 1){
+        [self setBanar:NSLocalizedString(@"内容", nil) hiddeBack:NO];
+        self.placeLabel.text = NSLocalizedString(@"请输入内容", nil);
+        self.contentText.text = AssectString(self.selectStr);
+        self.placeLabel.hidden = ![AssectString(self.selectStr) isEqualToString:@""];
+        self.contentText.delegate = self;
+        [self updateRemainCount];
+    }else if (self.type == 2) {
+        [self setBanar:NSLocalizedString(@"存证标签", nil) hiddeBack:NO];
+        self.placeLabel.text = NSLocalizedString(@"请输入存证标签（限10字）", nil);
+        self.contentText.text = AssectString(self.selectStr);
+        self.placeLabel.hidden = ![AssectString(self.selectStr) isEqualToString:@""];
+        self.contentText.delegate = self;
+        [self updateRemainCount];
+        self.MaxLimit = 10;
+    }else if (self.type == 3) {
+        [self setBanar:NSLocalizedString(@"存证备注", nil) hiddeBack:NO];
+        self.placeLabel.text = NSLocalizedString(@"请输入存证备注（限100字）", nil);
+        self.contentText.text = AssectString(self.selectStr);
+        self.placeLabel.hidden = ![AssectString(self.selectStr) isEqualToString:@""];
+        self.contentText.delegate = self;
+        [self updateRemainCount];
+        self.MaxLimit = 100;
+    }else if (self.type == 4){
+        [self setBanar:NSLocalizedString(@"网站名", nil) hiddeBack:NO];
+        self.placeLabel.text = NSLocalizedString(@"请输入网站名", nil);
+        self.contentText.text = AssectString(self.selectStr);
+        self.placeLabel.hidden = ![AssectString(self.selectStr) isEqualToString:@""];
+        self.contentText.delegate = self;
+        [self updateRemainCount];
+    }else if (self.type == 5){
+        [self setBanar:NSLocalizedString(@"电话", nil) hiddeBack:NO];
+        self.placeLabel.text = NSLocalizedString(@"请输入电话", nil);
+        self.contentText.text = AssectString(self.selectStr);
+        self.contentText.keyboardType = UIKeyboardTypePhonePad;
+        self.placeLabel.hidden = ![AssectString(self.selectStr) isEqualToString:@""];
+        self.contentText.delegate = self;
+        [self updateRemainCount];
+    }else if (self.type == 6){
+        [self setBanar:NSLocalizedString(@"邮箱", nil) hiddeBack:NO];
+        self.placeLabel.text = NSLocalizedString(@"请输入邮箱", nil);
+        self.contentText.text = AssectString(self.selectStr);
+        self.placeLabel.hidden = ![AssectString(self.selectStr) isEqualToString:@""];
+        self.contentText.delegate = self;
+        [self updateRemainCount];
+    }else if (self.type == 7){
+        [self setBanar:NSLocalizedString(@"地址", nil) hiddeBack:NO];
+        self.placeLabel.text = NSLocalizedString(@"请输入地址", nil);
+        self.contentText.text = AssectString(self.selectStr);
+        self.placeLabel.hidden = ![AssectString(self.selectStr) isEqualToString:@""];
+        self.contentText.delegate = self;
+        [self updateRemainCount];
+    }else if (self.type == 8) {
+        [self setBanar:NSLocalizedString(@"菜单标题", nil) hiddeBack:NO];
+        self.placeLabel.text = NSLocalizedString(@"请输入菜单标题（限8字）", nil);
+        self.contentText.text = AssectString(self.selectStr);
+        self.placeLabel.hidden = ![AssectString(self.selectStr) isEqualToString:@""];
+        self.contentText.delegate = self;
+        [self updateRemainCount];
+        self.MaxLimit = 8;
+    }
+}
+
+-(void)addKeyboardNotification{
+    //增加监听，当键盘出现或改变时收出消息
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    //增加监听，当键退出时收出消息
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHide:) name:UIKeyboardWillHideNotification object:nil];
+}
+
+- (void)keyboardWillShow:(NSNotification *)aNotification{
+    NSDictionary *userInfo = [aNotification userInfo];
+    NSValue *aValue = [userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
+    CGRect keyboardRect = [aValue CGRectValue];
+    int height = keyboardRect.size.height;//键盘高度
+    self.botConst.constant = height + 15;
+    [UIView animateWithDuration:0.25 animations:^{
+        [self.view layoutIfNeeded];
+    }];
+}
+ 
+//当键退出时调用
+- (void)keyboardWillHide:(NSNotification *)aNotification{
+    self.botConst.constant = 15;
+    [UIView animateWithDuration:0.25 animations:^{
+        [self.view layoutIfNeeded];
+    }];
+}
+
+#pragma -mark UITextViewDelegate
+- (void)textViewDidChange:(UITextView *)textView {
+    if (self.type != 1 && self.type != 4 && self.type != 5 && self.type != 6 && self.type != 7) {
+        NSString *lang = [[textView textInputMode] primaryLanguage]; // 键盘输入模式
+        if ([lang isEqualToString:@"zh-Hans"]) { // 简体中文输入，包括简体拼音，健体五笔，简体手写
+            UITextRange *selectedRange = [textView markedTextRange];
+            //获取高亮部分
+            UITextPosition *position = [textView positionFromPosition:selectedRange.start offset:0];
+            // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
+            if (!position) {
+                if (textView.text.length > self.MaxLimit) {
+                    textView.text = [textView.text substringToIndex:self.MaxLimit];
+                    [self showMsg:NSLocalizedString(@"超出字数限制", nil) location:centre];
+                }
+            } else {
+                // 有高亮选择的字符串，则暂不对文字进行统计和限制
+            }
+        } else { // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
+            if (textView.text.length > self.MaxLimit) {
+                textView.text = [textView.text substringToIndex:self.MaxLimit];
+                [self showMsg:NSLocalizedString(@"超出字数限制", nil) location:centre];
+            }
+        }
+    }
+    [self updateRemainCount];
+    self.placeLabel.hidden = textView.text.length != 0;
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    if (self.type != 1 && self.type != 4 && self.type != 5 && self.type != 6 && self.type != 7) {
+        if ([self isText:textView beyondLimit:self.MaxLimit] && [text length] > 0) {
+            return NO;
+        }
+        return YES;
+    }
+    return YES;
+}
+
+- (BOOL)isText:(UITextView *)tv beyondLimit:(int)maxLimit{
+    NSString *lang = [[tv textInputMode] primaryLanguage];
+    if ([lang isEqualToString:@"zh-Hans"]) {
+        UITextRange *selectedRange = [tv markedTextRange];
+        UITextPosition *position = [tv positionFromPosition:selectedRange.start offset:0];
+        if (!position) {
+            if (tv.text.length > maxLimit) {
+                return YES;
+            }
+        }
+    } else {
+        if (tv.text.length > maxLimit) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+- (void)updateRemainCount {
+    if (self.type == 0) {
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"标题(%lu字)", nil),(unsigned long)self.contentText.text.length];
+        [self setBanar:str hiddeBack:NO];
+    }else if(self.type == 1){
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"正文(%lu字)", nil),(unsigned long)self.contentText.text.length];
+        [self setBanar:str hiddeBack:NO];
+    }else if(self.type == 2){
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"存证标签(%lu字)", nil),(unsigned long)self.contentText.text.length];
+        [self setBanar:str hiddeBack:NO];
+    }else if(self.type == 3){
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"存证备注(%lu字)", nil),(unsigned long)self.contentText.text.length];
+        [self setBanar:str hiddeBack:NO];
+    }else if(self.type == 4){
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"网站名(%lu字)", nil),(unsigned long)self.contentText.text.length];
+        [self setBanar:str hiddeBack:NO];
+    }else if(self.type == 5){
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"电话(%lu字)", nil),(unsigned long)self.contentText.text.length];
+        [self setBanar:str hiddeBack:NO];
+    }else if(self.type == 6){
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"邮箱(%lu字)", nil),(unsigned long)self.contentText.text.length];
+        [self setBanar:str hiddeBack:NO];
+    }else if(self.type == 7){
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"地址(%lu字)", nil),(unsigned long)self.contentText.text.length];
+        [self setBanar:str hiddeBack:NO];
+    }else if(self.type == 8){
+        NSString *str = [NSString stringWithFormat:NSLocalizedString(@"菜单标题(%lu字)", nil),(unsigned long)self.contentText.text.length];
+        [self setBanar:str hiddeBack:NO];
+    }
+    
+}
+@end

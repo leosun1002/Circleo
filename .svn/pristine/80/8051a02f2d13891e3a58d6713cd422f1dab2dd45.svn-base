@@ -1,0 +1,145 @@
+//
+//  MallMyOrderChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallMyOrderChildVC.h"
+#import "MallMyOrderTableViewCell.h"
+#import "MallMyOrderDetailVC.h"
+#import "ShopMyOrderModel.h"
+
+@interface MallMyOrderChildVC ()<UITableViewDelegate,UITableViewDataSource>{
+    int page;
+    BOOL ifFirst;
+}
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property(nonatomic,strong) NSMutableArray *datas;
+
+@end
+
+@implementation MallMyOrderChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallMyOrderTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallMyOrderTableViewCell"];
+}
+
+-(void)getData{
+    //判断是不是第一次
+    if (!ifFirst) {
+        [self.tableview.mj_header beginRefreshing];
+        ifFirst = YES;
+    }
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"status":self.selectedPage == 0?@"":[NSString stringWithFormat:@"%ld",(long)self.selectedPage],@"page":[NSString stringWithFormat:@"%d",page]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:GoodsMyOrderIndex param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<ShopMyOrderModel*> *applicationList = [ShopMyOrderModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    ShopEmptyView *view = [ShopEmptyView flagView];
+    view.backgroundColor = [UIColor clearColor];
+    view.contentLabel.text = @"暂无数据";
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopMyOrderModel *model = self.datas[indexPath.row];
+    if (model.status == 3) {
+        return 5 + 188;
+    }
+    return 5 + 188 + 50;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallMyOrderTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallMyOrderTableViewCell"];
+    cell.model = self.datas[indexPath.row];
+    [cell.tipBtn addTarget:self action:@selector(tipClick:) forControlEvents:UIControlEventTouchUpInside];
+    [cell.checkBtn addTarget:self action:@selector(checkClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopMyOrderModel *model = self.datas[indexPath.row];
+    MallMyOrderDetailVC *detail = [[MallMyOrderDetailVC alloc] init];
+    detail.order_id = model.order_id;
+    [self.navigation pushViewController:detail animated:YES];
+}
+
+-(void)tipClick:(UIButton *)sendser{
+    ShopMyOrderModel *model = self.datas[sendser.tag];
+    if (model.status == 1) {
+        //提醒发货
+        [self remindClick:model];
+    }
+}
+
+-(void)checkClick:(UIButton *)sendser{
+    
+}
+
+-(void)remindClick:(ShopMyOrderModel *)model{
+    NSDictionary *dict = @{@"good_id":[NSString stringWithFormat:@"%ld",model.good_id],@"pick_order_id":[NSString stringWithFormat:@"%ld",model.order_id]};
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices postFormReqUrl:GoodsRemind param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if (json != nil) {
+            [weakself showMsg:json[@"msg"] location:centre];
+        }else{
+            [weakself showMsg:@"网络异常，请稍后重试" location:centre];
+        }
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

@@ -1,0 +1,33 @@
+//
+//  WebArticleDetailModel.m
+//  ScmProject
+//
+//  Created by leosun on 2020/6/6.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebArticleDetailModel.h"
+
+@implementation WebArticleDetailChainModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"chianId":@"id"};
+}
+
+@end
+
+@implementation WebArticleDetailNavigationModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"navigationId":@"id"};
+}
+
+@end
+
+@implementation WebArticleDetailModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"articleId":@"id"};
+}
+
+@end

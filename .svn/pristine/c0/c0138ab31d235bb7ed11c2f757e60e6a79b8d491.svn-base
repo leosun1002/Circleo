@@ -1,0 +1,35 @@
+//
+//  JYShortMsgCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "JYShortMsgCell.h"
+
+@implementation JYShortMsgCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(SolutionModel *)model{
+    _model = model;
+    NSString *allTime = model.created_at;
+    NSString *time = [allTime componentsSeparatedByString:@" "][1];
+    NSArray *timeArr = [time componentsSeparatedByString:@":"];
+    self.timeLabel.text = [NSString stringWithFormat:@"%@:%@",timeArr[0],timeArr[1]];
+    self.titleLabel.text = model.title;
+    self.descLabel.text = model.desc;
+    self.readCountLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%ld人阅读", nil),model.browse_count];
+}
+
+@end

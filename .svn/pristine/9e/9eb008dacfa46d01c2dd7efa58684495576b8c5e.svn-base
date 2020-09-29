@@ -1,0 +1,50 @@
+//
+//  MallCatrgoryListChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallCatrgoryListChildVC.h"
+#import "MallSearchResultTableViewCell.h"
+#import "MallDetailVC.h"
+
+@interface MallCatrgoryListChildVC ()<UITableViewDataSource,UITableViewDelegate>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+
+@end
+
+@implementation MallCatrgoryListChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallSearchResultTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallSearchResultTableViewCell"];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallSearchResultTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallSearchResultTableViewCell"];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallDetailVC *detail = [[MallDetailVC alloc] init];
+    [self.navigation pushViewController:detail animated:YES];
+}
+
+@end
+

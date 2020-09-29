@@ -1,0 +1,29 @@
+//
+//  DNSHomePageCollectionViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSShopModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSHomePageCollectionViewCell : UICollectionViewCell
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (strong, nonatomic) DNSShopModel *model;
+@property (weak, nonatomic) IBOutlet UIImageView *remainImgae;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *remainWidth;
+
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *lastTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *leadConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *trailConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

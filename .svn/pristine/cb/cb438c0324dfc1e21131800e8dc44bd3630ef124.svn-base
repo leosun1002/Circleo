@@ -1,0 +1,32 @@
+//
+//  CoinAssetsTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "CoinAssetsTableViewCell.h"
+
+@implementation CoinAssetsTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(CurrencyModel *)model{
+    _model = model;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.images)]];
+    self.nameLabel.text = model.name;
+    self.kyLabel.text = model.pivot.number;
+    self.djLabel.text = model.pivot.income_number;
+}
+
+@end

@@ -1,0 +1,40 @@
+//
+//  MyTeamTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MyTeamTableViewCell.h"
+
+@implementation MyTeamTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(MyTeamModel *)model{
+    _model = model;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:model.avatar] placeholderImage:[UIImage imageNamed:@"pic_head"] options:SDWebImageAllowInvalidSSLCertificates];
+    self.nameLabel.text = [self replacePhoneWithStar:AssectString(model.phone)];
+    self.jdLabel.text = model.grade;
+    self.countLabel.text = [NSString stringWithFormat:@"%ld",model.count];
+    if (model.grade_type == 1) {
+        self.jdImage.image = [UIImage imageNamed:@"tips_normal"];
+    }else if (model.grade_type == 2){
+        self.jdImage.image = [UIImage imageNamed:@"tips_super"];
+    }else{
+        self.jdImage.image = [UIImage imageNamed:@"tips_create"];
+    }
+    self.commuImage.hidden = model.user_title == 0;
+}
+
+@end

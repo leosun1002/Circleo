@@ -1,0 +1,202 @@
+//
+//  DNSManageChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSManageChildVC.h"
+#import "DNSManageCell.h"
+#import "DNSManageModel.h"
+#import "DNSRenewViewController.h"
+
+@interface DNSManageChildVC ()<CYLTableViewPlaceHolderDelegate,UITableViewDataSource,UITableViewDelegate>
+{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSString *refreshStr;
+
+@end
+
+@implementation DNSManageChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSManageCell" bundle:nil] forCellReuseIdentifier:@"DNSManageCell"];
+    self.tableview.estimatedRowHeight = 0;
+    self.tableview.estimatedSectionHeaderHeight = 0;
+    self.tableview.estimatedSectionFooterHeight = 0;
+    
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getDatas:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getDatas:NO];
+    }];
+}
+
+-(void)refreshData{
+    if ([AssectString(self.refreshStr) isEqualToString:@""] ) {
+        [self.tableview.mj_header beginRefreshing];
+        self.refreshStr = @"1";
+    }
+}
+
+-(void)getDatas:(BOOL)ifFresh{
+    ifFresh?(page = 1):(page ++);
+    NSInteger type = 0;
+    if (self.type != 3) {
+        type = self.type + 1;
+    }else{
+        type = self.type + 2;
+    }
+    NSDictionary *dict = @{@"type":[NSString stringWithFormat:@"%ld",type],@"page":[NSString stringWithFormat:@"%ld",(long)page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:DomainNameManage param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<DNSManageModel *> *applicationList = [DNSManageModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    //1为域名列表，2已绑定，3未绑定，4即将到期
+    if (self.type == 0) {
+        view.contents.text = NSLocalizedString(@"当前暂无持有域名", nil);
+    }else if (self.type == 1){
+        view.contents.text = NSLocalizedString(@"当前暂无已绑定域名", nil);
+    }else if (self.type == 2){
+        view.contents.text = NSLocalizedString(@"当前暂无未绑定域名", nil);
+    }else if (self.type == 3){
+        view.contents.text = NSLocalizedString(@"当前暂无已冻结域名", nil);
+    }
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSManageCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSManageCell"];
+    cell.model = self.datas[indexPath.row];
+    cell.opereateBtn.tag = indexPath.row;
+    [cell.opereateBtn addTarget:self action:@selector(operateClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (self.datas.count == 0) return;
+    DNSManageModel *model = self.datas[indexPath.row];
+    if (model.is_frozen == 1) {
+        [self showMsg:NSLocalizedString(@"该域名已被冻结", nil) location:centre];
+        return;
+    }
+    [self.subject sendNext:[NSString stringWithFormat:@"%ld",model.manageid]];
+}
+
+-(void)operateClick:(UIButton *)sender{
+    NSInteger senderTag = sender.tag;
+    if (self.datas.count == 0) return ;
+    DNSManageModel *model = self.datas[senderTag];
+    //0未到期，1要到期了
+    if (model.is_expire == 0) {
+        [self checkDetailClick:senderTag];
+    }else{
+        [self checkDetailAndRenewClick:senderTag];
+    }
+}
+
+-(void)checkDetailAndRenewClick:(NSInteger)senderTag{
+    UIAlertController *sheetVC = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"查看域名详情", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if (weakself.datas.count == 0) return ;
+        DNSManageModel *model = weakself.datas[senderTag];
+        if (model.is_frozen == 1) {
+            [weakself showMsg:NSLocalizedString(@"该域名已被冻结", nil) location:centre];
+            return;
+        }
+        [weakself.subject sendNext:[NSString stringWithFormat:@"%ld",model.manageid]];
+    }];
+    UIAlertAction*  sheetBtn2=[UIAlertAction actionWithTitle:NSLocalizedString(@"域名续费", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if (weakself.datas.count == 0) return ;
+        DNSManageModel *model = weakself.datas[senderTag];
+        if (model.is_frozen == 1) {
+            [weakself showMsg:NSLocalizedString(@"该域名已被冻结", nil) location:centre];
+            return;
+        }
+        [weakself.renewSubject sendNext:[NSString stringWithFormat:@"%ld",model.manageid]];
+    }];
+
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn2];
+    [sheetBtn2 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+-(void)checkDetailClick:(NSInteger)senderTag{
+    UIAlertController *sheetVC = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"查看域名详情", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if (weakself.datas.count == 0) return ;
+        DNSManageModel *model = weakself.datas[senderTag];
+        if (model.is_frozen == 1) {
+            [weakself showMsg:NSLocalizedString(@"该域名已被冻结", nil) location:centre];
+            return;
+        }
+        [weakself.subject sendNext:[NSString stringWithFormat:@"%ld",model.manageid]];
+    }];
+
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+#pragma mark -getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

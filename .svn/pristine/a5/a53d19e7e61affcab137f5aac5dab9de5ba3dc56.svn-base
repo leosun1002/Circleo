@@ -1,0 +1,51 @@
+//
+//  DNSRenewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSRenewCell.h"
+
+@implementation DNSRenewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setType:(long)type{
+    _type = type;
+    if (type == 0) {
+        self.leadConst.constant = 0;
+        self.trailConst.constant = 0;
+        self.delBtn.hidden = YES;
+    }else{
+        self.leadConst.constant = -37;
+        self.trailConst.constant = 37;
+        self.delBtn.hidden = NO;
+    }
+}
+
+-(void)setModel:(DNSBuyModel *)model{
+    _model = model;
+    self.namLabel.text = model.domain_name;
+    self.tipLabel.text = self.newType == 0?NSLocalizedString(@"到期时间：", nil):NSLocalizedString(@"续费后到期时间：", nil);
+    self.buyTip.text = self.newType == 0?NSLocalizedString(@"购买时长(年)", nil):NSLocalizedString(@"续费时长(年)", nil);
+    self.endLabel.text = model.end_time;
+    NSString *year = [NSString stringWithFormat:@"%ld",model.years];
+    self.countLabel.text = year;
+    self.salePriceLabel.hidden = self.newType !=0;
+    self.salePriceTipLabel.hidden = self.newType !=0;
+    self.salePriceLabel.text = AssectNumber(model.usdt_fee);
+    self.servicePriceLabel.text = [GaoJingDu cheng:@[AssectNumber(model.usdt_price),AssectNumber(year)] jindu:@"2"];
+}
+
+@end

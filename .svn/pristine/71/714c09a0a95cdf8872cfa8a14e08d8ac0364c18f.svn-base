@@ -1,0 +1,42 @@
+//
+//  BuildWebsiteVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/5/20.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BuildWebsiteVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *domainView;
+@property (weak, nonatomic) IBOutlet UITextField *domainText;
+@property (weak, nonatomic) IBOutlet UIView *modelView;
+@property (weak, nonatomic) IBOutlet UITextField *modelText;
+@property (weak, nonatomic) IBOutlet UIView *webBackView;
+@property (weak, nonatomic) IBOutlet UITextField *webNameText;
+@property (weak, nonatomic) IBOutlet UIView *carouselView;
+@property (weak, nonatomic) IBOutlet UITextField *carouselText;
+@property (weak, nonatomic) IBOutlet UIView *naviView;
+@property (weak, nonatomic) IBOutlet UITextField *naviText;
+@property (weak, nonatomic) IBOutlet UIView *phoneView;
+@property (weak, nonatomic) IBOutlet UITextField *phoneText;
+@property (weak, nonatomic) IBOutlet UIView *emailView;
+@property (weak, nonatomic) IBOutlet UITextField *emailText;
+@property (weak, nonatomic) IBOutlet UIView *addressView;
+@property (weak, nonatomic) IBOutlet UITextField *addressText;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@property(nonatomic,assign) long website_id;
+@property(nonatomic,strong) RACSubject *delSubject;
+@property(nonatomic,strong) RACSubject *publishSubject;
+
+/// 0是新建   1是修改
+@property(nonatomic,assign) long fromType;
+
+@end
+
+NS_ASSUME_NONNULL_END

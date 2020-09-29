@@ -1,0 +1,33 @@
+//
+//  BrowserServicePayDetailFooter.h
+//  ScmProject
+//
+//  Created by leosun on 2019/12/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BrowserServicePayDetailFooter : UIView
+
+@property (weak, nonatomic) IBOutlet UIView *payTypeView;
+@property (weak, nonatomic) IBOutlet UIView *pswView;
+@property (weak, nonatomic) IBOutlet UILabel *payName;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *yueLabel;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *serviceView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *serviceHeightConst;
+
+
+@property (assign, nonatomic) NSInteger payType;// 0支付宝 1微信 2cny余额 3usdt余额
+
+@end
+
+NS_ASSUME_NONNULL_END

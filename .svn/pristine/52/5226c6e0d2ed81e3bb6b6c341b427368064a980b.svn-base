@@ -1,0 +1,16 @@
+//
+//  MyFuelRecordModel.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/28.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MyFuelRecordModel.h"
+
+@implementation MyFuelRecordModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"fuel_id":@"id",@"hash_content":@"hash"};
+}
+@end

@@ -1,0 +1,101 @@
+//
+//  EquitySelectVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "EquitySelectVC.h"
+
+@interface EquitySelectVC ()<UIPickerViewDelegate,UIPickerViewDataSource>
+
+@property(nonatomic,strong) NSMutableArray *datas;
+@end
+
+@implementation EquitySelectVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor clearColor];
+    [self prepareUi];
+    [self setData];
+}
+
+-(void)prepareUi{
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        weakself.backview.y = ksrcheight;
+        [UIView animateWithDuration:0.25 animations:^{
+            weakself.backview.y = ksrcheight - 275;
+            weakself.bgview.alpha = 0.3;
+        }];
+    });
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself dissmissVC];
+    }];
+    [self.bgview addGestureRecognizer:tap];
+}
+
+-(void)dissmissVC{
+    [UIView animateWithDuration:0.25 animations:^{
+        self.backview.y = ksrcheight;
+        self.bgview.alpha = 0.01;
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+    }];
+}
+
+-(void)setData{
+    int i = 0;
+    while (i<=100) {
+        [self.datas addObject:[NSString stringWithFormat:@"%d",i]];
+        i += 5;
+    }
+    if ([self.datas containsObject:AssectString(self.percent)]) {
+        [self.pickerview selectRow:[self.datas indexOfObject:AssectString(self.percent)] inComponent:0 animated:YES];
+    }
+    [self.pickerview reloadAllComponents];
+}
+
+- (IBAction)cancelClick:(id)sender {
+    [self dissmissVC];
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSInteger row = [self.pickerview selectedRowInComponent:0];
+    NSString *selectPercent = self.datas[row];
+    [self.subject sendNext:selectPercent];
+    [self dissmissVC];
+}
+
+#pragma mark - dataSouce
+//有几行
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+    return 1;
+}
+
+//行中有几列
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+    return self.datas.count;
+}
+
+//列显示的数据
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger) row forComponent:(NSInteger)component {
+    return self.datas[row];
+}
+
+-(CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component{
+    return 35;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

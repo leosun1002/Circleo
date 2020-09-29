@@ -1,0 +1,191 @@
+//
+//  JYShortMassageChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "JYShortMassageChildVC.h"
+#import "JYShortMsgCell.h"
+#import "JYShortMsgHeader.h"
+#import "SolutionModel.h"
+
+@interface JYShortMassageChildVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong)NSString *canRefresh;
+@property(nonatomic,strong)NSMutableArray *datas;
+
+@end
+
+@implementation JYShortMassageChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"JYShortMsgCell" bundle:nil] forCellReuseIdentifier:@"JYShortMsgCell"];
+    
+    if (@available(iOS 11.0,*)) {
+        self.tableview.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+        self.tableview.estimatedRowHeight=0;
+        self.tableview.estimatedSectionFooterHeight=0;
+    }else{
+        self.automaticallyAdjustsScrollViewInsets=NO;
+    }
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)refreshData{
+    if ([AssectString(self.canRefresh) isEqualToString:@""]) {
+        [self.tableview.mj_header beginRefreshing];
+        self.canRefresh = @"1";
+    }
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    WeakSelf(self);
+    [WebServices postFormReqUrl:NewInformationMore param:@{@"type":@"2",@"page":[NSString stringWithFormat:@"%d",page],@"new_type":[NSString stringWithFormat:@"%ld",self.type]} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                [weakself dealWithdata:[json[@"data"][@"data"] mutableCopy]];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+-(void)dealWithdata:(NSMutableArray *)newDatas{
+    if (newDatas.count == 0) return;
+    if (self.datas.count == 0) {
+        [self.datas addObjectsFromArray:newDatas];
+        self.datas = [self sortByDate:self.datas];
+        return;
+    }
+    newDatas = [self sortByDate:newDatas];
+    for (int i = 0; i < newDatas.count; i++) {
+        NSDictionary *dict = newDatas[i];
+        NSString *title = AssectString(dict[@"title"]);
+        NSArray *list = [dict[@"list"] mutableCopy];
+        BOOL hasInsert = NO;
+        for (int j = 0 ; j<self.datas.count; j++) {
+            NSMutableDictionary *originDict = [self.datas[j] mutableCopy];
+            NSString *originTitle = AssectString(originDict[@"title"]);
+            NSMutableArray *originList = [originDict[@"list"] mutableCopy];
+            if (![title isEqualToString:@""] && ![originTitle isEqualToString:@""] && [title isEqualToString:originTitle]){
+                [originList addObjectsFromArray:list];
+                [originDict setValue:originList forKey:@"list"];
+                [self.datas replaceObjectAtIndex:j withObject:originDict];
+                hasInsert = YES;
+                break;
+            }
+        }
+        if (!hasInsert) {
+            [self.datas addObject:dict];
+        }
+    }
+    self.datas = [self sortByDate:self.datas];
+}
+
+-(NSMutableArray *)sortByDate:(NSMutableArray *)datas{
+    NSArray *testArr = [datas sortedArrayWithOptions:NSSortStable usingComparator:
+                        ^NSComparisonResult(id  _Nonnull obj1, id  _Nonnull obj2) {
+                            NSString *title1 = obj1[@"title"];
+                            NSString *title2 = obj2[@"title"];
+                            NSComparisonResult result = [title2 compare:title1];
+                            return result;
+                        }];
+    return [testArr mutableCopy];
+}
+
+#pragma CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *empty = [EmptyView flagView];
+    empty.contents.text = NSLocalizedString(@"当前暂无快讯", nil);
+    return empty;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 57;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    JYShortMsgHeader *header = [[JYShortMsgHeader alloc] init];
+    if (self.datas.count ==  0 || section >= self.datas.count) return header;
+    
+    NSDictionary *dict = self.datas[section];
+    NSString *title = AssectString(dict[@"title"]);
+    header.title = title;
+    return header;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (self.datas.count ==  0 || section >= self.datas.count) return 0;
+    
+    NSDictionary *dict = self.datas[section];
+    NSArray *datas = dict[@"list"];
+    return datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    JYShortMsgCell *cell = [tableView dequeueReusableCellWithIdentifier:@"JYShortMsgCell"];
+    if (self.datas.count ==  0 || indexPath.section >= self.datas.count) return cell;
+    NSDictionary *dict = self.datas[indexPath.section];
+    SolutionModel *modules = [SolutionModel mj_objectWithKeyValues:dict[@"list"][indexPath.row]];
+    cell.model = modules;
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSDictionary *dict = self.datas[indexPath.section];
+    SolutionModel *modules = [SolutionModel mj_objectWithKeyValues:dict[@"list"][indexPath.row]];
+    NSString *url = [NSString stringWithFormat:@"%@dns/h5?id=%ld",serviseShareIP,modules.solution_id];
+    NSString *solutionid = [NSString stringWithFormat:@"%ld",modules.solution_id];
+    [self.subject sendNext:@{@"url":AssectString(url),@"solutionid":AssectString(solutionid),@"title":AssectString(modules.title),@"small_image":AssectString(modules.small_image)}];
+}
+
+#pragma -mark getter
+-(NSMutableArray*)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

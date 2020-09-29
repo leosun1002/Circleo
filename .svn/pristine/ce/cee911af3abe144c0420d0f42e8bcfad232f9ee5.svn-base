@@ -1,0 +1,24 @@
+//
+//  MenuNavigationVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/5/20.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MenuNavigationVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) RACSubject *subject;
+@property(nonatomic,strong)NSMutableArray *datas;
+
+/// 0是新建   1是修改
+@property(nonatomic,assign) long fromType;
+@property(nonatomic,assign) long website_id;
+@end
+
+NS_ASSUME_NONNULL_END

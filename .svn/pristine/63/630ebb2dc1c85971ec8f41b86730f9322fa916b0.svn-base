@@ -1,0 +1,24 @@
+//
+//  DNSOrderDynamicTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSOrderModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSOrderDynamicTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *ykLabel;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *stateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property(nonatomic,strong)DNSOrderModel *model;
+@end
+
+NS_ASSUME_NONNULL_END

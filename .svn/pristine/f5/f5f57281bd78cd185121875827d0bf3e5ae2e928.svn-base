@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="DNBrowserTagCollectionViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="309" height="121"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="309" height="121"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zzD-KS-r9q">
+                        <rect key="frame" x="139.5" y="50.5" width="30" height="20"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ePX-hR-09o">
+                                <rect key="frame" x="10" y="0.0" width="10" height="20"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="10"/>
+                                <color key="textColor" red="0.46666666666666667" green="0.46666666666666667" blue="0.52156862745098043" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" red="0.96862745098039216" green="0.96862745098039216" blue="0.97647058823529409" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstItem="ePX-hR-09o" firstAttribute="top" secondItem="zzD-KS-r9q" secondAttribute="top" id="936-KJ-Pgq"/>
+                            <constraint firstAttribute="bottom" secondItem="ePX-hR-09o" secondAttribute="bottom" id="AzI-y2-Kyr"/>
+                            <constraint firstAttribute="height" constant="20" id="B88-aj-1WO"/>
+                            <constraint firstAttribute="trailing" secondItem="ePX-hR-09o" secondAttribute="trailing" constant="10" id="MzR-2B-nbL"/>
+                            <constraint firstItem="ePX-hR-09o" firstAttribute="leading" secondItem="zzD-KS-r9q" secondAttribute="leading" constant="10" id="lxf-bT-xBW"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="9.5"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                </subviews>
+            </view>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="zzD-KS-r9q" firstAttribute="centerX" secondItem="gTV-IL-0wX" secondAttribute="centerX" id="1kt-j2-M4M"/>
+                <constraint firstItem="zzD-KS-r9q" firstAttribute="centerY" secondItem="gTV-IL-0wX" secondAttribute="centerY" id="l7n-Ht-VKR"/>
+            </constraints>
+            <size key="customSize" width="309" height="121"/>
+            <connections>
+                <outlet property="nameLabel" destination="ePX-hR-09o" id="78p-sX-1Pg"/>
+            </connections>
+            <point key="canvasLocation" x="-4" y="73"/>
+        </collectionViewCell>
+    </objects>
+</document>

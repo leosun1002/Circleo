@@ -1,0 +1,62 @@
+//
+//  MallSetNickNameVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallSetNickNameVC.h"
+
+@interface MallSetNickNameVC ()
+
+@property (weak, nonatomic) IBOutlet UITextField *nickText;
+
+@end
+
+@implementation MallSetNickNameVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.nickText.text = AssectString(dict[JYNickName]);
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSString *nick = AssectString(self.nickText.text);
+    if (nick.length <= 0) {
+        [self showMsg:@"请输入昵称" location:centre];
+        return;
+    }
+    
+    NSDictionary *dict = @{@"nickname":[NSString stringWithFormat:@"%@",nick]};
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices postFormReqUrl:ShopSetNickName param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+                NSMutableDictionary *mutDict = [[Manager takeoutUserTokenkey:JYLoginuser] mutableCopy];
+                [mutDict setValue:nick forKey:JYNickName];
+                [Manager saveUserToken:[mutDict copy] key:JYLoginuser];
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:@"网络异常，请稍后重试" location:centre];
+        }
+    }];
+}
+
+@end

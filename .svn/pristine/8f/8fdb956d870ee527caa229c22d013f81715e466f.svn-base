@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clipsSubviews="YES" contentMode="scaleToFill" id="iN0-l3-epB" customClass="OpeningView">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zad-Xo-e0w">
+                    <rect key="frame" x="117" y="633" width="141.5" height="14"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="界一科技（武汉）有限公司" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r47-qi-IDg">
+                            <rect key="frame" x="0.0" y="0.0" width="110.5" height="14"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="9"/>
+                            <color key="textColor" red="0.33333333329999998" green="0.33333333329999998" blue="0.36862745099999999" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon_launch" translatesAutoresizingMaskIntoConstraints="NO" id="ZDO-ig-eoN">
+                            <rect key="frame" x="115.5" y="1" width="26" height="12"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="26" id="368-zn-NWR"/>
+                                <constraint firstAttribute="height" constant="12" id="ilC-dW-bDY"/>
+                            </constraints>
+                        </imageView>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="14" id="AUP-Z5-qbL"/>
+                        <constraint firstItem="ZDO-ig-eoN" firstAttribute="centerY" secondItem="Zad-Xo-e0w" secondAttribute="centerY" id="O8k-Dr-zJ8"/>
+                        <constraint firstItem="r47-qi-IDg" firstAttribute="leading" secondItem="Zad-Xo-e0w" secondAttribute="leading" id="jhB-HW-YZa"/>
+                        <constraint firstItem="r47-qi-IDg" firstAttribute="top" secondItem="Zad-Xo-e0w" secondAttribute="top" id="kMG-Ku-qHf"/>
+                        <constraint firstAttribute="bottom" secondItem="r47-qi-IDg" secondAttribute="bottom" id="lZg-Bg-U5q"/>
+                        <constraint firstAttribute="trailing" secondItem="ZDO-ig-eoN" secondAttribute="trailing" id="xD1-oy-Xgl"/>
+                        <constraint firstItem="ZDO-ig-eoN" firstAttribute="leading" secondItem="r47-qi-IDg" secondAttribute="trailing" constant="5" id="y39-5a-rFX"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JFT-1t-PsB">
+                    <rect key="frame" x="0.0" y="146" width="375" height="375"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="375" id="bAw-qN-C2k"/>
+                        <constraint firstAttribute="width" constant="375" id="cOv-fj-T3u"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="Zad-Xo-e0w" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="bma-zb-mMq"/>
+                <constraint firstItem="JFT-1t-PsB" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="s52-sy-FTg"/>
+                <constraint firstAttribute="bottom" secondItem="Zad-Xo-e0w" secondAttribute="bottom" constant="20" id="sZe-xI-wIf"/>
+                <constraint firstItem="JFT-1t-PsB" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="zxc-0n-uYX"/>
+            </constraints>
+            <connections>
+                <outlet property="bottomConst" destination="sZe-xI-wIf" id="VDJ-JX-ame"/>
+                <outlet property="lottieView" destination="JFT-1t-PsB" id="iNI-Zz-Oql"/>
+            </connections>
+            <point key="canvasLocation" x="132" y="108"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="icon_launch" width="25.5" height="12"/>
+    </resources>
+</document>

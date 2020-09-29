@@ -1,0 +1,35 @@
+//
+//  ConsumptionModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/31.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ConsumptionModel : NSObject
+
+@property(nonatomic,assign)long consumptionid;
+@property(nonatomic,assign)long user_id;
+@property(nonatomic,copy)NSString *service_charge;
+@property(nonatomic,copy)NSString *amount_money;
+@property(nonatomic,assign)long domain_name_id;
+@property(nonatomic,assign)long type;
+@property(nonatomic,assign)long payment_method;
+@property(nonatomic,assign)long status;
+@property(nonatomic,copy)NSString *receiving_address;
+@property(nonatomic,copy)NSString *send_address;
+@property(nonatomic,copy)NSString *hashcontent;
+@property(nonatomic,copy)NSString *remark;
+@property(nonatomic,copy)NSString *create_time;
+@property(nonatomic,copy)NSString *created_at;
+@property(nonatomic,copy)NSString *updated_at;
+@property(nonatomic,assign)long bank_card_id;
+@property(nonatomic,copy)NSString *domain_name;
+
+@end
+
+NS_ASSUME_NONNULL_END

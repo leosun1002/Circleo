@@ -1,0 +1,34 @@
+//
+//  LoginVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/3.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface LoginVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UITextField *phoneText;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+@property (weak, nonatomic) IBOutlet UIButton *loginBtn;
+@property (weak, nonatomic) IBOutlet UIButton *hideBtn;
+@property (weak, nonatomic) IBOutlet UIImageView *titleImage;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthConst;
+@property (weak, nonatomic) IBOutlet UIButton *typeBtn;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet UIView *codeview;
+@property (weak, nonatomic) IBOutlet UIButton *codeBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *pswWidthConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *pswTrailConst;
+@property (assign, nonatomic) long type; //  0密码登录   1快捷登录
+@property (weak, nonatomic) IBOutlet UIView *areaView;
+@property (weak, nonatomic) IBOutlet UILabel *areaLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *phoneTextLeadConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

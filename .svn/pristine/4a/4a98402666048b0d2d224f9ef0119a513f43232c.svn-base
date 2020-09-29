@@ -1,0 +1,27 @@
+//
+//  DNSUnbindDetailFooter.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSUnbindDetailFooter : UIView
+@property (weak, nonatomic) IBOutlet UIView *payview;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *yueLabel;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (weak, nonatomic) IBOutlet UIView *pswView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *pswHeightConst;
+
+@property (assign, nonatomic) NSInteger payType;
+
+@end
+
+NS_ASSUME_NONNULL_END

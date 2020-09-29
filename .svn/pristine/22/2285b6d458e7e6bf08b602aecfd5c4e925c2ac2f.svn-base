@@ -1,0 +1,166 @@
+//
+//  WebArticleDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/6/6.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebArticleDetailVC.h"
+#import "WebArticleDetailModel.h"
+#import "NewsWebViewController.h"
+#import "BrowserCoinSelectVC.h"
+
+@interface WebArticleDetailVC ()
+
+@property(nonatomic,strong)WebArticleDetailModel *model;
+@end
+
+@implementation WebArticleDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:AssectString(self.articleTitle) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getData];
+}
+
+-(void)prepareUi{
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself hideOrShowClick];
+    }];
+    [self.hideOrShowView addGestureRecognizer:tap1];
+    
+//    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+//    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+//        BrowserCoinSelectVC *coinSelect = [[BrowserCoinSelectVC alloc] init];
+//        coinSelect.articleid = weakself.articleid;
+//        coinSelect.chainid = [NSString stringWithFormat:@"%ld",weakself.model.website_article_chain.chianId];
+//        coinSelect.chainSubject = [RACSubject subject];
+//        [coinSelect.chainSubject subscribeNext:^(NSString *chainid) {
+//            weakself.model.website_article_chain.chianId = [chainid longLongValue];
+//            [weakself getData];
+//        }];
+//        [weakself.navigationController pushViewController:coinSelect animated:YES];
+//    }];
+//    [self.chainView  addGestureRecognizer:tap2];
+}
+
+-(void)getData{
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    NSDictionary *dict = @{@"website_id":[NSString stringWithFormat:@"%ld",self.website_id],@"website_article_id":[NSString stringWithFormat:@"%ld",self.articleid]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:WebsiteArticleDetail param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.model = [WebArticleDetailModel mj_objectWithKeyValues:json[@"data"]];
+                [weakself setData:weakself.model];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)setData:(WebArticleDetailModel *)model{
+    self.navigationLabel.text = AssectString(model.website_category_navigation.name);
+    self.titleLabel.text = AssectString(model.title);
+    
+    NSString *reading = [NSString stringWithFormat:@"%ld",model.reading];
+    if ([reading longLongValue] >= 10000) {
+        reading = [NSString stringWithFormat:@"%@w",[GaoJingDu chu:@[reading,@"10000"] jindu:@"2"]];
+    }
+    
+    NSString *total_word = [NSString stringWithFormat:@"%ld",model.word_count];
+    if ([total_word longLongValue] >= 10000) {
+        total_word = [NSString stringWithFormat:@"%@w",[GaoJingDu chu:@[total_word,@"10000"] jindu:@"2"]];
+    }
+    self.readCountLabel.text = [NSString stringWithFormat:NSLocalizedString(@"阅读量%@ · 总字数%@", nil),reading,total_word];
+    
+    self.timeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"发布于 %@", nil),AssectString(model.created_at)];
+    
+    self.contentLabel.text = model.content;
+    
+    [self.chainImgV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.website_article_chain.image_address)]];
+    self.chainLabel.text = AssectString(model.website_article_chain.name);
+    
+    self.chainTimeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"时间：  %@", nil),AssectString(model.website_article_chain.pivot[@"packing_time"])];
+    self.heightLabel.text = [NSString stringWithFormat:NSLocalizedString(@"块高：  %@", nil),AssectString(model.website_article_chain.pivot[@"block_height"])];
+    self.hashLabel.text = AssectString(model.website_article_chain.pivot[@"hash"]);
+}
+
+- (void)hideOrShowClick{
+    //未上链不让展开
+    long status = [self.model.website_article_chain.pivot[@"status"] longLongValue];
+    if (status != 2) {
+        [self showMsg:NSLocalizedString(@"该文章未上链，无法展开", nil) location:centre];
+        return;
+    }
+
+    if (self.domainHeightConst.constant == 281) {
+        self.domainHeightConst.constant = 0;
+        self.domainView.hidden = YES;
+        [self.view layoutIfNeeded];
+        self.hideOrShowLabel.text = NSLocalizedString(@"展开更多信息", nil);
+        self.hideOrShowImgV.image = [UIImage imageNamed:@"icon_detail_down"];
+    }else{
+        self.domainHeightConst.constant = 281;
+        [self.view layoutIfNeeded];
+        self.domainView.hidden = NO;
+        self.hideOrShowLabel.text = NSLocalizedString(@"收起更多信息", nil);
+        self.hideOrShowImgV.image = [UIImage imageNamed:@"icon_detail_up"];
+    }
+}
+
+- (IBAction)heightClick:(id)sender {
+    NSString *block = self.heightLabel.text;
+    block = [block stringByReplacingOccurrencesOfString:NSLocalizedString(@"块高：  ", nil) withString:@""];
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = block;
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)hashClick:(id)sender {
+    NSString *hash = self.hashLabel.text;
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = hash;
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)moreClick:(id)sender {
+    NSString *name = AssectString(self.model.website_article_chain.name);
+    NSString *hash = AssectString(self.model.website_article_chain.pivot[@"hash"]);
+    if ([name containsString:@"BTC"] || [name containsString:@"ETH"]) {
+        NSString *url = [NSString stringWithFormat:@"https://tokenview.com/cn/search/%@",hash];
+        NewsWebViewController* webViewObj =  [[NewsWebViewController alloc] init];
+        webViewObj.loadUrl = AssectString(url);
+        webViewObj.titleStr = name;
+        [self.navigationController pushViewController:webViewObj animated:YES];
+        return;
+    }
+
+    if ([name containsString:@"NULS"]) {
+        NSString *url = [NSString stringWithFormat:@"https://nulscan.io/transaction/info?hash=%@",hash];
+        NewsWebViewController* webViewObj =  [[NewsWebViewController alloc] init];
+        webViewObj.loadUrl = AssectString(url);
+        webViewObj.titleStr = name;
+        [self.navigationController pushViewController:webViewObj animated:YES];
+        return;
+    }
+}
+
+@end

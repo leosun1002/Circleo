@@ -1,0 +1,163 @@
+
+//
+//  PersonTradeResultVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PersonTradeResultVC.h"
+#import "WithdrawOrderModel.h"
+#import "CurrencyRecordModel.h"
+
+@interface PersonTradeResultVC ()
+
+@end
+
+@implementation PersonTradeResultVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"交易详情", nil) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    if (self.type == 0) {
+        [self getData];
+    }else{
+        [self getCoinData];
+    }
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [self dismissLoading];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    [WebServices postFormReqUrl:ConsumeRecordShow param:@{@"id":AssectNumber(self.assetId)} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                WithdrawOrderModel *modules = [WithdrawOrderModel mj_objectWithKeyValues:json[@"data"][@"consume_record"]];
+                [weakself setData:modules];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)setData:(WithdrawOrderModel *)model{
+    //in_or_out 1出帐，2入帐，3其它
+    self.headV.image = model.in_or_out == 1?[UIImage imageNamed:@"icon_withdraw"]:[UIImage imageNamed:@"icon_charge"];
+    self.nameLabel.text = model.in_or_out == 1?NSLocalizedString(@"提币", nil):NSLocalizedString(@"充币", nil);
+    //6提币，7充币
+    if (model.type == 7) {
+        self.moneyLabel.text = [NSString stringWithFormat:@"%@USDT",AssectString(model.amount_money)];
+    }else{
+        self.moneyLabel.text = [NSString stringWithFormat:@"-%@USDT",AssectString(model.withdrawal_money)];
+
+    }
+    self.statusLabel.text = NSLocalizedString(@"成功", nil);
+    self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    self.timeLabel.text = model.create_time;
+    self.jsAddress.text = [AssectString(model.receiving_address) isEqualToString:@""]?@"--":AssectString(model.receiving_address);
+    self.fsAddress.text = [AssectString(model.send_address) isEqualToString:@""]?@"--":AssectString(model.send_address);
+    self.sxfLabel.text = AssectString(model.service_charge);
+    self.dzLabel.text = AssectString(model.amount_money);
+    self.hashLabel.text = [AssectString(model.hashcontent) isEqualToString:@""]?@"--":AssectString(model.hashcontent);
+    self.markLabel.text = model.remark;
+    if (model.payment_method == 2 & model.in_or_out == 2) {
+        self.markView.hidden = YES;
+    }else{
+        self.markView.hidden = NO;
+    }
+    if (model.payment_method == 2 & model.in_or_out == 2) {
+        self.sxfview.hidden = YES;
+        self.sxfHeightConst.constant = 0;
+    }else{
+        self.markView.hidden = NO;
+        self.sxfHeightConst.constant = 50;
+    }
+    
+    self.feeTipLabel.text = [NSString stringWithFormat:NSLocalizedString(@"手续费(%@)", nil),@"USDT"];
+    self.dzTipLabel.text = [NSString stringWithFormat:NSLocalizedString(@"实际到账数量(%@)", nil),@"USDT"];
+}
+
+-(void)getCoinData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    [WebServices postFormReqUrl:CurrencyRecordDetail param:@{@"id":AssectNumber(self.assetId)} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                CurrencyRecordModel *modules = [CurrencyRecordModel mj_objectWithKeyValues:json[@"data"][@"currency_record"]];
+                [weakself setCoinData:modules];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)setCoinData:(CurrencyRecordModel *)model{
+    //in_or_out 1出帐，2入帐，3其它
+    self.headV.image = model.in_out == 1?[UIImage imageNamed:@"icon_withdraw"]:[UIImage imageNamed:@"icon_charge"];
+    self.nameLabel.text = model.in_out == 1?NSLocalizedString(@"提币", nil):NSLocalizedString(@"充币", nil);
+    //1购买域名，2提币，3充币
+    if (model.type == 2) {
+        self.moneyLabel.text = [NSString stringWithFormat:@"-%@%@",AssectString(model.price),AssectString(model.currency.name)];
+    }else if(model.type == 3){
+        self.moneyLabel.text = [NSString stringWithFormat:@"%@%@",AssectString(model.actual_price),AssectString(model.currency.name)];
+    }
+    self.statusLabel.text = NSLocalizedString(@"成功", nil);
+    self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    self.timeLabel.text = model.created_at;
+    self.jsAddress.text = [AssectString(model.receiving_address) isEqualToString:@""]?@"--":AssectString(model.receiving_address);
+    self.fsAddress.text = [AssectString(model.send_address) isEqualToString:@""]?@"--":AssectString(model.send_address);
+    self.sxfLabel.text = AssectString(model.handling_fee);
+    if (model.type == 3) {
+        self.sxfview.hidden = YES;
+        self.sxfHeightConst.constant = 0;
+    }
+    self.dzLabel.text = AssectString(model.actual_price);
+    self.hashLabel.text = [AssectString(model.hashcontent) isEqualToString:@""]?@"--":AssectString(model.hashcontent);
+    self.markLabel.text = AssectString(model.remark);
+    
+    self.feeTipLabel.text = [NSString stringWithFormat:NSLocalizedString(@"手续费(%@)", nil),AssectString(model.currency.name)];
+    self.dzTipLabel.text = [NSString stringWithFormat:NSLocalizedString(@"实际到账数量(%@)", nil),AssectString(model.currency.name)];
+}
+
+- (IBAction)jsClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.jsAddress.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)fsClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.fsAddress.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)hashClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.hashLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+@end

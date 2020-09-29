@@ -1,0 +1,26 @@
+//
+//  HomePageTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "SolutionModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface HomePageTableViewCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *content;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *seeCount;
+
+@property(nonatomic,strong) SolutionModel *model;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,36 @@
+//
+//  DNSPublishHomeVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSPublishHomeVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UIView *backview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomConst;
+@property (strong, nonatomic) RACSubject *publishSubject;
+@property (strong, nonatomic) RACSubject *myPublishSubject;
+@property (strong, nonatomic) RACSubject *collectSubject;
+@property (strong, nonatomic) RACSubject *settingSubject;
+@property (strong, nonatomic) RACSubject *evidenceSubject;
+@property (strong, nonatomic) RACSubject *myEvidenceSubject;
+@property (strong, nonatomic) RACSubject *myWebsiteSubject;
+
+@property (weak, nonatomic) IBOutlet UIView *bottomView;
+
+@property (strong, nonatomic) RACSubject *selectSubject;
+
+@property (strong, nonatomic) UIImage *image;
+@property (strong, nonatomic) UIImage *image1;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *tableWidthConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

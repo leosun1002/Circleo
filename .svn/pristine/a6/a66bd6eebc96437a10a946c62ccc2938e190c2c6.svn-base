@@ -1,0 +1,217 @@
+//
+//  DNSPublishHomeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSPublishHomeVC.h"
+#import "DNSPublishHomeTableViewCell.h"
+#import "XWCircleSpreadTransition.h"
+#import "XWInteractiveTransition.h"
+#import "DSPublishVC.h"
+#import "BHBPopView.h"
+#import "DNSBrowserSettingVC.h"
+
+@interface DNSPublishHomeVC ()<UITableViewDelegate,UITableViewDataSource,UIViewControllerTransitioningDelegate>
+
+@property (nonatomic, strong) XWInteractiveTransition *interactiveTransition;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property(nonatomic,strong) NSMutableArray *datas;
+@property(nonatomic,strong) BHBPopView *bp;
+@end
+
+@implementation DNSPublishHomeVC
+
+- (instancetype)init{
+    self = [super init];
+    if (self) {
+        self.transitioningDelegate = self;
+        self.modalPresentationStyle = UIModalPresentationCustom;
+    }
+    return self;
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getData];
+    [self getUserInfo];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    });
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [weakself showBottom];
+    });
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [self.bp hideItems];
+    self.tableWidthConst.constant = 0;
+       [UIView animateWithDuration:0.45 animations:^{
+           [self.view layoutIfNeeded];
+       }];
+}
+
+-(void)prepareUi{
+    self.bottomConst.constant += tabbarHeight;
+    [self addGradientLayer];
+    
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSPublishHomeTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNSPublishHomeTableViewCell"];
+}
+
+-(void)showBottom{
+    BHBItem * item0 = [[BHBItem alloc]initWithTitle:NSLocalizedString(@"发布文章", nil) Icon:@"icon_publish"];
+    BHBItem * item1 = [[BHBItem alloc]initWithTitle:NSLocalizedString(@"我的收藏", nil) Icon:@"icon_mycollect"];
+    BHBItem * item2 = [[BHBItem alloc]initWithTitle:NSLocalizedString(@"我的付费", nil) Icon:@"icon_mypay"];
+    BHBItem * item3 = [[BHBItem alloc]initWithTitle:NSLocalizedString(@"我的发布", nil) Icon:@"icon_my_publish"];
+    BHBItem * item4 = [[BHBItem alloc]initWithTitle:NSLocalizedString(@"存证上链", nil) Icon:@"icon_evidence"];
+    BHBItem * item5 = [[BHBItem alloc]initWithTitle:NSLocalizedString(@"我的存证", nil) Icon:@"icon_my_evidence"];
+    BHBItem * item6 = [[BHBItem alloc]initWithTitle:NSLocalizedString(@"我的网站", nil) Icon:@"icon_my_website"];
+
+    //添加popview
+    WeakSelf(self);
+    self.bp = [BHBPopView showToView:self.bottomView withItems:@[item0,item1,item2,item3,item4,item5,item6] andSelectBlock:^(NSInteger index) {
+        if (index == 0) {
+            NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+            ///0未修改，1已修改
+            if ([AssectString(dict[JYIsModified]) isEqualToString:@"1"]) {
+                [weakself dismissViewControllerAnimated:YES completion:^{
+                    [weakself.publishSubject sendNext:@""];
+                }];
+            }else{
+                //设置
+                DNSBrowserSettingVC *setting = [[DNSBrowserSettingVC alloc] init];
+                setting.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+                setting.settingSubject = [RACSubject subject];
+                [setting.settingSubject subscribeNext:^(id x) {
+                    [weakself dismissViewControllerAnimated:YES completion:^{
+                        [weakself.settingSubject sendNext:@""];
+                    }];
+                }];
+                [weakself presentViewController:setting animated:YES completion:^{
+                }];
+            }
+        }else if (index == 3) {
+            [weakself dismissViewControllerAnimated:YES completion:^{
+                [weakself.myPublishSubject sendNext:@""];
+            }];
+        }else if (index == 4) {
+            [weakself dismissViewControllerAnimated:YES completion:^{
+                [weakself.evidenceSubject sendNext:@""];
+            }];
+        }else if (index == 5) {
+            [weakself dismissViewControllerAnimated:YES completion:^{
+                [weakself.myEvidenceSubject sendNext:@""];
+            }];
+        }else if (index == 6){
+            [weakself dismissViewControllerAnimated:YES completion:^{
+                [weakself.myWebsiteSubject sendNext:[NSString stringWithFormat:@"%ld",(long)index]];
+            }];
+        }else{
+            [weakself dismissViewControllerAnimated:YES completion:^{
+                [weakself.collectSubject sendNext:[NSString stringWithFormat:@"%ld",(long)index]];
+            }];
+        }
+    }];
+    
+    self.tableWidthConst.constant = ksrcwidth;
+    [UIView animateWithDuration:0.45 animations:^{
+        [self.view layoutIfNeeded];
+    }];
+}
+
+-(void)getUserInfo{
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+            }
+        }
+    }];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:BrowserNewArticle param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                [weakself.datas addObjectsFromArray:json[@"data"][@"new_article"]];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview reloadData];
+    }];
+}
+
+-(void)addGradientLayer{
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, ksrcwidth, ksrcheight);
+    gradient.startPoint = CGPointMake(0, 0);
+    gradient.endPoint = CGPointMake(0, 1);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor getColor:@"#7CB0FF" alpha:1].CGColor,
+                       (id)[UIColor getColor:@"#6647FF" alpha:1].CGColor,nil];
+    [self.backview.layer addSublayer:gradient];
+}
+
+- (IBAction)closeClick:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:^{
+    }];
+}
+
+#pragma -mark getter
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSPublishHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSPublishHomeTableViewCell"];
+    NSDictionary *dict = self.datas[indexPath.row];
+    cell.nameLabel.text = AssectString(dict[@"title"]);
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSDictionary *dict = self.datas[indexPath.row];
+    WeakSelf(self);
+    [weakself dismissViewControllerAnimated:YES completion:^{
+        [weakself.selectSubject sendNext:dict];
+    }];
+}
+
+#pragma -mark UIViewControllerTransitioningDelegate
+- (id<UIViewControllerAnimatedTransitioning>)animationControllerForPresentedController:(UIViewController *)presented presentingController:(UIViewController *)presenting sourceController:(UIViewController *)source{
+    return [XWCircleSpreadTransition transitionWithTransitionType:XWCircleSpreadTransitionTypePresent withImage:nil withImage1:nil];
+}
+
+- (id<UIViewControllerAnimatedTransitioning>)animationControllerForDismissedController:(UIViewController *)dismissed{
+    return [XWCircleSpreadTransition transitionWithTransitionType:XWCircleSpreadTransitionTypeDismiss withImage:self.image withImage1:self.image1];
+}
+
+- (id<UIViewControllerInteractiveTransitioning>)interactionControllerForDismissal:(id<UIViewControllerAnimatedTransitioning>)animator{
+    return nil;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end
+

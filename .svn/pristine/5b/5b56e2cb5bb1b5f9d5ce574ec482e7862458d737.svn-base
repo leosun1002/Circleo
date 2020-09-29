@@ -1,0 +1,23 @@
+//
+//  BrowserDNListVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BrowserDNListVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+
+@property (nonatomic, assign) long articleid;
+@property (nonatomic, strong) NSString *domain_name_id;
+
+@end
+
+NS_ASSUME_NONNULL_END

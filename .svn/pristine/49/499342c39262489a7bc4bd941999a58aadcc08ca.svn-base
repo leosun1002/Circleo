@@ -1,0 +1,183 @@
+//
+//  DNBrowserSettingVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/12/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNBrowserSettingVC.h"
+
+@interface DNBrowserSettingVC ()
+
+@end
+
+@implementation DNBrowserSettingVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self setData];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        weakself.heightConst.constant = 172;
+        [UIView animateWithDuration:0.25 animations:^{
+            [weakself.view layoutIfNeeded];
+        }];
+    });
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself closeClick:nil];
+    }];
+    [self.bgView addGestureRecognizer:tap];
+    
+    [[self.smallBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.fontType == 0) return ;
+        [weakself.fontSubject sendNext:@"0"];
+        weakself.fontType = 0;
+        [Manager saveToken:@"0" key:JYArticleFont];
+        [weakself setData];
+    }];
+    
+    [[self.midBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.fontType == 1) return ;
+        [weakself.fontSubject sendNext:@"1"];
+        weakself.fontType = 1;
+        [Manager saveToken:@"1" key:JYArticleFont];
+        [weakself setData];
+    }];
+    
+    [[self.bigBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.fontType == 2) return ;
+        [weakself.fontSubject sendNext:@"2"];
+        weakself.fontType = 2;
+        [Manager saveToken:@"2" key:JYArticleFont];
+        [weakself setData];
+    }];
+    
+    [[self.grayBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.colorType == 0) return ;
+        [weakself.colorSubject sendNext:@"0"];
+        weakself.colorType = 0;
+        [Manager saveToken:@"0" key:JYArticleColor];
+        [weakself setData];
+    }];
+    
+    [[self.greenBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.colorType == 1) return ;
+        [weakself.colorSubject sendNext:@"1"];
+        weakself.colorType = 1;
+        [Manager saveToken:@"1" key:JYArticleColor];
+        [weakself setData];
+    }];
+    
+    [[self.yellowBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.colorType == 2) return ;
+        [weakself.colorSubject sendNext:@"2"];
+        weakself.colorType = 2;
+        [Manager saveToken:@"2" key:JYArticleColor];
+        [weakself setData];
+    }];
+    
+    if ([[GDLocalizableController userLanguage] isEqualToString:ENGLISH]) {
+        self.smallWidth.constant += 30;
+        self.midWidth.constant += 30;
+        self.bigWidth.constant += 30;
+    }
+}
+
+-(void)setData{
+    if (self.colorType == 0) {
+        self.grayBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#FF5773"].CGColor;
+        self.grayBtn.layer.borderWidth = 1.f;
+
+        self.greenBtn.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.greenBtn.layer.borderWidth = 1.f;
+
+        self.yellowBtn.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.yellowBtn.layer.borderWidth = 1.f;
+    }else if (self.colorType == 1){
+        self.greenBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#FF5773"].CGColor;
+        self.greenBtn.layer.borderWidth = 1.f;
+        
+        self.grayBtn.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.grayBtn.layer.borderWidth = 1.f;
+
+        self.yellowBtn.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.yellowBtn.layer.borderWidth = 1.f;
+    }else{
+        self.yellowBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#FF5773"].CGColor;
+        self.yellowBtn.layer.borderWidth = 1.f;
+        
+        self.grayBtn.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.grayBtn.layer.borderWidth = 1.f;
+
+        self.greenBtn.layer.borderColor = [UIColor whiteColor].CGColor;
+        self.yellowBtn.layer.borderWidth = 1.f;
+
+    }
+    
+    if (self.fontType == 0) {
+        self.smallBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#FF5773"].CGColor;
+        self.smallBtn.layer.borderWidth = 0.5;
+        [self.smallBtn setTitleColor:[UIColor whiteColor] forState:(UIControlStateNormal)];
+        self.smallBtn.backgroundColor = [UIColor colorWithRGBHex:@"#FF5773"];
+
+        self.midBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#9999A3"].CGColor;
+        self.midBtn.layer.borderWidth = 0.5f;
+        [self.midBtn setTitleColor:[UIColor colorWithRGBHex:@"#555555"] forState:(UIControlStateNormal)];
+        self.midBtn.backgroundColor = [UIColor whiteColor];
+        
+        self.bigBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#9999A3"].CGColor;
+        self.bigBtn.layer.borderWidth = 0.5f;
+        [self.bigBtn setTitleColor:[UIColor colorWithRGBHex:@"#555555"] forState:(UIControlStateNormal)];
+        self.bigBtn.backgroundColor = [UIColor whiteColor];
+    }else if (self.fontType == 1){
+        self.midBtn.backgroundColor = [UIColor colorWithRGBHex:@"#FF5773"];
+        self.midBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#FF5773"].CGColor;
+        self.midBtn.layer.borderWidth = 0.5;
+        [self.midBtn setTitleColor:[UIColor whiteColor] forState:(UIControlStateNormal)];
+        
+        self.smallBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#9999A3"].CGColor;
+        self.smallBtn.layer.borderWidth = 0.5f;
+        [self.smallBtn setTitleColor:[UIColor colorWithRGBHex:@"#555555"] forState:(UIControlStateNormal)];
+        self.smallBtn.backgroundColor = [UIColor whiteColor];
+        
+        self.bigBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#9999A3"].CGColor;
+        self.bigBtn.layer.borderWidth = 0.5f;
+        [self.bigBtn setTitleColor:[UIColor colorWithRGBHex:@"#555555"] forState:(UIControlStateNormal)];
+        self.bigBtn.backgroundColor = [UIColor whiteColor];
+
+    }else{
+        self.bigBtn.backgroundColor = [UIColor colorWithRGBHex:@"#FF5773"];
+        self.bigBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#FF5773"].CGColor;
+        self.bigBtn.layer.borderWidth = 0.5;
+        [self.bigBtn setTitleColor:[UIColor whiteColor] forState:(UIControlStateNormal)];
+        
+        self.smallBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#9999A3"].CGColor;
+        self.smallBtn.layer.borderWidth = 0.5f;
+        [self.smallBtn setTitleColor:[UIColor colorWithRGBHex:@"#555555"] forState:(UIControlStateNormal)];
+        self.smallBtn.backgroundColor = [UIColor whiteColor];
+
+        self.midBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#9999A3"].CGColor;
+        self.midBtn.layer.borderWidth = 0.5f;
+        [self.midBtn setTitleColor:[UIColor colorWithRGBHex:@"#555555"] forState:(UIControlStateNormal)];
+        self.midBtn.backgroundColor = [UIColor whiteColor];
+    }
+}
+
+- (IBAction)closeClick:(id)sender {
+    self.heightConst.constant = 0;
+    [UIView animateWithDuration:0.25 animations:^{
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }];
+}
+
+@end

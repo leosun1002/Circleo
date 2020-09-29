@@ -1,0 +1,33 @@
+//
+//  ShopAssetSearchTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/14.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAssetSearchTableViewCell.h"
+
+@implementation ShopAssetSearchTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.imgV.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.imgV.layer.borderWidth = 0.5f;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(ShopAssetModel *)model{
+    _model = model;
+    [self.imgV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.small_image)]];
+    self.nameLabeL.text = model.name;
+    self.descLabel.text = model.specification;
+}
+
+@end

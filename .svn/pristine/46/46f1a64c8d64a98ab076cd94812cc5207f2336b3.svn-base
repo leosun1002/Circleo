@@ -1,0 +1,171 @@
+//
+//  BrowserCollectViewController.m
+//  ScmProject
+//
+//  Created by leosun on 2019/12/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BrowserCollectVC.h"
+#import "DNBrowserNewsTableViewCell.h"
+#import "DNSMyBrowserModel.h"
+#import "DNSShopSelectVC.h"
+#import "DNBrowserDetailVC.h"
+
+@interface BrowserCollectVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSString *searchStr;
+
+@end
+
+@implementation BrowserCollectVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self addRefresh];
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)prepareUi{
+    [self setBanar:self.type == 1?NSLocalizedString(@"我的收藏", nil):NSLocalizedString(@"我的付费", nil) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNBrowserNewsTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNBrowserNewsTableViewCell"];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 40,navBarHeight - 40, 30, 30)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 30, 30);
+    rightBtn.hidden = self.type == 1;
+    [rightBtn setImage:[UIImage imageNamed:@"icon_search_black"] forState:UIControlStateNormal];
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself getSearch];
+    }];
+    [view addSubview:rightBtn];
+}
+
+-(void)getSearch{
+    DNSShopSelectVC *selectVC = [[DNSShopSelectVC alloc] init];
+    selectVC.searchHistory = AssectString(self.searchStr);
+    selectVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    selectVC.placeHolderStr = NSLocalizedString(@"请输入 域名/Hash/关键字", nil);
+    selectVC.statusType = 1;
+    selectVC.searchSubject = [RACSubject subject];
+    WeakSelf(self);
+    [selectVC.searchSubject subscribeNext:^(NSString *search) {
+        weakself.searchStr = search;
+        [weakself.tableview.mj_header beginRefreshing];
+    }];
+    [self presentViewController:selectVC animated:NO completion:^{
+        
+    }];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    if (self.type == 1) {
+        [self getCollectData:ifFresh];
+    }else{
+        [self getPayData:ifFresh];
+    }
+}
+
+-(void)getCollectData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"time":@"",@"domain_name_id":@"",@"article_public_chain_id":@"",@"page":[NSString stringWithFormat:@"%ld",(long)page]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:BrowserFavorites param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<DNSMyBrowserModel*> *applicationList = [DNSMyBrowserModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+-(void)getPayData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"name":AssectString(self.searchStr),@"page":[NSString stringWithFormat:@"%ld",(long)page]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:BrowserArticleaPay param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<DNSMyBrowserModel*> *applicationList = [DNSMyBrowserModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = self.type == 1?NSLocalizedString(@"当前暂无收藏文章", nil):NSLocalizedString(@"当前暂无付费文章", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return UITableViewAutomaticDimension;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNBrowserNewsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNBrowserNewsTableViewCell"];
+    cell.collectModel = self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    DNSMyBrowserModel *model = self.datas[indexPath.row];
+    DNBrowserDetailVC *detail = [[DNBrowserDetailVC alloc] init];
+    detail.articleid = model.articleid;
+    detail.articleTitle = model.title;
+    [self.navigationController pushViewController:detail animated:YES];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

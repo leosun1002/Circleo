@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DNBrowserErVC">
+            <connections>
+                <outlet property="erImageV" destination="4Pp-tg-vsl" id="cig-3b-LOu"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Vr7-mY-kUQ">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </view>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="4Pp-tg-vsl">
+                    <rect key="frame" x="127" y="368" width="160" height="160"/>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="160" id="yaI-59-GyJ"/>
+                        <constraint firstAttribute="height" constant="160" id="yav-k3-TSq"/>
+                    </constraints>
+                </imageView>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="Vr7-mY-kUQ" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="5so-TY-8aF"/>
+                <constraint firstItem="4Pp-tg-vsl" firstAttribute="centerX" secondItem="i5M-Pr-FkT" secondAttribute="centerX" id="OsZ-Qp-G5d"/>
+                <constraint firstItem="4Pp-tg-vsl" firstAttribute="centerY" secondItem="i5M-Pr-FkT" secondAttribute="centerY" id="PUB-mr-jxG"/>
+                <constraint firstAttribute="bottom" secondItem="Vr7-mY-kUQ" secondAttribute="bottom" id="SKa-z9-fWI"/>
+                <constraint firstAttribute="trailing" secondItem="Vr7-mY-kUQ" secondAttribute="trailing" id="XLS-2A-Asz"/>
+                <constraint firstItem="Vr7-mY-kUQ" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="o8N-CK-KOS"/>
+            </constraints>
+            <point key="canvasLocation" x="-635" y="123"/>
+        </view>
+    </objects>
+</document>

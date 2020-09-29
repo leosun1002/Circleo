@@ -1,0 +1,25 @@
+//
+//  ShopCarClearVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopCarClearVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+@property (strong, nonatomic) NSMutableArray *unuseDatas;
+@property (weak, nonatomic) IBOutlet UIButton *allButton;
+@property (weak, nonatomic) IBOutlet UIButton *delButton;
+@property (strong, nonatomic) RACSubject *delSubject;
+@property (weak, nonatomic) IBOutlet UIView *backview;
+
+@end
+
+NS_ASSUME_NONNULL_END

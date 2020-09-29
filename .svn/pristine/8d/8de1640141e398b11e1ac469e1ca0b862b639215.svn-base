@@ -1,0 +1,158 @@
+//
+//  FeedbackVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "FeedbackVC.h"
+
+@interface FeedbackVC ()<UITextViewDelegate,UITextFieldDelegate>
+
+@end
+
+@implementation FeedbackVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"建议反馈", nil) hiddeBack:NO];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    
+    self.heightConst.constant = 0 /**(ksrcwidth - 40)/3*2 + 10*/;
+    UICollectionViewFlowLayout * layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumInteritemSpacing = 0;
+    layout.minimumLineSpacing = 0;
+    layout.itemSize = CGSizeMake((ksrcwidth - 40)/3,(ksrcwidth - 40)/3);
+    layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    [self.collect setCollectionViewLayout:layout];
+
+    [self.collect registerNib:[UINib nibWithNibName:@"FeedBackCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"FeedBackCollectionViewCell"];
+
+    WeakSelf(self);
+    [[self.titleText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        weakself.titleTipLabel.text = [NSString stringWithFormat:@"%lu/20",(unsigned long)[weakself.titleText.text length]];
+        [weakself makeCheckEnable];
+    }];
+    [[self.contactText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeCheckEnable];
+    }];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.baseLine.hidden = YES;
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    self.baseLine.hidden = NO;
+}
+
+-(void)makeCheckEnable{
+    NSString *titlestr = self.titleText.text;
+    NSString *contentStr = self.content.text;
+    NSString *phone = self.contactText.text;
+    if (titlestr.length == 0 || contentStr.length == 0 || phone.length == 0) {
+        self.checkBtn.alpha = 0.7;
+        self.checkBtn.enabled = NO;
+    }else{
+        self.checkBtn.alpha = 1;
+        self.checkBtn.enabled = YES;
+    }
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSString *titlestr = self.titleText.text;
+    NSString *contentStr = self.content.text;
+    NSString *phone = self.contactText.text;
+    NSDictionary *dict = @{@"title":titlestr,@"content":contentStr,@"contact":phone};
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:MessageCreate param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.navigationController popToRootViewControllerAnimated:YES];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark UITextFieldDelegate
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    BOOL isAllowEdit = YES;
+    if([string length]>range.length&&[textField.text length]+[string length]-range.length>20){
+        isAllowEdit = NO;
+    }
+    return isAllowEdit;
+}
+
+#pragma -mark UITextViewDelegate
+- (void)textViewDidChange:(UITextView *)textView {
+    int maxLimit = 200;
+    NSString *lang = [[textView textInputMode] primaryLanguage]; // 键盘输入模式
+    if ([lang isEqualToString:@"zh-Hans"]) { // 简体中文输入，包括简体拼音，健体五笔，简体手写
+        UITextRange *selectedRange = [textView markedTextRange];
+        //获取高亮部分
+        UITextPosition *position = [textView positionFromPosition:selectedRange.start offset:0];
+        // 没有高亮选择的字，则对已输入的文字进行字数统计和限制
+        if (!position) {
+            if (textView.text.length > maxLimit) {
+                textView.text = [textView.text substringToIndex:maxLimit];
+                [self showMsg:NSLocalizedString(@"超出字数限制", nil) location:centre];
+            }
+        } else {
+            // 有高亮选择的字符串，则暂不对文字进行统计和限制
+        }
+    } else { // 中文输入法以外的直接对其统计限制即可，不考虑其他语种情况
+        if (textView.text.length > maxLimit) {
+            textView.text = [textView.text substringToIndex:maxLimit];
+            [self showMsg:NSLocalizedString(@"超出字数限制", nil) location:centre];
+        }
+    }
+    [self updateRemainCount];
+    self.tipLabel.hidden = textView.text.length != 0;
+}
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    int maxLimit = 200;
+    if ([self isText:textView beyondLimit:maxLimit] && [text length] > 0) {
+        return NO;
+    }
+    return YES;
+}
+
+- (BOOL)isText:(UITextView *)tv beyondLimit:(int)maxLimit{
+    NSString *lang = [[tv textInputMode] primaryLanguage];
+    if ([lang isEqualToString:@"zh-Hans"]) {
+        UITextRange *selectedRange = [tv markedTextRange];
+        UITextPosition *position = [tv positionFromPosition:selectedRange.start offset:0];
+        if (!position) {
+            if (tv.text.length > maxLimit) {
+                return YES;
+            }
+        }
+    } else {
+        if (tv.text.length > maxLimit) {
+            return YES;
+        }
+    }
+    return NO;
+}
+
+ - (void)updateRemainCount {
+     self.contentTipLabel.text = [NSString stringWithFormat:@"%lu/200",(unsigned long)self.content.text.length];
+ }
+
+@end

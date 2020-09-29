@@ -1,0 +1,55 @@
+//
+//  CurrencyRecordModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/19.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface CurrencyDetailModel : NSObject
+
+@property(nonatomic,copy) NSString *images;
+@property(nonatomic,copy) NSString *minimum_withdrawal;
+@property(nonatomic,copy) NSString *handling_fee;
+@property(nonatomic,assign) long detailid;
+@property(nonatomic,copy) NSString *created_at;
+@property(nonatomic,copy) NSString *cash_withdrawal;
+@property(nonatomic,copy) NSString *updated_at;
+@property(nonatomic,copy) NSString *name;
+
+@end
+
+@interface CurrencyRecordModel : NSObject
+
+/// 0待审核，1成功，2失败
+@property(nonatomic,assign)long status;
+@property(nonatomic,copy)NSString *send_address;
+@property(nonatomic,assign)long user_id;
+@property(nonatomic,assign)long currency_order_id;
+@property(nonatomic,copy)NSString *updated_at;
+@property(nonatomic,strong)CurrencyDetailModel *currency;
+@property(nonatomic,assign)long currency_id;
+@property(nonatomic,copy) NSString *handling_fee;
+@property(nonatomic,copy) NSString *actual_price;
+/// 1购买域名，2提币，3充币
+@property(nonatomic,assign)long type;
+@property(nonatomic,assign)long record_id;
+@property(nonatomic,copy)NSString *receiving_address;
+@property(nonatomic,assign)long domain_order_ids;
+/// 1出帐，2进帐
+@property(nonatomic,assign)long in_out;
+@property(nonatomic,copy)NSString *miner_fee;
+@property(nonatomic,copy)NSString *hashcontent;
+@property(nonatomic,copy)NSString *domain_names;
+@property(nonatomic,copy)NSString *created_at;
+@property(nonatomic,copy)NSString *price;
+@property(nonatomic,assign)long domain_name_ids;
+@property(nonatomic,copy)NSString *remark;
+
+@end
+
+NS_ASSUME_NONNULL_END

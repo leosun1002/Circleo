@@ -1,0 +1,23 @@
+//
+//  MallCatrgoryListChildVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "ShopHomeListModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MallCatrgoryListChildVC : BaseViewController
+
+@property(nonatomic,strong)UINavigationController *navigation;
+@property(nonatomic,strong)ShopHomeSecondListModel *secondModel;
+@property(nonatomic,assign)long firstId;
+
+-(void)getData;
+@end
+
+NS_ASSUME_NONNULL_END

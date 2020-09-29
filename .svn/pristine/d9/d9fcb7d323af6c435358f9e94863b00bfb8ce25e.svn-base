@@ -1,0 +1,188 @@
+//
+//  EvidenceHomeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/22.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "EvidenceHomeVC.h"
+#import "EvidencePhotoVC.h"
+#import "BuyEvidenceVC.h"
+#import "EVidenceHomeTableViewCell.h"
+#import "EvidenceHomeModel.h"
+#import "BuyEvidenceDetailFooter.h"
+
+@interface EvidenceHomeVC ()<UITableViewDelegate,UITableViewDataSource,UIDocumentPickerDelegate>
+
+@property(nonatomic,strong) NSMutableArray *datas;
+@property(nonatomic,strong)UIDocumentPickerViewController *documentPickerVC;
+@end
+
+@implementation EvidenceHomeVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.topConst.constant += navBarHeight;
+    [self setBanar:NSLocalizedString(@"存证上链", nil) hiddeBack:NO];
+    [self addRefresh];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getData];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"EVidenceHomeTableViewCell" bundle:nil] forCellReuseIdentifier:@"EVidenceHomeTableViewCell"];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData];
+    }];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:CertificateIndex param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                NSMutableArray<EvidenceHomeModel*> *applicationList = [EvidenceHomeModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview reloadData];
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 86;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    BuyEvidenceDetailFooter *footer = [[BuyEvidenceDetailFooter alloc] init];
+    return footer;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    EVidenceHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"EVidenceHomeTableViewCell"];
+    EvidenceHomeModel *model = self.datas[indexPath.row];
+    cell.nameLabel.text = model.name;
+    cell.timesLabel.text = [NSString stringWithFormat:@"%ld",model.user.number];
+    cell.buyBtn.tag = indexPath.row;
+    [cell.buyBtn addTarget:self action:@selector(buyClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    EvidenceHomeModel *model = self.datas[indexPath.row];
+    if (model.user.number == 0) {
+        [self showMsg:NSLocalizedString(@"存证次数不足，请购买", nil) location:centre];
+        return;
+    }
+    EvidencePhotoVC *photo = [[EvidencePhotoVC alloc] init];
+    photo.model = model;
+    [self.navigationController pushViewController:photo animated:YES];
+    
+//    [self testSelectFile];
+    
+}
+
+-(void)buyClick:(UIButton *)sender{
+    EvidenceHomeModel *model = self.datas[sender.tag];
+    BuyEvidenceVC *buy = [[BuyEvidenceVC alloc] init];
+    buy.deposit_certificate_category_id = model.user.deposit_certificate_category_id;
+    buy.name = model.name;
+    buy.unit_price = model.unit_price;
+    [self.navigationController pushViewController:buy animated:YES];
+}
+
+-(void)testSelectFile{
+    self.documentPickerVC.hidesBottomBarWhenPushed=YES;
+    [self presentViewController:self.documentPickerVC animated:YES completion:nil];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+//初始化对象
+- (UIDocumentPickerViewController *)documentPickerVC {
+    if (!_documentPickerVC) {
+        //这样添加的参数可以解决“预览文件是灰色而导致无法选择”
+        NSArray * arr=@[(__bridge NSString *) kUTTypeContent,
+                        (__bridge NSString *) kUTTypeData,
+                        (__bridge NSString *) kUTTypePackage,
+                        (__bridge NSString *) kUTTypeDiskImage,
+                        @"com.apple.iwork.pages.pages",
+                        @"com.apple.iwork.numbers.numbers",
+                        @"com.apple.iwork.keynote.key"];
+        _documentPickerVC = [[UIDocumentPickerViewController alloc] initWithDocumentTypes:arr inMode:UIDocumentPickerModeOpen];
+        _documentPickerVC.delegate = self;
+        //设置模态弹出方式
+        _documentPickerVC.modalPresentationStyle = UIModalPresentationFullScreen;
+
+    }
+    return _documentPickerVC;
+}
+
+
+//实现代理
+
+#pragma mark - UIDocumentPickerDelegate
+- (void)documentPicker:(UIDocumentPickerViewController *)controller didPickDocumentsAtURLs:(NSArray<NSURL *> *)urls {
+    //获取授权
+    BOOL fileUrlAuthozied = [urls.firstObject startAccessingSecurityScopedResource];
+    if (fileUrlAuthozied) {
+        //通过文件协调工具来得到新的文件地址，以此得到文件保护功能
+        NSFileCoordinator *fileCoordinator = [[NSFileCoordinator alloc] init];
+        NSError *error;
+        [fileCoordinator coordinateReadingItemAtURL:urls.firstObject options:0 error:&error byAccessor:^(NSURL *newURL) {
+            //读取文件
+            NSString *fileName = [newURL lastPathComponent];
+            NSError *error = nil;
+            NSData *fileData = [NSData dataWithContentsOfURL:newURL options:NSDataReadingMappedIfSafe error:&error];
+            //判断上传的是图片吗
+            UIImage *image = [UIImage imageWithData: fileData];
+            if (error) {
+            //读取出错
+            } else {
+                NSLog(@"上传===%@",fileName);
+                //上传
+                //[self uploadingWithFileData:fileData fileName:fileName fileURL:newURL];
+            }
+            [self dismissViewControllerAnimated:YES completion:NULL];
+        }];
+        [urls.firstObject stopAccessingSecurityScopedResource];
+    } else {
+        //授权失败
+    }
+}
+@end

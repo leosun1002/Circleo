@@ -1,0 +1,29 @@
+//
+//  DNSSearchVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSSearchVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIView *bottomview;
+@property (weak, nonatomic) IBOutlet UITextField *searchText;
+@property (weak, nonatomic) IBOutlet UILabel *countlabel;
+@property (weak, nonatomic) IBOutlet UIView *historyView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *botHeight;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *searchConst;
+@property (strong, nonatomic) NSString *selectStr;
+@property (weak, nonatomic) IBOutlet UILabel *redCountLabel;
+@property (weak, nonatomic) IBOutlet UIButton *shopCarBtn;
+
+@end
+
+NS_ASSUME_NONNULL_END

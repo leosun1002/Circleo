@@ -1,0 +1,28 @@
+//
+//  WebDomainBindModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/6/6.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebDomainBindNameModel : NSObject
+
+@property(nonatomic,assign) long domain_id;
+@property(nonatomic,strong) NSString *domain_name;
+@end
+
+@interface WebDomainBindModel : NSObject
+
+@property(nonatomic,assign) long website_id;
+/// 0是未选中   1是选中
+@property(nonatomic,assign) long type;
+@property(nonatomic,strong) WebDomainBindNameModel *domain_name;
+
+@end
+
+NS_ASSUME_NONNULL_END

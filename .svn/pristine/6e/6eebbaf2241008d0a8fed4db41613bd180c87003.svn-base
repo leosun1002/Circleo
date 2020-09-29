@@ -1,0 +1,33 @@
+//
+//  ShopHomeListModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/22.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopHomeSecondListModel : NSObject
+
+@property(nonatomic,assign) long show_status;
+@property(nonatomic,assign) long secondId;
+@property(nonatomic,copy) NSString *image_address;
+@property(nonatomic,copy) NSString *content;
+@property(nonatomic,copy) NSString *name;
+@property(nonatomic,copy) NSString *keyword;
+
+@end
+
+@interface ShopHomeListModel : NSObject
+
+@property(nonatomic,assign) long listId;
+@property(nonatomic,copy) NSString *image_address;
+@property(nonatomic,copy) NSString *name;
+@property(nonatomic,strong) NSArray<ShopHomeSecondListModel *> *good_two_categorys;
+
+@end
+
+NS_ASSUME_NONNULL_END

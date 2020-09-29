@@ -1,0 +1,69 @@
+//
+//  DNSPublishPersonVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSPublishPersonVC.h"
+
+@interface DNSPublishPersonVC ()<UITextFieldDelegate>
+
+@end
+
+@implementation DNSPublishPersonVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.topConst.constant += navBarHeight;
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)prepareUi{
+    [self setBanar:NSLocalizedString(@"发布人", nil) hiddeBack:NO];
+    self.text.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.text.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:14]}];
+    WeakSelf(self);
+    [[self.text rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        weakself.countLabel.text = [NSString stringWithFormat:@"%lu/20",(unsigned long)[weakself.text.text length]];
+    }];
+    self.text.text = AssectString(self.selectStr);
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    CGFloat width = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?80:60;
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - width - 5,navBarHeight - 35, width, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, width, 20);
+    [rightBtn setTitle:NSLocalizedString(@"确定", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#323236"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        NSString *string = [weakself removeSpaceAndNewline:weakself.text.text];
+        if ([string isEqualToString:@""]) {
+            [weakself showMsg:NSLocalizedString(@"请输入发布人", nil) location:centre];
+            return ;
+        }
+        [weakself.selectSubject sendNext:string];
+        [weakself.navigationController popViewControllerAnimated:YES];
+    }];
+    [view addSubview:rightBtn];
+}
+
+#pragma -mark UITextFieldDelegate
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
+{
+    BOOL isAllowEdit = YES;
+    if([string length]>range.length&&[textField.text length]+[string length]-range.length>20){
+        isAllowEdit = NO;
+    }
+    return isAllowEdit;
+}
+
+@end

@@ -1,0 +1,100 @@
+//
+//  ShopAssetNewChargeViewController.m
+//  Cloud Pro
+//
+//  Created by leosun on 2020/7/13.
+//  Copyright © 2020 yunzhuan. All rights reserved.
+//
+
+#import "ShopAssetNewChargeVC.h"
+#import "ShopChargeCollectionViewCell.h"
+#import <AlipaySDK/AlipaySDK.h>
+#import "ShopAssetChargeRecordVC.h"
+
+@interface ShopAssetNewChargeVC ()<UICollectionViewDelegate,UICollectionViewDataSource>{
+    NSInteger tag;
+}
+
+@property (weak, nonatomic) IBOutlet UICollectionView *collectview;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+@property(nonatomic,strong) NSMutableArray *datas;
+@property (weak, nonatomic) IBOutlet UILabel *yeLabel;
+
+
+@end
+
+@implementation ShopAssetNewChargeVC
+
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:zfbPaySuccessful object:nil];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self notificationCenter];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    tag = 0;
+}
+
+-(void)prepareUi{
+    self.flowLayout.itemSize = CGSizeMake((ksrcwidth - 24 - 30)/3, 60);
+    self.flowLayout.minimumLineSpacing = 10;
+    self.flowLayout.minimumInteritemSpacing = 10;
+    self.flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    
+    [self.collectview registerNib:[UINib nibWithNibName:@"ShopChargeCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"ShopChargeCollectionViewCell"];
+}
+
+-(void)notificationCenter{
+    WeakSelf(self);
+    [[[NSNotificationCenter defaultCenter] rac_addObserverForName:zfbPaySuccessful object:nil]subscribeNext:^(id x) {
+        ShopAssetChargeRecordVC *record = [[ShopAssetChargeRecordVC alloc] init];
+        [weakself.navigationController pushViewController:record animated:YES];
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    ShopChargeCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"ShopChargeCollectionViewCell" forIndexPath:indexPath];
+    if (tag == indexPath.item) {
+        cell.layer.borderColor = [UIColor colorWithRGBHex:@"#424968"].CGColor;
+        cell.layer.borderWidth = 1.0f;
+    }else{
+        cell.layer.borderColor = [UIColor colorWithRGBHex:@"#D7D7D7"].CGColor;
+        cell.layer.borderWidth = 1.0f;
+    }
+
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (tag == indexPath.item) return;
+    tag = indexPath.item;
+    [self.collectview reloadData];
+}
+
+- (IBAction)recordClick:(id)sender {
+    ShopAssetChargeRecordVC *record = [[ShopAssetChargeRecordVC alloc] init];
+    [self.navigationController pushViewController:record animated:YES];
+
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

@@ -1,0 +1,57 @@
+//
+//  DNSOrderModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/6.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSOrderModel : NSObject
+
+@property(nonatomic,assign) long orderid;
+@property(nonatomic,assign) long domain_name_id;
+@property(nonatomic,copy) NSString* domain_name;
+@property(nonatomic,copy) NSString* domain_name_before;
+@property(nonatomic,copy) NSString* domain_name_after;
+@property(nonatomic,copy) NSString* start_time;
+@property(nonatomic,copy) NSString* end_time;
+@property(nonatomic,assign) long domain_name_length;
+/**
+ 1 一口价
+ */
+@property(nonatomic,assign) long type;
+@property(nonatomic,assign) long sale_day;
+@property(nonatomic,copy) NSString* price;
+@property(nonatomic,copy) NSString* service_charge_percentage;
+@property(nonatomic,copy) NSString* service_charge;
+@property(nonatomic,copy) NSString* sale_time;
+@property(nonatomic,assign) long sale_user_id;
+@property(nonatomic,copy) NSString* content;
+@property(nonatomic,copy) NSString* buy_time;
+@property(nonatomic,copy) NSString* cancel_time;
+@property(nonatomic,assign) long buy_user_id;
+/**
+ 1挂卖中，2已出售，3已取消， 99已购买 4求购中
+ */
+@property(nonatomic,assign) long order_status;
+/**
+ 0未购买，1已购买
+ */
+@property(nonatomic,assign) long is_buy;
+/**
+ 0禁止挂卖，1可以挂卖
+ */
+@property(nonatomic,assign) long status;
+@property(nonatomic,copy) NSString* sale_phone;
+@property(nonatomic,copy) NSString* buy_phone;
+@property(nonatomic,copy) NSString* created_at;
+@property(nonatomic,copy) NSString* updated_at;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

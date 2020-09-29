@@ -1,0 +1,36 @@
+//
+//  RegisterVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface RegisterVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITextField *phoneText;
+@property (weak, nonatomic) IBOutlet UIButton *codeBtn;
+@property (weak, nonatomic) IBOutlet UILabel *areaLabel;
+@property (weak, nonatomic) IBOutlet UITextField *codeText;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+@property (weak, nonatomic) IBOutlet UITextField *retryText;
+@property (weak, nonatomic) IBOutlet UITextField *tgmText;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UIButton *xieyiBtn;
+@property (weak, nonatomic) IBOutlet UIButton *hideBtn;
+@property (weak, nonatomic) IBOutlet UIView *level1;
+@property (weak, nonatomic) IBOutlet UIView *level2;
+@property (weak, nonatomic) IBOutlet UIView *level3;
+@property (weak, nonatomic) IBOutlet UIView *areaView;
+@property (weak, nonatomic) IBOutlet UILabel *xieyiLabel;
+@property (weak, nonatomic) IBOutlet UILabel *zhengceLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *checkTop;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *btnBottom;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *xyLeading;
+
+@end
+
+NS_ASSUME_NONNULL_END

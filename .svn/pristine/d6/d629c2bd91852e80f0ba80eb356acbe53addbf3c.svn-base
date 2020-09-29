@@ -1,0 +1,29 @@
+//
+//  EvidencePhotoVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/4/22.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "EvidenceHomeModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface EvidencePhotoVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *photoBgview;
+@property (weak, nonatomic) IBOutlet UIView *tagView;
+@property (weak, nonatomic) IBOutlet UITextField *tagText;
+@property (weak, nonatomic) IBOutlet UIButton *delBtn;
+@property (weak, nonatomic) IBOutlet UIView *remarkView;
+@property (weak, nonatomic) IBOutlet UITextField *remarkText;
+@property (weak, nonatomic) IBOutlet UIImageView *evidenceImgV;
+@property (strong, nonatomic) EvidenceHomeModel *model;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UILabel *checkLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

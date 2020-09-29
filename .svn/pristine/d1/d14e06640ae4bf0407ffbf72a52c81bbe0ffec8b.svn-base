@@ -1,0 +1,77 @@
+//
+//  ShopAssetsReceiveVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/14.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAssetsReceiveVC.h"
+#import "UIImage+GIFImage.h"
+
+@interface ShopAssetsReceiveVC ()
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIImageView *imgV;
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+
+@end
+
+@implementation ShopAssetsReceiveVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    if (IS_IPHONEX) {
+        self.topConst.constant += 24;
+    }
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#2982FD"];
+    NSString *address = [Manager takeoutTokenkey:ShopWalletAddress];
+    self.imgV.image = [UIImage createImgQRCodeWithString:AssectString(address) centerImage:[UIImage new] withWidth:130.f];
+    self.addressLabel.text = AssectString(address);
+    
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSString *nick_name = AssectString(dict[JYNickName]);
+    if ([nick_name isEqualToString:@""]) {
+        self.nameLabel.text = @"接收账户";
+    }else{
+        self.nameLabel.text = [NSString stringWithFormat:@"接收账户：%@",nick_name];
+    }
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)copyClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(self.addressLabel.text);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)downloadClick:(id)sender {
+    if (self.imgV.image) {
+        [self loadImageFinished:self.imgV.image];
+    }
+}
+
+- (void)loadImageFinished:(UIImage *)image{
+    UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), (__bridge void *)self);
+}
+
+#pragma mark 保存海报
+- (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo{
+    NSString *msg = nil ;
+    if(error != NULL){
+        msg = @"保存图片失败" ;
+    }else{
+        msg = @"已保存到手机相册" ;
+    }
+    [self showMsg:NSLocalizedString(msg, nil) location:centre];
+}
+
+@end

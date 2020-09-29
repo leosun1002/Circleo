@@ -1,0 +1,75 @@
+//
+//  DNRecomendCollectionViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNRecomendCollectionViewCell.h"
+
+@implementation DNRecomendCollectionViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+-(void)setModel:(DNSShopRecommendModel *)model{
+    _model = model;
+    self.nameLabel.text = model.domain_name;
+    self.priceLabel.text = [GaoJingDu add:@[AssectNumber(model.usdt_fee),AssectNumber(model.unit_usdt_price)] jindu:@"2"];
+    self.remarkLabel.text = model.title;
+    if (model.labels.count == 0) {
+        self.tjLabel.hidden = YES;
+        self.tjLabel1.hidden = YES;
+        self.tjLabel2.hidden = YES;
+    }else if(model.labels.count == 1) {
+        LabelModel *labelmodel = model.labels[0];
+        self.tjLabel.text = labelmodel.name;
+        self.tjLabel.hidden = NO;
+        self.tjWidth.constant = [self calculateWidth:AssectString(labelmodel.name)] + 10;
+        
+        self.tjLabel1.hidden = YES;
+        self.tjLabel2.hidden = YES;
+    }else if(model.labels.count == 2) {
+        LabelModel *labelmodel = model.labels[0];
+        self.tjLabel.text = labelmodel.name;
+        self.tjWidth.constant = [self calculateWidth:labelmodel.name] + 10;
+        self.tjLabel.hidden = NO;
+
+        LabelModel *labelmodel1 = model.labels[1];
+        self.tjLabel1.text = labelmodel1.name;
+        self.tWidth1.constant = [self calculateWidth:labelmodel1.name] + 10;
+        self.tjLabel1.hidden = NO;
+
+        self.tjLabel2.hidden = YES;
+    }else if(model.labels.count >= 3) {
+        LabelModel *labelmodel = model.labels[0];
+        self.tjLabel.text = labelmodel.name;
+        self.tjWidth.constant = [self calculateWidth:labelmodel.name] + 10;
+        self.tjLabel.hidden = NO;
+
+        LabelModel *labelmodel1 = model.labels[1];
+        self.tjLabel1.text = labelmodel1.name;
+        self.tWidth1.constant = [self calculateWidth:labelmodel1.name] + 10;
+        self.tjLabel1.hidden = NO;
+
+        LabelModel *labelmodel2 = model.labels[2];
+        self.tjLabel2.text = labelmodel2.name;
+        self.tjWidth2.constant = [self calculateWidth:labelmodel2.name] + 10;
+        self.tjLabel2.hidden = NO;
+    }
+}
+
+-(CGFloat)calculateWidth:(NSString *)content{
+    //计算文本文字size
+    CGSize size = [content sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:10.f]}];
+//    //获取宽高
+//    CGSize statuseStrSize = CGSizeMake(ceilf(size.width), ceilf(size.height));
+//    //打印宽高
+//    NSLog(@"%@_width:%f_height:%f",NSStringFromCGSize(statuseStrSize),size.width,size.height);
+    return size.width;
+}
+
+@end

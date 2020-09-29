@@ -1,0 +1,202 @@
+//
+//  DNSSellFilterVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSSellFilterVC.h"
+#import "DNSFilterSelectVC.h"
+
+@interface DNSSellFilterVC ()
+
+@end
+
+@implementation DNSSellFilterVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"域名筛选", nil)  hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    [self prepareUi];
+    [self setData];
+}
+
+-(void)prepareUi{
+    self.resetBtn.layer.masksToBounds = YES;
+    self.resetBtn.layer.cornerRadius = 22.5;
+    self.resetBtn.layer.borderWidth = 1.f;
+    self.resetBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#5151F0"].CGColor;
+    WeakSelf(self);
+    [[self.resetBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        weakself.hzLabel.text = NSLocalizedString(@"不限", nil);
+        weakself.filterModel.domain_suffix = @"";
+        weakself.priceLabel.text = NSLocalizedString(@"不限", nil);
+        weakself.filterModel.price = @"";
+        weakself.lengLabel.text = NSLocalizedString(@"不限", nil);
+        weakself.filterModel.domain_length = @"";
+        weakself.daysLabel.text = NSLocalizedString(@"不限", nil);
+        weakself.filterModel.days = @"";
+        weakself.tradeLabel.text = NSLocalizedString(@"不限", nil);
+        weakself.filterModel.type = @"";
+    }];
+    
+    self.checkBtn.layer.masksToBounds = YES;
+    self.checkBtn.layer.cornerRadius = 22.5;
+    [self addGradientLayer:self.checkBtn];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself getHzData];
+    }];
+    [self.hzview addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        NSArray *datas = [NSArray arrayWithObjects:NSLocalizedString(@"不限", nil),@"0-50 USDT",@"50-100 USDT",@"100-500 USDT",@"500-1000 USDT",@"1000-5000 USDT",@"5000-10000 USDT",NSLocalizedString(@"10000 USDT 以上", nil), nil];
+        [weakself selectFilter:datas withLabel:weakself.priceLabel];
+    }];
+    [self.priceview addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        NSArray *datas = [NSArray arrayWithObjects:NSLocalizedString(@"不限", nil),NSLocalizedString(@"1个", nil),NSLocalizedString(@"2个", nil),NSLocalizedString(@"3个", nil),NSLocalizedString(@"4个", nil),NSLocalizedString(@"5个", nil),NSLocalizedString(@"6个", nil),NSLocalizedString(@"7个", nil),NSLocalizedString(@"8个", nil),NSLocalizedString(@"9个", nil),NSLocalizedString(@"10个", nil),NSLocalizedString(@"10个以上", nil), nil];
+        [weakself selectFilter:datas withLabel:weakself.lengLabel];
+    }];
+    [self.lengview addGestureRecognizer:tap2];
+    
+    UITapGestureRecognizer *tap3 = [[UITapGestureRecognizer alloc] init];
+    [[tap3 rac_gestureSignal] subscribeNext:^(id x) {
+        
+        NSArray *datas = [NSArray arrayWithObjects:NSLocalizedString(@"不限", nil),NSLocalizedString(@"30天以上", nil),NSLocalizedString(@"60天以上", nil),NSLocalizedString(@"90天以上", nil),NSLocalizedString(@"180天以上", nil),NSLocalizedString(@"365天以上", nil), nil];
+        [weakself selectFilter:datas withLabel:weakself.daysLabel];
+    }];
+    [self.daysview addGestureRecognizer:tap3];
+    
+    UITapGestureRecognizer *tap4 = [[UITapGestureRecognizer alloc] init];
+    [[tap4 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself getTypeData];
+
+    }];
+    [self.tradeview addGestureRecognizer:tap4];
+}
+
+-(void)setData{
+    if (![AssectString(self.filterModel.domain_suffix) isEqualToString:@""]) {
+        self.hzLabel.text = AssectString(self.filterModel.domain_suffix);
+    }
+    if (![AssectString(self.filterModel.price) isEqualToString:@""]) {
+        self.priceLabel.text = AssectString(self.filterModel.price);
+    }
+    if (![AssectString(self.filterModel.domain_length) isEqualToString:@""]) {
+        self.lengLabel.text = AssectString(self.filterModel.domain_length);
+    }
+    if (![AssectString(self.filterModel.days) isEqualToString:@""]) {
+        self.daysLabel.text = AssectString(self.filterModel.days);
+    }
+    if (![AssectString(self.filterModel.type) isEqualToString:@""]) {
+        self.tradeLabel.text = AssectString(self.filterModel.type);
+    }
+}
+
+-(void)getHzData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:DomainSuffix param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                NSMutableArray *tempDatas = [NSMutableArray array];
+                [json[@"data"][@"domain_suffix"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [tempDatas addObject:AssectString(obj[@"name"])];
+                }];
+                if (tempDatas.count == 0) {
+                    [tempDatas addObject:NSLocalizedString(@"不限", nil)];
+                }else{
+                    [tempDatas insertObject:NSLocalizedString(@"不限", nil) atIndex:0];
+                }
+                [weakself selectFilter:[tempDatas copy] withLabel:weakself.hzLabel];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)getTypeData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:DomainSearchTerm param:@{@"type":@"1"} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                NSMutableArray *tempDatas = [NSMutableArray array];
+                [json[@"data"][@"search_terms"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [tempDatas addObject:AssectString(obj[@"name"])];
+                }];
+                if (tempDatas.count == 0) {
+                    [tempDatas addObject:NSLocalizedString(@"不限", nil)];
+                }else{
+                    [tempDatas insertObject:NSLocalizedString(@"不限", nil) atIndex:0];
+                }
+                [weakself selectFilter:[tempDatas copy] withLabel:weakself.tradeLabel];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+- (IBAction)checkClick:(id)sender {
+    [self.subject sendNext:self.filterModel];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)addGradientLayer:(UIView *)bgview{
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, (ksrcwidth - 80)/2, 48);
+    gradient.startPoint = CGPointMake(0, 0);
+    gradient.endPoint = CGPointMake(1, 0);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor getColor:@"#6647FF" alpha:1].CGColor,
+                       (id)[UIColor getColor:@"#7CB0FF" alpha:1].CGColor,nil];
+    [bgview.layer addSublayer:gradient];
+}
+
+-(void)selectFilter:(NSArray *)datas withLabel:(UILabel *)label{
+    DNSFilterSelectVC *select = [[DNSFilterSelectVC alloc] init];
+    select.datas = datas;
+    select.selectStr = AssectString(label.text);
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.subject = [RACSubject subject];
+    WeakSelf(self);
+    [select.subject subscribeNext:^(NSString *selectstr) {
+        [weakself setToModel:selectstr withLabel:label];
+    }];
+    [self presentViewController:select animated:NO completion:nil];
+}
+
+-(void)setToModel:(NSString *)selectstr withLabel:(UILabel *)label{
+    label.text = selectstr;
+    if (label == self.hzLabel) {
+        self.filterModel.domain_suffix = selectstr;
+    }
+    if (label == self.priceLabel) {
+        self.filterModel.price = selectstr;
+    }
+    if (label == self.lengLabel) {
+        self.filterModel.domain_length = selectstr;
+    }
+    if (label == self.daysLabel) {
+        self.filterModel.days = selectstr;
+    }
+    if (label == self.tradeLabel) {
+        self.filterModel.type = selectstr;
+    }
+}
+@end

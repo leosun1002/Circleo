@@ -1,0 +1,34 @@
+//
+//  DNSShopTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSShopModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSShopTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)DNSShopModel *model;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *ykLabel;
+@property (weak, nonatomic) IBOutlet UILabel *lastTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentLabel;
+@property (weak, nonatomic) IBOutlet UILabel *unitLabel;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *widthConst;
+@property (weak, nonatomic) IBOutlet UIView *buyBgview;
+@property (weak, nonatomic) IBOutlet UIView *buyView;
+@property (weak, nonatomic) IBOutlet UILabel *buyLabel;
+
+/// 0  挂卖中   1求购中
+@property(nonatomic,assign)long type;
+@end
+
+NS_ASSUME_NONNULL_END

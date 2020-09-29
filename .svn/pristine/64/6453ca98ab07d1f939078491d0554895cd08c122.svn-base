@@ -1,0 +1,32 @@
+//
+//  MessageCenterTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MessageCenterTableViewCell.h"
+
+@implementation MessageCenterTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(MessageModel *)model{
+    _model = model;
+    self.titleLabel.text = model.title;
+    self.contentLabel.text = model.content;
+    self.timeLabel.text = model.create_time;
+    self.checkImg.hidden = [AssectString(model.jump_url) isEqualToString:@""];
+    self.checkLabel.hidden = [AssectString(model.jump_url) isEqualToString:@""];
+}
+@end

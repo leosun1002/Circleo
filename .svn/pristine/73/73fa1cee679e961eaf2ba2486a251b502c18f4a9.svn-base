@@ -1,0 +1,25 @@
+//
+//  DNSExpireChildVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSExpireChildVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIButton *allBtn;
+@property (weak, nonatomic) IBOutlet UILabel *selectLabel;
+@property (weak, nonatomic) IBOutlet UILabel *allLabel;
+@property (strong, nonatomic) RACSubject *renewSub;
+@property (assign, nonatomic) long type;//1为域名列表，2已绑定，3未绑定，4即将到期
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+-(void)refreshData;
+@end
+
+NS_ASSUME_NONNULL_END

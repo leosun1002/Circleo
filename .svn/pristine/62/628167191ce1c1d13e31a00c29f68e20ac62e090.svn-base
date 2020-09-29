@@ -1,0 +1,112 @@
+//
+//  MallCatrgoryListChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallCatrgoryListChildVC.h"
+#import "MallSearchResultTableViewCell.h"
+#import "MallDetailVC.h"
+#import "ShopSecondModel.h"
+
+@interface MallCatrgoryListChildVC ()<UITableViewDataSource,UITableViewDelegate,CYLTableViewPlaceHolderDelegate>{
+    int page;
+    BOOL ifFirst;
+}
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property(nonatomic,strong) NSMutableArray *datas;
+@end
+
+@implementation MallCatrgoryListChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallSearchResultTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallSearchResultTableViewCell"];
+}
+
+-(void)getData{
+    //判断是不是第一次
+    if (!ifFirst) {
+        [self.tableview.mj_header beginRefreshing];
+        ifFirst = YES;
+    }
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"good_one_category_id":[NSString stringWithFormat:@"%ld",self.firstId],@"good_two_category_id":[NSString stringWithFormat:@"%ld",self.secondModel.secondId],@"page":[NSString stringWithFormat:@"%d",page],@"name":@""};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:SecondGoodList param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<ShopSecondModel*> *applicationList = [ShopSecondModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    ShopEmptyView *view = [ShopEmptyView flagView];
+    view.backgroundColor = [UIColor clearColor];
+    view.contentLabel.text = @"暂无数据";
+    return view;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallSearchResultTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallSearchResultTableViewCell"];
+    cell.model = self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallDetailVC *detail = [[MallDetailVC alloc] init];
+    detail.model = self.datas[indexPath.row];
+    [self.navigation pushViewController:detail animated:YES];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end
+

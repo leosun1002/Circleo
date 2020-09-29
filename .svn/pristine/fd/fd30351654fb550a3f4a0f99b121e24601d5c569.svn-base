@@ -1,0 +1,28 @@
+//
+//  ShopTraceRecordLastCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/8/5.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "SourceListModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopTraceRecordLastCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UILabel *nickLabel;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (weak, nonatomic) IBOutlet UIView *remarkView;
+@property (weak, nonatomic) IBOutlet UILabel *remarkLabel;
+@property (weak, nonatomic) IBOutlet UIView *dotView;
+
+@property (strong, nonatomic) SourceListModel *model;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *addressHeightConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

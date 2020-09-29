@@ -1,0 +1,26 @@
+//
+//  JYShortMsgHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "JYShortMsgHeader.h"
+
+@implementation JYShortMsgHeader
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"JYShortMsgHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+    }
+    return self;
+}
+
+-(void)setTitle:(NSString *)title{
+    _title = title;
+    self.titleLabel.text = title;
+}
+
+@end

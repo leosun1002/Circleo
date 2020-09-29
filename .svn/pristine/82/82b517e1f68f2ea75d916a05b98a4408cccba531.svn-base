@@ -1,0 +1,23 @@
+//
+//  ShopAssetSearchTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/14.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "ShopAssetModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopAssetSearchTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)ShopAssetModel *model;
+@property (weak, nonatomic) IBOutlet UIImageView *imgV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabeL;
+@property (weak, nonatomic) IBOutlet UILabel *descLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

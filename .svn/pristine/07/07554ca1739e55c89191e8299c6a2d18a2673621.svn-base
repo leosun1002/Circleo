@@ -1,0 +1,38 @@
+//
+//  DNBrowserTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNBrowserTableViewCell.h"
+
+@implementation DNBrowserTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(DNSPublicChain *)model{
+    _model = model;
+    self.nameLabel.text = model.name;
+    self.addressLabel.text = model.wallet_address;
+    if (model.status == 1) {
+        self.statusLabel.text = NSLocalizedString(@"绑定中", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#FA7528"];
+    }else{
+        self.statusLabel.text = NSLocalizedString(@"已生效", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#5151F0"];
+
+    }
+}
+
+@end

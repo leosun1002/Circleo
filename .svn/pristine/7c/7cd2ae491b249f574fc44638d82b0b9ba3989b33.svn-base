@@ -1,0 +1,44 @@
+//
+//  MallMyOrderChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallMyOrderChildVC.h"
+#import "MallMyOrderTableViewCell.h"
+#import "MallMyOrderDetailVC.h"
+
+@interface MallMyOrderChildVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+
+@end
+
+@implementation MallMyOrderChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallMyOrderTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallMyOrderTableViewCell"];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallMyOrderTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallMyOrderTableViewCell"];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallMyOrderDetailVC *detail = [[MallMyOrderDetailVC alloc] init];
+    [self.navigation pushViewController:detail animated:YES];
+}
+@end

@@ -1,0 +1,121 @@
+//
+//  DNSShopBuySelectVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/28.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSShopBuySelectVC.h"
+#import "DNSShopBuyTableViewCell.h"
+#import "DNSShopNoBuyTableViewCell.h"
+#import "DNSShopBuyModel.h"
+
+@interface DNSShopBuySelectVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@end
+
+@implementation DNSShopBuySelectVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSShopBuyTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNSShopBuyTableViewCell"];
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSShopNoBuyTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNSShopNoBuyTableViewCell"];
+    WeakSelf(self);
+    if (IS_IPHONEX) {
+        self.topConst.constant += 20;
+    }
+    self.widthConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?51:31;
+    [[self.searchBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself searchClick];
+    }];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self dismissLoading];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)searchClick{
+    [self.searchText resignFirstResponder];
+    [self.datas removeAllObjects];
+    NSString *search = [self removeSpaceAndNewline:self.searchText.text];
+    if ([search containsString:@"."]) {
+        search = [search componentsSeparatedByString:@"."][0];
+    }
+    [self getSearchData:[search lowercaseString]];
+}
+
+-(void)getSearchData:(NSString *)searchData{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:YES];
+    [WebServices getFormReqUrl:HangSearchDN param:@{@"name":searchData} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                NSMutableArray<DNSShopBuyModel *> *applicationList = [DNSShopBuyModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"domain_names"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+        [weakself.tableview reloadData];
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSShopBuyModel *model = self.datas[indexPath.row];
+    if (model.type == 0 || model.type == 3) {
+        return 77;
+    }
+    return 52;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSShopBuyModel *model = self.datas[indexPath.row];
+    if (model.type == 0 || model.type == 3) {
+        DNSShopNoBuyTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSShopNoBuyTableViewCell"];
+        cell.nameLabel.text = model.domain_name;
+        cell.stateLabel.text = model.type == 0?NSLocalizedString(@"未注册", nil):NSLocalizedString(@"求购中", nil);
+        cell.stateLabel.textColor = model.type == 0?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#F95947"];
+        cell.tipLabel.hidden = model.type == 3;
+        cell.topConst.constant = model.type == 0?15:30;
+        return cell;
+    }
+    DNSShopBuyTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSShopBuyTableViewCell"];
+    cell.nameLabel.text = model.domain_name;
+    cell.statusLabel.text = model.type == 1?NSLocalizedString(@"已注册", nil):NSLocalizedString(@"挂卖中", nil);
+    cell.statusLabel.textColor = model.type == 1?[UIColor colorWithRGBHex:@"#18181A"]:[UIColor colorWithRGBHex:@"#F95947"];
+    cell.selectBtn.tag = indexPath.row;
+    [cell.selectBtn addTarget:self action:@selector(selectClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)selectClick:(UIButton *)sender{
+    DNSShopBuyModel *model = self.datas[sender.tag];
+    NSDictionary *dict = @{@"domain_name":AssectString(model.domain_name),@"manageid":[NSString stringWithFormat:@"%ld",model.domain_id]};
+    [self.nameSubject sendNext:dict];
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

@@ -1,0 +1,25 @@
+//
+//  DNSFilterSelectVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSFilterSelectVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet UIView *backview;
+@property (weak, nonatomic) IBOutlet UIPickerView *pickerview;
+///1是字典类型 0是字符串类型 2是服务项配置 3是筛选配置 4是字符串类型（返回列数）
+@property (assign, nonatomic) long dataType;
+@property(nonatomic,strong)NSArray *datas;
+@property(nonatomic,strong)NSString *selectStr;
+@property(nonatomic,strong)RACSubject *subject;
+
+@end
+
+NS_ASSUME_NONNULL_END

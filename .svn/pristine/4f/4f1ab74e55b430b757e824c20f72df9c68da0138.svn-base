@@ -1,0 +1,50 @@
+//
+//  ShopFeedbackVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopFeedbackVC.h"
+#import "MallFeedbackCollectionViewCell.h"
+
+@interface ShopFeedbackVC () <UICollectionViewDelegate,UICollectionViewDataSource>
+
+@property (weak, nonatomic) IBOutlet UICollectionView *collectView;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+
+@end
+
+@implementation ShopFeedbackVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    self.flowLayout.itemSize = CGSizeMake(90, 90);
+    self.flowLayout.minimumLineSpacing = 10;
+    self.flowLayout.minimumInteritemSpacing = 10;
+    self.flowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    
+    [self.collectView registerNib:[UINib nibWithNibName:@"MallFeedbackCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"MallFeedbackCollectionViewCell"];
+}
+
+#pragma -mark
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    MallFeedbackCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"MallFeedbackCollectionViewCell" forIndexPath:indexPath];
+    cell.bgview.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    cell.bgview.layer.borderWidth = 1.0f;
+    return cell;
+}
+@end

@@ -1,0 +1,30 @@
+//
+//  WebSiteDomainUnbindVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/6/6.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "JXCategoryListContainerView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebSiteDomainUnbindVC : BaseViewController<JXCategoryListContentViewDelegate>
+
+@property (nonatomic,strong) UINavigationController *navigationVc;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIButton *allBtn;
+@property (weak, nonatomic) IBOutlet UILabel *selectLabel;
+@property (weak, nonatomic) IBOutlet UILabel *allLabel;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property(nonatomic,assign) long website_id;
+
+@property(nonatomic,strong) RACSubject *subject;
+
+
+-(void)refreshData;
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,61 @@
+//
+//  PersonUSDTPullVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PersonUSDTPullVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *backview;
+
+@property (weak, nonatomic) IBOutlet UITextField *addressText;
+@property (weak, nonatomic) IBOutlet UITextField *countText;
+@property (weak, nonatomic) IBOutlet UITextField *sxfText;
+@property (weak, nonatomic) IBOutlet UITextField *dzText;
+@property (weak, nonatomic) IBOutlet UITextView *markText;
+@property (weak, nonatomic) IBOutlet UILabel *markLabel;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+
+@property (weak, nonatomic) IBOutlet UILabel *selectTipLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *homeV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *coinV;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *nameTrail;
+
+/// 0 USDT提币  1 币币账户提币
+@property(nonatomic,assign) long type;
+@property(nonatomic,assign) long currencyId;
+@property(nonatomic,copy) NSString *currencyName;
+
+
+@property (weak, nonatomic) IBOutlet UILabel *numberTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *feeTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *dzipLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *chainView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *typeHeightConst;
+@property (weak, nonatomic) IBOutlet UIButton *omiBtn;
+@property (weak, nonatomic) IBOutlet UIButton *ercBtn;
+
+/// 0.OMNI   1.ERC20
+@property (assign, nonatomic) long chainType;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *addressHeight;
+@property (weak, nonatomic) IBOutlet UIView *addressInputView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *addressInputHeight;
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+
+/// 0没有地址栏  1有地址栏
+@property (assign, nonatomic) long addressType;
+
+@end
+
+NS_ASSUME_NONNULL_END

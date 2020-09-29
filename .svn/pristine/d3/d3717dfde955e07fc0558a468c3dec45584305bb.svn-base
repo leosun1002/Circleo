@@ -1,0 +1,124 @@
+//
+//  MallDetailChainDataVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/16.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallDetailChainDataVC.h"
+#import "MallChainDataQrCodeVC.h"
+#import "MallDetailChainDataHeader.h"
+#import "MallDetailChainDataTableViewCell.h"
+#import "ShopChainModel.h"
+
+@interface MallDetailChainDataVC ()<UITableViewDelegate,UITableViewDataSource>{
+    int page;
+}
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (strong, nonatomic) NSMutableArray *datas;
+@property (strong, nonatomic) ShopChainModel *model;
+
+@end
+
+@implementation MallDetailChainDataVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallDetailChainDataTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallDetailChainDataTableViewCell"];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"id":[NSString stringWithFormat:@"%ld",self.chainId],@"page":[NSString stringWithFormat:@"%d",page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:BlockChainDetail param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                if (ifFresh) {
+                    weakself.model = [ShopChainModel mj_objectWithKeyValues:json[@"data"]];
+                    [weakself.datas removeAllObjects];
+                }
+                NSMutableArray<ShopChainListModel*> *applicationList = [ShopChainListModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"good_records"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview reloadData];
+    }];
+
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 100 + 78 + 5 + 240 + 110;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    MallDetailChainDataHeader *header = [[MallDetailChainDataHeader alloc] init];
+    header.model = self.model;
+    return header;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 10;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    UIView *view = [UIView new];
+    view.backgroundColor = [UIColor whiteColor];
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 0;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallDetailChainDataTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallDetailChainDataTableViewCell"];
+    ShopChainListModel *model = self.datas[indexPath.row];
+    cell.timeLabel.text = model.created_at;
+    cell.typeLabel.text = model.type == 1?@"发布":@"购买";
+    cell.countLabel.text = [NSString stringWithFormat:@"%@%ld",model.number_mode == 1?@"-":@"+",model.number];
+    return cell;
+}
+
+- (IBAction)qrClick:(id)sender {
+    MallChainDataQrCodeVC *qrCode = [[MallChainDataQrCodeVC alloc] init];
+    [self.navigationController pushViewController:qrCode animated:YES];
+}
+
+#pragma -mark
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

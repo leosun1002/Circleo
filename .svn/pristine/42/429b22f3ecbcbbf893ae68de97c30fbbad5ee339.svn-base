@@ -1,0 +1,31 @@
+//
+//  DNSRenewViewController.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSRenewViewController : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+/**
+ 0是购买  1是续费
+ */
+@property (assign, nonatomic) long newType;
+@property (strong, nonatomic) NSString *domains;
+@property (weak, nonatomic) IBOutlet UILabel *cnyPrice;
+@property (weak, nonatomic) IBOutlet UILabel *usdtPrice;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomHeightConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

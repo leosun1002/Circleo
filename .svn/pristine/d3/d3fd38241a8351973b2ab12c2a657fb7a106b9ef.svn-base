@@ -1,0 +1,59 @@
+//
+//  WithdrawOrderModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/1.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WithdrawOrderModel : NSObject
+
+@property(nonatomic,assign)long orderid;
+@property(nonatomic,assign)long user_id;
+@property(nonatomic,copy)NSString *service_charge;
+@property(nonatomic,copy)NSString *amount_money;
+@property(nonatomic,assign)long domain_name_id;
+/**
+ 1购买域名，2绑定地址，3换绑地址，4解除绑定地址，5域名续费，6提币，7充币，8购买域名分成，9推荐节点分成
+ */
+@property(nonatomic,assign)long type;
+/**
+ 1总帐户，2收益帐户
+ */
+@property(nonatomic,assign)long account_type;
+/**
+ 1CNY，2USDT，3支付宝
+ */
+@property(nonatomic,assign)long payment_method;
+/**
+ 0失败，1审核中，2成功
+ */
+@property(nonatomic,assign)long status;
+/**
+ 1出帐，2进帐，3其它
+ */
+@property(nonatomic,assign)long in_or_out;
+@property(nonatomic,copy)NSString *receiving_address;
+@property(nonatomic,copy)NSString *send_address;
+@property(nonatomic,copy)NSString *hashcontent;
+@property(nonatomic,copy)NSString *remark;
+@property(nonatomic,copy)NSString *bank_name;
+@property(nonatomic,copy)NSString *card_number;
+/**
+ 提现金额
+ */
+@property(nonatomic,copy)NSString *withdrawal_money;
+@property(nonatomic,copy)NSString *b_name;
+@property(nonatomic,copy)NSString *create_time;
+@property(nonatomic,copy)NSString *created_at;
+@property(nonatomic,copy)NSString *updated_at;
+@property(nonatomic,assign)long bank_card_id;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

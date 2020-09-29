@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="DNSShopSelectVC">
+            <connections>
+                <outlet property="heiConst" destination="MRY-Uq-LXQ" id="4CP-Pa-P1Z"/>
+                <outlet property="searchText" destination="75x-Fc-nyU" id="i12-Yg-Ge0"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+                <outlet property="widthConst" destination="B2e-v1-m2N" id="lwf-4O-bkQ"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view alpha="0.29999999999999999" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mjc-SO-TIh">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TMw-1V-Sc3">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="65"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DS9-Ut-aFF">
+                            <rect key="frame" x="5" y="30" width="30" height="30"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="30" id="f3Z-Tn-Jf7"/>
+                                <constraint firstAttribute="height" constant="30" id="tIJ-RG-deR"/>
+                            </constraints>
+                            <state key="normal" image="Back"/>
+                            <connections>
+                                <action selector="backClick:" destination="-1" eventType="touchUpInside" id="uic-gj-yz1"/>
+                            </connections>
+                        </button>
+                        <textField opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="请输入你要购买的域名" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="75x-Fc-nyU">
+                            <rect key="frame" x="35" y="28" width="289" height="34"/>
+                            <color key="backgroundColor" red="0.96862745098039216" green="0.96862745098039216" blue="0.97647058823529409" alpha="1" colorSpace="calibratedRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="34" id="jBW-ct-Vq5"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <textInputTraits key="textInputTraits"/>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="16"/>
+                                <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                            </userDefinedRuntimeAttributes>
+                        </textField>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="EFu-3e-OeP">
+                            <rect key="frame" x="334" y="30" width="31" height="30"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="31" id="B2e-v1-m2N"/>
+                            </constraints>
+                            <state key="normal" title="搜索">
+                                <color key="titleColor" red="0.31764705879999999" green="0.31764705879999999" blue="0.94117647059999998" alpha="1" colorSpace="calibratedRGB"/>
+                            </state>
+                            <connections>
+                                <action selector="checkClick:" destination="-1" eventType="touchUpInside" id="h67-4g-JhF"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstItem="75x-Fc-nyU" firstAttribute="centerY" secondItem="DS9-Ut-aFF" secondAttribute="centerY" id="0Ck-xT-Hdw"/>
+                        <constraint firstItem="EFu-3e-OeP" firstAttribute="leading" secondItem="75x-Fc-nyU" secondAttribute="trailing" constant="10" id="8H4-vS-CYD"/>
+                        <constraint firstAttribute="height" constant="65" id="MRY-Uq-LXQ"/>
+                        <constraint firstAttribute="trailing" secondItem="EFu-3e-OeP" secondAttribute="trailing" constant="10" id="ToV-x8-nWL"/>
+                        <constraint firstItem="DS9-Ut-aFF" firstAttribute="leading" secondItem="TMw-1V-Sc3" secondAttribute="leading" constant="5" id="nnJ-uo-KTV"/>
+                        <constraint firstItem="EFu-3e-OeP" firstAttribute="centerY" secondItem="DS9-Ut-aFF" secondAttribute="centerY" id="qhp-Bb-Z09"/>
+                        <constraint firstAttribute="bottom" secondItem="DS9-Ut-aFF" secondAttribute="bottom" constant="5" id="sH9-Hq-f5q"/>
+                        <constraint firstItem="75x-Fc-nyU" firstAttribute="leading" secondItem="DS9-Ut-aFF" secondAttribute="trailing" id="yqO-oz-dnx"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="TMw-1V-Sc3" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="2ZW-MP-VCz"/>
+                <constraint firstItem="TMw-1V-Sc3" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="2do-vZ-fpH"/>
+                <constraint firstAttribute="trailing" secondItem="Mjc-SO-TIh" secondAttribute="trailing" id="SKl-gz-FuF"/>
+                <constraint firstAttribute="bottom" secondItem="Mjc-SO-TIh" secondAttribute="bottom" id="bnE-2U-8bQ"/>
+                <constraint firstAttribute="trailing" secondItem="TMw-1V-Sc3" secondAttribute="trailing" id="kOg-Jl-sax"/>
+                <constraint firstItem="Mjc-SO-TIh" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="pG4-Ze-CmW"/>
+                <constraint firstItem="Mjc-SO-TIh" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="qXT-fZ-MSj"/>
+            </constraints>
+            <point key="canvasLocation" x="132" y="141"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="Back" width="24" height="24"/>
+    </resources>
+</document>

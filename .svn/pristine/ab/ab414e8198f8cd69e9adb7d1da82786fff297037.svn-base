@@ -1,0 +1,170 @@
+//
+//  MyIncomeChildView.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/19.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MyIncomeChildView.h"
+#import "MyAssetTableViewCell.h"
+#import "DNSNoDataTableViewCell.h"
+#import "MyAssetModel.h"
+
+@interface MyIncomeChildView (){
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+
+@end
+
+@implementation MyIncomeChildView
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        [self addSubview:self.tableview];
+        [self.tableview registerNib:[UINib nibWithNibName:@"MyAssetTableViewCell" bundle:nil] forCellReuseIdentifier:@"MyAssetTableViewCell"];
+        [self.tableview registerNib:[UINib nibWithNibName:@"DNSNoDataTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNSNoDataTableViewCell"];
+        [self addRefresh];
+    }
+    return self;
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)refreshData{
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSString *pagetype = @"";
+    if (self.pageType == MyIncomeChildViewTypeWithDraw) {
+        pagetype = @"1";
+    }else{
+        pagetype = @"4";
+    }
+    NSDictionary *dict = @{@"type":[NSString stringWithFormat:@"%@",self.currencyType == MyIncomeChildViewCurrencyTypeUSDT?@"2":@"1"],@"in_or_out":pagetype,@"page":[NSString stringWithFormat:@"%d",page],@"account_type":@"2"};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:ConsumeRecordList param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<MyAssetModel*> *applicationList = [MyAssetModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+- (UIScrollView *)listScrollView {
+    return self.tableview;
+}
+
+- (UIView *)listView {
+    return self;
+}
+
+// 必须加（用于联动）
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    self.scrollCallback(scrollView);
+}
+
+- (void)listViewDidScrollCallback:(void (^)(UIScrollView *))callback {
+    self.scrollCallback = callback;
+}
+
+- (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    if (self.datas.count == 0) {
+        DNSNoDataTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSNoDataTableViewCell"];
+        return cell;
+    }
+    MyAssetTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyAssetTableViewCell"];
+    cell.model = self.datas[indexPath.row];
+    return cell;
+}
+
+- (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    if (self.datas.count == 0) {
+        return 1;
+    }
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.datas.count == 0) {
+        return 200;
+    }
+    return 70;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (self.datas.count == 0) return;
+    
+    if (self.pageType == MyIncomeChildViewTypeWithTransfer) return;
+
+    MyAssetModel *model = self.datas[indexPath.row];
+    //1CNY，2USDT
+    if (model.payment_method == 2) {
+        //1出帐，2入帐，3其它(不让进)
+        if (model.in_or_out == 3)return;
+        //0失败，1审核中，2成功
+        if (model.status == 2) {
+            [self.subject sendNext:[NSString stringWithFormat:@"%ld",model.assetid]];
+        }
+    }else{
+        //1出帐，2入帐，3其它(不让进)
+        if (model.in_or_out == 1){
+            //0失败，1审核中，2成功
+            if (model.status == 2) {
+                [self.subject sendNext:[NSString stringWithFormat:@"%ld",model.assetid]];
+            }
+        }
+    }
+}
+
+-(void)layoutSubviews{
+    [self.tableview setFrame:self.bounds];
+}
+
+#pragma -mark getter
+-(UITableView *)tableview{
+    if(!_tableview){
+        _tableview=[[UITableView alloc]initWithFrame:self.bounds style:UITableViewStylePlain];
+        _tableview.backgroundColor = [UIColor whiteColor];
+        [_tableview setDelegate:self];
+        [_tableview setDataSource:self];
+        [_tableview setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+        [_tableview setBackgroundColor:[UIColor whiteColor]];
+        _tableview.estimatedRowHeight = 0;
+        _tableview.estimatedSectionFooterHeight = 0;
+        _tableview.estimatedSectionHeaderHeight = 0;
+        [_tableview setContentInset:UIEdgeInsetsMake(0, 0, 0, 0)];  //
+    }
+    return _tableview;
+}
+
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+@end

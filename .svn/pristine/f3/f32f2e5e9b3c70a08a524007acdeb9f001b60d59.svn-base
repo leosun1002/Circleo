@@ -1,0 +1,131 @@
+//
+//  PersonRightSettingVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PersonRightSettingVC.h"
+#import "PersonRightSettingTableViewCell.h"
+#import "UIViewController+CWLateralSlide.h"
+#import "PersonSettingVC.h"
+#import "PersonInfoVC.h"
+#import "AddressManageVC.h"
+#import "ReceiptWayVC.h"
+#import "AuthenVC.h"
+#import "PersonSafeVC.h"
+#import "FeedbackVC.h"
+#import "HelpCenterVC.h"
+#import "BusiCooperationVC.h"
+
+@interface PersonRightSettingVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property(nonatomic,strong)NSMutableArray *titles;
+@property(nonatomic,strong)NSMutableArray *images;
+@end
+
+@implementation PersonRightSettingVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    if (IS_IPHONEX) {
+        self.topConst.constant += 15;
+    }
+    self.widthConst.constant = ksrcwidth - 100;
+    [self.tableview registerNib:[UINib nibWithNibName:@"PersonRightSettingTableViewCell" bundle:nil] forCellReuseIdentifier:@"PersonRightSettingTableViewCell"];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.titles.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    PersonRightSettingTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PersonRightSettingTableViewCell"];
+    cell.headV.image = [UIImage imageNamed:self.images[indexPath.row]];
+    cell.titleLabel.text = self.titles[indexPath.row];
+    
+    if (indexPath.row != 3) {
+        cell.tiplabel.hidden = YES;
+        cell.tipImage.hidden = YES;
+    }else{
+        NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+        NSString *auteh = AssectString(dict[JYAuthentication]);
+        if ([auteh isEqualToString:@"0"]) {
+            cell.tiplabel.text = NSLocalizedString(@"未认证", nil);
+            cell.tiplabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+            cell.tipImage.hidden = NO;
+        }else if ([auteh isEqualToString:@"1"]) {
+            cell.tiplabel.text = NSLocalizedString(@"已认证", nil);
+            cell.tiplabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+            cell.tipImage.hidden = YES;
+        }else if ([auteh isEqualToString:@"2"]) {
+            cell.tiplabel.text = NSLocalizedString(@"审核中", nil);
+            cell.tiplabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+            cell.tipImage.hidden = YES;
+        }else{
+            cell.tiplabel.text = NSLocalizedString(@"审核失败", nil);
+            cell.tiplabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+            cell.tipImage.hidden = YES;
+        }
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (indexPath.row == 0) {
+        PersonInfoVC *person = [[PersonInfoVC alloc] init];
+        [self cw_pushViewController:person];
+    }else if (indexPath.row == 1){
+        AddressManageVC *address = [[AddressManageVC alloc] init];
+        [self cw_pushViewController:address];
+    }else if (indexPath.row == 2){
+        ReceiptWayVC *receipt = [[ReceiptWayVC alloc] init];
+        [self cw_pushViewController:receipt];
+    }else if (indexPath.row == 3){
+        //0未，1是，2审核中，3失败
+        NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+        NSString *auteh = dict[JYAuthentication];
+        if ([auteh isEqualToString:@"0"] || [auteh isEqualToString:@"3"]) {
+            AuthenVC *auth = [[AuthenVC alloc] init];
+            [self cw_pushViewController:auth];
+        }
+    }else if (indexPath.row == 4){
+        PersonSafeVC *safe = [[PersonSafeVC alloc] init];
+        [self cw_pushViewController:safe];
+    }else if (indexPath.row == 5){
+        FeedbackVC *feed = [[FeedbackVC alloc] init];
+        [self cw_pushViewController:feed];
+    }else if (indexPath.row == 6){
+        HelpCenterVC *help = [[HelpCenterVC alloc] init];
+        [self cw_pushViewController:help];
+    }else if (indexPath.row == 7){
+        BusiCooperationVC *business = [[BusiCooperationVC alloc] init];
+        [self cw_pushViewController:business];
+    }else if (indexPath.row == 8){
+        PersonSettingVC *setting = [[PersonSettingVC alloc] init];
+        [self cw_pushViewController:setting];
+    }
+}
+
+#pragma -mark getter
+-(NSMutableArray *)titles{
+    if (!_titles) {
+        _titles = [NSMutableArray arrayWithObjects:NSLocalizedString(@"个人信息", nil),NSLocalizedString(@"地址管理", nil),NSLocalizedString(@"收款方式", nil),NSLocalizedString(@"实名认证", nil),NSLocalizedString(@"账户与安全", nil),NSLocalizedString(@"反馈与建议", nil),NSLocalizedString(@"帮助中心", nil),NSLocalizedString(@"关于我们", nil),NSLocalizedString(@"通用设置", nil), nil];
+    }
+    return _titles;
+}
+
+-(NSMutableArray *)images{
+    if (!_images) {
+        _images = [NSMutableArray arrayWithObjects:@"icon_right_mine",@"icon_right_address",@"icon_right_pay",@"icon_right_authen",@"icon_right_safe",@"icon_right_feedback",@"icon_right_help",@"icon_right_about",@"icon_right_gener", nil];
+    }
+    return _images;
+}
+@end

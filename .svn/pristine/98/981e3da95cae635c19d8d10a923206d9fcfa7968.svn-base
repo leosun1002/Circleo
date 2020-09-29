@@ -1,0 +1,33 @@
+//
+//  BrowserUnbindDNVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BrowserUnbindDNVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property(nonatomic,assign) long articleid;
+@property(nonatomic,assign) long myEvidenceId;
+
+@property (nonatomic, strong) NSString *domain_name_id;
+
+@property (weak, nonatomic) IBOutlet UILabel *selectLable;
+@property (weak, nonatomic) IBOutlet UILabel *allLabel;
+@property (weak, nonatomic) IBOutlet UIButton *allBtn;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+/// 0 是域名解绑  1 是从存证进入
+@property (assign, nonatomic) long type;
+
+@property(nonatomic,strong) RACSubject *subject;
+@end
+
+NS_ASSUME_NONNULL_END

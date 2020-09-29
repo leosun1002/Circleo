@@ -1,0 +1,25 @@
+//
+//  DNSInformationVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "DNSSearchModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSInformationVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) DNSSearchModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *namelabel;
+@property (weak, nonatomic) IBOutlet UILabel *buytime;
+@property (weak, nonatomic) IBOutlet UILabel *endtime;
+@property (weak, nonatomic) IBOutlet UILabel *personlabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

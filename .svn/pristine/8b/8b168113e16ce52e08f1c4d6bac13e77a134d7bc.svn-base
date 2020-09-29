@@ -1,0 +1,56 @@
+//
+//  MallMyOrderTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallMyOrderTableViewCell.h"
+
+@implementation MallMyOrderTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.headV.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.headV.layer.borderWidth = 0.5f;
+    
+    self.tipBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.tipBtn.layer.borderWidth = 0.5f;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(ShopMyOrderModel *)model{
+    _model = model;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.good_info.small_image)]];
+    self.nameLabel.text = model.good_info.name;
+    self.specLabel.text = model.specification;
+    self.priceLabel.text = [NSString stringWithFormat:@"¥%@",model.price];
+    self.numberLabel.text = [NSString stringWithFormat:@"%ld",model.number];
+    self.totalLabel.text = [NSString stringWithFormat:@"合计金额(含运费)  ¥%@",model.total_price];
+    if (model.status == 1) {
+        self.bottomView.hidden = NO;
+        self.bottomConst.constant = 50;
+        self.stateLabel.text = @"待发货";
+        self.checkBtn.hidden = YES;
+        [self.tipBtn setTitle:@"提醒发货" forState:UIControlStateNormal];
+        self.trailingConst.constant = 16;
+    }else if (model.status == 2){
+        self.bottomView.hidden = NO;
+        self.bottomConst.constant = 50;
+        self.stateLabel.text = @"待收货";
+        self.checkBtn.hidden = NO;
+        [self.tipBtn setTitle:@"查看物流" forState:UIControlStateNormal];
+        self.trailingConst.constant = 110.5;
+    }else{
+        self.bottomView.hidden = YES;
+        self.bottomConst.constant = 0;
+    }
+}
+@end

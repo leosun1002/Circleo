@@ -1,0 +1,28 @@
+//
+//  IntegralModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/6.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface IntegralModel : NSObject
+
+@property(nonatomic,assign)long integralid;
+@property(nonatomic,assign)long user_id;
+@property(nonatomic,assign)long domain_name_id;
+@property(nonatomic,copy)NSString *integral_number;
+@property(nonatomic,copy)NSString *content;
+@property(nonatomic,assign)long type;
+@property(nonatomic,assign)long in_or_out;
+@property(nonatomic,copy)NSString *created_at;
+@property(nonatomic,copy)NSString *updated_at;
+@property(nonatomic,copy)NSString *type_name;
+
+@end
+
+NS_ASSUME_NONNULL_END

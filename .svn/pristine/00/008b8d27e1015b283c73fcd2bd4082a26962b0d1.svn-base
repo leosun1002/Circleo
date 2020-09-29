@@ -1,0 +1,33 @@
+//
+//  DNSHomePageVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "SDCycleScrollView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSHomePageVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *collectionTopConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topHeightConst;
+
+@property (weak, nonatomic) IBOutlet UIView *topBgview;
+@property (weak, nonatomic) IBOutlet UIView *topGradientView;
+@property (weak, nonatomic) IBOutlet UIView *topContentView;
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet UITextField *searchText;
+@property (weak, nonatomic) IBOutlet UILabel *shopcarLabel;
+@property (weak, nonatomic) IBOutlet UIButton *shopCarBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *shopCarBotConst;
+@property (weak, nonatomic) IBOutlet UIView *tradeView;
+@property (weak, nonatomic) IBOutlet UIImageView *tradeImage;
+
+@end
+
+NS_ASSUME_NONNULL_END

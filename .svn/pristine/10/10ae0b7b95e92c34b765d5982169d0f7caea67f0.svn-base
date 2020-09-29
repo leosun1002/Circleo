@@ -1,0 +1,91 @@
+//
+//  ShopAboutUsVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAboutUsVC.h"
+
+@interface ShopAboutUsVC ()
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UILabel *versionLabel;
+
+@end
+
+@implementation ShopAboutUsVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.checkBtn.layer.borderWidth = 1.0f;
+    self.checkBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#C0C5CC"].CGColor;
+    
+    self.versionLabel.text = [NSString stringWithFormat:@"云链商城 v%@",[self getVersion]];
+}
+
+-(NSString *)getVersion{
+    NSString *app_Version = [[[NSBundle mainBundle] infoDictionary] objectForKey:@"CFBundleShortVersionString"];
+//    NSString *app_Version = AppVersion;
+    NSString* environment = @"";
+//    if(SERVICE_LINK_FLAG ==1){
+//        environment = @"测试环境";
+//    }else{
+//        environment = @"";
+//    }
+    return [NSString stringWithFormat:@"%@%@",app_Version,environment];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)wxClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = @"z13135673883";
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)phoneClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = @"027-59566560";
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)emailClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = @"ylkj@ccmail.xin";
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)checkClick:(id)sender {
+    return;
+    [self showLoading:@"" allowsOpOperation:YES];
+    NSDictionary *dict = @{@"type":@"ios",@"ver":[self getVersion]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:ShopVersionUpdate param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if (json!=nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]){
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:@"网络异常，请稍后重试" location:centre];
+        }
+    }];
+}
+
+- (IBAction)webClick:(id)sender {
+    NSURL *URL = [NSURL URLWithString:@"https://ylzh.pro/#/"];
+    if (@available(iOS 10.0, *)) {
+        [[UIApplication sharedApplication] openURL:URL options:@{} completionHandler:^(BOOL success) {
+            
+        }];
+    } else {
+        // Fallback on earlier versions
+    }
+
+}
+
+@end

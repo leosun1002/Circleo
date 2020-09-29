@@ -1,0 +1,25 @@
+//
+//  XWCircleSpreadTransition.h
+//  XWTrasitionPractice
+//
+//  Created by YouLoft_MacMini on 15/11/25.
+//  Copyright © 2015年 YouLoft_MacMini. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+typedef NS_ENUM(NSUInteger, XWCircleSpreadTransitionType) {
+    XWCircleSpreadTransitionTypePresent = 0,
+    XWCircleSpreadTransitionTypeDismiss
+};
+
+@interface XWCircleSpreadTransition : NSObject<UIViewControllerAnimatedTransitioning,CAAnimationDelegate>
+
+@property (nonatomic, assign) XWCircleSpreadTransitionType type;
+@property (nonatomic, strong) UIImage *image;
+@property (nonatomic, strong) UIImage *image1;
+
+
++ (instancetype)transitionWithTransitionType:(XWCircleSpreadTransitionType)type withImage:(UIImage *)image withImage1:(UIImage *)image1;
+- (instancetype)initWithTransitionType:(XWCircleSpreadTransitionType)type withImage:(UIImage *)image withImage1:(UIImage *)image1;
+@end

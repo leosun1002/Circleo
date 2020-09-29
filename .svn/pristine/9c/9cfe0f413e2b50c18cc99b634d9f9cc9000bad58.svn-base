@@ -1,0 +1,93 @@
+//
+//  UpdateTipsVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/6.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "UpdateTipsVC.h"
+#import "UpdateInfoVC.h"
+#import "UpdateResultVC.h"
+#import "AgentExplainVC.h"
+
+@interface UpdateTipsVC ()
+
+@end
+
+@implementation UpdateTipsVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.heightConst.constant = navBarHeight;
+    if (IS_IPHONEX) {
+        self.botHeight.constant += 10;
+    }
+    [self.updateBtn setImage:[[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?[UIImage imageNamed:@"buttoon_update_eng"]:[UIImage imageNamed:@"buttoon_update"] forState:UIControlStateNormal];
+    
+    self.tip1.layer.shadowColor = [UIColor colorWithRGBHex:@"#1F1F4D"].CGColor;//阴影颜色
+    self.tip1.layer.shadowOffset = CGSizeMake(2, 2);//偏移距离
+    self.tip1.layer.shadowOpacity = 0.1;//不透明度
+    self.tip1.layer.shadowRadius = 5;//半径
+    
+    self.tip2.layer.shadowColor = [UIColor colorWithRGBHex:@"#1F1F4D"].CGColor;//阴影颜色
+    self.tip2.layer.shadowOffset = CGSizeMake(2, 2);//偏移距离
+    self.tip2.layer.shadowOpacity = 0.1;//不透明度
+    self.tip2.layer.shadowRadius = 5;//半径
+    
+    self.tip3.layer.shadowColor = [UIColor colorWithRGBHex:@"#1F1F4D"].CGColor;//阴影颜色
+    self.tip3.layer.shadowOffset = CGSizeMake(2, 2);//偏移距离
+    self.tip3.layer.shadowOpacity = 0.1;//不透明度
+    self.tip3.layer.shadowRadius = 5;//半径
+    
+    self.tip4.layer.shadowColor = [UIColor colorWithRGBHex:@"#1F1F4D"].CGColor;//阴影颜色
+    self.tip4.layer.shadowOffset = CGSizeMake(2, 2);//偏移距离
+    self.tip4.layer.shadowOpacity = 0.1;//不透明度
+    self.tip4.layer.shadowRadius = 5;//半径
+    
+    self.bottombgview.layer.shadowColor = [UIColor colorWithRGBHex:@"#000000"].CGColor;//阴影颜色
+    self.bottombgview.layer.shadowOffset = CGSizeMake(2, 2);//偏移距离
+    self.bottombgview.layer.shadowOpacity = 0.1;//不透明度
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself.navigationController pushViewController:[AgentExplainVC new] animated:YES];
+    }];
+    [self.gzLabel addGestureRecognizer:tap];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getUserInfo];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)getUserInfo{
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+            }
+        }
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)updateClick:(id)sender {
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    //0未提交升级，1提交升级审核中，2升级成功，3升级失败
+    NSString *updateStatus = AssectString(userdict[JYUpdateAgentStatus]);
+    if ([updateStatus isEqualToString:@"0"]) {
+        UpdateInfoVC *information = [[UpdateInfoVC alloc] init];
+        [self.navigationController pushViewController:information animated:YES];
+    }else{
+        UpdateResultVC *result = [[UpdateResultVC alloc] init];
+        [self.navigationController pushViewController:result animated:YES];
+    }
+}
+
+@end

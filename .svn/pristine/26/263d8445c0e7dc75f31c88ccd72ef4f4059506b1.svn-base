@@ -1,0 +1,254 @@
+//
+//  PersonUSDTChargeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PersonUSDTChargeVC.h"
+#import "UIImage+GIFImage.h"
+#import "CurrencyModel.h"
+#import "DNSCoinSelectVC.h"
+
+@interface PersonUSDTChargeVC (){
+    NSString *address;
+    NSString *ercAddress;
+}
+
+@end
+
+@implementation PersonUSDTChargeVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    if (self.type == 0) {
+        [self getUserInfo];
+    }else{
+        [self getCoinInfo];
+    }
+}
+
+-(void)prepareUi{
+    if (self.type == 0) {
+        [self setBanar:NSLocalizedString(@"USDT 充币", nil) hiddeBack:NO];
+        self.chainHeightConst.constant = 77;
+        self.chainView.hidden = NO;
+    }else{
+        [self setBanar:[NSString stringWithFormat:NSLocalizedString(@"%@ 充币", nil),AssectString(self.currencyName)] hiddeBack:NO];
+        self.chainHeightConst.constant = 0;
+        self.chainView.hidden = YES;
+    }
+    self.topConst.constant = navBarHeight;
+    self.gradientbgview.layer.shadowColor = [UIColor colorWithRGBHex:@"#1F1F4D"].CGColor;//阴影颜色
+    self.gradientbgview.layer.shadowOffset = CGSizeMake(2, 2);//偏移距离
+    self.gradientbgview.layer.shadowOpacity = 0.1;//不透明度
+    self.gradientbgview.layer.shadowRadius = 5;//半径
+    
+    self.chargeBtn.layer.borderColor = [UIColor getColor:@"#5151F0" alpha:0.5].CGColor;
+    self.chargeBtn.layer.borderWidth = 1.f;
+    
+    self.tipLabel.text = NSLocalizedString(@"注:请在充币时手动备注“手机号”作为标识，以便平台尽快确认，如未备注或备注有误可能造成资金损失", nil);
+    if (self.type == 0) {
+        self.tipLabel.hidden = YES;
+        self.botTipLabelConst.constant = 30;
+    }else{
+        self.tipLabel.hidden = NO;
+        self.botTipLabelConst.constant = 100;
+    }
+    NSString *currencyStr = @"";
+    if (self.type == 0) {
+        currencyStr = self.chainType == 0?@"USDT_OMNI":@"USDT_ERC20";
+    }else{
+        currencyStr = AssectString(self.currencyName);
+    }
+    self.botTipLabel.text = [NSString stringWithFormat:NSLocalizedString(@"温馨提示：请勿向上述地址充值任何非%@资产，否则将不可找回。您充值上述地址后，需要网络节点的确认后到账，请耐心等待。最小充值金额：0.01%@，小于最小金额的充值将不会上账且无法退回。", nil),currencyStr,currencyStr];
+    
+    WeakSelf(self);
+    [[self.omiBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.chainType == 0) return ;
+        weakself.chainType = 0;
+    }];
+    
+    [[self.ercBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        if (weakself.chainType == 1) return ;
+        weakself.chainType = 1;
+    }];
+    
+    self.chainType = 0;
+    
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.domainLabel.text = [NSString stringWithFormat:NSLocalizedString(@"域名：%@.jy", nil),AssectString(dict[JYPhone])];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself getErcData];
+            }else{
+                [weakself dismissLoading];
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getUserInfo];
+                }];
+            }
+        }else{
+            [weakself dismissLoading];
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getUserInfo];
+            }];
+        }
+    }];
+}
+
+-(void)getErcData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:CurrencyEthMoney param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself setData:json[@"data"]];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getErcData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getErcData];
+            }];
+        }
+    }];
+}
+
+-(void)getCoinInfo{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:CurrencyDetail param:@{@"id":[NSString stringWithFormat:@"%ld",self.currencyId]} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                CurrencyModel *model = [CurrencyModel mj_objectWithKeyValues:json[@"data"][@"currency"]];
+                [weakself setDataWithModel:model];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getCoinInfo];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getCoinInfo];
+            }];
+        }
+    }];
+}
+
+-(void)setData:(NSDictionary *)dict{
+    NSDictionary *userDict = [Manager takeoutUserTokenkey:JYLoginuser];
+    address = AssectString(userDict[JYAddress]);
+    ercAddress = dict[@"address"];
+    self.selectTipLabel.text = NSLocalizedString(@"当前币种", nil);
+    self.homeV.hidden = YES;
+    self.nameLabel.text = @"USDT";
+    self.coinV.image = [UIImage imageNamed:@"icon_usdt"];
+    self.nameTrail.constant = 15;
+    
+    self.chainType = 0;
+}
+
+-(void)setDataWithModel:(CurrencyModel *)model{
+    address = AssectString(model.pivot.address);
+    self.addressLabel.text = [NSString stringWithFormat:NSLocalizedString(@"地址：%@", nil),address];
+    self.chargeImage.image = [UIImage createImgQRCodeWithString:AssectString(address) centerImage:[UIImage imageNamed:@""] withWidth:12.f];
+    
+    self.selectTipLabel.text = NSLocalizedString(@"选择币种", nil);
+    self.homeV.hidden = NO;
+    self.nameLabel.text = model.name;
+    [self.coinV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.images)] placeholderImage:[UIColor createColorImg:@"#f7f7f9"]];
+    self.nameTrail.constant = 35;
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        DNSCoinSelectVC *select = [[DNSCoinSelectVC alloc] init];
+        select.type = 1;
+        select.subject = [RACSubject subject];
+        [select.subject subscribeNext:^(NSString *currencyStr) {
+            weakself.currencyId = [currencyStr longLongValue];
+            [weakself getCoinInfo];
+        }];
+        [weakself.navigationController pushViewController:select animated:YES];
+    }];
+    [self.gradientbgview addGestureRecognizer:tap];
+}
+
+#pragma -mark setter
+-(void)setChainType:(long)chainType{
+    _chainType = chainType;
+    if (chainType == 0) {
+        self.omiBtn.backgroundColor = [UIColor whiteColor];
+        [self.omiBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+        self.omiBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#5151F0"].CGColor;
+        self.omiBtn.layer.borderWidth = 1.f;
+        
+        self.ercBtn.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+        [self.ercBtn setTitleColor:[UIColor colorWithRGBHex:@"#9999A3"] forState:UIControlStateNormal];
+        self.ercBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#F7F7F9"].CGColor;
+        self.ercBtn.layer.borderWidth = 1.f;
+    }else{
+        self.ercBtn.backgroundColor = [UIColor whiteColor];
+        [self.ercBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+        self.ercBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#5151F0"].CGColor;
+        self.ercBtn.layer.borderWidth = 1.f;
+        
+        self.omiBtn.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+        [self.omiBtn setTitleColor:[UIColor colorWithRGBHex:@"#9999A3"] forState:UIControlStateNormal];
+        self.omiBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#F7F7F9"].CGColor;
+        self.omiBtn.layer.borderWidth = 1.f;
+    }
+    
+    self.addressLabel.text = [NSString stringWithFormat:NSLocalizedString(@"地址：%@", nil),chainType == 0?address:ercAddress];
+    self.chargeImage.image = [UIImage createImgQRCodeWithString:chainType == 0?address:ercAddress centerImage:[UIImage imageNamed:@""] withWidth:12.f];
+    NSString *currencyStr = @"";
+    if (self.type == 0) {
+        currencyStr = chainType == 0?@"USDT_OMNI":@"USDT_ERC20";
+    }else{
+        currencyStr = AssectString(self.currencyName);
+    }
+    self.botTipLabel.text = [NSString stringWithFormat:NSLocalizedString(@"温馨提示：请勿向上述地址充值任何非%@资产，否则将不可找回。您充值上述地址后，需要网络节点的确认后到账，请耐心等待。最小充值金额：0.01%@，小于最小金额的充值将不会上账且无法退回。", nil),currencyStr,currencyStr];
+}
+
+- (IBAction)fzBtn:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(address);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)xzClick:(id)sender {
+    [self loadImageFinished:self.chargeImage.image];
+}
+
+- (void)loadImageFinished:(UIImage *)image{
+    UIImageWriteToSavedPhotosAlbum(image, self, @selector(image:didFinishSavingWithError:contextInfo:), (__bridge void *)self);
+}
+
+#pragma mark 保存海报
+- (void)image:(UIImage *)image didFinishSavingWithError:(NSError *)error contextInfo:(void *)contextInfo{
+    NSString *msg = nil ;
+    if(error != NULL){
+        msg = @"保存图片失败" ;
+    }else{
+        msg = @"已保存到手机相册" ;
+    }
+    [self showMsg:NSLocalizedString(msg, nil) location:centre];
+}
+@end

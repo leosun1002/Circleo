@@ -1,0 +1,26 @@
+//
+//  MyTeamTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MyTeamModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyTeamTableViewCell : UITableViewCell
+@property(nonatomic,strong)MyTeamModel *model;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *jdLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *jdImage;
+@property (weak, nonatomic) IBOutlet UIImageView *commuImage;
+
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

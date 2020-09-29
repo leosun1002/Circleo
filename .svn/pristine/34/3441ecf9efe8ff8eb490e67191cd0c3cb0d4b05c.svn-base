@@ -1,0 +1,46 @@
+//
+//  DNSBrowserModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+
+@interface DNSBrowserModel : NSObject
+
+@property(nonatomic,assign) long browserid;
+@property(nonatomic,copy) NSString *name;
+@property(nonatomic,copy) NSString *content;
+@property(nonatomic,copy) NSString *public_chains;
+/// 1是CNY余额支付，2是USDT余额支付，3支付宝支付，4币币帐户
+@property(nonatomic,assign) long payment_method;
+/// 0待上链，1上链中，2上链成功，3上链失败
+@property(nonatomic,assign) long status;
+@property(nonatomic,copy) NSString *created_at;
+/// 搜索量
+@property(nonatomic,assign) long popularity;
+@property(nonatomic,assign) long user_id;
+@property(nonatomic,copy) NSString *time;
+@property(nonatomic,copy) NSString *domain_ids;
+@property(nonatomic,copy) NSString *title;
+/// 0未支付，1支付成功，2支付失败
+@property(nonatomic,assign) long pyament_status;
+@property(nonatomic,assign) long currency_id;
+/// 0未审核，1审核通过，2审核失败
+@property(nonatomic,assign) long is_review;
+@property(nonatomic,copy) NSString *updated_at;
+@property(nonatomic,assign) long create_time;
+@property(nonatomic,copy) NSString *public_chain_ids;
+@property(nonatomic,copy) NSString *domain_names;
+/// 是否置顶，0不置顶，1置顶
+@property(nonatomic,assign) long is_sticky;
+@property(nonatomic,strong) NSArray *article_labels;//文章标签
+
+@end
+
+NS_ASSUME_NONNULL_END

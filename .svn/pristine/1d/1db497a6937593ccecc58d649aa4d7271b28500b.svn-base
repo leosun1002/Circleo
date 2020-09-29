@@ -1,0 +1,78 @@
+//
+//  DNSSearchTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSSearchTableViewCell.h"
+
+@implementation DNSSearchTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    [self addGradientLayer:self.shopCarBtn];
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)addGradientLayer:(UIView *)bgview{
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, 65, 25);
+    gradient.startPoint = CGPointMake(0, 0);
+    gradient.endPoint = CGPointMake(1, 0);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor colorWithRGBHex:@"#6647FF"].CGColor,
+                       (id)[UIColor colorWithRGBHex:@"#7CB0FF"].CGColor,nil];
+    [bgview.layer addSublayer:gradient];
+}
+
+-(void)setModel:(DNSSearchModel *)model{
+    _model = model;
+    self.nameLabel.text = model.domain_name;
+    //0 未注册，1 已注册
+    self.selectBtn.enabled = model.type == 0;
+    self.statusLabel.text = model.type == 0?NSLocalizedString(@"未注册", nil):NSLocalizedString(@"已注册", nil);
+    self.statusLabel.textColor = model.type == 0?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#AAAAB5"];
+    self.priceLabel.text = [NSString stringWithFormat:@"≈CNY %@",[GaoJingDu add:@[AssectNumber(model.cny_fee),AssectNumber(model.unit_price)] jindu:@"2"]];
+    self.usdtLabel.text = [GaoJingDu add:@[AssectNumber(model.usdt_fee),AssectNumber(model.unit_usdt_price)] jindu:@"2"];
+    self.priceLabel.hidden = model.type != 0;
+    self.unitLabel.hidden = model.type != 0;
+    self.usdtLabel.hidden = model.type != 0;
+    self.checkBtn.hidden = model.type == 0;
+    self.shopCarBtn.hidden = model.type != 0;
+    if (model.type == 0) {
+        self.selectBtn.selected = model.hasSelect == 1;
+    }
+    self.remarkLabel.hidden = model.type != 0;
+    self.remarkLabel.text = NSLocalizedString(@"界一域名，自用投资两不误！", nil);
+}
+
+-(void)setRecModel:(DNSShopRecommendModel *)recModel{
+    _recModel = recModel;
+    self.nameLabel.text = recModel.domain_name;
+    //0 未注册，1 已注册
+    self.selectBtn.enabled = recModel.status == 0;
+    self.statusLabel.text = recModel.status == 0?NSLocalizedString(@"未注册", nil):NSLocalizedString(@"已注册", nil);
+    self.statusLabel.textColor = recModel.status == 0?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#AAAAB5"];
+    self.priceLabel.text = [NSString stringWithFormat:@"≈CNY %@",[GaoJingDu add:@[AssectNumber(recModel.cny_fee),AssectNumber(recModel.unit_price)] jindu:@"2"]];
+    self.usdtLabel.text = [GaoJingDu add:@[AssectNumber(recModel.usdt_fee),AssectNumber(recModel.unit_usdt_price)] jindu:@"2"];
+    self.priceLabel.hidden = recModel.status != 0;
+    self.unitLabel.hidden = recModel.status != 0;
+    self.usdtLabel.hidden = recModel.status != 0;
+    self.checkBtn.hidden = recModel.status == 0;
+    self.shopCarBtn.hidden = recModel.status != 0;
+    if (recModel.status == 0) {
+        self.selectBtn.selected = recModel.hasSelect == 1;
+    }
+    self.remarkLabel.hidden = recModel.status != 0;
+    self.remarkLabel.text = [AssectString(recModel.title) isEqualToString:@""]?NSLocalizedString(@"界一域名，自用投资两不误！", nil):AssectString(recModel.title);
+}
+
+@end

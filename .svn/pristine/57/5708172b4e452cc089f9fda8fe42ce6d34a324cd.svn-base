@@ -1,0 +1,307 @@
+//
+//  JYHomePageVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "JYHomePageVC.h"
+#import "HomePageTableViewCell.h"
+#import "HomePageHeader.h"
+#import "HomePageFooter.h"
+#import "DNSBannerModel.h"
+#import "SolutionModel.h"
+
+@interface JYHomePageVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property(nonatomic,strong)NSMutableArray *banners;
+@property(nonatomic,strong)NSArray *hangsales;
+@property(nonatomic,strong)NSArray *buy_orders;
+@property(nonatomic,strong)NSArray *sell_orders;
+@property(nonatomic,strong)NSMutableArray *solutions;
+@property(nonatomic,strong)NSMutableArray *products;
+@property(nonatomic,strong)NSMutableArray *helps;
+@property(nonatomic,strong)NSMutableArray *new_flashs;
+@property(nonatomic,weak)HomePageHeader *header;
+
+@end
+
+@implementation JYHomePageVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self.header.leftRollview pause];
+    [self.header.rightRollview pause];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self.header.leftRollview play];
+    [self.header.rightRollview play];
+}
+
+-(void)addRefresh{
+    PersonWhiteGifHeader *header = [PersonWhiteGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(getHomePageData)];
+    header.height = 100;
+    self.tableview.mj_header = header;
+}
+
+-(void)getHomePageData{
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    
+    WeakSelf(self);
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        [weakself getDatawithGroup:group];
+    });
+    
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        // 追加任务 2
+        [weakself getBannerDatawithGroup:group];
+    });
+    
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        // 追加任务 2
+        [weakself getHangeSaleDatawithGroup:group];
+    });
+    
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview reloadData];
+    });
+}
+
+-(void)getDatawithGroup:(dispatch_group_t)group{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:NewInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.solutions removeAllObjects];
+                [json[@"data"][@"solution"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    SolutionModel *modules = [SolutionModel mj_objectWithKeyValues:obj];
+                    [weakself.solutions addObject:modules];
+                }];
+                [weakself.products removeAllObjects];
+                [json[@"data"][@"product_dynamics"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    SolutionModel *modules = [SolutionModel mj_objectWithKeyValues:obj];
+                    [weakself.products addObject:modules];
+                }];
+                [weakself.helps removeAllObjects];
+                [weakself dealWithHelpData:json[@"data"][@"help_category"]];
+                [weakself.new_flashs removeAllObjects];
+                [json[@"data"][@"news_flash"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    SolutionModel *modules = [SolutionModel mj_objectWithKeyValues:obj];
+                    [weakself.new_flashs addObject:modules];
+                }];
+            }
+        }
+    }];
+}
+
+-(void)getBannerDatawithGroup:(dispatch_group_t)group{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:RotaryPic param:@{@"image_type":@"1"} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                id temps = json[@"data"][@"rotary_picture"];
+                if ([temps isKindOfClass:[NSArray class]]) {
+                    [weakself.banners removeAllObjects];
+                    NSMutableArray<DNSBannerModel*> *applicationList = [DNSBannerModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"rotary_picture"]];
+                    [weakself.banners addObjectsFromArray:applicationList];
+                }
+            }
+        }
+    }];
+}
+
+-(void)getHangeSaleDatawithGroup:(dispatch_group_t)group{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:DomainNameWheel param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.hangsales = json[@"data"][@"hang_sale"];
+                weakself.buy_orders = json[@"data"][@"buy_domain"];
+                weakself.sell_orders = json[@"data"][@"sale_hang_sale"];
+            }
+        }
+    }];
+}
+
+-(void)dealWithHelpData:(NSDictionary *)dict{
+    NSMutableArray *keys = [[dict allKeys] mutableCopy];
+    [keys sortUsingSelector:@selector(compare:)];
+    for (NSString *key in keys) {
+        NSDictionary *tempDict = dict[key];
+        [self.helps addObject:tempDict];
+    }
+}
+
+-(void)prepareUi{
+    if (@available(iOS 11.0,*)) {
+        self.tableview.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+        self.tableview.estimatedRowHeight=0;
+        self.tableview.estimatedSectionFooterHeight=0;
+    }else{
+        self.automaticallyAdjustsScrollViewInsets=NO;
+    }
+    self.botConst.constant = tabbarHeight;
+    self.topHeight.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"HomePageTableViewCell" bundle:nil] forCellReuseIdentifier:@"HomePageTableViewCell"];
+    [self addGradientLayer:self.backview withHeight:300];
+}
+
+-(void)addGradientLayer:(UIView *)bgview withHeight:(CGFloat)height{
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, ksrcwidth, height);
+    gradient.startPoint = CGPointMake(0, 0);
+    gradient.endPoint = CGPointMake(1, 0);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor getColor:@"#6647FF" alpha:1].CGColor,
+                       (id)[UIColor getColor:@"#7CB0FF" alpha:1].CGColor,nil];
+    [bgview.layer addSublayer:gradient];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 470;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    HomePageHeader *header = [[HomePageHeader alloc] init];
+    header.naviVC = self.navigationController;
+    header.banners = self.banners;
+    header.sell_orders = self.sell_orders;
+    header.buy_orders = self.buy_orders;
+    header.products = self.products;
+    return _header = header;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 452;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    HomePageFooter *footer = [[HomePageFooter alloc] init];
+    footer.solutions = self.solutions;
+    footer.helps = self.helps;
+    footer.navigationVC = self.navigationController;
+    return footer;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.new_flashs.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    HomePageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"HomePageTableViewCell"];
+    cell.model = self.new_flashs[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    SolutionModel *model = self.new_flashs[indexPath.row];
+    NSString *url = [NSString stringWithFormat:@"%@dns/h5?id=%ld",serviseShareIP,model.solution_id];
+    WebViewController* webViewObj =  [[WebViewController alloc] init];
+    webViewObj.solutionid = [NSString stringWithFormat:@"%ld",model.solution_id];
+    webViewObj.loadUrl = AssectString(url);
+    webViewObj.titleStr = model.title;
+    webViewObj.headUrl = AssectString(model.small_image);
+    [self.navigationController pushViewController:webViewObj animated:YES];
+}
+
+//滚动到底部后不让再往下滚了
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    CGFloat height = scrollView.frame.size.height;
+    CGFloat contentOffsetY = scrollView.contentOffset.y;
+    CGFloat bottomOffset = scrollView.contentSize.height - contentOffsetY;
+    if (bottomOffset <= height){
+        //在最底部
+        self.tableview.bounces = NO;
+    }else{
+        self.tableview.bounces = YES;
+    }
+    self.topView.hidden = contentOffsetY < 80;
+    [UIApplication sharedApplication].statusBarStyle = contentOffsetY < 80?UIStatusBarStyleLightContent:UIStatusBarStyleDefault;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)banners{
+    if (!_banners) {
+        _banners = [NSMutableArray array];
+    }
+    return _banners;
+}
+
+-(NSArray *)hangsales{
+    if (!_hangsales) {
+        _hangsales = [NSArray array];
+    }
+    return _hangsales;
+}
+
+-(NSArray *)buy_orders{
+    if (!_buy_orders) {
+        _buy_orders = [NSArray array];
+    }
+    return _buy_orders;
+}
+
+-(NSArray *)sell_orders{
+    if (!_sell_orders) {
+        _sell_orders = [NSArray array];
+    }
+    return _sell_orders;
+}
+
+-(NSMutableArray *)solutions{
+    if (!_solutions) {
+        _solutions = [NSMutableArray array];
+    }
+    return _solutions;
+}
+
+-(NSMutableArray *)products{
+    if (!_products) {
+        _products = [NSMutableArray array];
+    }
+    return _products;
+}
+
+-(NSMutableArray *)helps{
+    if (!_helps) {
+        _helps = [NSMutableArray array];
+    }
+    return _helps;
+}
+
+-(NSMutableArray *)new_flashs{
+    if (!_new_flashs) {
+        _new_flashs = [NSMutableArray array];
+    }
+    return _new_flashs;
+}
+@end

@@ -1,0 +1,42 @@
+//
+//  HomePageHeader.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "SDCycleScrollView.h"
+#import "WSLRollView.h"
+#import "UUMarqueeView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface HomePageHeader : UIView
+
+@property (weak, nonatomic) IBOutlet UIImageView *topImageView;
+
+@property (weak, nonatomic) IBOutlet UIView *scrollBgview;
+@property (nonatomic, weak) SDCycleScrollView *cycleScrollView;
+@property (weak, nonatomic) IBOutlet UIView *productBgview;
+@property (nonatomic, strong) UUMarqueeView *upwardMultiMarqueeView;
+@property (nonatomic, weak) WSLRollView * leftRollview;
+@property (nonatomic, weak) WSLRollView * rightRollview;
+@property (weak, nonatomic) IBOutlet UIView *swScrollBg1;
+@property (weak, nonatomic) IBOutlet UIView *swScrollBg2;
+@property (weak, nonatomic) IBOutlet UIImageView *mbLeft;
+@property (weak, nonatomic) IBOutlet UIImageView *mbRight;
+@property (weak, nonatomic) IBOutlet UIView *inforView;
+@property (weak, nonatomic) IBOutlet UIImageView *productImage;
+
+@property(nonatomic,strong)NSMutableArray *banners;
+@property(nonatomic,strong)NSMutableArray *products;
+@property(nonatomic,strong)NSArray *hangsales;
+@property(nonatomic,strong)NSArray *buy_orders;
+@property(nonatomic,strong)NSArray *sell_orders;
+
+@property(nonatomic,strong)UINavigationController *naviVC;
+@end
+
+NS_ASSUME_NONNULL_END

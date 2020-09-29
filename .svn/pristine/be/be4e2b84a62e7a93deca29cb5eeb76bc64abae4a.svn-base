@@ -1,0 +1,140 @@
+//
+//  AgentTransferVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/19.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AgentTransferVC.h"
+#import "PersonAssetsVC.h"
+
+@interface AgentTransferVC ()
+
+@property(nonatomic,strong)NSString *ye;
+
+@end
+
+@implementation AgentTransferVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+    self.yeTipLabel.text = self.type == 0?NSLocalizedString(@"可划转收益(USDT)", nil):NSLocalizedString(@"可划转收益(CNY)", nil);
+    self.tipLabel.text = self.type == 0?NSLocalizedString(@"收益账户(USDT)", nil):NSLocalizedString(@"收益账户(CNY)", nil);
+    
+    self.topbgView.layer.shadowColor = [UIColor colorWithRGBHex:@"#1F1F4D"].CGColor;//阴影颜色
+    self.topbgView.layer.shadowOffset = CGSizeMake(2, 2);//偏移距离
+    self.topbgView.layer.shadowOpacity = 0.08;//不透明度
+    self.topbgView.layer.shadowRadius = 5;//半径
+    
+    self.text.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.text.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    
+    WeakSelf(self);
+    [[self.text rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        weakself.text.text = [weakself.text PreciseFigures:2];
+        [weakself makeBtnEnable];
+    }];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getUserInfo];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself setData];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getUserInfo];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getUserInfo];
+            }];
+        }
+    }];
+}
+
+-(void)setData{
+    NSDictionary *userDict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.ye = self.type == 0?AssectNumber(userDict[JYIncomeUsdtMoney]):AssectNumber(userDict[JYIncomeCnyMoney]);
+    self.yeLabel.text = self.ye;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)allClick:(id)sender {
+    self.text.text = self.ye;
+    [self makeBtnEnable];
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSString *text = AssectString(self.text.text);
+    if ([text doubleValue] > [self.ye doubleValue]) {
+        [self showMsg:NSLocalizedString(@"余额不足", nil) location:centre];
+        return;
+    }
+    
+    NSDictionary *dict = @{@"type":[NSString stringWithFormat:@"%@",self.type ==0?@"2":@"1"],@"money":text};
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    
+    self.checkBtn.enabled = NO;
+    self.checkBtn.alpha = 0.3;
+    
+    [WebServices postFormReqUrl:Transfer param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself popToVC:@"PersonAssetsVC"];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself makeBtnEnable];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+            [weakself makeBtnEnable];
+        }
+    }];
+}
+
+-(void)makeBtnEnable{
+    NSString *ye = AssectString(self.text.text);
+    if ([ye isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.alpha = 0.3;
+    }else{
+        self.checkBtn.enabled = YES;
+        self.checkBtn.alpha = 1;
+    }
+}
+
+-(void)popToVC:(NSString* )vcStr{
+    for (UIViewController *controller in self.navigationController.viewControllers) {
+        if([controller isKindOfClass:NSClassFromString(vcStr)]){
+            PersonAssetsVC *asset = (PersonAssetsVC *)controller;
+            [self.navigationController popToViewController:asset animated:NO];
+            [asset refreshFromOtherPage];
+            break;
+        }
+    }
+}
+@end

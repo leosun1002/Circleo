@@ -1,0 +1,23 @@
+//
+//  DNBrowserDetailPayVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/12/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNBrowserDetailPayVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *botConst;
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (weak, nonatomic) IBOutlet UITextField *awardText;
+@property (strong, nonatomic) RACSubject *subject;
+@property (weak, nonatomic) IBOutlet UIButton *awardBtn;
+
+@end
+
+NS_ASSUME_NONNULL_END

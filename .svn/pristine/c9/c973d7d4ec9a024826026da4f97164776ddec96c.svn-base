@@ -1,0 +1,31 @@
+//
+//  DNSMyBrowserModel.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSMyBrowserModel.h"
+
+@implementation ChainArticleInfo
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"infoid":@"id"};
+}
+@end
+
+@implementation DomainNames
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"domainid":@"id"};
+}
+
+@end
+
+@implementation DNSMyBrowserModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"articleid":@"id"};
+}
+@end

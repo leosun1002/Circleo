@@ -1,0 +1,24 @@
+//
+//  MallMyFuelTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MyFuelRecordModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MallMyFuelTableViewCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *numberLabel;
+@property (weak, nonatomic) IBOutlet UILabel *stateLabel;
+@property (strong, nonatomic) MyFuelRecordModel *model;
+
+@end
+
+NS_ASSUME_NONNULL_END

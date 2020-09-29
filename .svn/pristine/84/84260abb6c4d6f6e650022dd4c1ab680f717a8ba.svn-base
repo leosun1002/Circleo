@@ -1,0 +1,175 @@
+//
+//  DNSDetailChildView.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSDetailChildView.h"
+#import "DNSUnBindCell.h"
+#import "DNSBindCell.h"
+#import "DNSBindModel.h"
+
+@implementation DNSDetailChildView
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor whiteColor];
+        [self addSubview:self.tableview];
+        [self.tableview registerNib:[UINib nibWithNibName:@"DNSUnBindCell" bundle:nil] forCellReuseIdentifier:@"DNSUnBindCell"];
+        [self.tableview registerNib:[UINib nibWithNibName:@"DNSBindCell" bundle:nil] forCellReuseIdentifier:@"DNSBindCell"];
+        [self addRefresh];
+    }
+    return self;
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData];
+    }];
+}
+
+-(void)refreshData:(NSString *)manageid{
+    _manageid = manageid;
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)getData{
+    NSMutableArray *datas = self.datas[self.pageType];
+    NSDictionary *dict = @{@"id":AssectString(self.manageid),@"type":self.pageType == DNSDetailChildViewTypeBind?@"1":@"2"};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:DomainNameBind param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [datas removeAllObjects];
+                if (weakself.pageType == DNSDetailChildViewTypeBind) {
+                    NSMutableArray<DNSBindModel*> *applicationList = [DNSBindModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"bind_public_chains"]];
+                    [datas addObjectsFromArray:applicationList];
+                }else{
+                    NSMutableArray<DNSBindModel*> *applicationList = [DNSBindModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"not_bind_public_chains"]];
+                    [datas addObjectsFromArray:applicationList];
+                }
+                [weakself.datas replaceObjectAtIndex:weakself.pageType withObject:datas];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        NSMutableArray *datas = weakself.datas[DNSDetailChildViewTypeBind];
+        NSDictionary *dict = @{@"data":datas,@"type":self.pageType == DNSDetailChildViewTypeBind?@"0":@"1"};
+        [weakself.subject sendNext:dict];
+    }];
+}
+- (UIScrollView *)listScrollView {
+    return self.tableview;
+}
+
+- (UIView *)listView {
+    return self;
+}
+
+// 必须加（用于联动）
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    self.scrollCallback(scrollView);
+}
+
+- (void)listViewDidScrollCallback:(void (^)(UIScrollView *))callback {
+    self.scrollCallback = callback;
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = self.pageType == DNSDetailChildViewTypeBind?NSLocalizedString(@"当前暂无已绑定域名", nil):NSLocalizedString(@"当前暂无未绑定域名", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+- (nonnull UITableViewCell *)tableView:(nonnull UITableView *)tableView cellForRowAtIndexPath:(nonnull NSIndexPath *)indexPath {
+    NSMutableArray *datas = self.datas[self.pageType];
+    if (self.pageType == DNSDetailChildViewTypeBind) {
+        DNSBindCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSBindCell"];
+        cell.unBindBtn.tag = indexPath.row;
+        [cell.unBindBtn addTarget:self action:@selector(unBindClick:) forControlEvents:UIControlEventTouchUpInside];
+        cell.changeBindBtn.tag = indexPath.row;
+        [cell.changeBindBtn addTarget:self action:@selector(changeBindClick:) forControlEvents:UIControlEventTouchUpInside];
+        cell.model = datas[indexPath.row];
+        return cell;
+    }else{
+        DNSUnBindCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSUnBindCell"];
+        DNSBindModel *model = datas[indexPath.row];
+        [cell.headV sd_setImageWithURL:[NSURL URLWithString:model.log_image] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+        cell.bindBtn.tag = indexPath.row;
+        [cell.bindBtn addTarget:self action:@selector(bindClick:) forControlEvents:UIControlEventTouchUpInside];
+        cell.nameLabel.text = model.name;
+        return cell;
+    }
+}
+
+- (NSInteger)tableView:(nonnull UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
+    NSMutableArray *datas = self.datas[self.pageType];
+    return datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.pageType == DNSDetailChildViewTypeBind) {
+        return UITableViewAutomaticDimension;
+    }
+    return 66.f;
+}
+
+-(void)bindClick:(UIButton *)sender{
+    NSMutableArray *datas = self.datas[self.pageType];
+    DNSBindModel *model = datas[sender.tag];
+    [self.bindSubject sendNext:model];
+}
+
+-(void)unBindClick:(UIButton *)sender{
+    NSMutableArray *datas = self.datas[self.pageType];
+    DNSBindModel *model = datas[sender.tag];
+    [self.unBindSubject sendNext:model];
+}
+
+-(void)changeBindClick:(UIButton *)sender{
+    NSMutableArray *datas = self.datas[self.pageType];
+    DNSBindModel *model = datas[sender.tag];
+    [self.changeBindSubject sendNext:model];
+}
+
+-(void)layoutSubviews{
+    [self.tableview setFrame:self.bounds];
+    if (self.pageType == DNSDetailChildViewTypeBind) {
+        self.tableview.height = self.height - 82;
+    }else{
+        self.tableview.height = self.height;
+    }
+}
+
+#pragma -mark getter
+-(UITableView *)tableview{
+    if(!_tableview){
+        _tableview=[[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStylePlain];
+        _tableview.backgroundColor = [UIColor whiteColor];
+        [_tableview setDelegate:self];
+        [_tableview setDataSource:self];
+        [_tableview setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+        [_tableview setBackgroundColor:[UIColor whiteColor]];
+        [_tableview setContentInset:UIEdgeInsetsMake(0, 0, 0, 0)];
+    }
+    return _tableview;
+}
+
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray arrayWithObjects:[NSMutableArray array],[NSMutableArray array], nil];
+    }
+    return _datas;
+}
+@end

@@ -1,0 +1,22 @@
+//
+//  EquitySelectVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface EquitySelectVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UIPickerView *pickerview;
+@property (weak, nonatomic) IBOutlet UIView *backview;
+@property (weak, nonatomic) IBOutlet UIView *bgview;
+@property (strong, nonatomic) NSString *percent;
+@property (strong, nonatomic) RACSubject *subject;
+
+@end
+
+NS_ASSUME_NONNULL_END

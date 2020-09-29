@@ -1,0 +1,34 @@
+//
+//  MallMyOrderTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "ShopMyOrderModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MallMyOrderTableViewCell : UITableViewCell
+
+@property (weak, nonatomic) IBOutlet UILabel *stateLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *specLabel;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *numberLabel;
+@property (weak, nonatomic) IBOutlet UILabel *totalLabel;
+
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UIButton *tipBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *trailingConst;
+
+@property (weak, nonatomic) IBOutlet UIView *bottomView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomConst;
+
+@property(nonatomic,strong)ShopMyOrderModel *model;
+@end
+
+NS_ASSUME_NONNULL_END

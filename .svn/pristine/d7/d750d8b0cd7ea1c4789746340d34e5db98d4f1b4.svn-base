@@ -1,0 +1,42 @@
+//
+//  WebArticleDetailVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/6/6.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebArticleDetailVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+
+@property (assign, nonatomic) long articleid;
+@property (assign, nonatomic) long website_id;
+@property (strong, nonatomic) NSString *articleTitle;
+
+@property (weak, nonatomic) IBOutlet UIView *domainView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *domainHeightConst;
+@property (weak, nonatomic) IBOutlet UIView *hideOrShowView;
+@property (weak, nonatomic) IBOutlet UILabel *hideOrShowLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *hideOrShowImgV;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *readCountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *contentLabel;
+@property (weak, nonatomic) IBOutlet UILabel *navigationLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *chainView;
+@property (weak, nonatomic) IBOutlet UIImageView *chainImgV;
+@property (weak, nonatomic) IBOutlet UILabel *chainLabel;
+@property (weak, nonatomic) IBOutlet UILabel *chainTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *chainStatusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *heightLabel;
+@property (weak, nonatomic) IBOutlet UILabel *hashLabel;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

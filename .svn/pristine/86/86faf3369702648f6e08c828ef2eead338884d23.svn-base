@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="DINPro-Medium.ttf">
+            <string>DINPro-Medium</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" rowHeight="139" id="KGk-i7-Jjw" customClass="MallDetailChainDataTableViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="615" height="139"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="615" height="139"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kca-Q0-aCu">
+                        <rect key="frame" x="16" y="124" width="10.5" height="15"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="15" id="JWJ-sC-Ivi"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="DINPro-Medium" family="DINPro" pointSize="12"/>
+                        <color key="textColor" red="0.19607843137254902" green="0.19607843137254902" blue="0.21176470588235294" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ATZ-xh-5XF">
+                        <rect key="frame" x="568" y="119" width="30" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="20" id="kKF-eg-GOs"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" weight="medium" pointSize="12"/>
+                        <state key="normal" title="详情">
+                            <color key="titleColor" red="0.16078431372549018" green="0.50980392156862742" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        </state>
+                    </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oRN-5B-hAO">
+                        <rect key="frame" x="507.5" y="124" width="10.5" height="15"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="15" id="j25-C9-hZ5"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="DINPro-Medium" family="DINPro" pointSize="12"/>
+                        <color key="textColor" red="0.1960784314" green="0.1960784314" blue="0.21176470589999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="p5e-ER-wWj">
+                        <rect key="frame" x="86.5" y="124" width="10.5" height="15"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="15" id="6Ku-1b-APY"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" name="DINPro-Medium" family="DINPro" pointSize="12"/>
+                        <color key="textColor" red="0.1960784314" green="0.1960784314" blue="0.21176470589999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="bottom" secondItem="ATZ-xh-5XF" secondAttribute="bottom" id="Bh3-2r-kaT"/>
+                    <constraint firstAttribute="bottom" secondItem="p5e-ER-wWj" secondAttribute="bottom" id="E1F-cP-8ix"/>
+                    <constraint firstItem="oRN-5B-hAO" firstAttribute="bottom" secondItem="ATZ-xh-5XF" secondAttribute="bottom" id="X5t-tR-tKp"/>
+                    <constraint firstAttribute="trailing" secondItem="ATZ-xh-5XF" secondAttribute="trailing" constant="17" id="ZOW-CX-VOh"/>
+                    <constraint firstItem="ATZ-xh-5XF" firstAttribute="leading" secondItem="oRN-5B-hAO" secondAttribute="trailing" constant="50" id="k11-fX-1Ku"/>
+                    <constraint firstAttribute="bottom" secondItem="Kca-Q0-aCu" secondAttribute="bottom" id="nmI-2a-ZAL"/>
+                    <constraint firstItem="p5e-ER-wWj" firstAttribute="leading" secondItem="Kca-Q0-aCu" secondAttribute="trailing" constant="60" id="pNT-e6-f2u"/>
+                    <constraint firstItem="Kca-Q0-aCu" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="16" id="vhM-gG-kct"/>
+                </constraints>
+            </tableViewCellContentView>
+            <viewLayoutGuide key="safeArea" id="aW0-zy-SZf"/>
+            <connections>
+                <outlet property="countLabel" destination="oRN-5B-hAO" id="T2O-JS-Cfc"/>
+                <outlet property="timeLabel" destination="Kca-Q0-aCu" id="FLa-re-Qjv"/>
+                <outlet property="typeLabel" destination="p5e-ER-wWj" id="iFo-Bd-vdV"/>
+            </connections>
+            <point key="canvasLocation" x="-302.17391304347831" y="84.709821428571431"/>
+        </tableViewCell>
+    </objects>
+</document>

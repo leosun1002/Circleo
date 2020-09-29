@@ -1,0 +1,24 @@
+//
+//  ShopAssetsRecordModel.h
+//  Cloud Pro
+//
+//  Created by leosun on 2020/7/10.
+//  Copyright © 2020 yunzhuan. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopAssetsRecordModel : NSObject
+
+@property(nonatomic,assign) long recordid;
+/// 1购买，2转赠，3接收，4提货
+@property(nonatomic,assign) long type;
+@property(nonatomic,assign) long number;
+@property(nonatomic,strong) NSString *hashContent;
+@property(nonatomic,strong) NSString *price;
+
+@end
+
+NS_ASSUME_NONNULL_END

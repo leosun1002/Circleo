@@ -1,0 +1,707 @@
+//
+//  PayDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PayDetailVC.h"
+#import "PayDetailTableViewCell.h"
+#import "PaydDetailFooter.h"
+#import "DNSBuyModel.h"
+#import "DNSDiscountModel.h"
+#import "CloudBankSelectViewController.h"
+#import "PayResultVC.h"
+#import "SetTradePasswordVC.h"
+#import "CardCouponSelectVC.h"
+#import "CardCouponModel.h"
+#import "DNSCoinSelectVC.h"
+#import "CurrencyModel.h"
+#import "DNSManageVC.h"
+
+@interface PayDetailVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property(nonatomic,strong)DNSDiscountModel *disModel;
+@property(nonatomic,strong)PaydDetailFooter *footer;
+@property(nonatomic,strong)CardCouponModel *couponModel;
+
+/// 0支付宝 1微信 2cny余额 3usdt余额 4币币账户 5 微信支付
+@property (assign, nonatomic) NSInteger payType;
+@property (strong, nonatomic) NSString *is_kachin;//  判断是否有卡券 0无，1有
+/// 0 未使用卡券   1不使用卡券     2使用卡券(判断是有有couponModel)
+@property (assign, nonatomic) long couponType;
+
+@property (strong, nonatomic) NSString *couponCNY;// 优惠券CNY
+@property (strong, nonatomic) NSString *couponUSDT;//  优惠券USDT
+
+/// 0都可以 1只有CNY  2只有USDT
+@property (assign, nonatomic) NSInteger onlyCNYOrUSDT;
+
+@property (strong, nonatomic)CurrencyModel *currencyModel;//  币币账户
+
+@property (strong, nonatomic)NSString *rate;// 汇率
+
+@end
+
+@implementation PayDetailVC
+
+-(void)dealloc{
+    [self deleteNotification:zfbPaySuccessful observer:self];
+    [self deleteNotification:wxPaySuccessful observer:self];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"支付详情", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self notificationCenter];
+    self.payType = 0;
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.is_kachin = dict[JYHasKachin];
+    [self.tableview.mj_header beginRefreshing];
+    [self getUserInfo];
+}
+
+-(void)notificationCenter{
+    WeakSelf(self);
+    [[[NSNotificationCenter defaultCenter]rac_addObserverForName:zfbPaySuccessful object:nil]subscribeNext:^(id x) {
+        PayResultVC *result = [[PayResultVC alloc] init];
+        result.modalPresentationStyle = UIModalPresentationFullScreen;
+        result.subject = [RACSubject subject];
+        [result.subject subscribeNext:^(id x) {
+            if (weakself.newType == 0) {
+                [weakself.navigationController popToRootViewControllerAnimated:YES];
+            }else{
+                [weakself goBackFromRenew];
+            }
+        }];
+        [weakself presentViewController:result animated:YES completion:^{
+            
+        }];
+    }];
+    
+    [[[NSNotificationCenter defaultCenter]rac_addObserverForName:wxPaySuccessful object:nil]subscribeNext:^(id x) {
+        PayResultVC *result = [[PayResultVC alloc] init];
+        result.modalPresentationStyle = UIModalPresentationFullScreen;
+        result.subject = [RACSubject subject];
+        [result.subject subscribeNext:^(id x) {
+            if (weakself.newType == 0) {
+                [weakself.navigationController popToRootViewControllerAnimated:YES];
+            }else{
+                [weakself goBackFromRenew];
+            }
+        }];
+        [weakself presentViewController:result animated:YES completion:^{
+            
+        }];
+    }];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+    if (IS_IPHONEX) {
+        self.bottomHeightConst.constant += 10;
+    }
+    [self.tableview registerNib:[UINib nibWithNibName:@"PayDetailTableViewCell" bundle:nil] forCellReuseIdentifier:@"PayDetailTableViewCell"];
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        if (weakself.newType == 0) {
+            [weakself getData];
+        }else{
+            [weakself calculateRenewMoney];
+            [weakself.tableview reloadData];
+            [weakself.tableview.mj_header endRefreshing];
+        }
+    }];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [WebServices postFormReqUrl:DomainPurchaseDetail param:@{@"ids":self.ids,@"years":self.years} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                NSMutableArray <DNSBuyModel *> *applicationList = [DNSBuyModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"domain_order"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+                weakself.disModel = [DNSDiscountModel mj_objectWithKeyValues:json[@"data"][@"discount"]];
+                [weakself calculateMoney];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview reloadData];
+    }];
+}
+
+-(void)calculateMoney{
+    if (!self.couponModel) {
+        self.usdtPrice.text = self.disModel.pay_usdt_price;
+        if (self.currencyModel && ![AssectString(self.currencyModel.name) isEqualToString:@""] && [self.rate doubleValue]>0) {
+            self.cnyPrice.text = [GaoJingDu chu:@[AssectNumber(self.disModel.pay_usdt_price),AssectNumber(self.rate)] jindu:@"2"];
+            self.cnyTipLabel.text = [NSString stringWithFormat:@"/ %@",self.currencyModel.name];
+        }else{
+            self.cnyPrice.text = self.disModel.pay_cny_price;
+            self.cnyTipLabel.text = @"/ CNY";
+        }
+        return;
+    }
+    if ([self.disModel.pay_usdt_price doubleValue] > [self.couponUSDT doubleValue] && [self.disModel.pay_cny_price doubleValue] > [self.couponCNY doubleValue]) {
+        self.cnyPrice.text = [GaoJingDu jian:@[AssectNumber(self.disModel.pay_cny_price),AssectNumber(self.couponCNY)] jindu:@"2"];
+        self.usdtPrice.text = [GaoJingDu jian:@[AssectNumber(self.disModel.pay_usdt_price),AssectNumber(self.couponUSDT)] jindu:@"2"];
+    }else{
+        self.couponCNY = self.disModel.pay_cny_price;
+        self.couponUSDT = self.disModel.pay_usdt_price;
+        self.cnyPrice.text = @"0.00";
+        self.usdtPrice.text = @"0.00";
+    }
+}
+
+-(void)calculateRenewMoney{
+    NSString *cnyPrice = @"0.00";
+    NSString *usdtPrice = @"0.00";
+    for (DNSBuyModel *model in self.datas) {
+        cnyPrice = [GaoJingDu add:@[cnyPrice,[GaoJingDu cheng:@[AssectNumber(model.unit_price),[NSString stringWithFormat:@"%ld",model.years]] jindu:@"2"]] jindu:@"2"];
+        usdtPrice = [GaoJingDu add:@[usdtPrice,[GaoJingDu cheng:@[AssectNumber(model.usdt_price),[NSString stringWithFormat:@"%ld",model.years]] jindu:@"2"]] jindu:@"2"];
+    }
+    self.usdtPrice.text = usdtPrice;
+    self.cnyPrice.text = cnyPrice;
+    
+    if (self.currencyModel && ![AssectString(self.currencyModel.name) isEqualToString:@""] && [self.rate doubleValue]>0) {
+        self.cnyPrice.text = [GaoJingDu chu:@[AssectNumber(usdtPrice),AssectNumber(self.rate)] jindu:@"2"];
+        self.cnyTipLabel.text = [NSString stringWithFormat:@"/ %@",self.currencyModel.name];
+    }else{
+        self.cnyPrice.text = cnyPrice;
+        self.cnyTipLabel.text = @"/ CNY";
+    }
+    
+    if (self.couponModel) {
+        if ([usdtPrice doubleValue] > [self.couponUSDT doubleValue] && [cnyPrice doubleValue] > [self.couponCNY doubleValue]) {
+            self.cnyPrice.text = [GaoJingDu jian:@[AssectNumber(cnyPrice),AssectNumber(self.couponCNY)] jindu:@"2"];
+            self.usdtPrice.text = [GaoJingDu jian:@[AssectNumber(usdtPrice),AssectNumber(self.couponUSDT)] jindu:@"2"];
+        }else{
+            self.couponCNY = cnyPrice;
+            self.couponUSDT = usdtPrice;
+            self.cnyPrice.text = @"0.00";
+            self.usdtPrice.text = @"0.00";
+        }
+    }
+}
+
+//获取剩余usdt资产
+-(void)getUserInfo{
+    WeakSelf(self);
+    [weakself showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                weakself.is_kachin = json[@"data"][JYHasKachin];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getUserInfo];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getUserInfo];
+            }];
+        }
+    }];
+}
+
+-(void)getCoinRate:(long)currencyId{
+    NSDictionary *dict = @{@"currency_id":[NSString stringWithFormat:@"%ld",currencyId]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:CurrencyExchangeRate param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.rate = AssectNumber(json[@"data"][@"exchange_rate"]);
+                if ([weakself.rate doubleValue] == 0) {
+                    [weakself showMsg:NSLocalizedString(@"汇率换算失败", nil) location:centre];
+                    [weakself showErrorView:self.view withBlock:^{
+                        [weakself getCoinRate:currencyId];
+                    }];
+                }else{
+                    [weakself.tableview reloadData];
+                    if (weakself.newType == 0) {
+                        [weakself calculateMoney];
+                    }else{
+                        [weakself calculateRenewMoney];
+                    }
+                }
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself showErrorView:self.view withBlock:^{
+                    [weakself getCoinRate:currencyId];
+                }];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+            [weakself showErrorView:self.view withBlock:^{
+                [weakself getCoinRate:currencyId];
+            }];
+        }
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 0.001;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return [self.footer getPayHeight:self.payType withNewtype:self.newType];
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    self.footer.currencyModel = self.currencyModel;
+    self.footer.payType = self.payType;
+    self.footer.pswText.text = @"";
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself paywaySelect];
+    }];
+    [self.footer.payTypeView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself couponSelect];
+    }];
+    [self.footer.couponView addGestureRecognizer:tap1];
+    
+    //判断是否有卡券
+    self.footer.couponTipLabel.text = NSLocalizedString(@"选择卡券", nil);
+    if ([AssectString(self.is_kachin) isEqualToString:@""] || [AssectString(self.is_kachin) isEqualToString:@"0"]) {
+        self.footer.noCouponLabel.hidden = NO;
+        self.footer.noCouponLabel.text = NSLocalizedString(@"暂无可用卡券", nil);
+        self.footer.couponContentView.hidden = YES;
+    }else{
+        self.footer.couponTagLabel.text = NSLocalizedString(@"代金券", nil);
+        self.footer.couponTagConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?54:40;
+        if (!self.couponModel || [AssectString(self.couponModel.name) isEqualToString:@""]) {
+            self.footer.couponContentView.hidden = YES;
+            self.footer.noCouponLabel.text = self.couponType == 0?NSLocalizedString(@"未选择卡券", nil):NSLocalizedString(@"不使用卡券", nil);
+            self.footer.noCouponLabel.hidden = NO;
+        }else{
+            self.footer.noCouponLabel.hidden = YES;
+            self.footer.couponContentView.hidden = NO;
+            self.footer.cnyLabel.text = [NSString stringWithFormat:@"-%@",AssectString(self.couponCNY)];
+            self.footer.usdtLabel.text = [NSString stringWithFormat:@"≈ USDT -%@",AssectString(self.couponUSDT)];
+        }
+    }
+    
+    if (self.payType == 4) {
+        self.footer.noCouponLabel.text = NSLocalizedString(@"暂无可用卡券", nil);
+    }
+        
+    if (self.newType == 1) {
+        self.footer.noDisCountView.hidden = YES;
+        self.footer.countView.hidden = YES;
+        self.footer.noDisCountHeight.constant = 0;
+        self.footer.noDisCountHeight.constant = 0;
+    }else{
+        self.footer.noDisCountHeight.constant = 100;
+        self.footer.noDisCountHeight.constant = 100;
+        if ([self.disModel.exces isEqualToString:@"100%"] || !self.disModel) {
+            self.footer.noDisCountView.hidden = NO;
+            self.footer.countView.hidden = YES;
+        }else{
+            self.footer.noDisCountView.hidden = YES;
+            self.footer.countView.hidden = NO;
+            self.footer.nameLabel.text = self.disModel.discount_name;
+            //1节点优惠，2超出折扣
+            self.footer.usdtPrice.text = self.disModel.type == 1?[NSString stringWithFormat:@"-%@",self.disModel.discount_usdt_price]:self.disModel.exces;
+            self.footer.cnyTip.hidden = YES;
+        }
+    }
+    return self.footer;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    PayDetailTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PayDetailTableViewCell"];
+    cell.newType = self.newType;
+    cell.model = self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)paywaySelect{
+    [self.view endEditing:YES];
+    
+    CloudBankSelectViewController *select = [[CloudBankSelectViewController alloc] init];
+    select.payType = self.payType;
+    select.hasCoin = 1;
+    select.onlyCNYOrUSDT = self.onlyCNYOrUSDT;
+    select.currencyName = AssectString(self.currencyModel.name);
+    select.currencyNumber = AssectString(self.currencyModel.pivot.number);
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.subject = [RACSubject subject];
+    
+    WeakSelf(self);
+    [select.subject subscribeNext:^(NSString *selectType) {
+        if ([selectType isEqualToString:@"4"]) {
+            DNSCoinSelectVC *select = [[DNSCoinSelectVC alloc] init];
+            select.type = 3;
+            select.subject = [RACSubject subject];
+            [select.subject subscribeNext:^(CurrencyModel *model) {
+                weakself.currencyModel = model;
+                weakself.payType = 4;
+                weakself.couponModel = nil;
+                [weakself getCoinRate:model.currencyid];//获取币种汇率
+            }];
+            [weakself.navigationController pushViewController:select animated:YES];
+            return ;
+        }
+        weakself.payType = [selectType integerValue];
+        weakself.rate = @"";
+//        [weakself.tableview reloadData];
+        if (weakself.newType == 0) {
+            [weakself getData];
+        }else{
+            [weakself calculateRenewMoney];
+            [weakself.tableview reloadData];
+            [weakself.tableview.mj_header endRefreshing];
+        }
+    }];
+    [self presentViewController:select animated:NO completion:^{
+    }];
+}
+
+-(void)couponSelect{
+    WeakSelf(self);
+    if (self.payType == 4) return;
+    if ([AssectString(self.is_kachin) isEqualToString:@""] || [AssectString(self.is_kachin) isEqualToString:@"0"]) return ;
+    CardCouponSelectVC *couponSelect = [[CardCouponSelectVC alloc] init];
+    couponSelect.newType = self.newType;
+    couponSelect.couponType = self.couponType;
+    couponSelect.subject = [RACSubject subject];
+    [couponSelect.subject subscribeNext:^(NSDictionary *dict) {
+        NSString *couponStr = dict[@"couponType"];
+        CardCouponModel *model = dict[@"model"];
+        weakself.couponType = [couponStr longLongValue];
+        if (weakself.couponType == 1) {
+            weakself.couponModel = nil;
+            weakself.payType = 0;
+            weakself.onlyCNYOrUSDT = 0;
+            weakself.couponCNY = @"0.00";
+            weakself.couponUSDT = @"0.00";
+            [weakself.tableview reloadData];
+            return ;
+        }
+
+        weakself.couponModel = model;
+        NSString *money = [GaoJingDu jian:@[AssectNumber(weakself.couponModel.price),AssectNumber(weakself.couponModel.used_price)] jindu:@"2"];
+        weakself.onlyCNYOrUSDT = model.money_type;
+        if (weakself.couponModel.money_type == 1) {
+            weakself.payType = 0;
+            weakself.couponCNY = money ;
+            weakself.couponUSDT = [GaoJingDu chu:@[AssectNumber(money),@"7"] jindu:@"2"];
+        }else{
+            weakself.payType = 3;
+            weakself.couponCNY = [GaoJingDu cheng:@[AssectNumber(money),@"7"] jindu:@"2"];
+            weakself.couponUSDT = money;
+        }
+        [weakself.tableview reloadData];
+    }];
+    [self.navigationController pushViewController:couponSelect animated:YES];
+}
+
+-(BOOL)setTradepsw:(NSInteger)type{
+    // 0支付宝 1微信 2cny余额 3usdt余额
+    if (type == 2 || type == 3 || type == 4) {
+        NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+        NSString *payPsw = AssectString(userdict[JYPayPassword]);
+        if ([payPsw isEqualToString:@"0"]) {
+            UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:NSLocalizedString(@"设置资产密码", nil) message:NSLocalizedString(@"是否设置资产密码", nil) preferredStyle:UIAlertControllerStyleAlert];
+            
+            WeakSelf(self);
+            UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"确认", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+                SetTradePasswordVC *setPsw = [[SetTradePasswordVC alloc] init];
+                setPsw.hasgoback = 1;
+                [weakself.navigationController pushViewController:setPsw animated:YES];
+            }];
+            
+            UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+            }];
+            [sheetVC addAction:sheetBtn1];
+            [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+            [sheetVC addAction:sheetBtn];
+            [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+            [self presentViewController:sheetVC animated:YES completion:nil];
+            
+            return NO;
+        }
+    }
+    return YES;
+}
+
+- (IBAction)payCheckClick:(id)sender {
+    if (self.newType == 0) {
+        [self payNewClick];
+    }else{
+        [self payRenewClick];
+    }
+}
+
+#pragma -mark  支付
+-(void)payNewClick{
+    //查看是否设置交易密码
+    if (![self setTradepsw:self.payType]) return;
+    NSString *orderNums = @"";
+    //1为CNY支付，2为USDT支付，3支付宝支付
+    NSString *type = @"";
+    for (DNSBuyModel *buyModel in self.datas) {
+        orderNums = [orderNums stringByAppendingString:[NSString stringWithFormat:@"%@,",buyModel.order_number]];
+    }
+    if (orderNums.length != 0) {
+        orderNums = [orderNums substringToIndex:orderNums.length -1];
+    }
+    
+    NSString *password = [self removeSpaceAndNewline:self.footer.pswText.text];
+    // 0支付宝 1微信 2cny余额 3usdt余额 4币币账户
+    if (self.payType == 0) {
+        type = @"3";
+    }else if (self.payType == 2){
+        type = @"1";
+        if ([password isEqualToString:@""]) {
+            [self showMsg:NSLocalizedString(@"请输入资产密码", nil) location:centre];
+            return;
+        }
+    }else if (self.payType == 3){
+        type = @"2";
+        if ([password isEqualToString:@""]) {
+            [self showMsg:NSLocalizedString(@"请输入资产密码", nil) location:centre];
+            return;
+        }
+    }else if (self.payType == 4){
+        type = @"4";
+        if ([password isEqualToString:@""]) {
+            [self showMsg:NSLocalizedString(@"请输入资产密码", nil) location:centre];
+            return;
+        }
+    }else if (self.payType == 1){
+        type = @"5";
+    }
+        
+    //    NSDictionary *dict = @{@"order_numbers":orderNums,@"type":type,@"pay_password":[password md532BitUpper],@"cny_price":AssectString(self.disModel.pay_cny_price),@"usdt_price":AssectString(self.disModel.pay_usdt_price),@"kachin_id":self.couponModel.counponid==0?@"":[NSString stringWithFormat:@"%ld",self.couponModel.counponid],@"currency_id":self.currencyModel.currencyid == 0?@"":[NSString stringWithFormat:@"%ld",self.currencyModel.currencyid]};
+    NSArray *datas = [NSArray arrayWithObjects:@{@"order_numbers":orderNums},@{@"type":type},@{@"pay_password":[password md532BitUpper]},@{@"cny_price":self.payType==4?@"0":AssectString(self.cnyPrice.text)},@{@"usdt_price":AssectString(self.disModel.pay_usdt_price)},@{@"kachin_id":self.couponModel.counponid==0?@"":[NSString stringWithFormat:@"%ld",self.couponModel.counponid]},@{@"currency_id":self.currencyModel.currencyid == 0?@"":[NSString stringWithFormat:@"%ld",self.currencyModel.currencyid]},@{@"currency_price":self.payType==4?AssectString(self.cnyPrice.text):@"0"}, nil];
+    NSDictionary *dict = [SignGenerated signedAfterDic:datas];
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:PaymentPay param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                if (weakself.payType == 2 || weakself.payType == 3 || weakself.payType == 4) {
+                    PayResultVC *result = [[PayResultVC alloc] init];
+                    result.modalPresentationStyle = UIModalPresentationFullScreen;
+                    result.subject = [RACSubject subject];
+                    [result.subject subscribeNext:^(id x) {
+                        [weakself.navigationController popToRootViewControllerAnimated:YES];
+                    }];
+                    [weakself presentViewController:result animated:YES completion:^{
+                        
+                    }];
+                }else if (weakself.payType == 0){
+                    [weakself openAliPay:json[@"data"][@"alipay_string"]];
+                }else if (weakself.payType == 1){
+                    [weakself openWxPay:json[@"data"][@"alipay_string"]];
+                }
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark 续费
+-(void)payRenewClick{
+    //查看是否设置交易密码
+    if (![self setTradepsw:self.payType]) return;
+    NSString *domain_name_ids = @"";
+    NSString *years = @"";
+    for (DNSBuyModel *buyModel in self.datas) {
+        domain_name_ids = [domain_name_ids stringByAppendingString:[NSString stringWithFormat:@"%ld,",buyModel.buyid]];
+        years = [years stringByAppendingString:[NSString stringWithFormat:@"%ld,",buyModel.years]];
+    }
+    if (domain_name_ids.length != 0) {
+        domain_name_ids = [domain_name_ids substringToIndex:domain_name_ids.length -1];
+    }
+    if (years.length != 0) {
+        years = [years substringToIndex:years.length -1];
+    }
+    
+    //1为CNY支付，2为USDT支付，3支付宝支付
+    NSString *type = @"";
+    NSString *password = [self removeSpaceAndNewline:self.footer.pswText.text];
+    // 0支付宝 1微信 2cny余额 3usdt余额 4币币账户
+    if (self.payType == 0) {
+        type = @"3";
+    }else if (self.payType == 2){
+        type = @"1";
+        if ([password isEqualToString:@""]) {
+            [self showMsg:NSLocalizedString(@"请输入资产密码", nil) location:centre];
+            return;
+        }
+    }else if (self.payType == 3){
+        type = @"2";
+        if ([password isEqualToString:@""]) {
+            [self showMsg:NSLocalizedString(@"请输入资产密码", nil) location:centre];
+            return;
+        }
+    }else if (self.payType == 4){
+        type = @"4";
+        if ([password isEqualToString:@""]) {
+            [self showMsg:NSLocalizedString(@"请输入资产密码", nil) location:centre];
+            return;
+        }
+    }else if (self.payType == 1){
+        type = @"5";
+    }
+        
+    NSArray *datas = [NSArray arrayWithObjects:@{@"domain_name_ids":domain_name_ids},@{@"years":years},@{@"price":AssectString(self.cnyPrice.text)},@{@"type":type},@{@"pay_password":[password md532BitUpper]},@{@"currency_id":self.currencyModel.currencyid == 0?@"":[NSString stringWithFormat:@"%ld",self.currencyModel.currencyid]},@{@"currency_price":self.payType==4?AssectString(self.cnyPrice.text):@"0"},@{@"kachin_id":self.couponModel.counponid==0?@"":[NSString stringWithFormat:@"%ld",self.couponModel.counponid]}, nil];
+    NSDictionary *dict = [SignGenerated signedAfterDic:datas];
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:PaymentRenewPay param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                if (weakself.payType == 2 || weakself.payType == 3 || weakself.payType == 4) {
+                    PayResultVC *result = [[PayResultVC alloc] init];
+                    result.modalPresentationStyle = UIModalPresentationFullScreen;
+                    result.subject = [RACSubject subject];
+                    [result.subject subscribeNext:^(id x) {
+                        [weakself goBackFromRenew];
+                    }];
+                    [weakself presentViewController:result animated:YES completion:^{
+                        
+                    }];
+                }else if (weakself.payType == 0){
+                    [weakself openAliPay:json[@"data"][@"alipay_string"]];
+                }else if (weakself.payType == 1){
+                    [weakself openWxPay:json[@"data"][@"alipay_string"]];
+                }
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)openAliPay:(id)sign{
+    if (![sign isKindOfClass:[NSString class]]){
+        [self showMsg:NSLocalizedString(@"支付失败，请稍后重试", nil) location:centre];
+        return;
+    }
+    WeakSelf(self);
+    [[AlipaySDK defaultService] payOrder:AssectString(sign) fromScheme:AlipayScheme callback:^(NSDictionary *resultDic) {
+        NSLog(@"%@",resultDic[@"memo"]);
+        NSString * status =   resultDic[@"resultStatus"];
+        if ([status isEqualToString:@"9000"]) {            
+            [weakself showMsg:NSLocalizedString(@"支付成功", nil) location:centre];
+            PayResultVC *result = [[PayResultVC alloc] init];
+            result.modalPresentationStyle = UIModalPresentationFullScreen;
+            result.subject = [RACSubject subject];
+            [result.subject subscribeNext:^(id x) {
+                if (weakself.newType == 0) {
+                    [weakself.navigationController popToRootViewControllerAnimated:YES];
+                }else{
+                    [weakself goBackFromRenew];
+                }
+            }];
+            [weakself presentViewController:result animated:YES completion:^{
+                
+            }];;
+        }
+        else if([status isEqualToString:@"6001"]){
+            
+            [weakself showMsg:NSLocalizedString(@"取消支付", nil) location:centre];
+        }
+        else{
+            [weakself showMsg:NSLocalizedString(@"支付失败", nil) location:centre];
+        }
+        
+    }];
+}
+
+-(void)openWxPay:(id)sign{
+    if (![sign isKindOfClass:[NSDictionary class]]){
+        [self showMsg:NSLocalizedString(@"支付失败，请稍后重试", nil) location:centre];
+        return;
+    }
+    
+    if([WXApi isWXAppInstalled] ==false){
+        [self showMsg:NSLocalizedString(@"请先安装微信", nil) location:centre];
+        return ;
+    }
+    NSDictionary *dict = (NSDictionary *)sign;
+    
+    PayReq *req = [[PayReq alloc] init];
+    req.openID = AssectString(dict[@"appid"]);
+    req.partnerId = AssectString(dict[@"partnerid"]);
+    req.prepayId = AssectString(dict[@"prepayid"]);
+    req.nonceStr = AssectString(dict[@"noncestr"]);
+    
+    NSString *str = AssectString(dict[@"timestamp"]);
+    UInt32 num;
+    sscanf([str UTF8String], "%u", &num);
+    
+    req.timeStamp = num;
+    req.package = AssectString(dict[@"package"]);
+    req.sign = AssectString(dict[@"sign"]);
+    
+    [WXApi sendReq:req completion:nil];
+}
+
+-(void)goBackFromRenew{
+    for (UIViewController *controller in self.navigationController.viewControllers) {
+        if([controller isKindOfClass:[DNSManageVC class]]){
+            DNSManageVC *manageVc = (DNSManageVC *)controller;
+            [manageVc refreshFromRenew];
+            [self.navigationController popToViewController:manageVc animated:YES];
+            break;
+        }
+    }
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+-(PaydDetailFooter *)footer{
+    if (!_footer) {
+        _footer = [[PaydDetailFooter alloc] init];
+    }
+    return _footer;
+}
+@end

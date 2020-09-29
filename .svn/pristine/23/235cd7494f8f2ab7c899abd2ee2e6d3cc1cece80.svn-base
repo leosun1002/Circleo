@@ -1,0 +1,36 @@
+//
+//  AgentCenterHeader.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AgentCenterHeader : UIView
+@property (weak, nonatomic) IBOutlet UIImageView *commImage;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UIImageView *levelImage;
+@property (weak, nonatomic) IBOutlet UILabel *levelLabel;
+@property (weak, nonatomic) IBOutlet UIView *updateView;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *ymTotalLabel;
+@property (weak, nonatomic) IBOutlet UILabel *ysfLabel;
+@property (weak, nonatomic) IBOutlet UILabel *syLabel;
+@property (weak, nonatomic) IBOutlet UILabel *totalTg;
+@property (weak, nonatomic) IBOutlet UILabel *ztLabel;
+@property (weak, nonatomic) IBOutlet UILabel *jtLabel;
+@property (weak, nonatomic) IBOutlet UIView *gradientView;
+@property (weak, nonatomic) IBOutlet UIView *explainView;
+@property (weak, nonatomic) IBOutlet UIImageView *updateImage;
+
+@property (strong, nonatomic) UINavigationController *naviController;
+
+-(void)setData;
+
+@end
+
+NS_ASSUME_NONNULL_END

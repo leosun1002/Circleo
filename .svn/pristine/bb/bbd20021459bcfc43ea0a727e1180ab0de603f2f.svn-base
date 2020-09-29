@@ -1,0 +1,27 @@
+//
+//  RecommendDNVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface RecommendDNVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UICollectionView *collect;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (copy, nonatomic) NSString *domain_name_category_id;
+@property (copy, nonatomic) NSString *titlename;
+@property (weak, nonatomic) IBOutlet UIButton *redCountBtn;
+@property (weak, nonatomic) IBOutlet UILabel *redCountLabel;
+/**
+ 0推荐   1标签
+ */
+@property (assign, nonatomic) long type;
+
+@end
+
+NS_ASSUME_NONNULL_END

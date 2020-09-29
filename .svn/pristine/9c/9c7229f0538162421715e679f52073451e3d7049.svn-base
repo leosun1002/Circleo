@@ -1,0 +1,51 @@
+//
+//  PayResultVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PayResultVC.h"
+
+@interface PayResultVC ()
+
+@end
+
+@implementation PayResultVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.doneBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#5151F0"].CGColor;
+    self.doneBtn.layer.borderWidth = 1.f;
+    self.doneBtn.layer.contentsScale = [[UIScreen mainScreen] scale];
+    [self.doneBtn addTarget:self action:@selector(backClick) forControlEvents:UIControlEventTouchUpInside];
+    if (self.type == 1) {
+        self.titleLabel.text = NSLocalizedString(@"提币成功", nil);
+        self.tipLabel.hidden = YES;
+    }else if (self.type == 2){
+        self.titleLabel.text = NSLocalizedString(@"提现成功", nil);
+        self.tipLabel.hidden = YES;
+    }else if (self.type == 3){
+        self.titleLabel.text = NSLocalizedString(@"解绑成功", nil);
+        self.tipLabel.hidden = YES;
+    }else if (self.type == 4){
+        self.titleLabel.text = NSLocalizedString(@"绑定成功", nil);
+        self.tipLabel.hidden = YES;
+    }else{
+        self.titleLabel.text = NSLocalizedString(@"支付成功", nil);
+        self.tipLabel.hidden = YES;
+    }
+}
+
+-(void)backClick{
+    [self.subject sendNext:@""];
+    [self dismissViewControllerAnimated:YES completion:^{
+    }];
+}
+
+@end

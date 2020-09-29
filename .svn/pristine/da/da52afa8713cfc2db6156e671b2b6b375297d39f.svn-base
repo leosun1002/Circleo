@@ -1,0 +1,43 @@
+//
+//  ShopCarTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "ShopCarTableViewCell.h"
+
+@implementation ShopCarTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(ShopCarModel *)model{
+    _model = model;
+    if (model.status == 1) {
+        self.cnyPrice.hidden = YES;
+        self.usdtPrice.hidden = YES;
+        self.usdtTipLabel.hidden = YES;
+        self.registerLabel.hidden = NO;
+    }else{
+        self.cnyPrice.hidden = NO;
+        self.cnyPrice.text = [NSString stringWithFormat:@"≈ CNY %@",[GaoJingDu add:@[AssectNumber(model.cny_fee),AssectNumber(model.unit_price)] jindu:@"2"]];
+        self.usdtPrice.hidden = NO;
+        self.usdtPrice.text = [GaoJingDu add:@[AssectNumber(model.usdt_fee),AssectNumber(model.unit_usdt_price)] jindu:@"2"];
+        self.usdtTipLabel.hidden = NO;
+        self.registerLabel.hidden = YES;
+    }
+    self.nameLabel.text = model.domain_name;
+    self.selectBtn.selected = model.hasSelect == 1;
+}
+
+@end

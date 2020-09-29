@@ -1,0 +1,282 @@
+
+//
+//  DSPublishVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DSPublishVC.h"
+#import "DNSPublishPersonVC.h"
+#import "DNSPublishContentVC.h"
+#import "BrowserPayDetailVC.h"
+#import "DNSSellSelectVC.h"
+#import "BrowserCoinSelectVC.h"
+#import "AssetConditionVC.h"
+#import "DSPublishServiceVC.h"
+
+@interface DSPublishVC ()
+
+@property(nonatomic,strong)NSString *domain_name_id;
+@property(nonatomic,strong)NSString *chain_id;
+@property(nonatomic,strong)NSString *type_id;
+@property(nonatomic,strong)NSString *contentStr;
+@property(nonatomic,strong)NSDictionary *selectDict;
+
+///  0是免费文章   1是付费文章  2是私密文章
+@property(nonatomic,assign) long serviceType;
+/// 0不置顶，1置顶
+@property(nonatomic,assign) long is_sticky;
+@property(nonatomic,strong) NSString *sticky_configuration_string;
+@property(nonatomic,strong) NSString *sticky_configuration_id;
+@property(nonatomic,assign) NSString *free_word_count;
+@property(nonatomic,assign) NSString *charge_amount;
+
+@end
+
+@implementation DSPublishVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"发布文章", nil) hiddeBack:NO];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    if (IS_IPHONEX) {
+        self.heightConst.constant += 15;
+    }
+    self.topConst.constant = navBarHeight;
+    
+    self.titleText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.titleText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.titleText.enabled = NO;
+    self.contentText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.contentText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.contentText.enabled = NO;
+    self.nickText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.nickText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.nickText.enabled = NO;
+
+    WeakSelf(self);
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        DNSPublishContentVC *content = [[DNSPublishContentVC alloc] init];
+        content.type = 0;
+        content.selectStr = AssectString(weakself.titleText.text);
+        content.subject = [RACSubject subject];
+        [content.subject subscribeNext:^(NSString *title) {
+            weakself.titleText.text = title;
+            weakself.titleLabel.text = [NSString stringWithFormat:NSLocalizedString(@"标题(%lu字)", nil),(unsigned long)title.length];
+            [weakself checkEnable];
+        }];
+        [weakself.navigationController pushViewController:content animated:YES];
+    }];
+    [self.titleView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        DNSPublishContentVC *content = [[DNSPublishContentVC alloc] init];
+        content.type = 1;
+        content.selectStr = AssectString(weakself.contentStr);
+        content.subject = [RACSubject subject];
+        [content.subject subscribeNext:^(NSString *title) {
+            weakself.contentStr = title;
+            weakself.contentText.text = title;
+            weakself.contentLabel.text = [NSString stringWithFormat:NSLocalizedString(@"正文(%lu字)", nil),(unsigned long)title.length];
+            [weakself checkEnable];
+        }];
+        [weakself.navigationController pushViewController:content animated:YES];
+    }];
+    [self.contentView addGestureRecognizer:tap2];
+    
+    UITapGestureRecognizer *tap3 = [[UITapGestureRecognizer alloc] init];
+    [[tap3 rac_gestureSignal] subscribeNext:^(id x) {
+        DNSSellSelectVC *sellSelect = [[DNSSellSelectVC alloc] init];
+        sellSelect.pageType = 1;
+        sellSelect.selectStr = [weakself.domainLabel.text isEqualToString:NSLocalizedString(@"请选择", nil)]?@"":AssectString(weakself.domainLabel.text);
+        sellSelect.nameSubject = [RACSubject subject];
+        [sellSelect.nameSubject subscribeNext:^(NSDictionary *dict) {
+            weakself.domain_name_id = AssectString(dict[@"manageid"]);
+            weakself.domainLabel.text = AssectString(dict[@"domain_name"]);
+            weakself.domainLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+            weakself.domainLabel.font = [UIFont boldSystemFontOfSize:14];
+            [weakself checkEnable];
+        }];
+        [weakself.navigationController pushViewController:sellSelect animated:YES];
+    }];
+    [self.domainView addGestureRecognizer:tap3];
+    
+    UITapGestureRecognizer *tap4 = [[UITapGestureRecognizer alloc] init];
+    [[tap4 rac_gestureSignal] subscribeNext:^(id x) {
+        BrowserCoinSelectVC *coinSelect = [[BrowserCoinSelectVC alloc] init];
+        coinSelect.type = 1;
+        coinSelect.chainSubject = [RACSubject subject];
+        [coinSelect.chainSubject subscribeNext:^(NSDictionary *dict) {
+            weakself.selectDict = dict;
+            weakself.chain_id = [NSString stringWithFormat:@"%ld",[dict[@"id"] longValue]];
+            weakself.chainLabel.text = AssectString(dict[@"name"]);
+            [weakself.chainImg sd_setImageWithURL:[NSURL URLWithString:AssectString(dict[@"image_address"])] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+            weakself.chainLabel.hidden = NO;
+            weakself.chainImg.hidden = NO;
+            weakself.chainSelectLabel.hidden = YES;
+            [weakself checkEnable];
+        }];
+        [weakself.navigationController pushViewController:coinSelect animated:YES];
+    }];
+    [self.chainView addGestureRecognizer:tap4];
+    
+    UITapGestureRecognizer *tap5 = [[UITapGestureRecognizer alloc] init];
+    [[tap5 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself getTypeData];
+    }];
+    [self.typView addGestureRecognizer:tap5];
+    
+    UITapGestureRecognizer *tap6 = [[UITapGestureRecognizer alloc] init];
+    [[tap6 rac_gestureSignal] subscribeNext:^(id x) {
+        DSPublishServiceVC *service = [[DSPublishServiceVC alloc] init];
+        service.serviceType = weakself.serviceType;
+        service.is_sticky = weakself.is_sticky;
+        service.sticky_configuration_id = weakself.sticky_configuration_id;
+        service.sticky_configuration_string = weakself.sticky_configuration_string;
+        service.free_word_count = weakself.free_word_count;
+        service.charge_amount = weakself.charge_amount;
+        service.content_count = weakself.contentStr.length;
+        
+        service.subject = [RACSubject subject];
+        [service.subject subscribeNext:^(NSDictionary *dict) {
+            long service = [AssectString(dict[@"serviceType"]) longLongValue];
+            weakself.sticky_configuration_id = AssectString(dict[@"selectDayId"]);
+            weakself.sticky_configuration_string = AssectString(dict[@"selectDay"]);
+            weakself.is_sticky = [AssectString(dict[@"top"]) longLongValue];
+            weakself.free_word_count = AssectString(dict[@"count"]);
+            weakself.charge_amount = AssectString(dict[@"money"]);
+            weakself.serviceType = service;
+        }];
+        [weakself.navigationController pushViewController:service animated:YES];
+    }];
+    [self.serviceView addGestureRecognizer:tap6];
+    
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.nickText.text = AssectString(dict[JYUserName]);
+    self.serviceType = 0;
+}
+
+-(void)getTypeData{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:BrowserArticleType param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself selectType:json[@"data"][@"article_types"]];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)selectType:(NSArray *)datas{
+    AssetConditionVC *condition = [[AssetConditionVC alloc] init];
+    condition.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    condition.type = 1;
+    condition.filterStr = AssectString(self.type_id);
+    condition.filterArray = [datas mutableCopy];
+    condition.subject = [RACSubject subject];
+    WeakSelf(self);
+    [condition.subject subscribeNext:^(NSDictionary *dict) {
+        weakself.typeText.text = AssectString(dict[@"name"]);
+        weakself.type_id = [NSString stringWithFormat:@"%lld",[dict[@"id"] longLongValue]];
+    }];
+    [self presentViewController:condition animated:NO completion:^{
+    }];
+}
+
+-(void)checkEnable{
+    if ([AssectString(self.domain_name_id) isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        return;
+    }
+    
+    if ([AssectString(self.chain_id) isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        return;
+    }
+    
+    if ([AssectString(self.type_id) isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        return;
+    }
+    
+    if ([AssectString(self.titleText.text) isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        return;
+    }
+    
+    if ([AssectString(self.contentStr) isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        return;
+    }
+    
+    self.checkBtn.enabled = YES;
+    self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#5151F0"];
+}
+
+- (IBAction)checkClick:(id)sender {
+    if (self.serviceType == 1) {
+        if (self.contentStr.length <= [self.free_word_count longLongValue]) {
+            [self showMsg:NSLocalizedString(@"当前字数不满足付费要求", nil) location:centre];
+            return;
+        }
+    }
+    
+    BrowserPayDetailVC *payDetail = [[BrowserPayDetailVC alloc] init];
+    payDetail.domain_id = self.domain_name_id;
+    payDetail.type_id = self.type_id;
+    payDetail.dict = self.selectDict;
+    payDetail.serviceType = self.serviceType;
+    payDetail.is_sticky = self.is_sticky;
+    payDetail.sticky_configuration_id = AssectString(self.sticky_configuration_id);
+    payDetail.sticky_configuration_string = AssectString(self.sticky_configuration_string);
+    payDetail.free_word_count = AssectString(self.free_word_count);
+    payDetail.charge_amount = AssectString(self.charge_amount);
+    payDetail.person = AssectString(self.nickText.text);
+    payDetail.titleStr = AssectString(self.titleText.text);
+    payDetail.content = AssectString(self.contentStr);
+    [self.navigationController pushViewController:payDetail animated:YES];
+}
+
+#pragma -mark setter
+-(void)setServiceType:(long)serviceType{
+    _serviceType = serviceType;
+    if (serviceType == 0) {
+        self.serviceText.text = NSLocalizedString(@"免费文章", nil);
+        self.serviceContentView.hidden = NO;
+        self.serviceContentHeight.constant = 50;
+        self.payView.hidden = YES;
+        self.payHeight.constant = 0;
+        self.topLabel.text = [AssectString(self.sticky_configuration_string) isEqualToString:@""]?NSLocalizedString(@"否", nil):AssectString(self.sticky_configuration_string);
+    }else if (serviceType == 1){
+        self.serviceText.text = NSLocalizedString(@"付费文章", nil);
+        self.serviceContentView.hidden = NO;
+        self.serviceContentHeight.constant = 150;
+        self.payView.hidden = NO;
+        self.payHeight.constant = 100;
+        self.topLabel.text = [AssectString(self.sticky_configuration_string) isEqualToString:@""]?NSLocalizedString(@"否", nil):AssectString(self.sticky_configuration_string);
+        self.topLabel.text = [AssectString(self.sticky_configuration_string) isEqualToString:@""]?NSLocalizedString(@"否", nil):AssectString(self.sticky_configuration_string);
+        self.freeCountLabel.text = AssectString(self.free_word_count);
+        self.payMoneyLabel.text = AssectString(self.charge_amount);
+    }else if (serviceType == 2){
+        self.serviceText.text = NSLocalizedString(@"私密文章", nil);
+        self.serviceContentView.hidden = YES;
+        self.serviceContentHeight.constant = 0;
+    }
+}
+
+@end

@@ -1,0 +1,40 @@
+//
+//  DNSMyPublishVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "JXCategoryListContainerView.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSMyPublishVC : BaseViewController<JXCategoryListContentViewDelegate>
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIView *conditionView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *conditionHeight;
+
+@property (weak, nonatomic) IBOutlet UIView *freeView;
+@property (weak, nonatomic) IBOutlet UILabel *freeLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *freeImg;
+@property (weak, nonatomic) IBOutlet UIView *domainView;
+@property (weak, nonatomic) IBOutlet UILabel *domainLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *domainImg;
+@property (weak, nonatomic) IBOutlet UIView *chainView;
+@property (weak, nonatomic) IBOutlet UILabel *chainLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *chainImg;
+@property (weak, nonatomic) IBOutlet UIView *typeView;
+@property (weak, nonatomic) IBOutlet UILabel *typeLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *typeImg;
+
+///1我的公开文章，2我的私密文章
+@property(assign, nonatomic) long type;
+@property(strong, nonatomic) NSString *searchStr;
+
+@property (strong, nonatomic) UINavigationController *naviVc;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,57 @@
+//
+//  BankCardTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BankCardTableViewCell.h"
+
+@implementation BankCardTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    if ([[GDLocalizableController userLanguage] isEqualToString:CHINESE]) {
+        self.personConst.constant = 50;
+        self.bankConst.constant = 50;
+        self.cardCont.constant = 50;
+    }
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+//0正常状态  1编辑状态
+- (void)setEditType:(long)editType{
+    _editType = editType;
+    if (editType == 0) {
+        self.leadingConst.constant = 15;
+        self.trailConst.constant = 15;
+        self.delBtn.hidden = YES;
+    }else{
+        self.leadingConst.constant = 15 - 37;
+        self.trailConst.constant = 52;
+        self.delBtn.hidden = NO;
+    }
+}
+
+-(void)setModel:(BankCardModel *)model{
+    _model = model;
+    self.nameLabel.text = model.name;
+    if (model.card_number.length > 4) {
+        NSString *number = model.card_number;
+        NSString *replaceNumber = [number substringToIndex:number.length - 4];
+        number = [number stringByReplacingOccurrencesOfString:replaceNumber withString:@"****"];
+        self.cardLabel.text = number;
+    }else{
+        self.cardLabel.text = model.card_number;
+    }
+    self.bankLabel.text = model.bank_name;
+}
+
+@end

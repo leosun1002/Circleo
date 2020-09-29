@@ -1,0 +1,28 @@
+//
+//  MyCnyIncomeHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MyCnyIncomeHeader.h"
+
+@implementation MyCnyIncomeHeader
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"MyCnyIncomeHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        [self setData];
+    }
+    return self;
+}
+
+-(void)setData{
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.sevenLabel.text = AssectNumber(userdict[JYCnySevenMoney]);
+    self.cnyLabel.text = AssectNumber(userdict[JYIncomeCnyMoney]);
+    self.djLabel.text = AssectNumber(userdict[JYIncomeCnyNotMoney]);
+}
+@end

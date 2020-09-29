@@ -1,0 +1,41 @@
+//
+//  MallCheckPasswordVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallCheckPasswordVC.h"
+#import "KLCodeResignView.h"
+#import "MallOutputPswVC.h"
+
+@interface MallCheckPasswordVC ()
+
+@property (weak, nonatomic) IBOutlet UIView *inputBgView;
+
+@end
+
+@implementation MallCheckPasswordVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    KLCodeResignView *codeView = [[KLCodeResignView alloc] initWithCodeBits:6];
+    codeView.codeResignCompleted = ^(NSString * _Nonnull content) {
+    };
+    codeView.codeResignUnCompleted = ^(NSString * _Nonnull content) {
+    };
+    [self.inputBgView addSubview:codeView];
+    codeView.frame = CGRectMake(0, 0, ksrcwidth - 100, 60);
+}
+
+- (IBAction)checkClick:(id)sender {
+    MallOutputPswVC *output = [[MallOutputPswVC alloc] init];
+    [self.navigationController pushViewController:output animated:YES];
+}
+
+@end

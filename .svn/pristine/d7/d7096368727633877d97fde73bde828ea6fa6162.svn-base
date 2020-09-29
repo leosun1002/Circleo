@@ -1,0 +1,89 @@
+
+//
+//  LanguageSelectVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/8/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "LanguageSelectVC.h"
+#import "LanguageTableViewCell.h"
+
+@interface LanguageSelectVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,assign)NSInteger selectIndex;
+
+@end
+
+@implementation LanguageSelectVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"切换语言", nil) hiddeBack:NO];
+    [self getSelectLanguage];
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"LanguageTableViewCell" bundle:nil] forCellReuseIdentifier:@"LanguageTableViewCell"];
+    self.topConst.constant = navBarHeight;
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 65,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    [rightBtn setTitle:NSLocalizedString(@"保存", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself showMsg:NSLocalizedString(@"语言切换成功", nil) withBlcok:^{
+            [GDLocalizableController setUserlanguage:weakself.selectIndex == 0?CHINESE:ENGLISH];
+            [weakself getUserRootVC];
+        }];
+    }];
+    [view addSubview:rightBtn];
+}
+
+-(void)getSelectLanguage{
+    NSString *language = [GDLocalizableController userLanguage];
+    self.selectIndex = [language isEqualToString:ENGLISH]?1:0;
+}
+
+#pragma -mark getter
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 2;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    LanguageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"LanguageTableViewCell"];
+    cell.nameLabel.text = self.datas[indexPath.row];
+    cell.nameLabel.textColor = indexPath.row == self.selectIndex?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#18181A"];
+    cell.selectImg.hidden = indexPath.row != self.selectIndex;
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (indexPath.row == self.selectIndex)return;
+    self.selectIndex = indexPath.row;
+    [self.tableview reloadData];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray arrayWithObjects:@"简体中文",@"English", nil];
+    }
+    return _datas;
+}
+@end

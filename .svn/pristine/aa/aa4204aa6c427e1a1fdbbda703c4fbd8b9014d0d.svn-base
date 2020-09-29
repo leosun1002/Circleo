@@ -1,0 +1,35 @@
+//
+//  SolutionModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SolutionModel : NSObject
+
+@property(nonatomic,assign)long solution_id;
+@property(nonatomic,copy)NSString *desc;
+@property(nonatomic,assign)long two_category_id;
+@property(nonatomic,assign)long admin_user_id;
+@property(nonatomic,copy)NSString *created_at;
+@property(nonatomic,assign)long browse_count;
+@property(nonatomic,copy)NSString *title;
+@property(nonatomic,copy)NSString *language;
+@property(nonatomic,copy)NSString *updated_at;
+@property(nonatomic,assign)long new_cateroy_id;
+@property(nonatomic,assign)long point_count;
+@property(nonatomic,copy)NSString *small_image;
+/**
+ 0禁止显示，1可以显示
+ */
+@property(nonatomic,assign)long status;
+@property(nonatomic,copy)NSString *content;
+
+@end
+
+NS_ASSUME_NONNULL_END

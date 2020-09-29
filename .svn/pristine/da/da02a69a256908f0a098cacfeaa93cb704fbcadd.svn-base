@@ -1,0 +1,211 @@
+//
+//  CloudBankSelectViewController.m
+//  Cloud Pro
+//
+//  Created by 孙亮 on 2018/12/21.
+//  Copyright © 2018年 yunzhuan. All rights reserved.
+//
+
+#import "CloudBankSelectViewController.h"
+#import "DNSPayWaySelectCell.h"
+
+@interface CloudBankSelectViewController ()<UITableViewDataSource,UITableViewDelegate,UIGestureRecognizerDelegate>
+
+@property (strong, nonatomic) UITableView *tableview;
+@property (strong, nonatomic) UILabel *nameLabel;
+@property (strong, nonatomic) UIButton *delBtn;
+@property (strong, nonatomic) NSMutableArray *titles;
+@property (strong, nonatomic) NSMutableArray *images;
+
+@end
+
+@implementation CloudBankSelectViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    [self.view addSubview:self.bgview];
+    [self.view addSubview:self.selectview];
+    [self.view bringSubviewToFront:self.selectview];
+    [self.selectview addSubview:self.nameLabel];
+    [self.selectview addSubview:self.delBtn];
+    [self.selectview addSubview:self.tableview];
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSPayWaySelectCell" bundle:nil] forCellReuseIdentifier:@"DNSPayWaySelectCell"];
+    
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        [UIView animateWithDuration:0.25 animations:^{
+            CGFloat height = weakself.hasCoin == 1?360:300;
+            weakself.selectview.y = ksrcheight - height;
+        }];
+    });
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    tap.delegate = self;
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself hideView];
+    }];
+    [self.bgview addGestureRecognizer:tap];
+}
+
+-(void)hideView{
+    [UIView animateWithDuration:0.25 animations:^{
+        self.selectview.y = ksrcheight;
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:^{ }];
+    }];
+}
+
+#pragma -Mark UITableViewDataSource
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.titles.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSPayWaySelectCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSPayWaySelectCell"];
+    NSString *title = self.titles[indexPath.row];
+    cell.namLabel.text = AssectString(title);
+    cell.headV.image = [UIImage imageNamed:self.images[indexPath.row]];
+    
+    cell.yueLabel.hidden = indexPath.row == 0 || (indexPath.row == 1  && self.plType != 1) || [AssectString(title) isEqualToString:NSLocalizedString(@"币币账户", nil)];
+    if (indexPath.row == 1) {
+        if (self.plType == 1) {
+            cell.yueLabel.text = NSLocalizedString(@"（暂不支持微信支付）", nil);
+        }else{
+            cell.yueLabel.text = @"";
+        }
+    }else
+    if (indexPath.row == 4){
+        NSString *yue = [AssectString(self.currencyNumber) isEqualToString:@""]?@"":[NSString stringWithFormat:NSLocalizedString(@"（剩余：%@）",nil),AssectString(self.currencyNumber)];
+        cell.yueLabel.text = yue;
+    }else{
+        NSDictionary *userinfo = [Manager takeoutUserTokenkey:JYLoginuser];
+        NSString *yue = indexPath.row == 2?[NSString stringWithFormat:NSLocalizedString(@"（剩余：%@）",nil),AssectNumber(userinfo[JYCnyMoney])]:[NSString stringWithFormat:NSLocalizedString(@"（剩余：%@）",nil),AssectNumber(userinfo[JYUsdtMoney])];
+        cell.yueLabel.text = yue;
+    }
+    
+    cell.selectImg.image = indexPath.row == self.payType?[UIImage imageNamed:@"console_select"]:[UIImage imageNamed:@"console_unselect"];
+    if (indexPath.row == 4) {
+        cell.selectImg.hidden = YES;
+        cell.selectView.hidden = NO;
+    }else{
+        cell.selectImg.hidden = NO;
+        cell.selectView.hidden = YES;
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (indexPath.row == self.payType && self.payType != 4) return;
+    if (indexPath.row == 1 && self.plType == 1) {
+        [self showMsg:NSLocalizedString(@"暂不支持微信支付", nil) location:centre];
+        return;
+    }
+    if (self.onlyCNYOrUSDT == 1 && (indexPath.row == 3 || indexPath.row == 4)) {
+        [self showMsg:NSLocalizedString(@"该优惠券只支持CNY支付", nil) location:centre];
+        return;
+    }
+    
+    if (self.onlyCNYOrUSDT == 2 && (indexPath.row == 0 || indexPath.row == 2 || indexPath.row == 4)) {
+        [self showMsg:NSLocalizedString(@"该优惠券只支持USDT支付", nil) location:centre];
+        return;
+    }
+    
+    [self.subject sendNext:[NSString stringWithFormat:@"%ld",(long)indexPath.row]];
+    [self hideView];
+}
+
+#pragma -mark UIGestureRecognizerDelegate
+-(BOOL)gestureRecognizer:(UIGestureRecognizer*)gestureRecognizer shouldReceiveTouch:(UITouch*)touch {
+    if([NSStringFromClass([touch.view class])isEqual:@"UITableViewCellContentView"]){
+        return NO;
+    }
+    return YES;
+}
+
+#pragma -mark getter
+-(UIView *)bgview{
+    if (!_bgview) {
+        _bgview = [[UIView alloc] initWithFrame:self.view.bounds];
+        _bgview.backgroundColor = [UIColor blackColor];
+        _bgview.alpha = 0.3;
+    }
+    return _bgview;
+}
+
+-(UIView *)selectview{
+    if (!_selectview) {
+        CGFloat height = self.hasCoin == 1?360:300;
+        _selectview = [[UIView alloc] initWithFrame:CGRectMake(0, ksrcheight, ksrcwidth,height)];
+        _selectview.backgroundColor = [UIColor whiteColor];
+    }
+    return _selectview;
+}
+
+-(UITableView *)tableview{
+    if (!_tableview) {
+        CGFloat height = self.hasCoin == 1?300:240;
+        _tableview = [[UITableView alloc] initWithFrame:CGRectMake(0, 60, ksrcwidth, height)];
+        _tableview.separatorStyle = UITableViewCellSeparatorStyleNone;
+        _tableview.rowHeight = 60;
+        _tableview.delegate = self;
+        _tableview.dataSource = self;
+    }
+    return _tableview;
+}
+
+-(UILabel *)nameLabel{
+    if (!_nameLabel) {
+        _nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(16, 25, ksrcwidth - 16 - 45, 17)];
+        _nameLabel.text = NSLocalizedString(@"选择支付方式", nil);
+        _nameLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        _nameLabel.font = [UIFont boldSystemFontOfSize:12];
+    }
+    return _nameLabel;
+}
+
+-(UIButton *)delBtn{
+    if (!_delBtn) {
+        _delBtn = [[UIButton alloc] init];
+        _delBtn.frame =CGRectMake(ksrcwidth - 37, CGRectGetMidY(_nameLabel.frame) - 15, 30, 30);
+        [_delBtn setImage:[UIImage imageNamed:@"icon_delete"] forState:UIControlStateNormal];
+        WeakSelf(self);
+        [[_delBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            [weakself hideView];
+        }];
+    }
+    return _delBtn;
+}
+
+-(NSMutableArray *)titles{
+    if (!_titles) {
+        if (self.hasCoin == 1) {
+            NSString *coin = [AssectString(self.currencyName) isEqualToString:@""]?NSLocalizedString(@"币币账户", nil):[NSString stringWithFormat:NSLocalizedString(@"币币账户 %@", nil),AssectString(self.currencyName)];
+            _titles = [NSMutableArray arrayWithObjects:NSLocalizedString(@"支付宝", nil),NSLocalizedString(@"微信支付", nil),NSLocalizedString(@"CNY资产", nil),NSLocalizedString(@"USDT资产", nil),coin, nil];
+        }else{
+            _titles = [NSMutableArray arrayWithObjects:NSLocalizedString(@"支付宝", nil),NSLocalizedString(@"微信支付", nil),NSLocalizedString(@"CNY资产", nil),NSLocalizedString(@"USDT资产", nil), nil];
+        }
+    }
+    return _titles;
+}
+
+-(NSMutableArray *)images{
+    if (!_images) {
+        if (self.hasCoin == 1) {
+            _images = [NSMutableArray arrayWithObjects:@"icon_alipay",@"icon_wechat_pay",@"icon_cny_pay",@"icon_usdt_pay",@"icon_coin", nil];
+        }else{
+            _images = [NSMutableArray arrayWithObjects:@"icon_alipay",@"icon_wechat_pay",@"icon_cny_pay",@"icon_usdt_pay", nil];
+        }
+    }
+    return _images;
+}
+@end

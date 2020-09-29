@@ -1,0 +1,21 @@
+//
+//  BrowserAwardCollectionViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/12/19.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BrowserAwardCollectionViewCell.h"
+
+@implementation BrowserAwardCollectionViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    
+    self.headV.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.headV.layer.borderWidth = 2.f;
+}
+
+@end

@@ -1,0 +1,36 @@
+//
+//  DNSBindAddressVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "DNSBindModel.h"
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSBindAddressVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) DNSBindModel *model;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UITextField *addressText;
+@property (weak, nonatomic) IBOutlet UITextView *markText;
+@property (weak, nonatomic) IBOutlet UILabel *markTip;
+
+@property (weak, nonatomic) IBOutlet UIImageView *payImage;
+@property (weak, nonatomic) IBOutlet UILabel *payLabel;
+@property (weak, nonatomic) IBOutlet UILabel *yueLabel;
+@property (weak, nonatomic) IBOutlet UILabel *paymenLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *payWayView;
+@property (weak, nonatomic) IBOutlet UIView *pswView;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *pswHeightConst;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (strong, nonatomic) NSString *domain_name_id;
+
+@end
+
+NS_ASSUME_NONNULL_END

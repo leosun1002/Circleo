@@ -1,0 +1,150 @@
+//
+//  HelpCenterVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "HelpCenterVC.h"
+#import "HelpCenterTableViewCell.h"
+#import "HelpCenterHeader.h"
+#import "SolutionModel.h"
+#import "NewsWebViewController.h"
+
+@interface HelpCenterVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property(nonatomic,strong)NSMutableArray *titles;
+@property(nonatomic,strong)NSArray *keys;
+@property(nonatomic,strong)NSDictionary *dataDict;
+@end
+
+@implementation HelpCenterVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"帮助中心", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"HelpCenterTableViewCell" bundle:nil] forCellReuseIdentifier:@"HelpCenterTableViewCell"];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData];
+    }];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [WebServices postFormReqUrl:NewInformationMore param:@{@"type":@"4",@"page":@"1",@"new_type":@""} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself dealWithData:json[@"data"]];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview reloadData];
+    }];
+}
+
+-(void)dealWithData:(NSDictionary *)dict{
+    self.dataDict = dict;
+    NSDictionary *titleDict = dict[@"title"];
+    NSArray *sortedKeys = [[titleDict allKeys]sortedArrayUsingSelector:@selector(compare:)];
+    self.keys = sortedKeys;
+    [self.titles removeAllObjects];
+    for(NSString *key in sortedKeys){
+        [self.titles addObject:[titleDict objectForKey:key]];
+    }
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return self.titles.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 95;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    HelpCenterHeader *header = [[HelpCenterHeader alloc] init];
+    NSDictionary *dict = self.titles[section];
+    header.titleLabel.text = dict[@"name"];
+    [header.imageV sd_setImageWithURL:[NSURL URLWithString:AssectString(dict[@"image"])] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+    return header;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 20;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    UIView *view =  [[UIView alloc] init];
+    view.backgroundColor = [UIColor colorWithRGBHex:@"#f7f7f9"];
+    
+    UIView *bgview = [[UIView alloc] initWithFrame:CGRectMake(16, 0, ksrcwidth - 32, 20)];
+    bgview.backgroundColor = [UIColor whiteColor];
+    [view addSubview:bgview];
+    return view;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (self.keys.count == 0 || section >= self.keys.count) return 0;
+    NSString *key = self.keys[section];
+    NSArray *datas = self.dataDict[key];
+    return datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.keys.count == 0 || indexPath.section >= self.keys.count) return [UITableViewCell new];
+    
+    HelpCenterTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"HelpCenterTableViewCell"];
+    NSString *key = self.keys[indexPath.section];
+    NSDictionary *dict = self.dataDict[key][indexPath.row];
+    SolutionModel *modules = [SolutionModel mj_objectWithKeyValues:dict];
+    cell.titleLabel.text = modules.title;
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.keys.count == 0 || indexPath.section >= self.keys.count) return;
+
+    NSString *key = self.keys[indexPath.section];
+    NSDictionary *dict = self.dataDict[key][indexPath.row];
+    SolutionModel *modules = [SolutionModel mj_objectWithKeyValues:dict];
+
+    NSString *url = [NSString stringWithFormat:@"%@dns/h5?id=%ld",serviseShareIP,modules.solution_id];
+//    NewsWebViewController* webViewObj =  [[NewsWebViewController alloc] init];
+//    webViewObj.loadUrl = AssectString(url);
+//    webViewObj.titleStr = modules.title;
+//    [self.navigationController pushViewController:webViewObj animated:YES];
+    WebViewController* webViewObj =  [[WebViewController alloc] init];
+    webViewObj.solutionid = [NSString stringWithFormat:@"%ld",modules.solution_id];
+    webViewObj.loadUrl = AssectString(url);
+    webViewObj.titleStr = modules.title;
+    [self.navigationController pushViewController:webViewObj animated:YES];
+}
+
+#pragma -mark getter
+-(NSArray *)keys{
+    if (!_keys) {
+        _keys = [NSArray array];
+    }
+    return _keys;
+}
+
+-(NSMutableArray *)titles{
+    if (!_titles) {
+        _titles = [NSMutableArray array];
+    }
+    return _titles;
+}
+@end

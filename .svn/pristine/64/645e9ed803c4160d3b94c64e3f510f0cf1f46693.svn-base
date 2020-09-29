@@ -1,0 +1,49 @@
+//
+//  AddressManageTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AddressManageTableViewCell.h"
+
+@implementation AddressManageTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.layer.borderColor = [UIColor colorWithRGBHex:@"#E6E6E6"].CGColor;
+    self.layer.borderWidth = 0.5f;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+//0正常状态  1编辑状态
+- (void)setEditType:(long)editType{
+    _editType = editType;
+    if (editType == 0) {
+        self.leadingConst.constant = 15;
+        self.trailingConst.constant = 15;
+        self.delBtn.hidden = YES;
+    }else{
+        self.leadingConst.constant = 15 - 37;
+        self.trailingConst.constant = 52;
+        self.delBtn.hidden = NO;
+    }
+}
+
+-(void)setModel:(AddressModel *)model{
+    _model = model;
+    self.widthConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?55:34;
+    self.addressLabel.text = model.address;
+    self.markLabel.text = [AssectString(model.content) isEqualToString:@""]?@" ":AssectString(model.content);
+    self.nameLabel.text = model.currency.name;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.currency.images)] placeholderImage:[UIColor createColorImg:@"#f7f7f9"]];
+}
+
+@end

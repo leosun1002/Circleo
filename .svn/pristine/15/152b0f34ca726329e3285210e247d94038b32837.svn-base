@@ -1,0 +1,214 @@
+//
+//  MessageCenterVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "MessageCenterVC.h"
+#import "MessageCenterTableViewCell.h"
+#import "PersonSettingTableViewCell.h"
+#import "MessageModel.h"
+#import "DNSSellOrderVC.h"
+#import "DNSManageVC.h"
+
+@interface MessageCenterVC ()<UITableViewDataSource,UITableViewDelegate,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong) NSMutableArray *filters;
+@property(nonatomic,strong) NSMutableArray *datas;
+@property(nonatomic,assign) NSInteger selectIndex;
+@end
+
+@implementation MessageCenterVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"通知中心", nil) hiddeBack:NO];
+    [self addRefresh];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"MessageCenterTableViewCell" bundle:nil] forCellReuseIdentifier:@"MessageCenterTableViewCell"];
+    [self.blacktable registerNib:[UINib nibWithNibName:@"PersonSettingTableViewCell" bundle:nil] forCellReuseIdentifier:@"PersonSettingTableViewCell"];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        if (weakself.blackview.hidden) {
+            [weakself showView];
+        }else{
+            [weakself hideView];
+        }
+    }];
+    [self.selectView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        if (!weakself.blackview.hidden) {
+            [weakself hideView];
+        }
+    }];
+    [self.blackview addGestureRecognizer:tap1];
+    [self.tableview.mj_header beginRefreshing];
+
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)showView{
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        weakself.arrow_image.image = [UIImage imageNamed:@"icon_person_up"];
+        weakself.blacktable.hidden = NO;
+        weakself.blackview.hidden = NO;
+        weakself.blackview.alpha = 0.05;
+        weakself.heightConst.constant = 45 * weakself.filters.count;
+        [UIView animateWithDuration:0.25 animations:^{
+            weakself.blackview.alpha = 0.3;
+            //必须加上
+            [weakself.view layoutIfNeeded];
+            [weakself.blacktable reloadData];
+        }];
+    });
+}
+
+-(void)hideView{
+    self.heightConst.constant = 0;
+    [UIView animateWithDuration:0.25 animations:^{
+        self.arrow_image.image = [UIImage imageNamed:@"icon_person_down"];
+        self.blackview.alpha = 0.05;
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        self.blacktable.hidden = YES;
+        self.blackview.hidden = YES;
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    WeakSelf(self);
+    NSString *filter = self.selectIndex == 0?@"":[NSString stringWithFormat:@"%ld",(long)self.selectIndex];
+    NSDictionary *dict = @{@"type":filter,@"page":[NSString stringWithFormat:@"%d",page]};
+    [WebServices  getFormReqUrl:NoticeIndex param:dict loadingTime:12 callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<MessageModel*> *applicationList = [MessageModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+#pragma CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *empty = [EmptyView flagView];
+    empty.contents.text = NSLocalizedString(@"当前暂无消息", nil);
+    return empty;
+}
+
+#pragma -mark getter
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (tableView == self.blacktable) {
+        return self.filters.count;
+    }
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.blacktable) {
+        return 45;
+    }
+    return UITableViewAutomaticDimension;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.blacktable) {
+        PersonSettingTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PersonSettingTableViewCell"];
+        cell.rowImage.hidden = YES;
+        cell.tipLabel.hidden = YES;
+        cell.nameLabel.text = AssectString(self.filters[indexPath.row]);
+        cell.nameLabel.font = self.selectIndex == indexPath.row?[UIFont boldSystemFontOfSize:12]:[UIFont systemFontOfSize:12];
+        cell.nameLabel.textColor = self.selectIndex == indexPath.row?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#323236"];
+        return cell;
+    }
+    MessageCenterTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MessageCenterTableViewCell"];
+    if (indexPath.row < self.datas.count) {
+        cell.model = self.datas[indexPath.row];
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.blacktable) {
+        [self hideView];
+        self.selectIndex = indexPath.row;
+        self.filterLabel.text = self.filters[indexPath.row];
+        [self.tableview.mj_header beginRefreshing];
+    }else{
+        MessageModel *model = self.datas[indexPath.row];
+        NSString *url = AssectString(model.jump_url);
+        if ([AssectString(url) isEqualToString:@""]) return;
+        if ([url containsString:@"native10"] && [url containsString:@"/"]) {
+            NSString *selectid = [url componentsSeparatedByString:@"/"][1];
+            DNSSellOrderVC *order = [[DNSSellOrderVC alloc] init];
+            order.type = 1;
+            order.selectid = selectid;
+            [self.navigationController pushViewController:order animated:YES];
+            return;
+        }
+        if ([url containsString:@"native11"]) {
+            DNSManageVC *dnsVc = [[DNSManageVC alloc] init];
+            dnsVc.type = 4;
+            [self.navigationController pushViewController:dnsVc animated:YES];
+            return;
+        }
+        if ([url containsString:@"http"]) {
+            if (@available(iOS 10.0, *)) {
+                [[UIApplication sharedApplication] openURL:[NSURL URLWithString:url] options:@{} completionHandler:^(BOOL success) {
+                    
+                }];
+            }
+            return;
+        }
+    }
+    
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)filters{
+    if (!_filters) {
+        _filters = [NSMutableArray arrayWithObjects:NSLocalizedString(@"全部通知", nil),NSLocalizedString(@"域名通知", nil),NSLocalizedString(@"交易通知", nil),NSLocalizedString(@"推广通知", nil),NSLocalizedString(@"系统通知", nil), nil];
+    }
+    return _filters;
+}
+@end

@@ -1,0 +1,26 @@
+//
+//  DNSShopBuyModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/28.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSShopBuyModel : NSObject
+
+@property(nonatomic,strong) NSString *domain_name_before;
+@property(nonatomic,strong) NSString *domain_name_after;
+@property(nonatomic,strong) NSString *domain_name;
+/// 0未注册，1已注册，2挂单中  3求购中
+@property(nonatomic,assign) long type;
+@property(nonatomic,assign) long domain_id;
+/// 0未冻结，1已冻结
+@property(nonatomic,assign) long is_frozen;
+
+@end
+
+NS_ASSUME_NONNULL_END

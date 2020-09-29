@@ -1,0 +1,412 @@
+//
+//  BuildWebsiteVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/5/20.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BuildWebsiteVC.h"
+#import "WebsiteCarouselVC.h"
+#import "MenuNavigationVC.h"
+#import "WebsiteTemplateVC.h"
+#import "WebSiteTempleModel.h"
+#import "DNSSellSelectVC.h"
+#import "DNSPublishContentVC.h"
+#import "WebsiteDetailModel.h"
+#import "WebsiteDomainVC.h"
+
+@interface BuildWebsiteVC ()
+
+@property(nonatomic,strong) NSString *domain_name_id;
+@property(nonatomic,strong) NSString *model_name;
+@property(nonatomic,strong) NSString *templeId;
+@property(nonatomic,strong) NSString *webNameStr;
+@property(nonatomic,strong) NSString *phoneStr;
+@property(nonatomic,strong) NSString *emailStr;
+@property(nonatomic,strong) NSString *addressStr;
+@property(nonatomic,strong) NSMutableArray *menuDatas;
+@property(nonatomic,strong) NSArray *images;
+@property(nonatomic,strong) WebsiteDetailModel *websiteModel;
+
+@end
+
+@implementation BuildWebsiteVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.topConst.constant = navBarHeight;
+    [self setBanar:self.fromType == 0?NSLocalizedString(@"新建网站", nil):NSLocalizedString(@"网站设置", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self addRightBtn];
+    if (self.fromType == 1) {
+        [self getWebsiteData];
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#F95947"];
+        [self.checkBtn setTitle:NSLocalizedString(@"确认修改", nil) forState:UIControlStateNormal];
+        self.checkBtn.enabled = YES;
+    }else{
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        [self.checkBtn setTitle:NSLocalizedString(@"确认创建", nil) forState:UIControlStateNormal];
+        self.checkBtn.enabled = NO;
+    }
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    CGFloat width = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?80:60;
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - width - 5,navBarHeight - 35, width, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, width, 20);
+    rightBtn.hidden = self.fromType == 0;
+    [rightBtn setTitle:NSLocalizedString(@"移除", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#F95946"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself deleteClick];
+    }];
+    [view addSubview:rightBtn];
+}
+
+-(void)prepareUi{
+    self.domainText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.domainText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.modelText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.modelText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.webNameText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.webNameText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.carouselText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.carouselText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.naviText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.naviText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.phoneText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.phoneText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.emailText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.emailText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.addressText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.addressText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *carouselTap = [[UITapGestureRecognizer alloc] init];
+    [[carouselTap rac_gestureSignal] subscribeNext:^(id x) {
+        WebsiteCarouselVC *carousel = [[WebsiteCarouselVC alloc] init];
+        carousel.fromType = weakself.fromType;
+        carousel.subject = [RACSubject subject];
+        carousel.website_id = weakself.website_id;
+        carousel.imgs = [weakself.images mutableCopy];
+        [carousel.subject subscribeNext:^(NSArray *images) {
+            weakself.images = images;
+            weakself.carouselText.text = images.count == 0 ?@"":[NSString stringWithFormat:@"已设置数量%lu",(unsigned long)images.count];
+            [weakself makeCheckBtnEnable];
+        }];
+        [weakself.navigationController pushViewController:carousel animated:YES];
+    }];
+    [self.carouselView addGestureRecognizer:carouselTap];
+    
+    UITapGestureRecognizer *naviTap = [[UITapGestureRecognizer alloc] init];
+    [[naviTap rac_gestureSignal] subscribeNext:^(id x) {
+        MenuNavigationVC *menu = [[MenuNavigationVC alloc] init];
+        menu.datas = weakself.menuDatas;
+        menu.fromType = weakself.fromType;
+        menu.website_id = weakself.website_id;
+        menu.subject = [RACSubject subject];
+        [menu.subject subscribeNext:^(NSMutableArray *menuDatas) {
+            weakself.menuDatas = menuDatas;
+            weakself.naviText.text = menuDatas.count > 0?@"已设置":@"";
+            [weakself makeCheckBtnEnable];
+        }];
+        [weakself.navigationController pushViewController:menu animated:YES];
+    }];
+    [self.naviView addGestureRecognizer:naviTap];
+    
+    UITapGestureRecognizer *modelTap = [[UITapGestureRecognizer alloc] init];
+    [[modelTap rac_gestureSignal] subscribeNext:^(id x) {
+        if (weakself.fromType == 1) return;
+        WebsiteTemplateVC *webTemplate = [[WebsiteTemplateVC alloc] init];
+        webTemplate.subject = [RACSubject subject];
+        [webTemplate.subject subscribeNext:^(WebSiteTempleModel *model) {
+            weakself.modelText.text = model.name;
+            weakself.model_name = model.name;
+            weakself.templeId = [NSString stringWithFormat:@"%ld",model.templeId];
+            [weakself makeCheckBtnEnable];
+        }];
+        [weakself.navigationController pushViewController:webTemplate animated:YES];
+    }];
+    [self.modelView addGestureRecognizer:modelTap];
+    
+    UITapGestureRecognizer *domainTap = [[UITapGestureRecognizer alloc] init];
+    [[domainTap rac_gestureSignal] subscribeNext:^(id x) {
+        if (weakself.fromType == 1) {
+            WebsiteDomainVC *domain = [[WebsiteDomainVC alloc] init];
+            domain.subject = [RACSubject subject];
+            [domain.subject subscribeNext:^(id x) {
+                [weakself getWebsiteData];
+            }];
+            domain.website_id = weakself.website_id;
+            [weakself.navigationController pushViewController:domain animated:YES];
+            return;
+        }
+        
+        DNSSellSelectVC *sellSelect = [[DNSSellSelectVC alloc] init];
+        sellSelect.pageType = 1;
+        sellSelect.selectStr = [weakself.domainText.text isEqualToString:NSLocalizedString(@"请选择", nil)]?@"":AssectString(weakself.domainText.text);
+        sellSelect.nameSubject = [RACSubject subject];
+        [sellSelect.nameSubject subscribeNext:^(NSDictionary *dict) {
+            weakself.domain_name_id = AssectString(dict[@"manageid"]);
+            weakself.domainText.text = AssectString(dict[@"domain_name"]);
+            [weakself makeCheckBtnEnable];
+        }];
+        [weakself.navigationController pushViewController:sellSelect animated:YES];
+    }];
+    [self.domainView addGestureRecognizer:domainTap];
+    
+    UITapGestureRecognizer *webBackTap = [[UITapGestureRecognizer alloc] init];
+    [[webBackTap rac_gestureSignal] subscribeNext:^(id x) {
+        DNSPublishContentVC *webName = [[DNSPublishContentVC alloc] init];
+        webName.type = 4;
+        webName.selectStr = AssectString(weakself.webNameStr);
+        webName.subject = [RACSubject subject];
+        [webName.subject subscribeNext:^(NSString *title) {
+            weakself.webNameStr = title;
+            weakself.webNameText.text = title;
+            [weakself makeCheckBtnEnable];
+        }];
+        [weakself.navigationController pushViewController:webName animated:YES];
+    }];
+    [self.webBackView addGestureRecognizer:webBackTap];
+    
+    UITapGestureRecognizer *phoneTap = [[UITapGestureRecognizer alloc] init];
+    [[phoneTap rac_gestureSignal] subscribeNext:^(id x) {
+        DNSPublishContentVC *webName = [[DNSPublishContentVC alloc] init];
+        webName.type = 5;
+        webName.selectStr = AssectString(weakself.phoneStr);
+        webName.subject = [RACSubject subject];
+        [webName.subject subscribeNext:^(NSString *title) {
+            weakself.phoneStr = title;
+            weakself.phoneText.text = title;
+            [weakself makeCheckBtnEnable];
+        }];
+        [weakself.navigationController pushViewController:webName animated:YES];
+    }];
+    [self.phoneView addGestureRecognizer:phoneTap];
+
+    UITapGestureRecognizer *emialTap = [[UITapGestureRecognizer alloc] init];
+    [[emialTap rac_gestureSignal] subscribeNext:^(id x) {
+        DNSPublishContentVC *webName = [[DNSPublishContentVC alloc] init];
+        webName.type = 6;
+        webName.selectStr = AssectString(weakself.emailStr);
+        webName.subject = [RACSubject subject];
+        [webName.subject subscribeNext:^(NSString *title) {
+            weakself.emailStr = title;
+            weakself.emailText.text = title;
+            [weakself makeCheckBtnEnable];
+        }];
+        [weakself.navigationController pushViewController:webName animated:YES];
+    }];
+    [self.emailView addGestureRecognizer:emialTap];
+
+    UITapGestureRecognizer *addressTap = [[UITapGestureRecognizer alloc] init];
+    [[addressTap rac_gestureSignal] subscribeNext:^(id x) {
+        DNSPublishContentVC *webName = [[DNSPublishContentVC alloc] init];
+        webName.type = 7;
+        webName.selectStr = AssectString(weakself.addressStr);
+        webName.subject = [RACSubject subject];
+        [webName.subject subscribeNext:^(NSString *title) {
+            weakself.addressStr = title;
+            weakself.addressText.text = title;
+            [weakself makeCheckBtnEnable];
+        }];
+        [weakself.navigationController pushViewController:webName animated:YES];
+    }];
+    [self.addressView addGestureRecognizer:addressTap];
+    
+    [[self.checkBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself checkClick];
+    }];
+}
+
+-(void)getWebsiteData{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    NSDictionary *dict = @{@"website_id":[NSString stringWithFormat:@"%ld",self.website_id]};
+    [WebServices postFormReqUrl:WebsiteDetail param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                weakself.websiteModel = [WebsiteDetailModel mj_objectWithKeyValues:json[@"data"]];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getWebsiteData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getWebsiteData];
+            }];
+        }
+    }];
+}
+
+-(void)makeCheckBtnEnable{
+    if ([AssectString(self.domain_name_id) isEqualToString:@""] || [AssectString(self.model_name) isEqualToString:@""] || [AssectString(self.webNameStr) isEqualToString:@""] || self.images.count <= 0 || self.menuDatas.count <= 0 || [AssectString(self.phoneStr) isEqualToString:@""] || [AssectString(self.emailStr) isEqualToString:@""] || [AssectString(self.addressStr) isEqualToString:@""]) {
+        self.checkBtn.enabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#DDDDDE"];
+        return;
+    }
+    self.checkBtn.enabled = YES;
+    self.checkBtn.backgroundColor = self.fromType == 0?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#F95947"];
+}
+
+-(void)checkClick{
+    if (self.fromType == 0) {
+        [self checkForNew];
+    }else{
+        [self checkForChange];
+    }
+}
+
+-(void)checkForNew{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    NSString *carousel = [self.images componentsJoinedByString:@","];
+    NSString *menu_data = [self.menuDatas componentsJoinedByString:@","];
+    NSDictionary *dict = @{@"domain_name_id":AssectString(self.domain_name_id),@"website_template_id":AssectString(self.templeId),@"name":AssectString(self.webNameStr),@"carousel":AssectString(carousel),@"category_navigation":AssectString(menu_data),@"phone":AssectString(self.phoneStr),@"email":AssectString(self.emailStr),@"address":AssectString(self.addressStr)};
+    [WebServices postFormReqUrl:WebsiteStore param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself goToPublish:[json[@"data"][@"id"] longLongValue]];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)checkForChange{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    NSDictionary *dict = @{@"website_id":[NSString stringWithFormat:@"%ld",self.websiteModel.website_id],@"name":AssectString(self.webNameText.text),@"phone":AssectString(self.phoneText.text),@"email":AssectString(self.emailText.text),@"address":AssectString(self.addressText.text)};
+    [WebServices postFormReqUrl:WebsiteUpdate param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.navigationController popViewControllerAnimated:YES];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)goToPublish:(long)website_id{
+    UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:NSLocalizedString(@"是否前往发布网站文章", nil) message:nil preferredStyle:UIAlertControllerStyleAlert];
+    
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        [weakself dismissViewControllerAnimated:YES completion:^{
+            [weakself.delSubject sendNext:@""];
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }];
+    }];
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"前往", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [weakself.navigationController popViewControllerAnimated:NO];
+        [weakself.publishSubject sendNext:[NSString stringWithFormat:@"%ld",website_id]];
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#5151F0"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+-(void)deleteClick{
+    UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:NSLocalizedString(@"是否删除该网站", nil) message:nil preferredStyle:UIAlertControllerStyleAlert];
+    
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        [weakself dismissViewControllerAnimated:YES completion:^{
+            
+        }];
+    }];
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"确定", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [weakself delete];
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+-(void)delete{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    NSDictionary *dict = @{@"website_id":[NSString stringWithFormat:@"%ld",self.website_id]};
+    [WebServices postFormReqUrl:WebsiteDelete param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself.delSubject sendNext:@""];
+                    [weakself.navigationController popViewControllerAnimated:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)menuDatas{
+    if (!_menuDatas) {
+        _menuDatas = [NSMutableArray array];
+    }
+    return _menuDatas;
+}
+
+-(NSArray *)images{
+    if (!_images) {
+        _images = [NSArray array];
+    }
+    return _images;
+}
+
+#pragma -mark setter
+-(void)setWebsiteModel:(WebsiteDetailModel *)websiteModel{
+    _websiteModel = websiteModel;
+    //域名
+    self.domainText.text = AssectString(websiteModel.domain_names.domain_name);
+    self.domain_name_id = [NSString stringWithFormat:@"%ld",websiteModel.domain_names.domain_id];
+    //模板
+    self.modelText.text = websiteModel.website_template.name;
+    self.model_name = websiteModel.website_template.name;
+    self.templeId = [NSString stringWithFormat:@"%ld",websiteModel.website_template.templateId];
+    //网站名
+    self.webNameStr = websiteModel.name;
+    self.webNameText.text = websiteModel.name;
+    //轮播图
+    self.images = [websiteModel.website_carousels valueForKey:@"image_address"];
+    self.carouselText.text = self.images.count == 0 ?@"":[NSString stringWithFormat:@"已设置数量%lu",(unsigned long)self.images.count];
+    //分类导航
+//    self.menuDatas = [[websiteModel.website_category_navigations valueForKey:@"name"] mutableCopy];
+    self.menuDatas = [websiteModel.website_category_navigations mutableCopy];
+
+    self.naviText.text = self.menuDatas.count > 0?@"已设置":@"";
+    //电话
+    self.phoneStr = websiteModel.phone;
+    self.phoneText.text = self.phoneStr;
+    //邮箱
+    self.emailStr = websiteModel.email;
+    self.emailText.text = self.emailStr;
+    //地址
+    self.addressStr = websiteModel.address;
+    self.addressText.text = self.addressStr;
+}
+
+
+@end

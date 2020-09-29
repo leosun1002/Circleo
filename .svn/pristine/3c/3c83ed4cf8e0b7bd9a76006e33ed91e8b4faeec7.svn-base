@@ -1,0 +1,22 @@
+//
+//  PayResultVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PayResultVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UIButton *doneBtn;
+@property (strong, nonatomic) RACSubject *subject;
+@property (assign, nonatomic) long type;   //0域名购买   1提币  2提现   3解绑成功   4绑定成功
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

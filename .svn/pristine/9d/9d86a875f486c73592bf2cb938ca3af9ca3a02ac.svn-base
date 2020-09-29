@@ -1,0 +1,322 @@
+//
+//  AssetCoinListVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AssetCoinListVC.h"
+#import "MyAssetTableViewCell.h"
+#import "AssetCoinListHeader.h"
+#import "AssetExchangeVC.h"
+#import "CurrencyRecordModel.h"
+#import "DNSShopNoDataCell.h"
+#import "AssetConditionVC.h"
+#import "PersonUSDTPullVC.h"
+#import "PersonUSDTChargeVC.h"
+#import "AdvanceAuthenVC.h"
+#import "SetTradePasswordVC.h"
+#import "AuthenVC.h"
+#import "PersonTradeResultVC.h"
+
+@interface AssetCoinListVC ()<UITableViewDelegate,UITableViewDataSource>{
+    int page;
+}
+
+@property(nonatomic,weak)AssetCoinListHeader *header;
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSMutableArray *filters;
+@property(nonatomic,strong)NSString *filterStr;
+
+@end
+
+@implementation AssetCoinListVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.heightConst.constant = navBarHeight;
+    [self prepareUi];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getRate];
+    [self getCoinInfo];
+}
+
+-(void)prepareUi{
+    self.titleLabel.text = [NSString stringWithFormat:NSLocalizedString(@"币币账户 %@", nil),AssectString(self.model.name)];
+    [self.tableview registerNib:[UINib nibWithNibName:@"MyAssetTableViewCell" bundle:nil] forCellReuseIdentifier:@"MyAssetTableViewCell"];
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSShopNoDataCell" bundle:nil] forCellReuseIdentifier:@"DNSShopNoDataCell"];
+    [self addTableviewHeader:self.model];
+    self.filterStr = NSLocalizedString(@"全部", nil);
+    
+    if (@available(iOS 11.0,*)) {
+        self.tableview.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+        self.tableview.estimatedRowHeight=0;
+        self.tableview.estimatedSectionFooterHeight=0;
+    }else{
+        self.automaticallyAdjustsScrollViewInsets=NO;
+    }
+}
+
+-(void)refreshFromOtherPage{
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    PersonWhiteGifHeader *header = [PersonWhiteGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(getNewDatas)];
+//    header.stateLabel.textColor = [UIColor whiteColor];
+//    header.lastUpdatedTimeLabel.textColor = [UIColor whiteColor];
+//    header.loadingView.activityIndicatorViewStyle = UIActivityIndicatorViewStyleWhite;
+    self.tableview.mj_header = header;
+    
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getNewDatas{
+    [self getData:YES];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSInteger tag = 0;
+    if ([self.filters containsObject:self.filterStr]) {
+        tag = [self.filters indexOfObject:self.filterStr];
+    }
+    NSDictionary *dict = @{@"currency_id":[NSString stringWithFormat:@"%ld",self.model.currencyid],@"page":[NSString stringWithFormat:@"%d",page],@"type":tag == 0?@"":[NSString stringWithFormat:@"%ld",(long)tag]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:CurrencyRecord param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<CurrencyRecordModel *> *applicationList = [CurrencyRecordModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview reloadData];
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)addTableviewHeader:(CurrencyModel *)model{
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 180)];
+    
+    AssetCoinListHeader *header = [[AssetCoinListHeader alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 180)];
+    header.model = model;
+    [view addSubview:_header = header];
+    
+    self.tableview.tableHeaderView = view;
+}
+
+-(void)getRate{
+    NSDictionary *dict = @{@"currency_id":[NSString stringWithFormat:@"%ld",self.model.currencyid]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:CurrencyExchangeRate param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                NSString *rate = AssectNumber(json[@"data"][@"exchange_rate"]);
+                if ([rate doubleValue] == 0) {
+                    [weakself showMsg:NSLocalizedString(@"汇率换算失败", nil) location:centre];
+                    return;
+                }
+                NSString *total = [GaoJingDu add:@[AssectNumber(self.model.pivot.number),AssectNumber(self.model.pivot.income_number)] jindu:@"2"];
+                weakself.header.yueUSDTLabel.text = [NSString stringWithFormat:@"≈%@ USDT",[GaoJingDu cheng:@[AssectNumber(total),rate] jindu:@"2"]];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }
+    }];
+}
+
+-(void)getCoinInfo{
+    WeakSelf(self);
+    [WebServices postFormReqUrl:CurrencyDetail param:@{@"id":[NSString stringWithFormat:@"%ld",self.model.currencyid]} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                CurrencyModel *model = [CurrencyModel mj_objectWithKeyValues:json[@"data"][@"currency"]];
+                [weakself addTableviewHeader:model];
+            }
+        }
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 50;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 50)];
+    view.backgroundColor = [UIColor whiteColor];
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(16, 15, ksrcwidth - 56, 20)];
+    label.text = NSLocalizedString(@"账户明细", nil);
+    label.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    label.font = [UIFont boldSystemFontOfSize:18];
+    [view addSubview:label];
+    
+    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+    button.frame = CGRectMake(ksrcwidth - 40, 10, 30, 30);
+    [button setImage:[UIImage imageNamed:@"icon_asset_filter"] forState:UIControlStateNormal];
+    [button addTarget:self action:@selector(filterClick) forControlEvents:UIControlEventTouchUpInside];
+    [view addSubview:button];
+    
+    return view;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (self.datas.count == 0) {
+        return 1;
+    }
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+     if (self.datas.count == 0) {
+         return ksrcheight - navBarHeight - 230;
+       }
+       return 71;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.datas.count == 0) {
+        DNSShopNoDataCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSShopNoDataCell"];
+        cell.nameLabel.text = NSLocalizedString(@"当前暂无币币账户明细", nil);
+        return cell;
+    }
+    MyAssetTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyAssetTableViewCell"];
+    cell.recordModel = self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (indexPath.row >= self.datas.count) return;
+    
+    CurrencyRecordModel *model = self.datas[indexPath.row];
+    if (model.type == 1) return;
+    if (model.status != 1) return;
+    
+    PersonTradeResultVC *result = [[PersonTradeResultVC alloc] init];
+    result.assetId = [NSString stringWithFormat:@"%ld",model.record_id];
+    result.type = 1;
+    [self.navigationController pushViewController:result animated:YES];
+}
+
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    CGFloat scrollY = scrollView.contentOffset.y;    
+    if(scrollY<-100){
+        [scrollView setContentOffset:CGPointMake(0, -100)];
+    }
+}
+
+-(void)filterClick{
+    AssetConditionVC *condition = [[AssetConditionVC alloc] init];
+    condition.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    condition.filterStr = self.filterStr;
+    condition.filterArray = self.filters;
+    condition.subject = [RACSubject subject];
+    WeakSelf(self);
+    [condition.subject subscribeNext:^(NSString *filter) {
+        weakself.filterStr = filter;
+        [weakself.tableview setContentOffset:CGPointMake(0, 0) animated:YES];
+        [weakself getNewDatas];
+    }];
+    [self presentViewController:condition animated:NO completion:^{
+        
+    }];
+}
+
+- (IBAction)pullClick:(id)sender {
+    [self judgeUserInfo];
+    PersonUSDTPullVC *usdtPull = [[PersonUSDTPullVC alloc] init];
+    usdtPull.type = 1;
+    usdtPull.currencyId = self.model.currencyid;
+    usdtPull.currencyName = self.model.name;
+    [self.navigationController pushViewController:usdtPull animated:YES];
+}
+
+- (IBAction)chargeClick:(id)sender {
+    PersonUSDTChargeVC *usdtCharge = [[PersonUSDTChargeVC alloc] init];
+    usdtCharge.type = 1;
+    usdtCharge.currencyId = self.model.currencyid;
+    usdtCharge.currencyName = self.model.name;
+    [self.navigationController pushViewController:usdtCharge animated:YES];
+}
+
+//提币判断
+-(void)judgeUserInfo{
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSString *payPsw = AssectString(userdict[JYPayPassword]);
+    NSString *authen = AssectString(userdict[JYAuthentication]);
+    if ([payPsw isEqualToString:@"0"] || ![authen isEqualToString:@"1"]) {
+        AdvanceAuthenVC *advance = [[AdvanceAuthenVC alloc] init];
+        advance.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        WeakSelf(self);
+        advance.pswSubject = [RACSubject subject];
+        [advance.pswSubject subscribeNext:^(id x) {
+            SetTradePasswordVC *setPsw = [[SetTradePasswordVC alloc] init];
+            [weakself.navigationController pushViewController:setPsw animated:YES];
+        }];
+        advance.authenSubject = [RACSubject subject];
+        [advance.authenSubject subscribeNext:^(NSString *authen) {
+            //0未，1是，2审核中，3失败
+            if ([authen isEqualToString:@"0"] || [authen isEqualToString:@"3"]) {
+                AuthenVC *authen = [[AuthenVC alloc] init];
+                [weakself.navigationController pushViewController:authen animated:YES];
+            }else{
+                [weakself showMsg:NSLocalizedString(@"正在审核中", nil) location:centre];
+            }
+        }];
+        [self presentViewController:advance animated:NO completion:^{
+            
+        }];
+        return;
+    }
+}
+
+#pragma -mark getter
+-(NSMutableArray *)filters{
+    if (!_filters) {
+        _filters = [NSMutableArray arrayWithObjects:NSLocalizedString(@"全部", nil),NSLocalizedString(@"平台支出", nil),NSLocalizedString(@"提币", nil),NSLocalizedString(@"充币", nil), nil];
+    }
+    return _filters;
+}
+
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

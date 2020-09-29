@@ -1,0 +1,22 @@
+//
+//  ShopCarClearCollectionViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "ShopCarModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopCarClearCollectionViewCell : UICollectionViewCell
+
+@property(nonatomic,strong)ShopCarModel *model;
+@property (weak, nonatomic) IBOutlet UIButton *selectBtn;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,28 @@
+//
+//  EvidenceBindVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/4/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "MyEvidenceModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface EvidenceBindVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) MyEvidenceModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *numberLabel;
+@property (weak, nonatomic) IBOutlet UILabel *tagLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (strong, nonatomic) RACSubject *subject;
+
+@end
+
+NS_ASSUME_NONNULL_END

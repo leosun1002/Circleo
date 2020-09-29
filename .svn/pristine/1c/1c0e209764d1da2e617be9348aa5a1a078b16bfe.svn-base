@@ -1,0 +1,69 @@
+//
+//  DNBrowserDetailPayVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/12/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNBrowserDetailPayVC.h"
+
+@interface DNBrowserDetailPayVC ()
+
+@end
+
+@implementation DNBrowserDetailPayVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self preapreUi];
+}
+
+-(void)preapreUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        weakself.botConst.constant = 0;
+        [UIView animateWithDuration:0.25 animations:^{
+            [weakself.view layoutIfNeeded];
+            weakself.bgview.alpha = 0.3;
+        }];
+    });
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself closeClick:nil];
+    }];
+    [self.bgview addGestureRecognizer:tap];
+    
+    self.awardText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.awardText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor colorWithRGBHex:@"#AAAAB5"],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    [[self.awardText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        weakself.awardText.text = [weakself.awardText PreciseFigures:2];
+    }];
+    
+    self.awardBtn.backgroundColor = [UIColor colorWithRGBHex:@"#FF5773"];
+}
+
+- (IBAction)closeClick:(id)sender {
+    self.botConst.constant = -201.5;
+    [UIView animateWithDuration:0.25 animations:^{
+        [self.view layoutIfNeeded];
+        self.bgview.alpha = 0.01;
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            
+        }];
+    }];
+}
+
+- (IBAction)awardClick:(id)sender {
+    NSString *award = [self removeSpaceAndNewline:self.awardText.text];
+    if ([award isEqualToString:@""] || [award doubleValue] < 0.1) {
+        [self showMsg:NSLocalizedString(@"最低赞赏0.1CNY", nil) location:centre];
+        return;
+    }
+    [self.subject sendNext:award];
+    [self closeClick:nil];
+}
+
+@end

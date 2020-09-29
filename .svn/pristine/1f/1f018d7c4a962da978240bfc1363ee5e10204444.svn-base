@@ -1,0 +1,23 @@
+//
+//  AssetCoinListVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "CurrencyModel.h"
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AssetCoinListVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (strong, nonatomic) CurrencyModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+
+-(void)refreshFromOtherPage;
+@end
+
+NS_ASSUME_NONNULL_END

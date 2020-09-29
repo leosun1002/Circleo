@@ -1,0 +1,64 @@
+//
+//  PersonTradeDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PersonTradeDetailVC.h"
+#import "WithdrawOrderModel.h"
+
+@interface PersonTradeDetailVC ()
+
+@end
+
+@implementation PersonTradeDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"交易详情", nil) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    [self getData];
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [super viewWillDisappear:animated];
+    [self dismissLoading];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    [WebServices postFormReqUrl:ConsumeRecordShow param:@{@"id":AssectString(self.assetId)} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                WithdrawOrderModel *modules = [WithdrawOrderModel mj_objectWithKeyValues:json[@"data"][@"consume_record"]];
+                [weakself setData:modules];
+            }else{
+                [weakself showErrorView:weakself.view withBlock:^{
+                    [weakself getData];
+                }];
+            }
+        }else{
+            [weakself showErrorView:weakself.view withBlock:^{
+                [weakself getData];
+            }];
+        }
+    }];
+}
+
+-(void)setData:(WithdrawOrderModel *)model{
+    self.nameLabel.text = AssectString(model.b_name);
+    self.cardNumLabel.text = AssectString(model.card_number);
+    self.bankLabel.text = AssectString(model.bank_name);
+    self.moneyLabel.text = [NSString stringWithFormat:@"%@CNY",AssectNumber(model.withdrawal_money)];
+    self.statusLabel.text = NSLocalizedString(@"提现成功", nil);
+    self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    self.timeLabel.text = model.create_time;
+    self.sxfLabel.text = AssectNumber(model.service_charge);
+    self.dzLabel.text = AssectNumber(model.amount_money);
+    self.textView.text = model.remark;
+}
+@end

@@ -1,0 +1,31 @@
+//
+//  DNSDetailBindCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSDetailBindCell.h"
+
+@implementation DNSDetailBindCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setBindModel:(DNSBindModel *)bindModel{
+    _bindModel = bindModel;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:bindModel.log_image] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+    self.nameLabel.text = bindModel.name;
+    self.addressLabel.text = bindModel.pivot.wallet_address;
+}
+
+@end

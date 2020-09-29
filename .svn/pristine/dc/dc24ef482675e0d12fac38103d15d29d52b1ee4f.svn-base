@@ -1,0 +1,45 @@
+//
+//  PersonUSDTChargeVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PersonUSDTChargeVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *gradientbgview;
+@property (weak, nonatomic) IBOutlet UIImageView *chargeImage;
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (weak, nonatomic) IBOutlet UIButton *chargeBtn;
+
+@property (weak, nonatomic) IBOutlet UILabel *selectTipLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *homeV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *coinV;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *nameTrail;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *botTipLabel;
+
+/// 0 USDT充币  1 币币账户充币
+@property(nonatomic,assign) long type;
+@property(nonatomic,assign) long currencyId;
+@property(nonatomic,strong) NSString *currencyName;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *botTipLabelConst;
+
+@property (weak, nonatomic) IBOutlet UIView *chainView;
+@property (weak, nonatomic) IBOutlet UIButton *omiBtn;
+@property (weak, nonatomic) IBOutlet UIButton *ercBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *chainHeightConst;
+/// 0.OMNI   1.ERC20
+@property (assign, nonatomic) long chainType;
+
+@property (weak, nonatomic) IBOutlet UILabel *domainLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

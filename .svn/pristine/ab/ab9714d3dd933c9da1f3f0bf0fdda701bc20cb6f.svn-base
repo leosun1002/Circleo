@@ -1,0 +1,23 @@
+//
+//  DNSPublishPersonVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSPublishPersonVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITextField *text;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (strong, nonatomic) NSString *selectStr;
+@property (strong, nonatomic) RACSubject *selectSubject;
+
+@end
+
+NS_ASSUME_NONNULL_END

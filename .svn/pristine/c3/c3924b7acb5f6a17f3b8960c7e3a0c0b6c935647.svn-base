@@ -1,0 +1,32 @@
+//
+//  MallDetialHeader.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/15.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "ShopDetailModel.h"
+#import "SDCycleScrollView.h"
+#import "JhPageControl.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MallDetailHeader : UIView<SDCycleScrollViewDelegate>
+@property (weak, nonatomic) IBOutlet UIButton *guigeBtn;
+@property (weak, nonatomic) IBOutlet UIButton *canshuBtn;
+@property (weak, nonatomic) IBOutlet UIButton *fuwuBtn;
+@property (weak, nonatomic) IBOutlet UIView *scrollBgview;
+@property (weak, nonatomic) IBOutlet UIView *pageBgview;
+@property (weak, nonatomic) IBOutlet UILabel *priceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *content;
+@property (weak, nonatomic) IBOutlet UILabel *speclabel;
+@property (weak, nonatomic) IBOutlet UILabel *serviceLabel;
+@property (nonatomic, weak) SDCycleScrollView *cycleScrollView;
+@property (nonatomic, strong) JhPageControl *pageControl;
+
+@property(nonatomic,strong)ShopDetailModel *detailModel;
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,31 @@
+//
+//  ShopDetailModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopDetailImageModel : NSObject
+
+@property(nonatomic,strong) NSString *image_address;
+
+@end
+
+@interface ShopDetailModel : NSObject
+
+@property(nonatomic,strong) NSString *service;
+@property(nonatomic,strong) NSString *content;
+@property(nonatomic,assign) long detailId;
+@property(nonatomic,strong) NSString *price;
+@property(nonatomic,strong) NSString *specification;
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,strong) NSArray<ShopDetailImageModel *> *good_images;
+
+@end
+
+NS_ASSUME_NONNULL_END

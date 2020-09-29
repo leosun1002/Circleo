@@ -1,0 +1,61 @@
+//
+//  MallCheckDoneVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallCheckDoneVC.h"
+
+@interface MallCheckDoneVC ()
+
+
+@property (weak, nonatomic) IBOutlet UIView *imgBgView;
+@property (weak, nonatomic) IBOutlet UIButton *contiBtn;
+
+@end
+
+@implementation MallCheckDoneVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.imgBgView.layer.shadowColor = [UIColor colorWithRGBHex:@"#2D3540"].CGColor;
+    self.imgBgView.layer.shadowOffset = CGSizeMake(3, 3);
+    self.imgBgView.layer.shadowRadius = 3.0f;
+    self.imgBgView.layer.shadowOpacity = 0.2f;
+    [self.imgBgView.layer setShadowPath:[[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, 160, 160)] CGPath]];
+    
+    self.contiBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.contiBtn.layer.borderWidth = 0.5f;
+    
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.big_image)]];
+}
+
+- (IBAction)closeClick:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+}
+
+- (IBAction)continueClick:(id)sender {
+    [self.subject sendNext:@""];
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+
+}
+
+- (IBAction)goClick:(id)sender {
+    [self.subject sendNext:@""];
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+
+}
+
+@end

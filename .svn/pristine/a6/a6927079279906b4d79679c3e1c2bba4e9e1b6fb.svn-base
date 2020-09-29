@@ -1,0 +1,110 @@
+//
+//  ShopAssetsDetailViewController.m
+//  Cloud Pro
+//
+//  Created by leosun on 2020/7/8.
+//  Copyright © 2020 yunzhuan. All rights reserved.
+//
+
+#import "ShopAssetsDetailVC.h"
+#import "ShopAssetDetailTableViewCell.h"
+
+@interface ShopAssetsDetailVC ()<UITableViewDataSource,UITableViewDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+
+@end
+
+@implementation ShopAssetsDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self setData];
+    [self addRefresh];
+}
+
+-(void)prepareUi{
+    self.topHeightConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopAssetDetailTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopAssetDetailTableViewCell"];
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#F2F6FA"];
+}
+
+-(void)addRefresh{
+}
+
+-(void)setData{
+//    self.totalLabel.text = self.shopModel.total_price;
+//    self.singleLabel.text = self.shopModel.price;
+//    self.countLabel.text = self.shopModel.number;
+//    self.addressLabel.text = [Manager takeoutTokenkey:ShopWalletAddress];
+//    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.shopModel.small_image)]];
+//    self.nameLabel.text = self.shopModel.name;
+//    self.descLabel.text = self.shopModel.specification;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)copyClick:(id)sender {
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string =self.addressLabel.text;
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)expandClick:(UIButton *)sender {
+    if (!sender.selected) {
+        self.midViewHeight.constant = 0;
+        self.botViewHeight.constant = 44;
+        self.midView.hidden = YES;
+    }else{
+        self.midView.hidden = NO;
+        self.midViewHeight.constant = 80;
+        self.botViewHeight.constant = 30;
+    }
+    sender.selected = !sender.selected;
+    [self.view layoutIfNeeded];
+}
+
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 60;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *view = [[UIView alloc] init];
+    view.backgroundColor = [UIColor colorWithRGBHex:@"#F2F6FA"];
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(16, 20, ksrcwidth - 16, 22.5)];
+    label.text = @"资产记录";
+    label.textColor = [UIColor colorWithRGBHex:@"#323236"];
+    label.font = [UIFont systemFontOfSize:16 weight:(UIFontWeightSemibold)];
+    [view addSubview:label];
+    
+    return view;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopAssetDetailTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopAssetDetailTableViewCell"];
+    return cell;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+@end

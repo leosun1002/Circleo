@@ -1,0 +1,27 @@
+//
+//  DNSUnBindCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSUnBindCell.h"
+
+@implementation DNSUnBindCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.bindBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#5151F0"].CGColor;
+    self.bindBtn.layer.borderWidth = 1.f;
+    self.bindBtn.layer.contentsScale = [[UIScreen mainScreen] scale];
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+@end

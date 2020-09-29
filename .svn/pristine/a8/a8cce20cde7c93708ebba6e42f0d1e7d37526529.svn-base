@@ -1,0 +1,110 @@
+//
+//  DNSShopTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSShopTableViewCell.h"
+#import "OYCountDownManager.h"
+
+@implementation DNSShopTableViewCell
+
+-(void)dealloc{
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
+}
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(countDownNotification) name:OYCountDownNotification object:nil];
+    self.widthConst.constant = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?40:40;
+    self.buyView.layer.cornerRadius = 15.5f;
+    self.buyView.layer.masksToBounds = YES;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)addGradientLayer:(UIView *)bgview{
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, 68, 30);
+    gradient.startPoint = CGPointMake(0, 0);
+    gradient.endPoint = CGPointMake(1, 0);
+    gradient.colors = [NSArray arrayWithObjects:
+                       (id)[UIColor colorWithRGBHex:@"#6647FF"].CGColor,
+                       (id)[UIColor colorWithRGBHex:@"#7CB0FF"].CGColor,nil];
+    [bgview.layer addSublayer:gradient];
+}
+
+-(void)setType:(long)type{
+    _type = type;
+    if (type == 0) {
+        [self addGradientLayer:self.buyView];
+        self.buyLabel.text = NSLocalizedString(@"购买", nil);
+    }else{
+        self.buyView.backgroundColor = [UIColor colorWithRGBHex:@"#F5F5FE"];
+        self.buyView.layer.borderColor = [UIColor colorWithRGBHex:@"#5151F0"].CGColor;
+        self.buyView.layer.borderWidth = 1.f;
+        self.buyLabel.textColor = [UIColor colorWithRGBHex:@"#5151F0"];
+        self.buyLabel.text = NSLocalizedString(@"售出", nil);
+    }
+    [self.buyBgview bringSubviewToFront:self.buyLabel];
+}
+
+-(void)setModel:(DNSShopModel *)model{
+    _model = model;
+    self.nameLabel.text = model.domain_name;
+    self.ykLabel.hidden = model.type != 1;
+    self.priceLabel.text = model.price;
+    NSString *placeStr = self.type == 0?NSLocalizedString(@"界一域名，自用投资两不误！", nil):NSLocalizedString(@"高价求购，诚信可靠", nil);
+    self.contentLabel.text = [AssectString(model.content) isEqualToString:@""]?placeStr:AssectString(model.content);
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:self.type == 0?AssectString(model.sale_user_avatar):AssectString(model.buy_user_avatar)] placeholderImage:[UIImage imageNamed:@"pic_head"] options:SDWebImageAllowInvalidSSLCertificates];
+    [self countDownNotification];
+}
+
+-(void)countDownNotification{
+    // 1.将时间转换为date
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    formatter.dateFormat = @"YYYY-MM-dd HH:mm:ss";
+    NSDate *publishDate = [self localeDate:[formatter dateFromString:AssectString(self.model.sale_time)]];
+    NSDate *expireDate = [publishDate dateByAddingTimeInterval:self.model.sale_day*60*60*24];
+    NSDate* nowDate = [self localeDate:[NSDate date]];
+    
+    //1比较大小
+    if ([[expireDate earlierDate:nowDate] isEqualToDate:expireDate]) {
+        self.lastTimeLabel.text = NSLocalizedString(@"该域名已经过期", nil);
+        return;
+    }
+    
+    // 2.创建日历
+    NSCalendar *calendar = [NSCalendar currentCalendar];
+    NSCalendarUnit type = NSCalendarUnitYear | NSCalendarUnitMonth | NSCalendarUnitDay | NSCalendarUnitHour | NSCalendarUnitMinute | NSCalendarUnitSecond;
+    // 3.利用日历对象比较两个时间的差值
+    NSDateComponents *cmps = [calendar components:type fromDate:nowDate toDate:expireDate options:0];
+    NSInteger day = cmps.day;
+    NSString *hour = cmps.hour < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.hour]:[NSString stringWithFormat:@"%ld",(long)cmps.hour];
+    NSString *minute = cmps.minute < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.minute]:[NSString stringWithFormat:@"%ld",(long)cmps.minute];
+    NSString *second = cmps.second < 10?[NSString stringWithFormat:@"0%ld",(long)cmps.second]:[NSString stringWithFormat:@"%ld",(long)cmps.second];
+
+    // 4.输出结果
+    if (cmps.day > 0) {
+        self.lastTimeLabel.text = [NSString stringWithFormat:@"%ldd %@:%@:%@",(long)day,hour,minute,second];
+    }else{
+        self.lastTimeLabel.text = [NSString stringWithFormat:@"%@:%@:%@",hour,minute,second];
+    }
+}
+
+//获取正确的时间
+- (NSDate*)localeDate:(NSDate*)date {
+    NSTimeZone *zone = [NSTimeZone systemTimeZone];
+    NSInteger interval = [zone secondsFromGMTForDate: date];
+    NSDate *localeDate = [date dateByAddingTimeInterval: interval];
+    return localeDate;
+}
+
+@end

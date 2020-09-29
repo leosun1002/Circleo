@@ -1,0 +1,27 @@
+//
+//  ShopAddAddressVC.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "ShopAddressModel.h"
+
+typedef enum : NSUInteger {
+    ShopAddAddress,
+    ShopEditAddress,
+    ShopCheckAddress,
+} ShopAddressStattus;
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopAddAddressVC : BaseViewController
+
+@property(nonatomic,assign)ShopAddressStattus status;
+@property(nonatomic,assign)ShopAddressModel *model;
+
+@end
+
+NS_ASSUME_NONNULL_END

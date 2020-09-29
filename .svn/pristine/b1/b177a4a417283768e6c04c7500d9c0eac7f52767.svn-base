@@ -1,0 +1,104 @@
+//
+//  WechatShareVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/12/16.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "WechatShareVC.h"
+
+@interface WechatShareVC ()
+
+@end
+
+@implementation WechatShareVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor clearColor];
+    
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.01 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        weakself.bgview.alpha = 0.01;
+        weakself.bottomConst.constant = 0;
+        [UIView animateWithDuration:0.25 animations:^{
+            weakself.bgview.alpha = 0.4;
+            [weakself.view layoutIfNeeded];
+        }];
+    });
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself cancelClick:@""];
+    }];
+    [self.bgview addGestureRecognizer:tap];
+    
+    if (self.type == 0) {
+        self.saveImage.image = [UIImage imageNamed:@"icon_share_link"];
+        self.saveLabel.text = NSLocalizedString(@"复制链接", nil);
+    }else{
+        self.saveImage.image = [UIImage imageNamed:@"icon_share_save"];
+        self.saveLabel.text = NSLocalizedString(@"保存图片", nil);
+    }
+}
+
+- (IBAction)cancelClick:(id)sender {
+    self.bottomConst.constant = -210;
+    [UIView animateWithDuration:0.25 animations:^{
+        self.bgview.alpha = 0.01;
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            
+        }];
+    }];
+}
+
+- (IBAction)weClick:(UIButton *)sender {
+    NSInteger tag = sender.tag;
+    self.bottomConst.constant = -210;
+    WeakSelf(self);
+    [UIView animateWithDuration:0.25 animations:^{
+        self.bgview.alpha = 0.01;
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            [weakself.shareSubject sendNext:[NSString stringWithFormat:@"%ld",(long)tag]];
+        }];
+    }];
+}
+
+- (IBAction)pyqClick:(UIButton *)sender {
+    NSInteger tag = sender.tag;
+    self.bottomConst.constant = -210;
+    WeakSelf(self);
+    [UIView animateWithDuration:0.25 animations:^{
+        self.bgview.alpha = 0.01;
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            [weakself.shareSubject sendNext:[NSString stringWithFormat:@"%ld",(long)tag]];
+        }];
+    }];
+}
+
+- (IBAction)saveClick:(UIButton *)sender {
+    NSInteger tag = sender.tag;
+    self.bottomConst.constant = -210;
+    WeakSelf(self);
+    [UIView animateWithDuration:0.25 animations:^{
+        self.bgview.alpha = 0.01;
+        [self.view layoutIfNeeded];
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:^{
+            [weakself.shareSubject sendNext:[NSString stringWithFormat:@"%ld",(long)tag]];
+        }];
+    }];
+}
+
+@end

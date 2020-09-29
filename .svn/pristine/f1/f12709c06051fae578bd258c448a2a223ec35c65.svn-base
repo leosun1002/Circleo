@@ -1,0 +1,27 @@
+//
+//  InviteFriendVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface InviteFriendVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomConst;
+@property (weak, nonatomic) IBOutlet UIImageView *topBackImage;
+@property (weak, nonatomic) IBOutlet UILabel *directLabel;
+@property (weak, nonatomic) IBOutlet UILabel *indirectLabel;
+
+@property (weak, nonatomic) IBOutlet UIScrollView *backScroll;
+@property (weak, nonatomic) IBOutlet UILabel *yqLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

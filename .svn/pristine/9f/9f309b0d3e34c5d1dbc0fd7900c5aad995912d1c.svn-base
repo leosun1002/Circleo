@@ -1,0 +1,213 @@
+//
+//  AddressManageVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AddressManageVC.h"
+#import "AddressManageTableViewCell.h"
+#import "AddressModel.h"
+#import "AddressAddVC.h"
+#import "SetTradePasswordVC.h"
+
+@interface AddressManageVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>
+
+@property(nonatomic,assign)long editType;//0正常状态  1编辑状态
+@property(nonatomic,weak)UIButton *rightBtn;
+@property(nonatomic,strong)NSMutableArray *datas;
+
+@end
+
+@implementation AddressManageVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"地址管理", nil) hiddeBack:NO];
+    self.editType = 0;
+    [self addRefresh];
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+    if (IS_IPHONEX) {
+        self.heiConst.constant += 10;
+    }
+    [self.tableview registerNib:[UINib nibWithNibName:@"AddressManageTableViewCell" bundle:nil] forCellReuseIdentifier:@"AddressManageTableViewCell"];
+    [self refreshData];
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 65,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    [rightBtn setTitle:NSLocalizedString(@"删除", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#18181A"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        weakself.editType = weakself.editType == 0?1:0;
+        [weakself.rightBtn setTitle:weakself.editType == 0?NSLocalizedString(@"删除", nil):NSLocalizedString(@"完成", nil) forState:UIControlStateNormal];
+        [weakself.tableview reloadData];
+    }];
+    [view addSubview:_rightBtn = rightBtn];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData];
+    }];
+}
+
+-(void)refreshData{
+    self.editType = 0;
+    [self.rightBtn setTitle:self.editType == 0?NSLocalizedString(@"删除", nil):NSLocalizedString(@"完成", nil) forState:UIControlStateNormal];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:WalletAddressIndex param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+//                NSMutableArray<AddressModel *> *applicationList = [AddressModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"user_wallet_address"]];
+//                [weakself.datas addObjectsFromArray:applicationList];
+                [json[@"data"][@"user_wallet_address"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    AddressModel *modules = [AddressModel mj_objectWithKeyValues:obj];
+                    if ([AssectString(weakself.currencyName) isEqualToString:@""]) {
+                        [weakself.datas addObject:modules];
+                    }else{
+                        if ([AssectString(weakself.currencyName) isEqualToString:AssectString(modules.currency.name)]) {
+                            [weakself.datas addObject:modules];
+                        }
+                    }
+                }];
+                weakself.rightBtn.hidden = weakself.datas.count <= 0;
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+    }];
+}
+
+- (IBAction)addCardClick:(id)sender {
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSString *payPsw = AssectString(userdict[JYPayPassword]);
+    if ([payPsw isEqualToString:@"0"]) {
+        UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:NSLocalizedString(@"设置资产密码", nil) message:NSLocalizedString(@"是否设置资产密码", nil) preferredStyle:UIAlertControllerStyleAlert];
+        
+        WeakSelf(self);
+        UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"确认", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            SetTradePasswordVC *setPsw = [[SetTradePasswordVC alloc] init];
+            setPsw.hasgoback = 0;
+            [weakself.navigationController pushViewController:setPsw animated:YES];
+        }];
+        
+        UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+        }];
+        [sheetVC addAction:sheetBtn1];
+        [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+        [sheetVC addAction:sheetBtn];
+        [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+        [self presentViewController:sheetVC animated:YES completion:nil];
+        
+        return;
+    }
+    
+    AddressAddVC *address = [[AddressAddVC alloc] init];
+    address.subject = [RACSubject subject];
+    WeakSelf(self);
+    [address.subject subscribeNext:^(id x) {
+        [weakself refreshData];
+    }];
+    [self.navigationController pushViewController:address animated:YES];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前没有地址", nil);
+    view.tipLabel.hidden = NO;
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 10;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *view = [UIView new];
+    view.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+    return view;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return UITableViewAutomaticDimension;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    AddressManageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"AddressManageTableViewCell"];
+    cell.editType = self.editType;
+    cell.model = self.datas[indexPath.section];
+    cell.delBtn.tag = indexPath.section;
+    [cell.delBtn addTarget:self action:@selector(delClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    AddressModel *model = self.datas[indexPath.section];
+    if (self.subject) {
+        [self.subject sendNext:AssectString(model.address)];
+        [self.navigationController popViewControllerAnimated:YES];
+    }
+}
+
+-(void)delClick:(UIButton *)sender{
+    AddressModel *model = self.datas[sender.tag];
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:WalletAddressDestory param:@{@"id":[NSString stringWithFormat:@"%ld",model.addressid]} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself refreshData];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

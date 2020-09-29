@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController storyboardIdentifier="LaunchClass" id="01J-lp-oVM" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="bLn-AJ-pFt"/>
+                        <viewControllerLayoutGuide type="bottom" id="szu-mc-sY9"/>
+                    </layoutGuides>
+                    <view key="view" clipsSubviews="YES" contentMode="scaleToFill" id="Ze5-6b-2t3">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fym-Tu-6E1">
+                                <rect key="frame" x="116.66666666666667" y="744" width="141.66666666666663" height="14"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="界一科技（武汉）有限公司" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tdS-TE-sUC">
+                                        <rect key="frame" x="0.0" y="0.0" width="110.66666666666667" height="14"/>
+                                        <fontDescription key="fontDescription" type="system" pointSize="9"/>
+                                        <color key="textColor" red="0.33333333329999998" green="0.33333333329999998" blue="0.36862745099999999" alpha="1" colorSpace="calibratedRGB"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon_launch" translatesAutoresizingMaskIntoConstraints="NO" id="8YX-Om-37s">
+                                        <rect key="frame" x="115.66666666666669" y="1" width="26" height="12"/>
+                                        <constraints>
+                                            <constraint firstAttribute="height" constant="12" id="UUt-D1-KdQ"/>
+                                            <constraint firstAttribute="width" constant="26" id="sum-sz-sPd"/>
+                                        </constraints>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                <constraints>
+                                    <constraint firstItem="tdS-TE-sUC" firstAttribute="top" secondItem="Fym-Tu-6E1" secondAttribute="top" id="4Dg-5r-wgy"/>
+                                    <constraint firstItem="8YX-Om-37s" firstAttribute="centerY" secondItem="Fym-Tu-6E1" secondAttribute="centerY" id="FkG-aZ-Ay4"/>
+                                    <constraint firstItem="8YX-Om-37s" firstAttribute="leading" secondItem="tdS-TE-sUC" secondAttribute="trailing" constant="5" id="GAb-Fl-QqJ"/>
+                                    <constraint firstAttribute="trailing" secondItem="8YX-Om-37s" secondAttribute="trailing" id="Jzr-EC-MQF"/>
+                                    <constraint firstAttribute="height" constant="14" id="L8u-LQ-G33"/>
+                                    <constraint firstItem="tdS-TE-sUC" firstAttribute="leading" secondItem="Fym-Tu-6E1" secondAttribute="leading" id="tlr-Hy-JxR"/>
+                                    <constraint firstAttribute="bottom" secondItem="tdS-TE-sUC" secondAttribute="bottom" id="xRh-fg-bFF"/>
+                                </constraints>
+                            </view>
+                            <view clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="afa-5A-DoQ">
+                                <rect key="frame" x="119.66666666666669" y="392.66666666666669" width="136" height="26.666666666666686"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="opening_jydns_icon" translatesAutoresizingMaskIntoConstraints="NO" id="XFb-0C-UJu">
+                                        <rect key="frame" x="0.0" y="0.0" width="136" height="26.666666666666668"/>
+                                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </imageView>
+                                </subviews>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstItem="XFb-0C-UJu" firstAttribute="leading" secondItem="afa-5A-DoQ" secondAttribute="leading" id="24P-cq-NSV"/>
+                                    <constraint firstAttribute="height" constant="26.5" id="Ghm-Ct-dkS"/>
+                                    <constraint firstItem="XFb-0C-UJu" firstAttribute="top" secondItem="afa-5A-DoQ" secondAttribute="top" id="TG4-Ub-yVQ"/>
+                                    <constraint firstAttribute="trailing" secondItem="XFb-0C-UJu" secondAttribute="trailing" id="Y19-bb-vvl"/>
+                                    <constraint firstAttribute="bottom" secondItem="XFb-0C-UJu" secondAttribute="bottom" id="bU9-D0-LsG"/>
+                                    <constraint firstAttribute="width" constant="136" id="dBk-as-rLb"/>
+                                </constraints>
+                            </view>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="szu-mc-sY9" firstAttribute="top" secondItem="Fym-Tu-6E1" secondAttribute="bottom" constant="20" id="BpO-bT-jWE"/>
+                            <constraint firstItem="afa-5A-DoQ" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="FCj-xu-jw5"/>
+                            <constraint firstItem="Fym-Tu-6E1" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="ZoX-gJ-a3g"/>
+                            <constraint firstItem="afa-5A-DoQ" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="nDi-iu-cMG"/>
+                        </constraints>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="iYj-Kq-Ea1" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="52" y="374.6305418719212"/>
+        </scene>
+    </scenes>
+    <resources>
+        <image name="icon_launch" width="25.666666030883789" height="12"/>
+        <image name="opening_jydns_icon" width="136" height="25.666666030883789"/>
+    </resources>
+</document>

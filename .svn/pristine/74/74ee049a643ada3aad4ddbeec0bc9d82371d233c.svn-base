@@ -1,0 +1,30 @@
+//
+//  DNBrowserDetailServiceVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/12/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "DNSMyBrowserModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNBrowserDetailServiceVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *topView;
+@property (weak, nonatomic) IBOutlet UILabel *topTipLabel;
+@property (weak, nonatomic) IBOutlet UIView *daysView;
+@property (weak, nonatomic) IBOutlet UILabel *daysLabel;
+
+@property (weak, nonatomic) IBOutlet UIView *freeView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *freeHeightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *daysTrail;
+@property (weak, nonatomic) IBOutlet UIImageView *daysImage;
+
+@property(nonatomic,assign) DNSMyBrowserModel *model;
+
+@end
+
+NS_ASSUME_NONNULL_END

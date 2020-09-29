@@ -1,0 +1,21 @@
+//
+//  BankCardListVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BankCardListVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (strong, nonatomic) RACSubject *subject;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *botHeightConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

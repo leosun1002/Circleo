@@ -1,0 +1,185 @@
+//
+//  MallSafeCenterVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MallSafeCenterVC.h"
+#import "MallSetPasswordVC.h"
+#import "MallSetNickNameVC.h"
+#import "MallCheckPasswordVC.h"
+#import "MallOutputPswVC.h"
+#import "TZImagePickerController.h"
+#import "MallPasswordTipVC.h"
+#import "MallChangePasswordVC.h"
+
+@interface MallSafeCenterVC ()<TZImagePickerControllerDelegate>
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIButton *importBtn;
+
+@property (weak, nonatomic) IBOutlet UILabel *nickName;
+@property (weak, nonatomic) IBOutlet UIImageView *imgV;
+@property (weak, nonatomic) IBOutlet UILabel *nickLabel;
+@property (weak, nonatomic) IBOutlet UILabel *safeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *authenLabel;
+
+@property (strong, nonatomic) NSString *trade_psw;
+@end
+
+@implementation MallSafeCenterVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getUserInfo];
+    [self setData];
+}
+
+-(void)prepareUi{
+    if (IS_IPHONEX) {
+        self.topConst.constant += 24;
+        self.heightConst.constant += 24;
+    }
+    self.importBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#DFE2E6"].CGColor;
+    self.importBtn.layer.borderWidth = 1.0f;
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself uploadImage];
+    }];
+    [self.imgV addGestureRecognizer:tap];
+}
+
+-(void)setData{
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSString *avatar = [Manager takeoutTokenkey:JYUserImage];
+    self.nickName.text = [AssectString(dict[JYNickName]) isEqualToString:@""]?@"设置昵称":AssectString(dict[JYNickName]);
+    self.nickLabel.text = [AssectString(dict[JYNickName]) isEqualToString:@""]?@"设置昵称":AssectString(dict[JYNickName]);
+    [self.imgV sd_setImageWithURL:[NSURL URLWithString:AssectString(avatar)] placeholderImage:[UIColor createColorImg:@"#DDDDDE"]];
+    
+    self.trade_psw = [Manager takeoutTokenkey:JYTradePassword];
+    if ([AssectString(self.trade_psw) isEqualToString:@""]) {
+        self.safeLabel.text = @"未设置";
+    }else{
+        self.safeLabel.text = @"去修改";
+    }
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)nickClick:(id)sender {
+    MallSetNickNameVC *nickVC = [[MallSetNickNameVC alloc] init];
+    [self.navigationController pushViewController:nickVC animated:YES];
+}
+
+- (IBAction)importClick:(id)sender {
+    self.trade_psw = [Manager takeoutTokenkey:JYTradePassword];
+    if ([AssectString(self.trade_psw) isEqualToString:@""]) {
+        MallPasswordTipVC *pswTipVC = [[MallPasswordTipVC alloc] init];
+        pswTipVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        pswTipVC.subject = [RACSubject subject];
+        WeakSelf(self);
+        [pswTipVC.subject subscribeNext:^(id x) {
+            MallSetPasswordVC *psw = [[MallSetPasswordVC alloc] init];
+            [weakself.navigationController pushViewController:psw animated:YES];
+        }];
+        [self presentViewController:pswTipVC animated:NO completion:^{
+            
+        }];
+        return;
+    }
+    MallCheckPasswordVC *check = [[MallCheckPasswordVC alloc] init];
+    check.putType = MallOutPut;
+    [self.navigationController pushViewController:check animated:YES];
+}
+
+- (IBAction)pswClick:(id)sender {
+     if ([AssectString(self.trade_psw) isEqualToString:@""]) {
+         MallSetPasswordVC *psw = [[MallSetPasswordVC alloc] init];
+         [self.navigationController pushViewController:psw animated:YES];
+     }else{
+         MallChangePasswordVC *psw = [[MallChangePasswordVC alloc] init];
+         [self.navigationController pushViewController:psw animated:YES];
+     }
+}
+
+- (IBAction)outportClick:(id)sender {
+    self.trade_psw = [Manager takeoutTokenkey:JYTradePassword];
+    if ([AssectString(self.trade_psw) isEqualToString:@""]) {
+        MallPasswordTipVC *pswTipVC = [[MallPasswordTipVC alloc] init];
+        pswTipVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        pswTipVC.subject = [RACSubject subject];
+        WeakSelf(self);
+        [pswTipVC.subject subscribeNext:^(id x) {
+            MallSetPasswordVC *psw = [[MallSetPasswordVC alloc] init];
+            [weakself.navigationController pushViewController:psw animated:YES];
+        }];
+        [self presentViewController:pswTipVC animated:NO completion:^{
+            
+        }];
+        return;
+    }
+    MallCheckPasswordVC *check = [[MallCheckPasswordVC alloc] init];
+    check.putType = MallInPut;
+    [self.navigationController pushViewController:check animated:YES];
+}
+
+- (IBAction)authenClick:(id)sender {
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInfo param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+                [weakself setData];
+            }
+        }
+    }];
+}
+
+-(void)uploadImage{
+    TZImagePickerController *imagePC=[[TZImagePickerController alloc]initWithMaxImagesCount:1 delegate:self];//设置多选最多支持的最大数量，设置代理
+    WeakSelf(self);
+    imagePC.modalPresentationStyle = UIModalPresentationFullScreen;
+    imagePC.preferredLanguage = [GDLocalizableController userLanguage];
+    [imagePC setDidFinishPickingPhotosWithInfosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto, NSArray<NSDictionary *> *infos) {
+        UIImage *image = photos[0];
+        [weakself upLoadImage:image];
+    }];
+    [self presentViewController:imagePC animated:YES completion:nil];//跳转
+}
+
+#pragma -mark 上传图片
+-(void)upLoadImage:(UIImage *)image{
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postImageFormReqUrl:FeedUploadImage images:@[image] param:@{} loadingTime:30.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                NSArray *image_path = json[@"data"][@"image_path"];
+                if (image_path.count > 0) {
+                    [Manager saveToken:AssectString(image_path[0]) key:JYUserImage];
+                    [weakself.imgV sd_setImageWithURL:[NSURL URLWithString:AssectString(image_path[0])] placeholderImage:[UIColor createColorImg:@"#DDDDDE"]];
+                }
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+@end

@@ -1,0 +1,36 @@
+//
+//  ShopMyOrderModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/28.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopMyOrderInfoModel: NSObject
+
+@property(nonatomic,assign) long info_id;
+@property(nonatomic,copy) NSString *name;
+@property(nonatomic,copy) NSString *small_image;
+
+@end
+
+
+@interface ShopMyOrderModel : NSObject
+
+@property(nonatomic,assign) long number;
+/// 1待发货，2待收货，3已完成
+@property(nonatomic,assign) long status;
+@property(nonatomic,assign) long order_id;
+@property(nonatomic,copy) NSString *price;
+@property(nonatomic,copy) NSString *specification;
+@property(nonatomic,assign) long good_id;
+@property(nonatomic,copy) NSString *total_price;
+@property(nonatomic,strong) ShopMyOrderInfoModel *good_info;
+
+@end
+
+NS_ASSUME_NONNULL_END

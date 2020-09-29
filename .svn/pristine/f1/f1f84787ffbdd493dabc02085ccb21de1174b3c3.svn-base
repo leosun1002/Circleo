@@ -1,0 +1,190 @@
+//
+//  BrowserUnbindArticleVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/23.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BrowserUnbindArticleVC.h"
+#import "BrowserUnbindArticleTableViewCell.h"
+#import "DNSSellSelectVC.h"
+#import "ArticleHashModel.h"
+#import "DNBrowserDetailVC.h"
+
+@interface BrowserUnbindArticleVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong) NSString *domain_name_id;
+
+@property(nonatomic,strong) NSMutableArray *datas;
+@end
+
+@implementation BrowserUnbindArticleVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"解绑文章", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self addRefresh];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"BrowserUnbindArticleTableViewCell" bundle:nil] forCellReuseIdentifier:@"BrowserUnbindArticleTableViewCell"];
+    
+    if ([AssectString(self.domain_name_id) isEqualToString:@""]) {
+        self.domainLabel.text = NSLocalizedString(@"请选择", nil);
+        self.domainLabel.textColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    }
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        DNSSellSelectVC *sellSelect = [[DNSSellSelectVC alloc] init];
+        sellSelect.pageType = 1;
+        sellSelect.selectStr = [weakself.domainLabel.text isEqualToString:NSLocalizedString(@"请选择", nil)]?@"":AssectString(weakself.domainLabel.text);
+        sellSelect.nameSubject = [RACSubject subject];
+        [sellSelect.nameSubject subscribeNext:^(NSDictionary *dict) {
+            weakself.domain_name_id = AssectString(dict[@"manageid"]);
+            weakself.domainLabel.text = AssectString(dict[@"domain_name"]);
+            weakself.domainLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+            [weakself.tableview.mj_header beginRefreshing];
+        }];
+        [weakself.navigationController pushViewController:sellSelect animated:YES];
+    }];
+    [self.selectView addGestureRecognizer:tap];
+    [self.tableview cyl_reloadData];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"page":[NSString stringWithFormat:@"%ld",(long)page],@"domain_name_id":AssectString(self.domain_name_id)};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:BrowserDomainHash param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<ArticleHashModel *> *applicationList = [ArticleHashModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself calculateCount];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无文章Hash", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    BrowserUnbindArticleTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BrowserUnbindArticleTableViewCell"];
+    ArticleHashModel *model = self.datas[indexPath.row];
+    cell.nameLabel.text = model.hashContent;
+    cell.selectBtn.tag = indexPath.row;
+    cell.selectBtn.selected = model.hasClick;
+    [cell.selectBtn addTarget:self action:@selector(selectClick:) forControlEvents:UIControlEventTouchUpInside];
+    cell.checkBtn.tag = indexPath.row;
+    [cell.checkBtn addTarget:self action:@selector(checkArticleClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)checkArticleClick:(UIButton *)sender{
+    ArticleHashModel *model = self.datas[sender.tag];
+    DNBrowserDetailVC *detail = [[DNBrowserDetailVC alloc] init];
+    detail.articleid = [model.pivot[@"article_chain_id"] longValue];
+    detail.canEdit = 1;
+    [self.navigationController pushViewController:detail animated:YES];
+}
+
+-(void)selectClick:(UIButton *)sender{
+    ArticleHashModel *model = self.datas[sender.tag];
+    model.hasClick = model.hasClick == 1?0:1;
+    [self.datas replaceObjectAtIndex:sender.tag withObject:model];
+    NSIndexPath *indexPath=[NSIndexPath indexPathForRow:sender.tag inSection:0];
+    [self.tableview reloadRowsAtIndexPaths:[NSArray arrayWithObjects:indexPath,nil] withRowAnimation:UITableViewRowAnimationNone];
+    [self calculateCount];
+}
+
+-(void)calculateCount{
+    self.allLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count];
+    int selectCout = 0;
+    for (ArticleHashModel *model in self.datas) {
+        if (model.hasClick == 1) selectCout ++;
+    }
+    self.selectLabel.text = [NSString stringWithFormat:@"%d",selectCout];
+    self.allBtn.selected = self.datas.count != 0 && self.datas.count == selectCout;
+    self.checkBtn.enabled = selectCout != 0;
+    self.checkBtn.alpha = selectCout == 0?0.7:1;
+}
+
+- (IBAction)allClick:(id)sender {
+    if (self.datas.count == 0) return;
+    for (ArticleHashModel *model in self.datas) {
+        model.hasClick = self.allBtn.selected?0:1;
+    }
+    [self.tableview cyl_reloadData];
+    [self calculateCount];
+}
+
+- (IBAction)checkClick:(id)sender {
+    if (self.datas.count == 0) return;
+    NSString *hasStr = @"";
+    for (ArticleHashModel *model in self.datas) {
+        if (model.hasClick == 1) {
+            hasStr = [hasStr stringByAppendingFormat:@"%@", [NSString stringWithFormat:@"%@,",AssectString(model.hashContent)]];
+        }
+    }
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES];
+    NSDictionary *dict = @{@"hash":[hasStr containsString:@","]?[hasStr substringToIndex:hasStr.length - 1]:hasStr,@"domain_name_id":AssectString(self.domain_name_id)};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:BrowserDomainDeleteHash param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.tableview.mj_header beginRefreshing];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

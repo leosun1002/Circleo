@@ -1,0 +1,134 @@
+//
+//  ShopLoginVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/20.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopLoginVC.h"
+#import "NSString+MnemonicWord.h"
+#import "CallJsClass.h"
+#import "XLPaymentLoadingHUD.h"
+#import "XLPaymentSuccessHUD.h"
+
+@interface ShopLoginVC ()
+
+@property (weak, nonatomic) IBOutlet UIView *zjcView;
+@property (weak, nonatomic) IBOutlet UIView *syView;
+@property (weak, nonatomic) IBOutlet UIView *zhView;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@end
+
+@implementation ShopLoginVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self judgeIfLogin];
+}
+    
+-(void)startBackUpWallet{
+    [XLPaymentLoadingHUD showIn:self.zjcView];
+    NSString *word = [NSString generateMnemonicString:[NSNumber numberWithInt:128] language:@"english"];
+    //判断助记词是否成功
+    if ([AssectString(word) isEqualToString:@""]) {
+        [XLPaymentLoadingHUD hideIn:self.zjcView];
+        [XLPaymentSuccessHUD showIn:self.zjcView withStatus:(XLPaymentEnumFailure)];
+        return;
+    }
+    [XLPaymentLoadingHUD hideIn:self.zjcView];
+    [XLPaymentSuccessHUD showIn:self.zjcView withStatus:(XLPaymentEnumSuccess)];
+    //判断私钥成功没
+    [XLPaymentLoadingHUD showIn:self.syView];
+    NSString *createAddressStr = [NSString stringWithFormat:@"newAddress('%@')", word];
+    WeakSelf(self);
+    [[CallJsClass OCCallJs] getAddressExecuFun:createAddressStr backResultBlock:^(id data) {
+        NSDictionary* dict = [NSString dictionaryWithJsonString:data];
+        if(dict){
+            NSString* cAddress = AssectString(dict[@"address"]) ;
+            NSString* privateKey = AssectString(dict[@"pri"]);
+            NSString* publicKey = AssectString(dict[@"pub"]);
+    
+            [Manager saveToken:cAddress key:ShopWalletAddress];
+            [Manager saveToken:privateKey key:ShopWalletPrivite];
+            [Manager saveToken:publicKey key:ShopWalletPublic];
+            [XLPaymentLoadingHUD hideIn:weakself.syView];
+            [XLPaymentSuccessHUD showIn:weakself.syView withStatus:(XLPaymentEnumSuccess)];
+            //判断账户是否生成成功
+            [XLPaymentLoadingHUD showIn:weakself.zhView];
+            [weakself shopLogin];
+        }else{
+            [XLPaymentLoadingHUD hideIn:weakself.syView];
+            [XLPaymentSuccessHUD showIn:weakself.syView withStatus:(XLPaymentEnumFailure)];
+        }
+    } backFailBlock:^(id data) {
+        [XLPaymentLoadingHUD hideIn:weakself.syView];
+        [XLPaymentSuccessHUD showIn:weakself.syView withStatus:(XLPaymentEnumFailure)];
+    } currencyName:NULS currentViewFun:self.view];
+}
+
+-(void)shopLogin{
+    NSArray *datas = [NSArray arrayWithObjects:@{@"key_address":AssectString([Manager takeoutTokenkey:ShopWalletAddress])},@{@"key_password":AssectString([Manager takeoutTokenkey:ShopWalletPublic])}, nil];
+    NSDictionary *dict = [SignGenerated signedShopAfterDic:datas];
+    WeakSelf(self);
+    [WebServices postFormReqUrl:ShopLogin param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if (json != nil) {
+            if ([[NSString stringWithFormat:@"%@",json[@"code"]] isEqualToString:@"1"]) {
+                [XLPaymentLoadingHUD hideIn:weakself.zhView];
+                [XLPaymentSuccessHUD showIn:weakself.zhView withStatus:(XLPaymentEnumSuccess)];
+                weakself.checkBtn.alpha = 1;
+                weakself.checkBtn.enabled = YES;
+                [Manager saveToken:AssectString(json[@"data"][@"access_token"]) key:access_token];
+            }else{
+                [XLPaymentLoadingHUD hideIn:weakself.zhView];
+                [XLPaymentSuccessHUD showIn:weakself.zhView withStatus:(XLPaymentEnumFailure)];
+            }
+        }else{
+            [XLPaymentLoadingHUD hideIn:weakself.zhView];
+            [XLPaymentSuccessHUD showIn:weakself.zhView withStatus:(XLPaymentEnumFailure)];
+        }
+    }];
+}
+
+-(void)judgeIfLogin{
+    NSString *accessToken = [Manager takeoutTokenkey:access_token];
+    if (!accessToken || [accessToken isEqualToString:@""]){
+        [self startBackUpWallet];
+        return;
+    }
+    [self loginin];
+}
+
+- (IBAction)reBornClick:(id)sender {
+    [self clearAllToken];
+    [self clearAllHud];
+    [self judgeIfLogin];
+}
+
+- (IBAction)loginClick:(id)sender {
+    [self judgeIfLogin];
+}
+
+-(void)clearAllHud{
+    [XLPaymentLoadingHUD hideIn:self.zjcView];
+    [XLPaymentSuccessHUD hideIn:self.zjcView];
+    [XLPaymentLoadingHUD hideIn:self.syView];
+    [XLPaymentSuccessHUD hideIn:self.syView];
+    [XLPaymentLoadingHUD hideIn:self.zhView];
+    [XLPaymentSuccessHUD hideIn:self.zhView];
+}
+
+-(void)clearAllToken{
+    self.checkBtn.alpha = 0.7;
+    self.checkBtn.enabled = NO;
+    [Manager clearUserTokenkey:access_token];
+    [Manager clearUserTokenkey:ShopWalletAddress];
+    [Manager clearUserTokenkey:ShopWalletPrivite];
+    [Manager clearUserTokenkey:ShopWalletPublic];
+}
+@end

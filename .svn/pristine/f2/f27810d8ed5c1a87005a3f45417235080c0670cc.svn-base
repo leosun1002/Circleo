@@ -1,0 +1,34 @@
+//
+//  ShopAssetsDetailViewController.h
+//  Cloud Pro
+//
+//  Created by leosun on 2020/7/8.
+//  Copyright © 2020 yunzhuan. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "ShopAssetModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ShopAssetsDetailVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIView *midView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *midViewHeight;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *botViewHeight;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topHeightConst;
+
+@property (weak, nonatomic) IBOutlet UILabel *totalLabel;
+@property (weak, nonatomic) IBOutlet UILabel *singleLabel;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UILabel *addressLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *descLabel;
+
+@property(nonatomic,strong) ShopAssetModel *shopModel;
+
+@end
+
+NS_ASSUME_NONNULL_END

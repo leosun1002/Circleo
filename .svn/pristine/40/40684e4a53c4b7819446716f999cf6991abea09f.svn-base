@@ -1,0 +1,476 @@
+//
+//  ShopAddressListVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/16.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopFriendsListVC.h"
+#import "AddressContentTableViewCell.h"
+#import "AddressIndexTableViewCell.h"
+#import "AddressIndexSelectedTableViewCell.h"
+#import "ShopAddFriendsVC.h"
+#import "MallPasswordTipVC.h"
+#import "MallSetPasswordVC.h"
+#import "ShopFriendsModel.h"
+
+#define SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
+#define SYSTEM_VERSION_LESS_THAN(v)                 ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] == NSOrderedAscending)
+
+@interface ShopFriendsListVC ()<UITableViewDelegate,UITableViewDataSource,UIGestureRecognizerDelegate,CYLTableViewPlaceHolderDelegate>{
+    BOOL ifPress;
+    int index;
+    int page;
+}
+
+@property (weak, nonatomic) IBOutlet UIView *leftBgview;
+@property (weak, nonatomic) IBOutlet UITableView *leftTable;
+@property (weak, nonatomic) IBOutlet UITableView *rightTable;
+@property(nonatomic,strong)NSIndexPath *editingIndexPath;
+@property(nonatomic,strong)NSMutableDictionary *dataDict;
+@property(nonatomic,strong)NSArray *indexs;
+
+@end
+
+@implementation ShopFriendsListVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addCornerLayer];
+    [self addGesture];
+    [self addRefresh];
+    [self.leftTable.mj_header beginRefreshing];
+}
+
+#pragma mark - viewDidLayoutSubviews
+- (void)viewDidLayoutSubviews{
+    [super viewDidLayoutSubviews];
+    
+    if (self.editingIndexPath){
+        [self configSwipeButtons];
+    }
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+    [self.leftTable registerNib:[UINib nibWithNibName:@"AddressContentTableViewCell" bundle:nil] forCellReuseIdentifier:@"AddressContentTableViewCell"];
+    [self.rightTable registerNib:[UINib nibWithNibName:@"AddressIndexTableViewCell" bundle:nil] forCellReuseIdentifier:@"AddressIndexTableViewCell"];
+    [self.rightTable registerNib:[UINib nibWithNibName:@"AddressIndexSelectedTableViewCell" bundle:nil] forCellReuseIdentifier:@"AddressIndexSelectedTableViewCell"];
+
+    UIButton *addBtn = [self.view viewWithTag:10];
+    WeakSelf(self);
+    [[addBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        NSString *tradePsw = [Manager takeoutTokenkey:JYTradePassword];
+        if ([AssectString(tradePsw) isEqualToString:@""]) {
+            MallPasswordTipVC *pswTipVC = [[MallPasswordTipVC alloc] init];
+            pswTipVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+            pswTipVC.subject = [RACSubject subject];
+            [pswTipVC.subject subscribeNext:^(id x) {
+                MallSetPasswordVC *psw = [[MallSetPasswordVC alloc] init];
+                [weakself.navigationController pushViewController:psw animated:YES];
+            }];
+            [weakself presentViewController:pswTipVC animated:NO completion:^{
+                
+            }];
+            return;
+        }
+        ShopAddFriendsVC *addFreind = [[ShopAddFriendsVC alloc] init];
+        addFreind.opration = ShopFriendsOprationAdd;
+        [weakself.navigationController pushViewController:addFreind animated:YES];
+    }];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.leftTable.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    self.leftTable.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"page":[NSString stringWithFormat:@"%d",page]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:AddressBookList param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                ifFresh?[weakself.dataDict removeAllObjects]:nil;
+                [json[@"data"][@"data"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    ShopFriendsModel *model = [ShopFriendsModel mj_objectWithKeyValues:obj];
+                    NSString *index = [weakself firstCharactorWithString:model.name];
+                    model.index = index;
+                    model.color = [UIColor colorWithRed:((float)arc4random_uniform(256) / 255.0) green:((float)arc4random_uniform(256) / 255.0) blue:((float)arc4random_uniform(256) / 255.0) alpha:1.0];
+
+                    if ([[weakself.dataDict allKeys] containsObject:index]) {
+                        NSMutableArray *datas = [weakself.dataDict objectForKey:index];
+                        [datas addObject:model];
+                        [weakself.dataDict setValue:datas forKey:index];
+                    }else{
+                        NSMutableArray *datas = [NSMutableArray array];
+                        [datas addObject:model];
+                        [weakself.dataDict setValue:datas forKey:index];
+                    }
+                }];
+            }
+        }
+        [weakself.leftTable.mj_header endRefreshing];
+        [weakself.leftTable.mj_footer endRefreshing];
+        [weakself.leftTable cyl_reloadData];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    ShopEmptyView *view = [ShopEmptyView flagView];
+    view.contentLabel.text = NSLocalizedString(@"暂无数据", nil);
+    return view;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)addCornerLayer{
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0,ksrcwidth - 30, ksrcheight - navBarHeight) byRoundingCorners:UIRectCornerTopRight cornerRadii:CGSizeMake(20, 20)];
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+    maskLayer.frame = CGRectMake(0, 0,ksrcwidth - 30, ksrcheight - navBarHeight);
+    maskLayer.path = path.CGPath;
+    self.leftBgview.layer.mask = maskLayer;
+}
+
+-(void)addGesture{
+    UILongPressGestureRecognizer *longPress = [[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(rightTableTap:)];
+    longPress.minimumPressDuration = 0.01;
+    longPress.delegate = self;
+    [self.rightTable addGestureRecognizer:longPress];
+}
+
+-(void)rightTableTap:(UIGestureRecognizer *)longPress{
+    CGPoint point = [longPress locationInView:self.rightTable];
+    index =  point.y / 20;
+    if (longPress.state == UIGestureRecognizerStateBegan) {
+        ifPress = YES;
+        [self selectLeftTable:index];
+    }else if (longPress.state == UIGestureRecognizerStateChanged) {
+        ifPress = YES;
+        [self selectLeftTable:index];
+    }else if (longPress.state == UIGestureRecognizerStateEnded) {
+        if (!ifPress)return;
+        ifPress = NO;
+    }
+    [self.rightTable reloadData];
+}
+
+#pragma mark - configSwipeButtons
+- (void)configSwipeButtons{
+    // 获取选项按钮的reference
+    if (@available(iOS 11.0, *)){
+        // iOS 11层级 (Xcode 9编译): UITableView -> UISwipeActionPullView
+        for (UIView *subview in self.leftTable.subviews)
+        {
+            NSLog(@"%@-----%zd",subview,subview.subviews.count);
+            if ([subview isKindOfClass:NSClassFromString(@"UISwipeActionPullView")] && [subview.subviews count] >= 1)
+            {
+                // 和iOS 10的按钮顺序相反
+                UIButton *deleteButton = subview.subviews[0];
+                [self configDeleteButton:deleteButton];
+            }
+        }
+    } else{
+        // iOS 8-10层级 (Xcode 8编译): UITableView -> UITableViewCell -> UITableViewCellDeleteConfirmationView
+        AddressContentTableViewCell *tableCell = [self.leftTable cellForRowAtIndexPath:self.editingIndexPath];
+        for (UIView *subview in tableCell.subviews){
+            NSLog(@"subview%@-----%zd",subview,subview.subviews.count);
+            if ([subview isKindOfClass:NSClassFromString(@"UITableViewCellDeleteConfirmationView")] && [subview.subviews count] >= 1)
+            {
+                UIButton *deleteButton = subview.subviews[0];
+                deleteButton.tag = self.editingIndexPath.section * 10000 + self.editingIndexPath.row;
+                UIButton *editButton = subview.subviews[1];
+                editButton.tag = self.editingIndexPath.section * 10000 + self.editingIndexPath.row;
+                [self configDeleteButton:deleteButton];
+                [self configEditButton:editButton];
+            }
+        }
+    }
+}
+
+- (void)configDeleteButton:(UIButton*)deleteButton{
+    if (deleteButton) {
+        [deleteButton setImage:[UIImage imageNamed:@"icon_person_delete"] forState:UIControlStateNormal];
+        [deleteButton setImageEdgeInsets:UIEdgeInsetsMake(0, 15, 0, 0)];
+        [deleteButton addTarget:self action:@selector(deleteClickWith10:) forControlEvents:UIControlEventTouchUpInside];
+    }
+}
+
+-(void)configEditButton:(UIButton*)editButton{
+    if (editButton) {
+        [editButton setImage:[UIImage imageNamed:@"icon_person_edit"] forState:UIControlStateNormal];
+        [editButton setImageEdgeInsets:UIEdgeInsetsMake(0, 15, 0, 0)];
+        [editButton addTarget:self action:@selector(editClickWith10:) forControlEvents:UIControlEventTouchUpInside];
+    }
+}
+
+- (NSString *)firstCharactorWithString:(NSString *)string{
+    NSMutableString *str = [NSMutableString stringWithString:string];
+    CFStringTransform((CFMutableStringRef) str, NULL, kCFStringTransformMandarinLatin, NO);
+    CFStringTransform((CFMutableStringRef)str, NULL, kCFStringTransformStripDiacritics, NO);
+    NSString *pinYin = [[[str capitalizedString] uppercaseString] substringToIndex:1];
+    
+    NSCharacterSet *cs = [[NSCharacterSet characterSetWithCharactersInString:ENGALPHAN] invertedSet];
+    NSString *filtered = [[pinYin componentsSeparatedByCharactersInSet:cs] componentsJoinedByString:@""];
+    if (![pinYin isEqualToString:filtered]) {
+       return pinYin = @"#";
+    }
+    return pinYin;
+}
+
+-(void)selectLeftTable:(NSInteger)index{
+    NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    if (index >= indexs.count)return;
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:0 inSection:index];
+    [self.leftTable scrollToRowAtIndexPath:indexPath atScrollPosition:UITableViewScrollPositionTop animated:YES];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    if (tableView == self.leftTable) {
+        NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+        return indexs.count;
+    }
+    
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    if (tableView == self.leftTable) {
+        return 70;
+    }
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    if (tableView == self.leftTable) {
+        NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+
+        UIView *view = [[UIView alloc] init];
+        view.backgroundColor = [UIColor whiteColor];
+        
+        UILabel *nameLabel = [[UILabel alloc] initWithFrame:CGRectMake(22.5, 30, 50, 25)];
+        nameLabel.text = indexs[section];
+        nameLabel.textColor = [UIColor colorWithRGBHex:@"#2982FF"];
+        nameLabel.font = [UIFont fontWithName:@"DINPro-Bold" size:25];
+        [view addSubview:nameLabel];
+        
+        UIView *line = [[UIView alloc] initWithFrame:CGRectMake(16, 70 - 0.5, self.leftTable.width - 16, 0.5)];
+        line.backgroundColor = [UIColor colorWithRGBHex:@"#2982FF"];
+        line.alpha = 0.3;
+        [view addSubview:line];
+        
+        return view;
+    }
+    return [UIView new];
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (tableView == self.leftTable) {
+        NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+        NSMutableArray *datas = [self.dataDict valueForKey:indexs[section]];
+        return datas.count;
+    }
+    return self.indexs.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.leftTable) {
+        NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+        NSMutableArray *datas = [self.dataDict valueForKey:indexs[indexPath.section]];
+        ShopFriendsModel *model = datas[indexPath.row];
+        if (![AssectString(model.remarks) isEqualToString:@""]) {
+            return 86 + [self calculateHeight:model.remarks];
+        }
+        return 80;
+    }
+    
+    //没有点击就是20 或者 index != indexPath.row
+    if (!ifPress || index != indexPath.row) return 20;
+    
+    return 60;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.leftTable) {
+        AddressContentTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"AddressContentTableViewCell"];
+        NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+        NSMutableArray *datas = [self.dataDict valueForKey:indexs[indexPath.section]];
+        cell.model = datas[indexPath.row];
+        return cell;
+    }
+    
+    if (!ifPress || index != indexPath.row){
+        AddressIndexTableViewCell *indexCell = [tableView dequeueReusableCellWithIdentifier:@"AddressIndexTableViewCell"];
+        indexCell.nameLabel.text = self.indexs[indexPath.row];
+        return indexCell;
+    }
+    AddressIndexSelectedTableViewCell *indexCell = [tableView dequeueReusableCellWithIdentifier:@"AddressIndexSelectedTableViewCell"];
+    indexCell.nameLabebl.text = self.indexs[indexPath.row];
+    return indexCell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    NSMutableArray *datas = [self.dataDict valueForKey:indexs[indexPath.section]];
+    ShopAddFriendsVC *addFreind = [[ShopAddFriendsVC alloc] init];
+    addFreind.opration = ShopFriendsOprationCheck;
+    addFreind.model = datas[indexPath.row];
+    [self.navigationController pushViewController:addFreind animated:YES];
+}
+
+- (void)tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath{
+    self.editingIndexPath = indexPath;
+    [self.view setNeedsLayout];   // 触发-(void)viewDidLayoutSubviews
+}
+
+- (void)tableView:(UITableView *)tableView didEndEditingRowAtIndexPath:(NSIndexPath *)indexPath{
+    self.editingIndexPath = nil;
+}
+
+- (NSArray*)tableView:(UITableView *)tableView editActionsForRowAtIndexPath:(nonnull NSIndexPath *)indexPath{
+    //title不设为nil 而是空字符串 理由为啥 ？   自己实践 跑到ios11以下的机器上就知道为啥了
+    UITableViewRowAction *deleteAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:@"   " handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
+        NSLog(@"asd");
+
+        [tableView setEditing:NO animated:YES];  // 这句很重要，退出编辑模式，隐藏左滑菜单
+    }];
+    deleteAction.backgroundColor = [UIColor whiteColor];
+    
+    UITableViewRowAction *editAction = [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleNormal title:@"   " handler:^(UITableViewRowAction *action, NSIndexPath *indexPath){
+        NSLog(@"asd");
+        [tableView setEditing:NO animated:YES];  // 这句很重要，退出编辑模式，隐藏左滑菜单
+    }];
+    editAction.backgroundColor = [UIColor whiteColor];
+    return @[deleteAction,editAction];
+}
+
+//iOS11 后的新方法,,  可以设置image和title
+- (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath  API_AVAILABLE(ios(11.0)){
+    WeakSelf(self);
+    //删除
+    UIContextualAction *deleteRowAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:@"   " handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+        [weakself deleteClickWith11:indexPath];
+        completionHandler (YES);
+    }];
+    deleteRowAction.image = [UIImage imageNamed:@"icon_person_delete"];
+    deleteRowAction.backgroundColor = [UIColor whiteColor];
+    
+    UIContextualAction *editRowAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleNormal title:@"   " handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+        [weakself editClickWith11:indexPath];
+        completionHandler (YES);
+    }];
+    editRowAction.image = [UIImage imageNamed:@"icon_person_edit"];
+    editRowAction.backgroundColor = [UIColor whiteColor];
+    
+    UISwipeActionsConfiguration *config = [UISwipeActionsConfiguration configurationWithActions:@[deleteRowAction,editRowAction]];
+    return config;
+}
+
+-(void)editClickWith11:(NSIndexPath *)indexPath{
+    NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    NSMutableArray *datas = [self.dataDict valueForKey:indexs[indexPath.section]];
+    ShopFriendsModel *model = datas[indexPath.row];
+    ShopAddFriendsVC *addFreind = [[ShopAddFriendsVC alloc] init];
+    addFreind.opration = ShopFriendsOprationEdit;
+    addFreind.model = model;
+    [self.navigationController pushViewController:addFreind animated:YES];
+
+}
+
+-(void)editClickWith10:(UIButton *)sender{
+    NSInteger section = sender.tag/10000;
+    NSInteger row = sender.tag%10000;
+    NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    NSMutableArray *datas = [self.dataDict valueForKey:indexs[section]];
+    ShopFriendsModel *model = datas[row];
+    ShopAddFriendsVC *addFreind = [[ShopAddFriendsVC alloc] init];
+    addFreind.opration = ShopFriendsOprationEdit;
+    addFreind.model = model;
+    [self.navigationController pushViewController:addFreind animated:YES];
+}
+
+-(void)deleteClickWith11:(NSIndexPath *)indexPath{
+    NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    NSMutableArray *datas = [self.dataDict valueForKey:indexs[indexPath.section]];
+    ShopFriendsModel *model = datas[indexPath.row];
+    [self deleteClick:model];
+}
+
+-(void)deleteClickWith10:(UIButton *)sender{
+    NSInteger section = sender.tag/10000;
+    NSInteger row = sender.tag%10000;
+    NSArray *indexs = [[self.dataDict allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+    NSMutableArray *datas = [self.dataDict valueForKey:indexs[section]];
+    ShopFriendsModel *model = datas[row];
+    [self deleteClick:model];
+}
+
+-(void)deleteClick:(ShopFriendsModel *)model{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    NSDictionary *dict = @{@"id":[NSString stringWithFormat:@"%ld",model.friends_id]};
+    [WebServices postFormReqUrl:AddressBookDelete param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    [weakself getData:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(CGFloat)calculateHeight:(NSString *)string{
+    CGSize size = [string boundingRectWithSize:CGSizeMake(ksrcwidth - 70 - 15 - 20, MAXFLOAT) options:(NSStringDrawingUsesLineFragmentOrigin | NSStringDrawingUsesFontLeading) attributes:@{NSFontAttributeName:[UIFont systemFontOfSize:10]} context:nil].size;
+    return size.height;
+}
+
+#pragma -mark UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer{
+    return YES;
+}
+
+#pragma -mark getter
+-(NSMutableDictionary *)dataDict{
+    if (!_dataDict) {
+        _dataDict = [NSMutableDictionary dictionary];
+    }
+    return _dataDict;
+}
+
+-(NSArray *)indexs{
+    if (!_indexs) {
+        _indexs = [NSArray arrayWithObjects:@"#",@"A",@"B",@"C",@"D",@"E",@"F",@"G",@"H",@"I",@"J",@"K",@"L",@"M",@"N",@"O",@"P",@"Q",@"R",@"S",@"T",@"U",@"V",@"W",@"X",@"Y",@"Z", nil];
+    }
+    return _indexs;
+}
+@end

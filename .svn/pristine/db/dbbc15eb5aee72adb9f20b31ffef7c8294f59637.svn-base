@@ -1,0 +1,146 @@
+//
+//  BrowserDNFilterVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BrowserDNFilterVC.h"
+#import "BrowserDNFilterTableViewCell.h"
+
+@interface BrowserDNFilterVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong) NSMutableArray *datas;
+@end
+
+@implementation BrowserDNFilterVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"域名筛选", nil)];
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"BrowserDNFilterTableViewCell" bundle:nil] forCellReuseIdentifier:@"BrowserDNFilterTableViewCell"];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 65,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    [rightBtn setTitle:NSLocalizedString(@"取消", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself dismissViewControllerAnimated:YES completion:^{
+            
+        }];
+    }];
+    [view addSubview:rightBtn];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"page":[NSString stringWithFormat:@"%ld",(long)page]};
+    WeakSelf(self);
+    NSString *reqUrl = @"";
+    if (self.type == 0 ) {
+        reqUrl = BrowserBindAllDomain;
+    }else if (self.type == 1){
+        reqUrl = CertificateBindAllList;
+    }else if (self.type == 2){
+        reqUrl = WebsiteDomainList;
+    }
+    [WebServices getFormReqUrl:reqUrl param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                if (ifFresh) {
+                    [weakself.datas addObject:@{@"domain_name":NSLocalizedString(@"全部域名", nil)}];
+                    if (weakself.type != 2) {
+                        [weakself.datas addObject:@{@"domain_name":NSLocalizedString(@"无域名", nil)}];
+                    }
+                }
+                [weakself.datas addObjectsFromArray:json[@"data"][@"domain_names"]];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无域名", nil);
+    return view;
+}
+
+#pragma -mark getter UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    BrowserDNFilterTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BrowserDNFilterTableViewCell"];
+    NSDictionary *dict = self.datas[indexPath.row];
+    cell.nameLabel.text = AssectString(dict[@"domain_name"]);
+    if (![AssectString(self.selectStr) isEqualToString:@""] && [AssectString(self.selectStr) isEqualToString:AssectString(dict[@"domain_name"])]) {
+        cell.nameLabel.textColor = [UIColor colorWithRGBHex:@"#5151F0"];
+        cell.selectImage.hidden = NO;
+    }else{
+        cell.nameLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        cell.selectImage.hidden = YES;
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSDictionary *dict = self.datas[indexPath.row];
+    if (![AssectString(self.selectStr) isEqualToString:@""] && [AssectString(self.selectStr) isEqualToString:AssectString(dict[@"domain_name"])]) return;
+    
+    [self.selectSubject sendNext:dict];
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

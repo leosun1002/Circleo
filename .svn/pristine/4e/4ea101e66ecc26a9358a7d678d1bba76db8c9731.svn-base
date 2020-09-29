@@ -1,0 +1,78 @@
+
+//
+//  UpdateNameVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "UpdateNameVC.h"
+
+@interface UpdateNameVC ()
+
+@property(nonatomic,weak)UIButton *rightBtn;
+@end
+
+@implementation UpdateNameVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"修改昵称",nil) hiddeBack:NO];
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    CGFloat width = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?80:60;
+
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - width - 5,navBarHeight - 35, width, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, width, 20);
+    [rightBtn setTitle:NSLocalizedString(@"确定", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself updateName];
+    }];
+    [view addSubview:_rightBtn = rightBtn];
+}
+
+-(void)updateName{
+    WeakSelf(self);
+    NSString *name = [self removeSpaceAndNewline:self.nameText.text];
+    if ([name isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请输入姓名", nil) location:centre];
+        return;
+    }
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    self.rightBtn.enabled = NO;
+    [WebServices postFormReqUrl:NameUpdate param:@{@"name":name} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] withBlcok:^{
+                    weakself.rightBtn.enabled = YES;
+                    [weakself.navigationController popToRootViewControllerAnimated:YES];
+                }];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+                weakself.rightBtn.enabled = YES;
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+            weakself.rightBtn.enabled = YES;
+        }
+    }];
+}
+@end

@@ -1,0 +1,21 @@
+//
+//  SetTradePasswordVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface SetTradePasswordVC : BaseViewController
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITextField *pswText;
+@property (weak, nonatomic) IBOutlet UITextField *retryPsw;
+@property (assign, nonatomic) long hasgoback; // hasgoback 代表从支付页面进入设置密码页
+
+@end
+
+NS_ASSUME_NONNULL_END

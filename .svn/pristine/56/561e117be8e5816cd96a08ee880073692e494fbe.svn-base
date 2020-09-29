@@ -1,0 +1,32 @@
+//
+//  PayDetailVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/18.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface PayDetailVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (strong, nonatomic) NSString *years;
+@property (strong, nonatomic) NSString *ids;
+@property(nonatomic,strong)NSMutableArray *datas;
+/**
+ 0是购买  1是续费
+ */
+@property (assign, nonatomic) long newType;
+@property (weak, nonatomic) IBOutlet UILabel *cnyPrice;
+@property (weak, nonatomic) IBOutlet UILabel *cnyTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *usdtPrice;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomHeightConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

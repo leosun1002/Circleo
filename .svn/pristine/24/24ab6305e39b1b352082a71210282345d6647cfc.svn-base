@@ -1,0 +1,244 @@
+//
+//  DNSHomeTradeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSHomeTradeVC.h"
+#import "JXCategoryView.h"
+#import "DNSShopVC.h"
+#import "DNSSellFilterVC.h"
+#import "DNSShopSelectVC.h"
+#import "DNSOrderManageVC.h"
+#import "DNSSellOrderVC.h"
+
+@interface DNSHomeTradeVC ()<JXCategoryViewDelegate, JXCategoryListContainerViewDelegate>
+
+@property (nonatomic, strong) UIView *titleview;
+@property (nonatomic, strong) JXCategoryTitleView *categoryView;
+@property (nonatomic, strong) JXCategoryListContainerView *listContainerView;
+@property (nonatomic, strong) NSArray *titles;
+@property (nonatomic, strong) NSMutableArray *shopVCs;
+@property (nonatomic, strong) NSMutableArray *searchArrs;
+@property (nonatomic, assign)  NSInteger selectIndex;
+
+@end
+
+@implementation DNSHomeTradeVC
+
+-(void)dealloc{
+    NSLog(@"asd");
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    
+    self.view.backgroundColor = [UIColor clearColor];
+    
+    [self.view addSubview:self.titleview];
+    [self.titleview addSubview:self.categoryView];
+    [self.view addSubview:self.listContainerView];
+    self.listContainerView.didAppearPercent = 0.01; //滚动一点就触发加载
+
+    self.categoryView.contentScrollView = self.listContainerView.scrollView;
+    
+    [self addNotification];
+}
+
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    self.titleview.frame = CGRectMake(0, 0, ksrcwidth, 65);
+    self.categoryView.frame = CGRectMake(0, 10, ksrcwidth, 45);
+    self.listContainerView.frame = CGRectMake(0, CGRectGetMaxY(self.titleview.frame), ksrcwidth, ksrcheight - 65 - navBarHeight);
+}
+
+- (void)viewWillDisappear:(BOOL)animated {
+    [super viewWillDisappear:animated];
+    //离开页面的时候，需要恢复屏幕边缘手势，不能影响其他页面
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+}
+
+-(void)addNotification{
+    WeakSelf(self);
+    [[[NSNotificationCenter defaultCenter] rac_addObserverForName:@"RefreshTradeList" object:nil] subscribeNext:^(NSNotification * _Nullable x) {
+        DNSShopVC *shopVC = weakself.shopVCs[weakself.selectIndex];
+        [shopVC refreshWithNoMj];
+    }];
+}
+
+#pragma -mark JXCategoryListContentViewDelegate
+- (UIView *)listView {
+    return self.view;
+}
+
+#pragma mark -JXCategoryViewDelegate
+- (JXCategoryBaseView *)preferredCategoryView {
+    return [[JXCategoryTitleView alloc] init];
+}
+
+- (CGFloat)preferredCategoryViewHeight {
+    return 45;
+}
+
+- (id<JXCategoryListContentViewDelegate>)preferredListAtIndex:(NSInteger)index {
+    WeakSelf(self);
+    DNSShopVC *shopVC = [[DNSShopVC alloc] init];
+    shopVC.pageType = index == 0?DNSShopVCTypeSell:DNSShopVCTypeBuy;
+    shopVC.naviController = self.naviVC;
+    shopVC.filterSubject = [RACSubject subject];
+    [shopVC.filterSubject subscribeNext:^(DNSFilterModel *filterModel) {
+        DNSShopVC *shop = weakself.shopVCs[weakself.selectIndex];
+        DNSSellFilterVC *filtervc = [[DNSSellFilterVC alloc] init];
+        filtervc.filterModel = filterModel;
+        filtervc.subject = [RACSubject subject];
+        [filtervc.subject subscribeNext:^(DNSFilterModel *selectModel) {
+            [shop refreshWithFilter:selectModel];
+        }];
+        [weakself.naviVC pushViewController:filtervc animated:YES];
+    }];
+    shopVC.selectSubject = [RACSubject subject];
+    [shopVC.selectSubject subscribeNext:^(NSString *selectId) {
+        DNSShopVC *shopVc = weakself.shopVCs[weakself.selectIndex];
+        DNSSellOrderVC *order = [[DNSSellOrderVC alloc] init];
+        order.type = weakself.selectIndex;
+        order.selectid = selectId;
+        order.successSubject = [RACSubject subject];
+        [order.successSubject subscribeNext:^(id x) {
+            [shopVc refreshWithNoMj];
+        }];
+        [weakself.naviVC pushViewController:order animated:YES];
+    }];
+    shopVC.clearSubject = [RACSubject subject];
+    [shopVC.clearSubject subscribeNext:^(id x) {
+        [weakself.searchArrs replaceObjectAtIndex:weakself.selectIndex withObject:@""];
+    }];
+    [self.shopVCs replaceObjectAtIndex:index withObject:shopVC];
+    return shopVC;
+}
+
+-(void)goSearchVC{
+    NSString *searchStr = self.searchArrs[self.selectIndex];
+    
+    DNSShopSelectVC *selectVC = [[DNSShopSelectVC alloc] init];
+    selectVC.searchHistory = AssectString(searchStr);
+    selectVC.placeHolderStr = NSLocalizedString(@"请输入你要购买的域名", nil);
+    selectVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    selectVC.searchSubject = [RACSubject subject];
+    WeakSelf(self);
+    [selectVC.searchSubject subscribeNext:^(NSString *search) {
+        [weakself.searchArrs replaceObjectAtIndex:weakself.selectIndex withObject:search];
+        DNSShopVC *shopVC = weakself.shopVCs[weakself.selectIndex];
+        [shopVC goSearch:search];
+    }];
+    UIWindow *window = [[[UIApplication sharedApplication] windows] objectAtIndex:0];
+    [window.rootViewController presentViewController:selectVC animated:NO completion:^{
+        
+    }];
+}
+
+#pragma -mark getter
+-(UIView *)titleview{
+    if (!_titleview) {
+        _titleview = [[UIView alloc] init];
+        _titleview.backgroundColor = [UIColor clearColor];
+    }
+    return _titleview;
+}
+
+- (JXCategoryTitleView *)categoryView {
+    if(!_categoryView){
+        //
+        _categoryView = [[JXCategoryTitleView alloc] init];
+        // dele
+        _categoryView.delegate = self;
+        // 设置菜单项标题数组
+        _categoryView.titles = self.titles;
+        // 背景色
+        _categoryView.backgroundColor = [UIColor clearColor];
+        // 标题色、标题选中色、标题字体、标题选中字体
+        _categoryView.titleColor = [UIColor getColor:@"#FFFFFF" alpha:0.8];
+        _categoryView.titleSelectedColor = [UIColor colorWithRGBHex:@"#FFFFFF"];
+        _categoryView.titleFont = [UIFont boldSystemFontOfSize:15];
+        _categoryView.titleLabelZoomEnabled = YES;
+        // 标题色是否渐变过渡
+        _categoryView.titleColorGradientEnabled = YES;
+        _categoryView.titleLabelZoomScale = 1.5;
+        
+        // 下划线
+        JXCategoryIndicatorLineView *lineView = [[JXCategoryIndicatorLineView alloc] init];
+        // 下划线颜色
+        lineView.indicatorLineViewColor = [UIColor whiteColor];
+        // 下划线宽度
+        lineView.indicatorLineWidth = 30;
+        // 下划线高度
+        lineView.indicatorLineViewHeight = 4;
+        lineView.indicatorLineViewCornerRadius = 2;
+        lineView.lineStyle = JXCategoryIndicatorLineStyle_JD;
+        _categoryView.indicators = @[lineView];
+    }
+    return _categoryView;
+}
+
+- (JXCategoryListContainerView *)listContainerView {
+    if (_listContainerView == nil) {
+        _listContainerView = [[JXCategoryListContainerView alloc] initWithDelegate:self];
+    }
+    return _listContainerView;
+}
+
+#pragma mark - JXCategoryViewDelegate
+- (void)categoryView:(JXCategoryBaseView *)categoryView didSelectedItemAtIndex:(NSInteger)index {
+    DNSShopVC *shopVC = self.shopVCs[index];
+    self.selectIndex = index;
+    [shopVC refreshWithNoMj];
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView didScrollSelectedItemAtIndex:(NSInteger)index {
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView didClickSelectedItemAtIndex:(NSInteger)index {
+    [self.listContainerView didClickSelectedItemAtIndex:index];
+}
+
+- (void)categoryView:(JXCategoryBaseView *)categoryView scrollingFromLeftIndex:(NSInteger)leftIndex toRightIndex:(NSInteger)rightIndex ratio:(CGFloat)ratio {
+    [self.listContainerView scrollingFromLeftIndex:leftIndex toRightIndex:rightIndex ratio:ratio selectedIndex:categoryView.selectedIndex];
+}
+
+#pragma mark - JXCategoryListContainerViewDelegate
+
+- (id<JXCategoryListContentViewDelegate>)listContainerView:(JXCategoryListContainerView *)listContainerView initListForIndex:(NSInteger)index {
+    id<JXCategoryListContentViewDelegate> list = [self preferredListAtIndex:index];
+    return list;
+}
+
+- (NSInteger)numberOfListsInlistContainerView:(JXCategoryListContainerView *)listContainerView {
+    return self.titles.count;
+}
+
+#pragma -mark getter
+-(NSArray *)titles{
+    if (!_titles) {
+        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"挂卖中", nil),NSLocalizedString(@"求购中", nil), nil];
+    }
+    return _titles;
+}
+
+-(NSMutableArray *)shopVCs{
+    if (!_shopVCs) {
+        _shopVCs = [NSMutableArray arrayWithObjects:[DNSShopVC new],[DNSShopVC new], nil];
+    }
+    return _shopVCs;
+}
+
+-(NSMutableArray *)searchArrs{
+    if (!_searchArrs) {
+        _searchArrs = [NSMutableArray arrayWithObjects:@"",@"", nil];
+    }
+    return _searchArrs;
+}
+@end

@@ -1,0 +1,38 @@
+//
+//  BlockChainDataTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2020/4/22.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "EvidenceDetailModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BlockChainDataTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)EvidenceDetailModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *transactionHashLabel;
+@property (weak, nonatomic) IBOutlet UILabel *heightLabel;
+@property (weak, nonatomic) IBOutlet UILabel *transactionTimeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *blockHashLabel;
+@property (weak, nonatomic) IBOutlet UILabel *receiveAddressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *sendAddressLabel;
+@property (weak, nonatomic) IBOutlet UILabel *transactionAmountLabel;
+@property (weak, nonatomic) IBOutlet UILabel *signatureLabel;
+@property (weak, nonatomic) IBOutlet UILabel *receiptLabel;
+@property (weak, nonatomic) IBOutlet UILabel *gasUsedLabel;
+@property (weak, nonatomic) IBOutlet UILabel *secretLabel;
+@property (weak, nonatomic) IBOutlet UIView *chainView;
+@property (strong, nonatomic) RACSubject *subject;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *receiveHeightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *receiveBgHeight;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *sendHeightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *sendBgHeight;
+@property (weak, nonatomic) IBOutlet UIImageView *authenImgV;
+
+@end
+
+NS_ASSUME_NONNULL_END

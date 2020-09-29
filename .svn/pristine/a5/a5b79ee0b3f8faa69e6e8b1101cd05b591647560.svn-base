@@ -1,0 +1,24 @@
+//
+//  AgentIncomeTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "AgentIncomeModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface AgentIncomeTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)AgentIncomeModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

@@ -1,0 +1,29 @@
+//
+//  MyAssetTableViewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/19.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "MyAssetModel.h"
+#import "CurrencyRecordModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyAssetTableViewCell : UITableViewCell
+
+@property(nonatomic,strong)MyAssetModel *model;
+
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *timeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *moneyLabel;
+@property (weak, nonatomic) IBOutlet UILabel *unitLabel;
+@property (weak, nonatomic) IBOutlet UILabel *statusLabel;
+@property (strong, nonatomic) CurrencyRecordModel *recordModel;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

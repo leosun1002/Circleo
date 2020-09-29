@@ -1,0 +1,38 @@
+//
+//  AssetCoinHeader.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AssetCoinHeader.h"
+
+@implementation AssetCoinHeader
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"AssetCoinHeader" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        [self prepareUi];
+    }
+    return self;
+}
+
+-(void)prepareUi{
+    self.assetBtn.layer.borderColor = [UIColor getColor:@"#FFFFFF" alpha:0.3].CGColor;
+    self.assetBtn.layer.borderWidth = 1;
+    [self.assetBtn setTitleColor:[UIColor getColor:@"#FFFFFF" alpha:0.8] forState:UIControlStateNormal];
+    self.assetBtn.backgroundColor = [UIColor colorWithRGBHex:@"#6262F1"];
+
+
+    self.incomeBtn.layer.borderColor = [UIColor getColor:@"#FFFFFF" alpha:0.3].CGColor;
+    self.incomeBtn.layer.borderWidth = 1;
+    [self.incomeBtn setTitleColor:[UIColor getColor:@"#FFFFFF" alpha:0.8] forState:UIControlStateNormal];
+    self.incomeBtn.backgroundColor = [UIColor colorWithRGBHex:@"#6262F1"];
+
+    self.coinBtn.layer.borderColor = [UIColor getColor:@"#FFFFFF" alpha:0.3].CGColor;
+    self.coinBtn.layer.borderWidth = 1;
+}
+
+@end

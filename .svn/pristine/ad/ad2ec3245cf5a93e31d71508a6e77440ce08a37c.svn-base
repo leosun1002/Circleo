@@ -1,0 +1,49 @@
+//
+//  WebsiteDetailModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/6/4.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import "WebsiteArticelModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebsiteCarouselsModel : NSObject
+
+@property(nonatomic,strong) NSString *image_address;
+
+@end
+
+@interface WebsiteDomainModel : NSObject
+
+@property(nonatomic,strong) NSString *domain_name;
+@property(nonatomic,assign) long domain_id;
+
+@end
+
+@interface WebsiteTemplateModel : NSObject
+
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,assign) long templateId;
+
+@end
+
+@interface WebsiteDetailModel : NSObject
+
+@property(nonatomic,strong) NSString *phone;
+@property(nonatomic,strong) NSString *address;
+@property(nonatomic,assign) long website_id;
+@property(nonatomic,strong) NSArray<WebsiteCarouselsModel *> *website_carousels;
+@property(nonatomic,strong) NSString *email;
+@property(nonatomic,assign) long website_template_id;
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,strong) NSArray<WebsiteNavigationModel *> *website_category_navigations;
+@property(nonatomic,strong) WebsiteDomainModel *domain_names;
+@property(nonatomic,strong) WebsiteTemplateModel *website_template;
+
+@end
+
+NS_ASSUME_NONNULL_END

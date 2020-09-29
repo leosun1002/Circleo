@@ -1,0 +1,38 @@
+//
+//  DNSRenewCell.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+#import "DNSBuyModel.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSRenewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIButton *delBtn;
+@property (weak, nonatomic) IBOutlet UIButton *minusBtn;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UIButton *addBtn;
+@property (assign, nonatomic) long type;
+/**
+ 0是购买  1是续费
+ */
+@property (assign, nonatomic) long newType;
+@property (strong, nonatomic) DNSBuyModel *model;
+@property (weak, nonatomic) IBOutlet UILabel *namLabel;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *buyTip;
+@property (weak, nonatomic) IBOutlet UILabel *endLabel;
+@property (weak, nonatomic) IBOutlet UILabel *salePriceLabel;
+@property (weak, nonatomic) IBOutlet UILabel *salePriceTipLabel;
+@property (weak, nonatomic) IBOutlet UILabel *servicePriceLabel;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *trailConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *leadConst;
+
+@end
+
+NS_ASSUME_NONNULL_END

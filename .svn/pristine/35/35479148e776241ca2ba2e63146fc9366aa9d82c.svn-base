@@ -1,0 +1,193 @@
+//
+//  DNSSellSelectChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSSellSelectChildVC.h"
+#import "DNSSellSelectCell.h"
+#import "DNSShopSelectModel.h"
+
+@interface DNSSellSelectChildVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(nonatomic,strong)NSString *canRefresh;
+
+@end
+
+@implementation DNSSellSelectChildVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSSellSelectCell" bundle:nil] forCellReuseIdentifier:@"DNSSellSelectCell"];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)refreshData{
+    if ([AssectString(self.canRefresh) isEqualToString:@""]) {
+        [self.tableview.mj_header beginRefreshing];
+        self.canRefresh = @"1";
+    }
+}
+
+-(void)getData:(BOOL)ifFresh{
+    WeakSelf(self);
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"type":[NSString stringWithFormat:@"%ld",self.type+1],@"page":[NSString stringWithFormat:@"%d",page]};
+    NSString *url = self.pageType == 0?DomainHangSaleInit:BrowserUseDomain;
+    [WebServices postFormReqUrl:url param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<DNSShopSelectModel *> *applicationList = [DNSShopSelectModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+#pragma CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *empty = [EmptyView flagView];
+    if (self.pageType == 0) {
+        empty.contents.text = self.type == 0?NSLocalizedString(@"当前暂无可挂卖域名", nil):NSLocalizedString(@"当前暂无不可挂卖域名", nil);
+    }else{
+        empty.contents.text = self.type == 0?NSLocalizedString(@"当前暂无可选择域名", nil):NSLocalizedString(@"当前暂无不可选择域名", nil);
+    }
+    return empty;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    if (self.pageType == 1) {
+        return 1;
+    }
+    
+    if (self.type == 0) return 0.01;
+    return 40;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    if (self.pageType == 1) {
+        UIView *view = [[UIView alloc] init];
+        view.backgroundColor = [UIColor whiteColor];
+        return view;
+    }
+    
+    if (self.type == 0) {
+        UIView *view = [[UIView alloc] init];
+        view.backgroundColor = [UIColor whiteColor];
+        return view;
+    }
+    UIView *view = [[UIView alloc] init];
+    view.backgroundColor = [UIColor whiteColor];
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(16, 10, ksrcwidth - 32, 30)];
+    label.backgroundColor = [UIColor getColor:@"#F95946" alpha:0.1];
+    label.text = NSLocalizedString(@"挂卖限制：挂卖需解除地址绑定及剩余使用时间大于60天", nil);
+    label.textColor = [UIColor getColor:@"#000000" alpha:0.6];
+    label.font = [UIFont systemFontOfSize:11];
+    label.textAlignment = NSTextAlignmentCenter;
+    label.layer.borderColor = [UIColor getColor:@"#F95946" alpha:0.3].CGColor;
+    label.layer.borderWidth = 1.f;
+    label.layer.masksToBounds = YES;
+    label.layer.cornerRadius = 4;
+    [view addSubview:label];
+    
+    return view;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSSellSelectCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSSellSelectCell"];
+
+    DNSShopSelectModel *model = self.datas[indexPath.row];
+    cell.nameLabel.text = model.domain_name;
+    cell.countLabel.text = [NSString stringWithFormat:@"%ld",model.count];
+    cell.endTimeLabel.text = model.end_time;
+    cell.endTimeLabel.textColor = model.is_expire == 0?[UIColor colorWithRGBHex:@"#9999A3"]:[UIColor colorWithRGBHex:@"#F95947"];
+    cell.frozenLabel.hidden = model.is_frozen != 1;
+    cell.frozenLabel.text = NSLocalizedString(@"挂卖冻结中", nil);
+
+    if (self.pageType == 0) {
+        //0未绑定，1已绑定
+        cell.bindView.hidden = model.is_bind == 0;
+        cell.unbindView.hidden = model.is_bind != 0;
+        cell.selectImage.hidden = YES;
+    }else{
+        cell.bindView.hidden = YES;
+        cell.unbindView.hidden = YES;
+        if (self.type == 1) {
+            cell.selectImage.hidden = YES;
+        }else{
+            cell.selectImage.hidden = model.is_expire == 1 || model.is_frozen == 1;
+        }
+        cell.selectImage.image = ![AssectString(self.selectStr) isEqualToString:@""] && [AssectString(self.selectStr) isEqualToString:AssectString(model.domain_name)]?[UIImage imageNamed:@"console_select"]:[UIImage imageNamed:@"console_unselect"];
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.type == 1) {
+        self.pageType == 0?[self showMsg:NSLocalizedString(@"当前域名不可挂卖", nil) location:centre]:[self showMsg:NSLocalizedString(@"当前域名不可选择", nil) location:centre];
+        return;
+    }
+    DNSShopSelectModel *model = self.datas[indexPath.row];
+    if (model.is_frozen != 0) {
+        self.pageType == 0?[self showMsg:NSLocalizedString(@"当前域名不可挂卖", nil) location:centre]:[self showMsg:NSLocalizedString(@"当前域名不可选择", nil) location:centre];
+        return;
+    }
+    
+    if (self.pageType == 1 && ![AssectString(self.selectStr) isEqualToString:@""] && [AssectString(self.selectStr) isEqualToString:AssectString(model.domain_name)]) return;
+    [self.subject sendNext:@{@"domain_name":model.domain_name,@"manageid":[NSString stringWithFormat:@"%ld",model.selectid]}];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

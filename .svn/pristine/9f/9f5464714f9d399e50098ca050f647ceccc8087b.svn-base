@@ -1,0 +1,27 @@
+//
+//  DNSBannerModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/28.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSBannerModel : NSObject
+
+@property(nonatomic,assign) long status;
+@property(nonatomic,assign) long jump_type;
+@property(nonatomic,assign) long bannerid;
+@property(nonatomic,assign) long type;
+@property(nonatomic,copy) NSString *updated_at;
+@property(nonatomic,copy) NSString *created_at;
+@property(nonatomic,copy) NSString *language;
+@property(nonatomic,copy) NSString *image_address;
+@property(nonatomic,copy) NSString *url;
+
+@end
+
+NS_ASSUME_NONNULL_END

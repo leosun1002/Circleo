@@ -1,0 +1,28 @@
+//
+//  MyFuelRecordModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/7/28.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyFuelRecordModel : NSObject
+
+@property(nonatomic,strong) NSString *created_at;
+@property(nonatomic,assign) long fuel_id;
+@property(nonatomic,strong) NSString *nuls_num;
+/// 1充值到帐，2提货消耗，3赠送消耗，4系统赠送
+@property(nonatomic,assign) long type;
+/// 1进帐，2出帐
+@property(nonatomic,assign) long in_or_out;
+@property(nonatomic,strong) NSString *receiving_address;
+@property(nonatomic,strong) NSString *send_address;
+@property(nonatomic,strong) NSString *hash_content;
+
+@end
+
+NS_ASSUME_NONNULL_END

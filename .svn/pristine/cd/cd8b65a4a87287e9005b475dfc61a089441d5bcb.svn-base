@@ -1,0 +1,150 @@
+//
+//  AuthenVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/29.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AuthenVC.h"
+#import "TZImagePickerController.h"
+#import "JieyiXieyiVC.h"
+
+@interface AuthenVC ()<TZImagePickerControllerDelegate>
+
+@property(nonatomic,strong)NSString *frontUrl;
+@property(nonatomic,strong)NSString *backUrl;
+@end
+
+@implementation AuthenVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"实名认证", nil) hiddeBack:NO];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself changUserImageClick:10];
+    }];
+    [self.frontView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself changUserImageClick:11];
+    }];
+    [self.backView addGestureRecognizer:tap2];
+    
+    [[self.nameText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeCheckBtnEnable];
+    }];
+    
+    [[self.cardText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself makeCheckBtnEnable];
+    }];
+    
+    [[self.checkBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself checkClick];
+    }];
+    
+    UITapGestureRecognizer *tap3 = [[UITapGestureRecognizer alloc] init];
+    [[tap3 rac_gestureSignal] subscribeNext:^(id x) {
+        JieyiXieyiVC *jieyi = [[JieyiXieyiVC alloc] init];
+        jieyi.type = 1;
+        [weakself.navigationController pushViewController:jieyi animated:YES];
+    }];
+    [self.xieyiLabel addGestureRecognizer:tap3];
+    
+    UITapGestureRecognizer *tap4 = [[UITapGestureRecognizer alloc] init];
+    [[tap4 rac_gestureSignal] subscribeNext:^(id x) {
+        JieyiXieyiVC *jieyi = [[JieyiXieyiVC alloc] init];
+        jieyi.type = 2;
+        [weakself.navigationController pushViewController:jieyi animated:YES];
+    }];
+    [self.yinsiLabel addGestureRecognizer:tap4];
+}
+
+-(void)makeCheckBtnEnable{
+    if (![AssectString(self.nameText.text) isEqualToString:@""] && ![AssectString(self.cardText.text) isEqualToString:@""] && ![AssectString(self.frontUrl) isEqualToString:@""] && ![AssectString(self.backUrl) isEqualToString:@""]) {
+        self.checkBtn.enabled = YES;
+    }else{
+        self.checkBtn.enabled = NO;
+    }
+}
+
+-(void)checkClick{
+    WeakSelf(self);
+    NSDictionary *dict = @{@"real_name":AssectString(self.nameText.text),@"id_number":AssectString(self.cardText.text),@"positive_image":AssectString(self.frontUrl),@"reverse_side_image":AssectString(self.backUrl)};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:Certification param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.navigationController popToRootViewControllerAnimated:YES];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark 上传图片
+-(void)upLoadImage:(UIImage *)image withTag:(NSInteger )tag{
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postImageFormReqUrl:ImageUpload image:image param:@{} loadingTime:30.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                if (tag == 10) {
+                    weakself.frontImage.image = image;
+                    weakself.frontUrl = json[@"data"][@"image_path"];
+                }else{
+                    weakself.backImage.image = image;
+                    weakself.backUrl = json[@"data"][@"image_path"];
+                }
+                [weakself makeCheckBtnEnable];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)changUserImageClick:(NSInteger)tag{
+    TZImagePickerController *imagePC=[[TZImagePickerController alloc]initWithMaxImagesCount:1 delegate:self];//设置多选最多支持的最大数量，设置代理
+    WeakSelf(self);
+    imagePC.modalPresentationStyle = UIModalPresentationFullScreen;
+    imagePC.preferredLanguage = [GDLocalizableController userLanguage];
+    [imagePC setDidFinishPickingPhotosWithInfosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto, NSArray<NSDictionary *> *infos) {
+        UIImage *image =  photos[0];// [weakself compressImage:photos[0] toTargetWidth:200];
+        [weakself upLoadImage:image withTag:tag];
+    }];
+    [self presentViewController:imagePC animated:YES completion:nil];//跳转
+}
+
+- (UIImage *)compressImage:(UIImage *)sourceImage toTargetWidth:(CGFloat)targetWidth {
+    
+    CGSize imageSize = sourceImage.size;
+    NSLog(@"%@",sourceImage);
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetHeight = (targetWidth / width) * height;
+    UIGraphicsBeginImageContext(CGSizeMake(targetWidth, targetHeight));
+    [sourceImage drawInRect:CGRectMake(0, 0, targetWidth, targetHeight)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+@end

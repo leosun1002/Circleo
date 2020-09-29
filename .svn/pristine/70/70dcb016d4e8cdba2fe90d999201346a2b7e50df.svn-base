@@ -1,0 +1,24 @@
+//
+//  ShopDetailModel.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopDetailModel.h"
+
+@implementation ShopDetailImageModel
+
+@end
+
+@implementation ShopDetailModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"detailId":@"id"};
+}
+
++(NSDictionary *)mj_objectClassInArray{
+    return @{@"good_images":@"ShopDetailImageModel"};
+}
+@end

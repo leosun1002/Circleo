@@ -1,0 +1,191 @@
+//
+//  XWCircleSpreadTransition.m
+//  XWTrasitionPractice
+//
+//  Created by YouLoft_MacMini on 15/11/25.
+//  Copyright © 2015年 YouLoft_MacMini. All rights reserved.
+//
+
+#import "XWCircleSpreadTransition.h"
+#import "DNBrowserVC.h"
+#import "CTabBarVC.h"
+#import "DNSPublishHomeVC.h"
+
+#define AnimationDuration 0.45
+
+@implementation XWCircleSpreadTransition
+
++ (instancetype)transitionWithTransitionType:(XWCircleSpreadTransitionType)type withImage:(UIImage *)image withImage1:(UIImage *)image1{
+    return [[self alloc] initWithTransitionType:type withImage:image withImage1:image1];
+}
+
+- (instancetype)initWithTransitionType:(XWCircleSpreadTransitionType)type withImage:(UIImage *)image withImage1:(UIImage *)image1{
+    self = [super init];
+    if (self) {
+        _type = type;
+        _image = image;
+        _image1 = image1;
+    }
+    return self;
+}
+
+- (NSTimeInterval)transitionDuration:(id<UIViewControllerContextTransitioning>)transitionContext{
+    return AnimationDuration;
+}
+
+- (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext{
+    switch (_type) {
+        case XWCircleSpreadTransitionTypePresent:
+            [self presentAnimation:transitionContext];
+            break;
+            
+        case XWCircleSpreadTransitionTypeDismiss:
+            [self dismissAnimation:transitionContext];
+            break;
+    }
+}
+
+- (void)dismissAnimation:(id<UIViewControllerContextTransitioning>)transitionContext{
+    UIViewController *fromVC = [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+//    UINavigationController *toVC = (UINavigationController *)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+//    CTabBarVC *temps = toVC.viewControllers.lastObject;
+//    DNBrowserVC *temp = temps.viewControllers[2];
+    UIView *containerView = [transitionContext containerView];
+    
+    CGRect statusBarRect = [[UIApplication sharedApplication] statusBarFrame];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth,ksrcheight)];
+    view.backgroundColor = [UIColor whiteColor];
+    
+    UIImageView *imageV = [[UIImageView alloc] initWithFrame:CGRectMake(0, statusBarRect.size.height == 40?-20:0, ksrcwidth, ksrcheight)];
+    imageV.image = self.image;
+    [view addSubview:imageV];
+    
+    UIImageView *imageV1 = [[UIImageView alloc] initWithFrame:CGRectMake(0, statusBarRect.size.height == 40?ksrcheight - tabbarHeight - 20:ksrcheight - tabbarHeight, ksrcwidth, tabbarHeight)];
+    imageV1.image = self.image1;
+    imageV1.backgroundColor = [UIColor whiteColor];
+    [view addSubview:imageV1];
+    
+    UIView *line = [[UIView alloc] initWithFrame:CGRectMake(0, statusBarRect.size.height == 40?ksrcheight - tabbarHeight - 1 - 20:ksrcheight - tabbarHeight - 1, ksrcwidth, 1)];
+    line.backgroundColor = [UIColor colorWithRGBHex:@"#DFDFDF"];
+    [view addSubview:line];
+    [containerView insertSubview:view atIndex:0];
+    
+//    //画两个圆路径
+//    CGFloat radius = sqrtf(containerView.frame.size.height * containerView.frame.size.height + containerView.frame.size.width * containerView.frame.size.width) / 2;
+//    UIBezierPath *startCycle = [UIBezierPath bezierPathWithArcCenter:containerView.center radius:radius startAngle:0 endAngle:M_PI * 2 clockwise:YES];
+//    UIBezierPath *endCycle =  [UIBezierPath bezierPathWithOvalInRect:temp.buttonFrame];
+//    //创建CAShapeLayer进行遮盖
+//    CAShapeLayer *maskLayer = [CAShapeLayer layer];
+//    maskLayer.fillColor = [UIColor greenColor].CGColor;
+//    maskLayer.path = endCycle.CGPath;
+//    fromVC.view.layer.mask = maskLayer;
+//    //创建路径动画
+//    CABasicAnimation *maskLayerAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
+//    maskLayerAnimation.fromValue = (__bridge id)(startCycle.CGPath);
+//    maskLayerAnimation.toValue = (__bridge id)((endCycle.CGPath));
+//    maskLayerAnimation.duration = [self transitionDuration:transitionContext];
+//    maskLayerAnimation.delegate = self;
+//    maskLayerAnimation.timingFunction = [CAMediaTimingFunction  functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+//    [maskLayerAnimation setValue:transitionContext forKey:@"transitionContext"];
+//    [maskLayer addAnimation:maskLayerAnimation forKey:@"path"];
+    
+    UIWindow *keywindow = [UIApplication sharedApplication].keyWindow;
+    UIView *backview = [keywindow viewWithTag:10];
+    UIView *white = [backview viewWithTag:11];
+    UIImageView *image = (UIImageView *)[backview viewWithTag:12];
+    [UIView animateWithDuration:AnimationDuration animations:^{
+        white.alpha = 0.01;
+        white.transform = CGAffineTransformMakeScale(0.1, 0.1);
+        image.transform = CGAffineTransformIdentity;
+        fromVC.view.alpha = 0.1;
+    } completion:^(BOOL finished) {
+        [transitionContext completeTransition:YES];
+        [backview removeFromSuperview];
+    }];
+}
+
+- (void)presentAnimation:(id<UIViewControllerContextTransitioning>)transitionContext{
+    DNSPublishHomeVC *toVC = (DNSPublishHomeVC *)[transitionContext viewControllerForKey:UITransitionContextToViewControllerKey];
+    UINavigationController *fromVC = (UINavigationController *)[transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey];
+    CTabBarVC *temps = fromVC.viewControllers.lastObject;
+    DNBrowserVC *temp = temps.viewControllers[2];
+    UIView *containerView = [transitionContext containerView];
+    toVC.view.frame = CGRectMake(0, 0, ksrcwidth, ksrcheight);
+    [containerView addSubview:toVC.view];
+    //画两个圆路径
+    UIBezierPath *startCycle =  [UIBezierPath bezierPathWithOvalInRect:temp.buttonFrame];
+    CGFloat x = MAX(temp.buttonFrame.origin.x, containerView.frame.size.width - temp.buttonFrame.origin.x);
+    CGFloat y = MAX(temp.buttonFrame.origin.y, containerView.frame.size.height - temp.buttonFrame.origin.y);
+    CGFloat radius = sqrtf(pow(x, 2) + pow(y, 2));
+    UIBezierPath *endCycle = [UIBezierPath bezierPathWithArcCenter:containerView.center radius:radius startAngle:0 endAngle:M_PI * 2 clockwise:YES];
+    //创建CAShapeLayer进行遮盖
+    CAShapeLayer *maskLayer = [CAShapeLayer layer];
+    maskLayer.path = endCycle.CGPath;
+    //将maskLayer作为toVC.View的遮盖
+    toVC.view.layer.mask = maskLayer;
+    //创建路径动画
+    CABasicAnimation *maskLayerAnimation = [CABasicAnimation animationWithKeyPath:@"path"];
+    //动画是加到layer上的，所以必须为CGPath，再将CGPath桥接为OC对象
+    maskLayerAnimation.fromValue = (__bridge id)(startCycle.CGPath);
+    maskLayerAnimation.toValue = (__bridge id)((endCycle.CGPath));
+    maskLayerAnimation.duration = [self transitionDuration:transitionContext];
+    maskLayerAnimation.delegate = self;
+    maskLayerAnimation.timingFunction = [CAMediaTimingFunction  functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
+    
+    [maskLayerAnimation setValue:transitionContext forKey:@"transitionContext"];
+    [maskLayer addAnimation:maskLayerAnimation forKey:@"path"];
+    
+    UIView *backview = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 80, ksrcheight - 80 - tabbarHeight, 60, 60)];
+    backview.userInteractionEnabled = YES;
+    backview.tag = 10;
+    [[UIApplication sharedApplication].keyWindow addSubview:backview];
+
+    UIView *white = [[UIView alloc] initWithFrame:CGRectMake(7.5, 5, 45, 45)];
+    white.backgroundColor = [UIColor whiteColor];
+    white.layer.cornerRadius = 22.5;
+    white.layer.masksToBounds = YES;
+    white.alpha = 0.01;
+    white.transform = CGAffineTransformMakeScale(0.1, 0.1);
+    white.userInteractionEnabled = YES;
+    white.tag = 11;
+    [backview addSubview:white];
+
+    UIImageView *image = [[UIImageView alloc] initWithFrame:CGRectMake(18, 15.5, 24, 24)];
+    image.image = [UIImage imageNamed:@"icon_browser_tyin"];
+    image.userInteractionEnabled = YES;
+    image.tag = 12;
+    [backview addSubview:image];
+
+    UIButton *button = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, 60, 60)];
+    [[button rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [toVC dismissViewControllerAnimated:YES completion:nil];
+    }];
+    [backview addSubview:button];
+
+    [UIView animateWithDuration:AnimationDuration animations:^{
+        white.alpha = 0.3;
+        white.transform = CGAffineTransformMakeScale(1, 1);
+        image.transform = CGAffineTransformMakeRotation(45 * M_PI / 180.0);
+    }];
+}
+
+- (void)animationDidStop:(CAAnimation *)anim finished:(BOOL)flag{
+    switch (_type) {
+        case XWCircleSpreadTransitionTypePresent:{
+            id<UIViewControllerContextTransitioning> transitionContext = [anim valueForKey:@"transitionContext"];
+            [transitionContext completeTransition:YES];
+        }
+            break;
+        case XWCircleSpreadTransitionTypeDismiss:{
+            id<UIViewControllerContextTransitioning> transitionContext = [anim valueForKey:@"transitionContext"];
+            [transitionContext completeTransition:![transitionContext transitionWasCancelled]];
+            if ([transitionContext transitionWasCancelled]) {
+                [transitionContext viewControllerForKey:UITransitionContextFromViewControllerKey].view.layer.mask = nil;
+            }
+        }
+            break;
+    }
+}
+
+@end

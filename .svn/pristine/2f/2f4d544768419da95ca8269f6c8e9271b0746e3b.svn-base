@@ -1,0 +1,133 @@
+//
+//  WebSiteDomainBindVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/6/6.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "WebSiteDomainBindVC.h"
+#import "BrowserDNListTableViewCell.h"
+#import "DNSSellSelectVC.h"
+
+@interface WebSiteDomainBindVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>
+
+@property(nonatomic,strong) NSMutableArray *datas;
+
+@end
+
+@implementation WebSiteDomainBindVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"BrowserDNListTableViewCell" bundle:nil] forCellReuseIdentifier:@"BrowserDNListTableViewCell"];
+    [self.tableview cyl_reloadData];
+    
+    WeakSelf(self);
+    [[self.checkBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself checkClick];
+    }];
+}
+
+- (IBAction)addClick:(id)sender {
+    DNSSellSelectVC *sellSelect = [[DNSSellSelectVC alloc] init];
+    sellSelect.pageType = 1;
+    sellSelect.titleStr = NSLocalizedString(@"选择绑定域名", nil);
+    if (self.datas.count > 0) {
+        NSDictionary *dict = self.datas[0];
+        sellSelect.selectStr = AssectString(dict[@"domain_name"]);
+    }
+    sellSelect.nameSubject = [RACSubject subject];
+    WeakSelf(self);
+    [sellSelect.nameSubject subscribeNext:^(NSDictionary *dict) {
+        if (weakself.datas.count == 0) {
+            [weakself.datas addObject:dict];
+        }else{
+            [weakself.datas replaceObjectAtIndex:0 withObject:dict];
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself caculateCount];
+    }];
+    [self.navigationVc pushViewController:sellSelect animated:YES];
+    
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无绑定域名", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    BrowserDNListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"BrowserDNListTableViewCell"];
+    cell.imageView.hidden = YES;
+    cell.delBtn.hidden = NO;
+    NSDictionary *dict = self.datas[indexPath.row];
+    cell.nameLabel.text = AssectString(dict[@"domain_name"]);
+    [cell.delBtn addTarget:self action:@selector(delClick) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)delClick{
+    [self.datas removeAllObjects];
+    [self.tableview cyl_reloadData];
+    [self caculateCount];
+}
+
+-(void)caculateCount{
+    self.checkBtn.enabled = self.datas.count>0;
+    self.checkBtn.alpha = self.datas.count>0?1:0.7;
+    self.countLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count];
+}
+
+-(void)checkClick{
+    if (self.datas.count == 0) return;
+    long domain_name_id = [self.datas[0][@"manageid"] longLongValue];
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    NSDictionary *dict = @{@"domain_name_ids":[NSString stringWithFormat:@"%ld",domain_name_id],@"website_id":[NSString stringWithFormat:@"%ld",self.website_id]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:WebsiteBindDomain param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                [weakself.datas removeAllObjects];
+                [weakself.tableview cyl_reloadData];
+                [weakself caculateCount];
+                [weakself.subject sendNext:@""];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma -mark JXCategoryListContentViewDelegate
+- (UIView *)listView {
+    return self.view;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

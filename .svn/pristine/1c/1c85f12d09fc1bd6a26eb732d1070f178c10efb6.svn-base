@@ -1,0 +1,199 @@
+//
+//  BankCardAddViewController.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BankCardAddVC.h"
+#import "TZImagePickerController.h"
+#import "HZPhotoBrowser.h"
+
+@interface BankCardAddVC ()<TZImagePickerControllerDelegate>
+
+@property(nonatomic,strong) NSString *bankUrl;
+@end
+
+@implementation BankCardAddVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:!self.cardModel?NSLocalizedString(@"添加银行卡", nil):NSLocalizedString(@"查看银行卡", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+    self.delBtn.hidden = YES;
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        if (weakself.cardModel) {
+            [weakself checkCardImg];
+        }else{
+            [weakself changUserImageClick];
+        }
+    }];
+    [self.cardView addGestureRecognizer:tap];
+    
+    [[self.delBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself delCardImage];
+    }];
+    [[self.cardNumText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        weakself.cardNumText.text = [weakself.cardNumText PreciseFigures:0];
+    }];
+    self.tipLabel.text = !self.cardModel?NSLocalizedString(@"请添加持卡人本人的银行卡", nil):NSLocalizedString(@"此页面仅供查看，不支持修改信息", nil);
+    self.payView.hidden = self.cardModel;
+
+    if (self.cardModel) {
+        self.nameText.text = self.cardModel.name;
+        self.nameText.enabled = NO;
+        if (self.cardModel.card_number.length > 4) {
+            NSString *number = self.cardModel.card_number;
+            NSString *replaceNumber = [number substringToIndex:number.length - 4];
+            number = [number stringByReplacingOccurrencesOfString:replaceNumber withString:@"****"];
+            self.cardNumText.text = number;
+        }else{
+            self.cardNumText.text = self.cardModel.card_number;
+        }
+        self.cardNumText.enabled = NO;
+        self.bankText.text = self.cardModel.bank_name;
+        self.bankText.enabled = NO;
+        [self.cardImg sd_setImageWithURL:[NSURL URLWithString:self.cardModel.bank_card_image] placeholderImage:[UIColor createColorImg:@"#f7f9f9"] options:SDWebImageAllowInvalidSSLCertificates];
+    }
+    
+    self.pswTipLabel.text = NSLocalizedString(@"请输入资产密码", nil);
+    self.payText.placeholder = NSLocalizedString(@"请输入资产密码", nil);
+}
+
+-(void)checkCardImg{
+    NSString *cardImg = self.cardModel.bank_card_image;
+    if ([AssectString(cardImg) isEqualToString:@""])return;
+    
+    HZPhotoBrowser *browser = [[HZPhotoBrowser alloc] init];
+    browser.isFullWidthForLandScape = YES;
+    browser.isNeedLandscape = YES;
+    browser.currentImageIndex = 0;
+    browser.imageArray = [NSArray arrayWithObjects:self.cardModel.bank_card_image, nil];
+    
+    [browser show];
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 65,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.hidden = self.cardModel;
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    [rightBtn setTitle:NSLocalizedString(@"保存", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself checkClick];
+    }];
+    [view addSubview:rightBtn];
+}
+
+-(void)delCardImage{
+    self.cardImg.image = [UIImage imageNamed:@"icon_card_placeholder"];
+    self.delBtn.hidden = YES;
+    self.bankUrl = @"";
+}
+
+-(void)upLoadImage:(UIImage *)image{
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    [WebServices postImageFormReqUrl:ImageUpload image:image param:@{} loadingTime:30.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself showMsg:json[@"msg"] location:centre];
+                weakself.cardImg.image = image;
+                weakself.delBtn.hidden = NO;
+                weakself.bankUrl = json[@"data"][@"image_path"];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)changUserImageClick{
+    TZImagePickerController *imagePC=[[TZImagePickerController alloc]initWithMaxImagesCount:1 delegate:self];//设置多选最多支持的最大数量，设置代理
+    WeakSelf(self);
+    imagePC.preferredLanguage = [GDLocalizableController userLanguage];
+    imagePC.modalPresentationStyle = UIModalPresentationFullScreen;
+    [imagePC setDidFinishPickingPhotosWithInfosHandle:^(NSArray<UIImage *> *photos, NSArray *assets, BOOL isSelectOriginalPhoto, NSArray<NSDictionary *> *infos) {
+        UIImage *image = photos[0];
+        [weakself upLoadImage:image];
+    }];
+    [self presentViewController:imagePC animated:YES completion:nil];//跳转
+}
+
+-(void)checkClick{
+    NSString *name = AssectString(self.nameText.text);
+    if ([name isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请输入持卡人姓名", nil) location:centre];
+        return;
+    }
+    
+    NSString *cardNum = AssectString(self.cardNumText.text);
+    if ([cardNum isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请输入卡号", nil) location:centre];
+        return;
+    }
+    
+    NSString *bank = AssectString(self.bankText.text);
+    if ([bank isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请输入开户行", nil) location:centre];
+        return;
+    }
+    
+    NSString *pay = AssectString(self.payText.text);
+    if ([pay isEqualToString:@""]) {
+        [self showMsg:NSLocalizedString(@"请输入资产密码", nil) location:centre];
+        return;
+    }
+    
+    WeakSelf(self);
+    NSDictionary *dict = @{@"name":name,@"card_number":cardNum,@"bank_name":bank,@"bank_card_image":AssectString(self.bankUrl),@"pay_password":[pay md532BitUpper]};
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:BankCardCreate param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.navigationController popViewControllerAnimated:YES];
+                [weakself.subject sendNext:@""];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+- (UIImage *)compressImage:(UIImage *)sourceImage toTargetWidth:(CGFloat)targetWidth {
+    
+    CGSize imageSize = sourceImage.size;
+    NSLog(@"%@",sourceImage);
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetHeight = (targetWidth / width) * height;
+    UIGraphicsBeginImageContext(CGSizeMake(targetWidth, targetHeight));
+    [sourceImage drawInRect:CGRectMake(0, 0, targetWidth, targetHeight)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
+}
+
+@end

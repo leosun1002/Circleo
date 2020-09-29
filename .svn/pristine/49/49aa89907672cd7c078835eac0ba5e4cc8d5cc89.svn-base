@@ -1,0 +1,48 @@
+//
+//  ShopAddressListVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/17.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAddressListVC.h"
+#import "MallAddressListTableViewCell.h"
+#import "ShopAddAddressVC.h"
+
+@interface ShopAddressListVC ()<UITableViewDelegate,UITableViewDataSource>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@end
+
+@implementation ShopAddressListVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"MallAddressListTableViewCell" bundle:nil] forCellReuseIdentifier:@"MallAddressListTableViewCell"];
+}
+
+- (IBAction)addClick:(id)sender {
+    ShopAddAddressVC *addAddress = [[ShopAddAddressVC alloc] init];
+    [self.navigationController pushViewController:addAddress animated:YES];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MallAddressListTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MallAddressListTableViewCell"];
+    return cell;
+}
+
+@end

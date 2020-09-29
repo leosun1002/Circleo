@@ -1,0 +1,448 @@
+//
+//  DNSOrderManageChildVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/5.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSOrderManageChildVC.h"
+#import "DNSOrderManageTableViewCell.h"
+#import "DNSOrderManageHeader.h"
+#import "DNSOrderModel.h"
+#import "OYCountDownManager.h"
+#import "DNSOrderDetailVC.h"
+#import "OrderManageSelectTableViewCell.h"
+
+@interface DNSOrderManageChildVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong) NSMutableArray *datas;
+@property(nonatomic,strong) NSArray *selectDatas;
+@property(nonatomic,strong) DNSOrderManageHeader *header;
+@property(nonatomic,strong)NSString *order_type;
+@property(nonatomic,strong)NSString *order_state;
+@property(nonatomic,strong)NSString *order_date;
+@property(nonatomic,strong)NSString *select_type;
+@property(nonatomic,strong)UITableView *selectTabel;
+
+@end
+
+@implementation DNSOrderManageChildVC
+
+- (void)dealloc {
+    [kCountDownManager removeAllSource];
+    [kCountDownManager invalidate];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"订单管理", nil) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    self.bgTopConst.constant = navBarHeight + 45;
+    [self prepareUi];
+    if (self.type == 0) {
+        [self addRefresh];
+        // 启动倒计时管理
+        [kCountDownManager start];
+        [self refreshData];
+    }
+}
+
+-(void)prepareUi{
+    [self.view addSubview:self.selectTabel];
+    [self.view bringSubviewToFront:self.selectTabel];
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSOrderManageTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNSOrderManageTableViewCell"];
+    [self.selectTabel registerNib:[UINib nibWithNibName:@"OrderManageSelectTableViewCell" bundle:nil] forCellReuseIdentifier:@"OrderManageSelectTableViewCell"];
+
+    self.headerBgview.width = ksrcwidth;
+    [self.headerBgview addSubview:self.header];
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself hideSelectData];
+    }];
+    [self.bgview addGestureRecognizer:tap];
+    
+    if (@available(iOS 11.0,*)) {
+        self.tableview.contentInsetAdjustmentBehavior=UIScrollViewContentInsetAdjustmentNever;
+        self.tableview.estimatedRowHeight=0;
+        self.tableview.estimatedSectionFooterHeight=0;
+    }else{
+        self.automaticallyAdjustsScrollViewInsets=NO;
+    }
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)refreshData{
+    if (self.type == 1) {
+        [self.tableview cyl_reloadData];
+        return;
+    }
+    if ([AssectString(self.canRefresh) isEqualToString:@""]) {
+        if (![AssectString(self.status) isEqualToString:@""]) {
+            self.order_state = AssectString(self.status);
+            self.header.stateLabel.text = [AssectString(self.order_state) isEqualToString:@""]?NSLocalizedString(@"订单状态", nil):AssectString(self.order_state);
+            self.header.stateLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+            self.header.stateLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+        }
+        [self.tableview.mj_header beginRefreshing];
+        self.canRefresh = @"1";
+    }
+}
+
+-(void)getData:(BOOL)ifFresh{
+    WeakSelf(self);
+    ifFresh?(page = 1):page++;
+    [WebServices getFormReqUrl:DomainOrderManage param:[self dealwithData] loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<DNSOrderModel *> *applicationList = [DNSOrderModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+                // 调用[kCountDownManager reload]
+                [kCountDownManager reload];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+-(void)getTypeData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    [WebServices getFormReqUrl:DomainSearchTerm param:@{@"type":@"1"} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                NSMutableArray *tempDatas = [NSMutableArray array];
+                [json[@"data"][@"search_terms"] enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                    [tempDatas addObject:AssectString(obj[@"name"])];
+                }];
+                if (tempDatas.count == 0) {
+                    [tempDatas addObject:NSLocalizedString(@"不限", nil)];
+                }else{
+                    [tempDatas insertObject:NSLocalizedString(@"不限", nil) atIndex:0];
+                }
+                weakself.select_type = @"1";
+                weakself.selectDatas = tempDatas;
+                [weakself getSelectData:weakself.header.typeBtn];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+#pragma CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *empty = [EmptyView flagView];
+    empty.contents.text = self.type == 0?NSLocalizedString(@"当前暂无交易订单", nil):NSLocalizedString(@"暂未开放，敬请期待", nil);
+    return empty;
+}
+
+-(NSDictionary *)dealwithData{
+    NSString *order = @"";
+    if ([AssectString(self.order_type) isEqualToString:NSLocalizedString(@"一口价", nil)]) {
+        order = @"1";
+    }else{
+        order = @"";
+    }
+    
+    NSString *state = @"";
+    if ([AssectString(self.order_state) isEqualToString:NSLocalizedString(@"挂卖中", nil)]) {
+        state = @"1";
+    }else if ([AssectString(self.order_state) isEqualToString:NSLocalizedString(@"已售出", nil)]) {
+        state = @"2";
+    }else if ([AssectString(self.order_state) isEqualToString:NSLocalizedString(@"已取消", nil)]) {
+        state = @"3";
+    }else if ([AssectString(self.order_state) isEqualToString:NSLocalizedString(@"求购中", nil)]) {
+        state = @"4";
+    }else if ([AssectString(self.order_state) isEqualToString:NSLocalizedString(@"已购买", nil)]) {
+        state = @"99";
+    }else{
+        state = @"";
+    }
+    
+    NSString *date = @"";
+    if ([AssectString(self.order_date) isEqualToString:NSLocalizedString(@"1个月内", nil)]) {
+        NSString *dateNow = [self ddpGetExpectTimestamp:0 month:0 day:0];
+        NSString *dateBefore = [self ddpGetExpectTimestamp:0 month:-1 day:0];
+        date = [NSString stringWithFormat:@"%@,%@",dateBefore,dateNow];
+    }else if ([AssectString(self.order_date) isEqualToString:NSLocalizedString(@"2个月内", nil)]) {
+        NSString *dateNow = [self ddpGetExpectTimestamp:0 month:0 day:0];
+        NSString *dateBefore = [self ddpGetExpectTimestamp:0 month:-2 day:0];
+        date = [NSString stringWithFormat:@"%@,%@",dateBefore,dateNow];
+    }else if ([AssectString(self.order_date) isEqualToString:NSLocalizedString(@"2个月前-6个月内", nil)]) {
+        NSString *dateNow = [self ddpGetExpectTimestamp:0 month:-2 day:0];
+        NSString *dateBefore = [self ddpGetExpectTimestamp:0 month:-6 day:0];
+        date = [NSString stringWithFormat:@"%@,%@",dateBefore,dateNow];
+    }else if ([AssectString(self.order_date) isEqualToString:NSLocalizedString(@"6个月前-1年内", nil)]) {
+        NSString *dateNow = [self ddpGetExpectTimestamp:0 month:-6 day:0];
+        NSString *dateBefore =  [self ddpGetExpectTimestamp:-1 month:0 day:0];
+        date = [NSString stringWithFormat:@"%@,%@",dateBefore,dateNow];
+    }else if ([AssectString(self.order_date) isEqualToString:NSLocalizedString(@"1年前", nil)]) {
+        NSString *dateBefore = [self ddpGetExpectTimestamp:-1 month:0 day:0];
+        date = dateBefore;
+    }else{
+        date = @"";
+    }
+    
+    NSDictionary *dict = @{@"order_type":AssectString(order),@"order_status":AssectString(state),@"transaction_date":AssectString(date),@"page":[NSString stringWithFormat:@"%d",page]};
+    return dict;
+}
+
+-(void)getSelectData:(UIButton *)sender{
+    [self resrtAllBtn];
+    sender.selected = YES;
+    if (sender == self.header.typeBtn) {
+        self.header.typeLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        self.header.typeLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+        self.header.typeImage.image = [UIImage imageNamed:@"icon_shop_up"];
+    }else if (sender == self.header.stateBtn) {
+        self.header.stateLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        self.header.stateLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+        self.header.stateImg.image = [UIImage imageNamed:@"icon_shop_up"];
+    }else{
+        self.header.dataLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        self.header.dataLabel.font = [UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+        self.header.dateImg.image = [UIImage imageNamed:@"icon_shop_up"];
+    }
+    [self showSelectData];
+}
+
+-(void)showSelectData{
+    if (!self.selectTabel.hidden) {
+        [UIView animateWithDuration:0.25 animations:^{
+            self.selectTabel.height = 45 * self.selectDatas.count;
+        } completion:^(BOOL finished) {
+            [self.selectTabel reloadData];
+        }];
+        return;
+    }
+    self.bgview.hidden = NO;
+    self.selectTabel.hidden = NO;
+    [UIView animateWithDuration:0.25 animations:^{
+        self.bgview.alpha = 0.3;
+        self.selectTabel.height = 45 * self.selectDatas.count;
+    } completion:^(BOOL finished) {
+        [self.selectTabel reloadData];
+    }];
+}
+
+-(void)hideSelectData{
+    [UIView animateWithDuration:0.25 animations:^{
+        self.bgview.alpha = 0.01;
+        self.selectTabel.height = 0;
+    } completion:^(BOOL finished) {
+        self.bgview.hidden = YES;
+        self.selectTabel.hidden = YES;
+        [self resrtAllBtn];
+    }];
+}
+
+-(void)resrtAllBtn{
+    self.header.typeBtn.selected = NO;
+    self.header.stateBtn.selected = NO;
+    self.header.dateBtn.selected = NO;
+    
+    self.header.typeLabel.textColor = [self.header.typeLabel.text isEqualToString:NSLocalizedString(@"订单类型", nil)]?[UIColor colorWithRGBHex:@"#AAAAB5"]:[UIColor colorWithRGBHex:@"#18181A"];
+    self.header.typeLabel.font = [self.header.typeLabel.text isEqualToString:NSLocalizedString(@"订单类型", nil)]?[UIFont systemFontOfSize:14]:[UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+//    self.header.typeLabel.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+//    self.header.typeLabel.font = [UIFont systemFontOfSize:14];
+    self.header.typeImage.image = [UIImage imageNamed:@"icon_shop_down"];
+    
+    self.header.stateLabel.textColor = [self.header.stateLabel.text isEqualToString:NSLocalizedString(@"订单状态", nil)]?[UIColor colorWithRGBHex:@"#AAAAB5"]:[UIColor colorWithRGBHex:@"#18181A"];
+    self.header.stateLabel.font = [self.header.stateLabel.text isEqualToString:NSLocalizedString(@"订单状态", nil)]?[UIFont systemFontOfSize:14]:[UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+//    self.header.stateLabel.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+//    self.header.stateLabel.font = [UIFont systemFontOfSize:14];
+    self.header.stateImg.image = [UIImage imageNamed:@"icon_shop_down"];
+    
+    self.header.dataLabel.textColor = [self.header.dataLabel.text isEqualToString:NSLocalizedString(@"交易日期", nil)]?[UIColor colorWithRGBHex:@"#AAAAB5"]:[UIColor colorWithRGBHex:@"#18181A"];
+    self.header.dataLabel.font = [self.header.dataLabel.text isEqualToString:NSLocalizedString(@"交易日期", nil)]?[UIFont systemFontOfSize:14]:[UIFont systemFontOfSize:14 weight:UIFontWeightSemibold];
+//    self.header.dataLabel.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+//    self.header.dataLabel.font = [UIFont systemFontOfSize:14];
+    self.header.dateImg.image = [UIImage imageNamed:@"icon_shop_down"];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    if (tableView == self.selectTabel) {
+        return self.selectDatas.count;
+    }
+    
+    return self.datas.count;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.selectTabel) {
+        return 45.f;
+    }
+    
+    if (self.datas.count == 0) {
+        return self.tableview.height - 45;
+    }
+    return 105.f;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (tableView == self.selectTabel) {
+        OrderManageSelectTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"OrderManageSelectTableViewCell"];
+        cell.nameLabel.text = self.selectDatas[indexPath.row];
+        NSString *sel_type = @"";
+        if ([self.select_type isEqualToString:@"1"]) {
+            sel_type = self.order_type;
+        }else if ([self.select_type isEqualToString:@"2"]){
+            sel_type = self.order_state;
+        }else{
+            sel_type = self.order_date;
+        }
+        if ([AssectString(self.selectDatas[indexPath.row]) isEqualToString:AssectString(sel_type)]) {
+            cell.nameLabel.textColor = [UIColor colorWithRGBHex:@"#5151F0"];
+            cell.nameLabel.font = [UIFont boldSystemFontOfSize:12];
+        }else{
+            cell.nameLabel.textColor = [UIColor colorWithRGBHex:@"#323236"];
+            cell.nameLabel.font = [UIFont systemFontOfSize:12];
+        }
+        return cell;
+    }
+    
+    DNSOrderManageTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSOrderManageTableViewCell"];
+    cell.model = self.datas[indexPath.row];
+    return cell;
+    
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    if (tableView == self.tableview) {
+        if (self.datas.count == 0) return;
+        
+        DNSOrderModel *model = self.datas[indexPath.row];
+        DNSOrderDetailVC *detailVC = [[DNSOrderDetailVC alloc] init];
+        detailVC.order_id = [NSString stringWithFormat:@"%ld",model.orderid];
+        [self.navigationController pushViewController:detailVC animated:YES];
+        return;
+    }
+
+    NSString *sel_type = self.selectDatas[indexPath.row];
+    if ([self.select_type isEqualToString:@"1"]) {
+        self.order_type = sel_type;
+        self.header.typeLabel.text = [AssectString(self.order_type) isEqualToString:@""]?NSLocalizedString(@"订单类型", nil):AssectString(self.order_type);
+    }else if ([self.select_type isEqualToString:@"2"]){
+        self.order_state = sel_type;
+        self.header.stateLabel.text = [AssectString(self.order_state) isEqualToString:@""]?NSLocalizedString(@"订单状态", nil):AssectString(self.order_state);
+    }else{
+        self.order_date = sel_type;
+        NSString *btnStr = @"";
+        if ([self.order_date isEqualToString:NSLocalizedString(@"2个月前-6个月内", nil)]) {
+            btnStr = NSLocalizedString(@"2个月前", nil);
+        }else if ([self.order_date isEqualToString:NSLocalizedString(@"6个月前-1年内", nil)]) {
+            btnStr = NSLocalizedString(@"6个月前", nil);
+        }else{
+            btnStr = self.order_date;
+        }
+        self.header.dataLabel.text = [btnStr isEqualToString:@""]?NSLocalizedString(@"交易日期", nil):AssectString(btnStr);
+    }
+    [self hideSelectData];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+//获取时间条件
+- (NSString *)ddpGetExpectTimestamp:(NSInteger)year month:(NSUInteger)month day:(NSUInteger)day {
+    ///< 当前时间
+    NSDate *currentdata = [NSDate date];
+    
+    ///< NSCalendar -- 日历类，它提供了大部分的日期计算接口，并且允许您在NSDate和NSDateComponents之间转换
+    NSCalendar *calendar = [[NSCalendar alloc] initWithCalendarIdentifier:NSCalendarIdentifierGregorian];
+    
+    NSDateComponents *datecomps = [[NSDateComponents alloc] init];
+    [datecomps setYear:year?:0];
+    [datecomps setMonth:month?:0];
+    [datecomps setDay:day?:0];
+    
+    ///< dateByAddingComponents: 在参数date基础上，增加一个NSDateComponents类型的时间增量
+    NSDate *calculatedate = [calendar dateByAddingComponents:datecomps toDate:currentdata options:0];
+    
+    ///< 打印推算时间
+    NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setDateFormat:@"yyyy-MM-dd hh:mm:ss"];
+    NSString *calculateStr = [formatter stringFromDate:calculatedate];
+    return calculateStr;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+-(DNSOrderManageHeader *)header{
+    if (!_header) {
+        _header = [[DNSOrderManageHeader alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 45)];
+        
+        WeakSelf(self);
+        [[_header.typeBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            if (weakself.header.typeBtn.selected) {
+                [weakself hideSelectData];
+                return ;
+            }
+            [weakself getTypeData];
+        }];
+        
+        [[_header.stateBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            if (weakself.header.stateBtn.selected) {
+                [weakself hideSelectData];
+                return ;
+            }
+            weakself.select_type = @"2";
+            weakself.selectDatas = [NSArray arrayWithObjects:NSLocalizedString(@"全部状态", nil),NSLocalizedString(@"已购买", nil),NSLocalizedString(@"挂卖中", nil),NSLocalizedString(@"已售出", nil),NSLocalizedString(@"已取消", nil),NSLocalizedString(@"求购中", nil), nil];
+            [weakself getSelectData:weakself.header.stateBtn];
+        }];
+        
+        [[_header.dateBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+            if (weakself.header.dateBtn.selected) {
+                [weakself hideSelectData];
+                return ;
+            }
+            weakself.select_type = @"3";
+            weakself.selectDatas = [NSArray arrayWithObjects:NSLocalizedString(@"全部时间", nil),NSLocalizedString(@"1个月内", nil),NSLocalizedString(@"2个月内", nil),NSLocalizedString(@"2个月前-6个月内", nil),NSLocalizedString(@"6个月前-1年内", nil),NSLocalizedString(@"1年前", nil), nil];
+            [weakself getSelectData:weakself.header.dateBtn];
+        }];
+    }
+    return _header;
+}
+
+#pragma -mark getter
+-(UITableView *)selectTabel{
+    if (!_selectTabel) {
+        _selectTabel = [[UITableView alloc] initWithFrame:CGRectMake(0,navBarHeight + 45, ksrcwidth, 0) style:UITableViewStylePlain];
+        _selectTabel.separatorStyle = UITableViewCellSeparatorStyleNone;
+        _selectTabel.delegate = self;
+        _selectTabel.dataSource = self;
+        _selectTabel.hidden = YES;
+    }
+    return _selectTabel;
+}
+@end

@@ -1,0 +1,24 @@
+//
+//  NewsWebViewController.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface NewsWebViewController : BaseViewController
+
+@property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property(nonatomic,strong)NSString *loadUrl;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property(nonatomic,strong)NSString *titleStr;
+@property(nonatomic,assign)long fromEpid;// 1来自疫情
+@property (weak, nonatomic) IBOutlet UIButton *shareBtn;
+
+@end
+
+NS_ASSUME_NONNULL_END

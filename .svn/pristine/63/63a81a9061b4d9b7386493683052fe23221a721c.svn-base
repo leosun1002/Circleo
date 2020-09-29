@@ -1,0 +1,44 @@
+//
+//  WebArticleDetailModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/6/6.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface WebArticleDetailChainModel : NSObject
+
+@property(nonatomic,assign)long chianId;
+@property(nonatomic,strong)NSString *image_address;
+@property(nonatomic,strong)NSString *name;
+@property(nonatomic,strong) NSDictionary *pivot;
+
+@end
+
+@interface WebArticleDetailNavigationModel : NSObject
+
+@property(nonatomic,assign) long navigationId;
+@property(nonatomic,strong) NSString *name;
+
+@end
+
+@interface WebArticleDetailModel : NSObject
+
+@property(nonatomic,assign)long reading;
+@property(nonatomic,strong)NSString *content;
+@property(nonatomic,assign)long website_category_navigation_id;
+@property(nonatomic,assign)long articleId;
+@property(nonatomic,strong)NSString *created_at;
+@property(nonatomic,strong)NSString *title;
+@property(nonatomic,strong)WebArticleDetailChainModel *website_article_chain;
+@property(nonatomic,strong)WebArticleDetailNavigationModel *website_category_navigation;
+@property(nonatomic,assign)long word_count;
+
+
+@end
+
+NS_ASSUME_NONNULL_END

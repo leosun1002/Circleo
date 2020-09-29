@@ -1,0 +1,374 @@
+//
+//  MyEvidenceVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/23.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MyEvidenceVC.h"
+#import "MyEvidenceTableViewCell.h"
+#import "EvidenceBindVC.h"
+#import "BrowserUnbindDNVC.h"
+#import "EvidenceDetailVC.h"
+#import "MyEvidenceModel.h"
+#import "EvidenceHomeModel.h"
+#import "DNSFilterSelectVC.h"
+#import "BrowserDNFilterVC.h"
+#import "DNSDatePickerVC.h"
+#import "DNSShopSelectVC.h"
+#import "EvidenceHomeVC.h"
+#import "AdvanceAuthenVC.h"
+#import "SetTradePasswordVC.h"
+#import "AuthenVC.h"
+
+@interface MyEvidenceVC ()<UITableViewDataSource,UITableViewDelegate,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong) NSMutableArray *datas;
+@property(nonatomic,strong) NSMutableArray *typeDatas;
+@property(nonatomic,strong) NSMutableArray *typeStrDatas;
+@property(nonatomic,strong) NSString *deposit_certificate_category_id;
+@property(nonatomic,strong)NSString *domainid;
+@property(nonatomic,strong)NSString *domainName;
+@property(nonatomic,strong)NSString *time;
+@property(nonatomic,strong)NSString *searchStr;
+
+@end
+
+@implementation MyEvidenceVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self addRefresh];
+    [self prepareUi];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [self dismissLoading];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"MyEvidenceTableViewCell" bundle:nil] forCellReuseIdentifier:@"MyEvidenceTableViewCell"];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"time":AssectString(self.time),@"deposit_certificate_category_id":AssectString(self.deposit_certificate_category_id),@"domain_name_id":AssectString(self.domainid),@"title":AssectString(self.searchStr),@"page":[NSString stringWithFormat:@"%d",page]};
+    WeakSelf(self);
+    [WebServices getFormReqUrl:MyCertificateList param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<MyEvidenceModel*> *applicationList = [MyEvidenceModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself getTypeList];
+    }];
+    [self.typeView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself dnsSelect];
+    }];
+    [self.domainView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself timeSelect];
+    }];
+    [self.timeView addGestureRecognizer:tap2];
+    
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无我的存证", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MyEvidenceTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MyEvidenceTableViewCell"];
+    cell.operateClick.tag = indexPath.row;
+    [cell.operateClick addTarget:self action:@selector(operateClick:) forControlEvents:UIControlEventTouchUpInside];
+    cell.model = self.datas[indexPath.row];
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    MyEvidenceModel *model = self.datas[indexPath.row];
+    EvidenceDetailVC *detail = [[EvidenceDetailVC alloc] init];
+    detail.deposit_certificate_id = model.myEvidenceId;
+    [self.navigationController pushViewController:detail animated:YES];
+}
+
+-(void)operateClick:(UIButton *)sender{
+    UIAlertController *sheetVC = [UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    MyEvidenceModel *model = self.datas[sender.tag];
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:model.is_domain == 0?NSLocalizedString(@"绑定", nil):NSLocalizedString(@"已绑定", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+//        if (model.status != 2) {
+//            [weakself showMsg:NSLocalizedString(@"存证成功才能进行绑定", nil) location:centre];
+//            return ;
+//        }
+        EvidenceBindVC *bind = [[EvidenceBindVC alloc] init];
+        bind.model = model;
+        bind.subject = [RACSubject subject];
+        [bind.subject subscribeNext:^(id x) {
+            [weakself.tableview.mj_header beginRefreshing];
+        }];
+        [weakself.navigationController pushViewController:bind animated:YES];
+        
+    }];
+    UIAlertAction*  sheetBtn2=[UIAlertAction actionWithTitle:model.is_domain == 0?NSLocalizedString(@"未绑定", nil):NSLocalizedString(@"解绑", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+//        if (model.status != 2) {
+//            [weakself showMsg:NSLocalizedString(@"存证成功才能进行解绑", nil) location:centre];
+//            return ;
+//        }
+        BrowserUnbindDNVC *unbind = [[BrowserUnbindDNVC alloc] init];
+        unbind.type = 1;
+        unbind.myEvidenceId = model.myEvidenceId;
+        unbind.subject = [RACSubject subject];
+        [unbind.subject subscribeNext:^(id x) {
+            [weakself.tableview.mj_header beginRefreshing];
+        }];
+        [weakself.navigationController pushViewController:unbind animated:YES];
+    }];
+    UIAlertAction*  sheetBtn3=[UIAlertAction actionWithTitle:NSLocalizedString(@"查看", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+//        if (model.status != 2) {
+//            [weakself showMsg:NSLocalizedString(@"存证成功才能查看", nil) location:centre];
+//            return ;
+//        }
+        EvidenceDetailVC *detail = [[EvidenceDetailVC alloc] init];
+        detail.deposit_certificate_id = model.myEvidenceId;
+        [weakself.navigationController pushViewController:detail animated:YES];
+
+    }];
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    /// 0否，1是
+    [sheetBtn1 setValue:model.is_domain == 0?[UIColor colorWithRGBHex:@"#323236"]:[UIColor colorWithRGBHex:@"#AAAAB5"] forKey:@"titleTextColor"];
+    sheetBtn1.enabled = model.is_domain == 0;
+    [sheetVC addAction:sheetBtn2];
+    [sheetBtn2 setValue:model.is_domain == 1?[UIColor colorWithRGBHex:@"#323236"]:[UIColor colorWithRGBHex:@"#AAAAB5"] forKey:@"titleTextColor"];
+    sheetBtn2.enabled = model.is_domain == 1;
+    [sheetVC addAction:sheetBtn3];
+    [sheetBtn3 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [sheetVC addAction:sheetBtn];
+    [sheetBtn setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+- (IBAction)addClick:(id)sender {
+    [self judgeUserInfo];
+    EvidenceHomeVC *evidence = [[EvidenceHomeVC alloc] init];
+    [self.navigationController pushViewController:evidence animated:YES];
+}
+
+//实名认证判断
+-(void)judgeUserInfo{
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSString *payPsw = AssectString(userdict[JYPayPassword]);
+    NSString *authen = AssectString(userdict[JYAuthentication]);
+    if ([payPsw isEqualToString:@"0"] || ![authen isEqualToString:@"1"]) {
+        AdvanceAuthenVC *advance = [[AdvanceAuthenVC alloc] init];
+        advance.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        WeakSelf(self);
+        advance.pswSubject = [RACSubject subject];
+        [advance.pswSubject subscribeNext:^(id x) {
+            SetTradePasswordVC *setPsw = [[SetTradePasswordVC alloc] init];
+            [weakself.navigationController pushViewController:setPsw animated:YES];
+        }];
+        advance.authenSubject = [RACSubject subject];
+        [advance.authenSubject subscribeNext:^(NSString *authen) {
+            //0未，1是，2审核中，3失败
+            if ([authen isEqualToString:@"0"] || [authen isEqualToString:@"3"]) {
+                AuthenVC *authen = [[AuthenVC alloc] init];
+                [weakself.navigationController pushViewController:authen animated:YES];
+            }else{
+                [weakself showMsg:NSLocalizedString(@"正在审核中", nil) location:centre];
+            }
+        }];
+        [self.navigationController presentViewController:advance animated:NO completion:^{
+            
+        }];
+        return;
+    }
+}
+
+- (void)dnsSelect{
+    BrowserDNFilterVC *select = [[BrowserDNFilterVC alloc] init];
+    select.modalPresentationStyle = UIModalPresentationFullScreen;
+    select.type = 1;
+    select.selectStr = self.domainName;
+    select.selectSubject = [RACSubject subject];
+    WeakSelf(self);
+    [select.selectSubject subscribeNext:^(NSDictionary *dict) {
+        weakself.domainName = dict[@"domain_name"];
+        if ([AssectString(dict[@"domain_name"]) isEqualToString:NSLocalizedString(@"无域名", nil)]) {
+            weakself.domainid = @"ss";
+        }else if ([AssectString(dict[@"domain_name"]) isEqualToString:NSLocalizedString(@"全部域名", nil)]){
+            weakself.domainid = @"";
+        }else{
+            weakself.domainid = [NSString stringWithFormat:@"%ld",[dict[@"id"] longValue]];
+        }
+        weakself.domainLabel.text = AssectString(weakself.domainName);
+        weakself.domainLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        weakself.domainLabel.font = [UIFont boldSystemFontOfSize:14];
+        weakself.domainImgV.image = [UIImage imageNamed:@"icon_shop_up"];
+        [weakself.tableview.mj_header beginRefreshing];
+    }];
+    [self.navigationController presentViewController:select animated:YES completion:nil];
+}
+
+-(void)timeSelect{
+    DNSDatePickerVC *select = [[DNSDatePickerVC alloc] init];
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.daySubject = [RACSubject  subject];
+    if ([AssectString(self.time) isEqualToString:NSLocalizedString(@"至今", nil)] || [AssectString(self.time) isEqualToString:@""]) {
+        select.selectYear = @"";
+        select.selectMonth = @"";
+        select.selectDay = @"";
+    }else{
+        select.selectYear = [AssectString(self.time) componentsSeparatedByString:@"-"][0];
+        select.selectMonth = [AssectString(self.time) componentsSeparatedByString:@"-"][1];
+        select.selectDay = [AssectString(self.time) componentsSeparatedByString:@"-"][2];
+    }
+    WeakSelf(self);
+    [select.daySubject subscribeNext:^(NSString *day) {
+        weakself.time = [day isEqualToString:NSLocalizedString(@"至今", nil)]?@"":day;
+        weakself.timeLabel.text = day;
+        weakself.timeLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        weakself.timeLabel.font = [UIFont boldSystemFontOfSize:14];
+        weakself.timeImgV.image = [UIImage imageNamed:@"icon_shop_up"];
+        [weakself.tableview.mj_header beginRefreshing];
+    }];
+    [self presentViewController:select animated:NO completion:nil];
+
+}
+
+-(void)getTypeList{
+    WeakSelf(self);
+    [self showLoading:@"" allowsOpOperation:NO];
+    [WebServices getFormReqUrl:CertificateIndex param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.typeDatas removeAllObjects];
+                [weakself.typeStrDatas removeAllObjects];
+                NSMutableArray<EvidenceHomeModel*> *applicationList = [EvidenceHomeModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.typeDatas addObjectsFromArray:applicationList];
+                weakself.typeStrDatas = [[weakself.typeDatas valueForKey:@"name"] mutableCopy];
+                [weakself.typeStrDatas insertObject:NSLocalizedString(@"全部", nil) atIndex:0];
+                [weakself selectType];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)selectType{
+    DNSFilterSelectVC *select = [[DNSFilterSelectVC alloc] init];
+    select.datas = self.typeStrDatas;
+    select.dataType = 4;
+    select.selectStr = AssectString(self.typeLabel.text);
+    select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    select.subject = [RACSubject subject];
+    WeakSelf(self);
+    [select.subject subscribeNext:^(NSNumber *number) {
+        NSInteger tag = [number integerValue];
+        if (tag == 0) {
+            weakself.deposit_certificate_category_id = @"";
+        }else{
+            EvidenceHomeModel *model = weakself.typeDatas[tag - 1];
+            weakself.deposit_certificate_category_id = [NSString stringWithFormat:@"%ld",model.user.deposit_certificate_category_id];
+        }
+        weakself.typeLabel.text = weakself.typeStrDatas[tag];
+        weakself.typeLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        weakself.typeLabel.font = [UIFont boldSystemFontOfSize:14];
+        weakself.typeImgV.image = [UIImage imageNamed:@"icon_shop_up"];
+        [weakself.tableview.mj_header beginRefreshing];
+    }];
+    [self.navigationController presentViewController:select animated:NO completion:nil];
+}
+
+- (IBAction)searchClick:(id)sender {
+    DNSShopSelectVC *selectVC = [[DNSShopSelectVC alloc] init];
+    selectVC.searchHistory = AssectString(self.searchStr);
+    selectVC.placeHolderStr = NSLocalizedString(@"请输入搜索内容", nil);
+    selectVC.statusType = 1;
+    selectVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    selectVC.searchSubject = [RACSubject subject];
+    WeakSelf(self);
+    [selectVC.searchSubject subscribeNext:^(NSString *search) {
+        weakself.searchStr = search;
+        [weakself.tableview.mj_header beginRefreshing];
+    }];
+    UIWindow *window = [[[UIApplication sharedApplication] windows] objectAtIndex:0];
+    [window.rootViewController presentViewController:selectVC animated:NO completion:^{
+        
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)typeDatas{
+    if (!_typeDatas) {
+        _typeDatas = [NSMutableArray array];
+    }
+    return _typeDatas;
+}
+
+-(NSMutableArray *)typeStrDatas{
+    if (!_typeStrDatas) {
+        _typeStrDatas = [NSMutableArray array];
+    }
+    return _typeStrDatas;
+}
+@end

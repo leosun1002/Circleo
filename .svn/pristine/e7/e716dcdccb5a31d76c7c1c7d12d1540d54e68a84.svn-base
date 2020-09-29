@@ -1,0 +1,66 @@
+//
+//  DNSInformationVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSInformationVC.h"
+
+@interface DNSInformationVC ()
+
+@end
+
+@implementation DNSInformationVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"域名信息", nil) hiddeBack:NO];
+    [self prepareUi];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getData];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+}
+
+-(void)getData{
+    WeakSelf(self);
+    [self showLoading:NSLocalizedString(@"加载中..", nil) allowsOpOperation:NO];
+    [WebServices postFormReqUrl:DomainShow param:@{@"id":self.model.searchid} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                DNSSearchModel *modules = [DNSSearchModel mj_objectWithKeyValues:json[@"data"]];
+                [weakself setData:modules];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)setData:(DNSSearchModel *)modules{
+    self.namelabel.text = modules.domain_name;
+    self.buytime.text = modules.start_time;
+    self.endtime.text = modules.end_time;
+    NSString *name = AssectString(modules.user_info.name);
+    if (![name isEqualToString:@""]) {
+        if (name.length > 9) {
+            name = [name substringToIndex:9];
+            name = [name stringByAppendingFormat:@"..."];
+        }
+        self.personlabel.text = name;
+    }else{
+        self.personlabel.text = [self replacePhoneWithStar:AssectString(modules.user_info.phone)];
+    }
+}
+
+@end

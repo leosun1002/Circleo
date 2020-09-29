@@ -1,0 +1,232 @@
+//
+//  DNSCoinSelectVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BrowserCoinSelectVC.h"
+#import "DNSCoinSelectCollectionCell.h"
+#import "DNSMyBrowserModel.h"
+#import "DNSBindAddressVC.h"
+
+@interface BrowserCoinSelectVC ()<UICollectionViewDelegate,UICollectionViewDataSource>{
+    int page;
+}
+
+@property(nonatomic,strong) NSMutableArray *originDatas;
+@property(nonatomic,strong) NSMutableArray *datas;
+@property(nonatomic,weak) UIButton *rightBtn;
+@property(nonatomic,assign) long selecttag;
+
+@property(nonatomic,strong) NSString *searchStr;
+@property(nonatomic,strong) NSString *selectStr;
+@property(nonatomic,strong) NSDictionary *selectDict;
+
+@end
+
+@implementation BrowserCoinSelectVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:self.type == 0?NSLocalizedString(@"公链类型", nil):NSLocalizedString(@"选择发布公链", nil) hiddeBack:NO];
+    [self prepareUi];
+    [self addRefresh];
+    [self addRightBtn];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    self.baseLine.hidden = YES;
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    self.baseLine.hidden = NO;
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 65,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    [rightBtn setTitle:self.type == 0?NSLocalizedString(@"绑定", nil):NSLocalizedString(@"确定", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#5151F0"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    rightBtn.hidden = YES;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        [weakself.chainSubject sendNext:weakself.selectDict];
+        [weakself.navigationController popViewControllerAnimated:YES];
+    }];
+    [view addSubview:_rightBtn = rightBtn];
+}
+
+-(void)addRefresh{
+    [self.collect.mj_header beginRefreshing];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ///1 选择发布公链  0公链类型
+    if (self.type == 0) {
+        [self getChainType:ifFresh];
+    }else{
+        [self selectChainList];
+
+    }
+}
+
+-(void)getChainType:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"id":[NSString stringWithFormat:@"%ld",self.articleid],@"article_public_chain_id":AssectString(self.chainid),@"page":[NSString stringWithFormat:@"%d",page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:BrowserSearchChain param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.originDatas removeAllObjects];
+                [weakself.datas removeAllObjects];
+                NSMutableArray<ChainArticleInfo *> *applicationList = [ChainArticleInfo mj_objectArrayWithKeyValuesArray:json[@"data"][@"article_public_chains"]];
+                [weakself.originDatas addObjectsFromArray:applicationList];
+                [weakself.datas addObjectsFromArray:weakself.originDatas];
+            }
+        }
+        [weakself.collect reloadData];
+        [weakself.collect.mj_header endRefreshing];
+        [weakself.collect.mj_footer endRefreshing];
+    }];
+}
+
+-(void)selectChainList{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:BrowserPublichChain param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                [weakself.originDatas removeAllObjects];
+                [weakself.originDatas addObjectsFromArray:json[@"data"][@"article_public_chain"]];
+                [weakself.datas addObjectsFromArray:weakself.originDatas];
+            }
+        }
+        [weakself.collect reloadData];
+        [weakself.collect.mj_header endRefreshing];
+    }];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    
+    [self.collect registerNib:[UINib nibWithNibName:@"DNSCoinSelectCollectionCell" bundle:nil] forCellWithReuseIdentifier:@"DNSCoinSelectCollectionCell"];
+    UICollectionViewFlowLayout * layout = [[UICollectionViewFlowLayout alloc] init];
+    layout.minimumInteritemSpacing = 10;
+    layout.minimumLineSpacing = 15;
+    layout.itemSize = CGSizeMake((ksrcwidth - 30 - 30)/4,35);
+    layout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    [self.collect setCollectionViewLayout:layout];
+    
+    WeakSelf(self);
+    self.collect.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    
+    if (self.type == 0) {
+        //使用这个加载  可以隐藏最后的一行字
+        self.collect.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+            [weakself getData:NO];
+        }];
+    }
+    
+    [[self.searchText rac_signalForControlEvents:(UIControlEventEditingChanged)] subscribeNext:^(id x) {
+        [weakself reloadSearchData];
+    }];
+
+    if (@available(iOS 11.0,*)) {
+        self.collect.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentNever;
+    }else{
+        self.automaticallyAdjustsScrollViewInsets=NO;
+    }
+}
+
+-(void)reloadSearchData{
+    if (self.originDatas.count == 0) {
+        self.datas = self.originDatas;
+        [self.collect reloadData];
+        return;
+    }
+    NSString *search = [self removeSpaceAndNewline:self.searchText.text];
+    if ([search isEqualToString:@""]) {
+        self.datas = self.originDatas;
+        [self.collect reloadData];
+        return;
+    }
+    if (self.type == 0) {
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"name contains %@",[search uppercaseString]];
+        NSArray *array = [self.originDatas filteredArrayUsingPredicate:predicate];
+        self.datas = [NSMutableArray arrayWithArray:array];
+        [self.collect reloadData];
+    }else{
+        NSPredicate *predicate = [NSPredicate predicateWithFormat:@"%K contains %@",@"abbreviation",[search uppercaseString]];
+        NSArray *array = [self.originDatas filteredArrayUsingPredicate:predicate];
+        self.datas = [NSMutableArray arrayWithArray:array];
+        [self.collect reloadData];
+    }
+}
+
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    DNSCoinSelectCollectionCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DNSCoinSelectCollectionCell" forIndexPath:indexPath];
+    if (self.type == 0) {
+        ChainArticleInfo *model = self.datas[indexPath.item];
+        [cell.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.image_address)] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+        cell.nameLabel.text = model.name;
+        cell.bgview.backgroundColor = model.type == 1?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#F7F7F9"];
+        cell.nameLabel.textColor = model.type == 1?[UIColor colorWithRGBHex:@"#FFFFFF"]:[UIColor colorWithRGBHex:@"#555555"];
+    }else{
+        NSDictionary *dict  = self.datas[indexPath.item];
+        [cell.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(dict[@"image_address"])] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+        cell.nameLabel.text = AssectString(dict[@"abbreviation"]);
+        cell.bgview.backgroundColor = ![AssectString(self.selectStr) isEqualToString:@""]&&[AssectString(dict[@"name"]) isEqualToString:AssectString(self.selectStr)]?[UIColor colorWithRGBHex:@"#5151F0"]:[UIColor colorWithRGBHex:@"#F7F7F9"];
+        cell.nameLabel.textColor = ![AssectString(self.selectStr) isEqualToString:@""]&&[AssectString(dict[@"name"]) isEqualToString:AssectString(self.selectStr)]?[UIColor colorWithRGBHex:@"#FFFFFF"]:[UIColor colorWithRGBHex:@"#555555"];
+    }
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.type == 0) {
+        ChainArticleInfo *model = self.datas[indexPath.item];
+        if (model.type == 1) return;
+        [self.chainSubject sendNext:[NSString stringWithFormat:@"%ld",model.infoid]];
+        [self.navigationController popViewControllerAnimated:YES];
+        return;
+    }else{
+        NSDictionary *dict  = self.datas[indexPath.item];
+        self.selectStr = dict[@"name"];
+        self.selectDict = dict;
+        [self.collect reloadData];
+        self.rightBtn.hidden = !self.selectDict;
+    }
+}
+
+#pragma -mark getter
+-(NSMutableArray *)originDatas{
+    if (!_originDatas) {
+        _originDatas = [NSMutableArray array];
+    }
+    return _originDatas;
+}
+
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

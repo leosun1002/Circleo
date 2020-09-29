@@ -1,0 +1,26 @@
+//
+//  DNSCateroyModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSCateroyModel : NSObject
+
+@property(nonatomic,assign)long cateroryid;
+@property(nonatomic,copy)NSString *language;
+@property(nonatomic,assign)long domain_name_category_id;
+@property(nonatomic,copy)NSString *name;
+@property(nonatomic,copy)NSString *image_address;
+@property(nonatomic,assign)long status;
+@property(nonatomic,copy)NSString *created_at;
+@property(nonatomic,copy)NSString *updated_at;
+
+@end
+
+NS_ASSUME_NONNULL_END

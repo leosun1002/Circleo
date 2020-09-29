@@ -1,0 +1,133 @@
+//
+//  DNSFilterSelectVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSFilterSelectVC.h"
+
+@interface DNSFilterSelectVC ()<UIPickerViewDelegate,UIPickerViewDataSource>
+
+@end
+
+@implementation DNSFilterSelectVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    self.view.backgroundColor = [UIColor clearColor];
+    [self prepareUi];
+    [self setData];
+}
+
+-(void)prepareUi{
+    WeakSelf(self);
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        weakself.backview.y = ksrcheight;
+        [UIView animateWithDuration:0.25 animations:^{
+            weakself.backview.y = ksrcheight - 275;
+            weakself.bgview.alpha = 0.3;
+        }];
+    });
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself dissmissVC];
+    }];
+    [self.bgview addGestureRecognizer:tap];
+}
+
+-(void)dissmissVC{
+    [UIView animateWithDuration:0.25 animations:^{
+        self.backview.y = ksrcheight;
+        self.bgview.alpha = 0.01;
+    } completion:^(BOOL finished) {
+        [self dismissViewControllerAnimated:NO completion:nil];
+    }];
+}
+
+-(void)setData{
+    if (self.dataType == 1) {
+        for (int i = 0; i<self.datas.count; i++) {
+            NSDictionary *dict= self.datas[i];
+            if ([AssectString(dict[@"abbreviation"]) isEqualToString:AssectString(self.selectStr)]) {
+                [self.pickerview selectRow:i inComponent:0 animated:YES];
+                [self.pickerview reloadAllComponents];
+                return;
+            }
+        }
+    }else if (self.dataType == 2) {
+        for (int i = 0; i<self.datas.count; i++) {
+            NSDictionary *dict= self.datas[i];
+            if ([[NSString stringWithFormat:@"%lld",[dict[@"id"] longLongValue]] isEqualToString:AssectString(self.selectStr)]) {
+                [self.pickerview selectRow:i inComponent:0 animated:YES];
+                [self.pickerview reloadAllComponents];
+                return;
+            }
+        }
+    }else if (self.dataType == 3) {
+        for (int i = 0; i<self.datas.count; i++) {
+            NSDictionary *dict= self.datas[i];
+            if ([[NSString stringWithFormat:@"%lld",[dict[@"id"] longLongValue]] isEqualToString:AssectString(self.selectStr)]) {
+                [self.pickerview selectRow:i inComponent:0 animated:YES];
+                [self.pickerview reloadAllComponents];
+                return;
+            }
+        }
+    }else{
+        if ([self.datas containsObject:self.selectStr]) {
+            [self.pickerview selectRow:[self.datas indexOfObject:self.selectStr] inComponent:0 animated:YES];
+        }
+        [self.pickerview reloadAllComponents];
+    }
+}
+
+- (IBAction)cancelClick:(id)sender {
+    [self dissmissVC];
+}
+
+- (IBAction)checkClick:(id)sender {
+    if (self.dataType == 4) {
+        NSInteger row = [self.pickerview selectedRowInComponent:0];
+        [self.subject sendNext:[NSNumber numberWithInteger:row]];
+        [self dissmissVC];
+    }else{
+        NSInteger row = [self.pickerview selectedRowInComponent:0];
+        [self.subject sendNext:self.datas[row]];
+        [self dissmissVC];
+    }
+}
+
+#pragma mark - dataSouce
+//有几行
+- (NSInteger)numberOfComponentsInPickerView:(UIPickerView *)pickerView {
+    return 1;
+}
+
+//行中有几列
+- (NSInteger)pickerView:(UIPickerView *)pickerView numberOfRowsInComponent:(NSInteger)component {
+    return self.datas.count;
+}
+
+//列显示的数据
+- (NSString *)pickerView:(UIPickerView *)pickerView titleForRow:(NSInteger) row forComponent:(NSInteger)component {
+    if (self.dataType == 1) {
+        NSDictionary *dict = self.datas[row];
+        return AssectString(dict[@"abbreviation"]);
+    }
+    if (self.dataType == 2) {
+        NSDictionary *dict = self.datas[row];
+        return [NSString stringWithFormat:NSLocalizedString(@"%ld天(%@ CNY)", nil),[dict[@"day"] longLongValue],AssectString(dict[@"price"])];
+    }
+    if (self.dataType == 3) {
+        NSDictionary *dict = self.datas[row];
+        return AssectString(dict[@"name"]);
+    }
+    return self.datas[row];
+}
+
+-(CGFloat)pickerView:(UIPickerView *)pickerView rowHeightForComponent:(NSInteger)component{
+    return 35;
+}
+@end

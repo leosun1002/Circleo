@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina5_9" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MallHomePageVC">
+            <connections>
+                <outlet property="bgview" destination="5L9-kd-qQg" id="KF0-xn-AOH"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="yl_logo" translatesAutoresizingMaskIntoConstraints="NO" id="uDW-cp-MnR">
+                    <rect key="frame" x="15.999999999999996" y="48" width="45.666666666666657" height="31.666666666666671"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="45.5" id="Cb8-vc-o9L"/>
+                        <constraint firstAttribute="height" constant="31.5" id="PYF-Fa-URn"/>
+                    </constraints>
+                </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FQj-SD-SE3">
+                    <rect key="frame" x="77.666666666666657" y="46.666666666666664" width="287.33333333333337" height="33.999999999999993"/>
+                    <subviews>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon_shop_search_blue" translatesAutoresizingMaskIntoConstraints="NO" id="s9s-DV-j11">
+                            <rect key="frame" x="10" y="5" width="24" height="24"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="24" id="6eS-D4-Gcl"/>
+                                <constraint firstAttribute="width" constant="24" id="sr1-iM-rr7"/>
+                            </constraints>
+                        </imageView>
+                        <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="搜索商品" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="T5K-6O-bzK">
+                            <rect key="frame" x="44.000000000000014" y="0.0" width="233.33333333333337" height="34"/>
+                            <color key="textColor" red="0.1960784314" green="0.1960784314" blue="0.21176470589999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                            <textInputTraits key="textInputTraits"/>
+                        </textField>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eeY-4I-jdy">
+                            <rect key="frame" x="0.0" y="0.0" width="287.33333333333331" height="34"/>
+                            <connections>
+                                <action selector="searchClick:" destination="-1" eventType="touchUpInside" id="2Qu-p2-IW6"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" red="0.94901960784313721" green="0.96470588235294119" blue="0.98039215686274506" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="eeY-4I-jdy" secondAttribute="bottom" id="09f-wc-nj8"/>
+                        <constraint firstItem="eeY-4I-jdy" firstAttribute="leading" secondItem="FQj-SD-SE3" secondAttribute="leading" id="2Bf-DF-tbF"/>
+                        <constraint firstAttribute="bottom" secondItem="T5K-6O-bzK" secondAttribute="bottom" id="4VW-ik-KGP"/>
+                        <constraint firstItem="s9s-DV-j11" firstAttribute="centerY" secondItem="FQj-SD-SE3" secondAttribute="centerY" id="5f0-t6-3Mn"/>
+                        <constraint firstAttribute="trailing" secondItem="eeY-4I-jdy" secondAttribute="trailing" id="G3p-Ot-Hgs"/>
+                        <constraint firstAttribute="height" constant="34" id="KUV-gc-o2A"/>
+                        <constraint firstItem="s9s-DV-j11" firstAttribute="leading" secondItem="FQj-SD-SE3" secondAttribute="leading" constant="10" id="Lpb-7g-ara"/>
+                        <constraint firstItem="T5K-6O-bzK" firstAttribute="top" secondItem="FQj-SD-SE3" secondAttribute="top" id="RFe-wm-KtW"/>
+                        <constraint firstAttribute="trailing" secondItem="T5K-6O-bzK" secondAttribute="trailing" constant="10" id="Yyy-VG-244"/>
+                        <constraint firstItem="T5K-6O-bzK" firstAttribute="leading" secondItem="s9s-DV-j11" secondAttribute="trailing" constant="10" id="dAl-4E-1xZ"/>
+                        <constraint firstItem="eeY-4I-jdy" firstAttribute="top" secondItem="FQj-SD-SE3" secondAttribute="top" id="lE2-md-PPY"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="17"/>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5L9-kd-qQg">
+                    <rect key="frame" x="0.0" y="91.666666666666686" width="375" height="686.33333333333326"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="5L9-kd-qQg" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="9s8-WP-8zk"/>
+                <constraint firstItem="uDW-cp-MnR" firstAttribute="leading" secondItem="Q5M-cg-NOt" secondAttribute="leading" constant="16" id="Lnj-9f-6kN"/>
+                <constraint firstItem="FQj-SD-SE3" firstAttribute="centerY" secondItem="uDW-cp-MnR" secondAttribute="centerY" id="OX6-Vm-qrm"/>
+                <constraint firstItem="uDW-cp-MnR" firstAttribute="top" secondItem="Q5M-cg-NOt" secondAttribute="top" constant="4" id="baF-GI-Ga3"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="5L9-kd-qQg" secondAttribute="trailing" id="cPH-Ek-mMM"/>
+                <constraint firstItem="5L9-kd-qQg" firstAttribute="top" secondItem="FQj-SD-SE3" secondAttribute="bottom" constant="11" id="iSc-YY-av1"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="bottom" secondItem="5L9-kd-qQg" secondAttribute="bottom" id="iUH-wJ-pji"/>
+                <constraint firstItem="FQj-SD-SE3" firstAttribute="leading" secondItem="uDW-cp-MnR" secondAttribute="trailing" constant="16" id="jGF-OU-fuf"/>
+                <constraint firstItem="Q5M-cg-NOt" firstAttribute="trailing" secondItem="FQj-SD-SE3" secondAttribute="trailing" constant="10" id="xec-9Q-X8B"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="Q5M-cg-NOt"/>
+            <point key="canvasLocation" x="109.59999999999999" y="126.35467980295567"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="icon_shop_search_blue" width="24" height="24"/>
+        <image name="yl_logo" width="43" height="21"/>
+    </resources>
+</document>

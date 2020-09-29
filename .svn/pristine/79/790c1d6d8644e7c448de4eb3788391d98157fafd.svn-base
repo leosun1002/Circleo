@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZEC-j4-uuQ">
+                    <rect key="frame" x="0.0" y="130" width="414" height="50"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rey-mR-5vl">
+                            <rect key="frame" x="17" y="17" width="4" height="16"/>
+                            <color key="backgroundColor" red="0.4039215686" green="0.30588235289999999" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="4" id="Fun-R6-e8I"/>
+                                <constraint firstAttribute="height" constant="16" id="THU-pA-3cY"/>
+                            </constraints>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="2"/>
+                                <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                            </userDefinedRuntimeAttributes>
+                        </view>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="界一产品动态" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kym-9T-zqG">
+                            <rect key="frame" x="31" y="15.5" width="98" height="19.5"/>
+                            <fontDescription key="fontDescription" type="system" pointSize="16"/>
+                            <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="97H-bD-qwq">
+                            <rect key="frame" x="0.0" y="49" width="414" height="1"/>
+                            <color key="backgroundColor" red="0.96862745098039216" green="0.96862745098039216" blue="0.97647058823529409" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="1" id="qfw-tz-bsd"/>
+                            </constraints>
+                        </view>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logo_product" translatesAutoresizingMaskIntoConstraints="NO" id="jtr-9U-4pE">
+                            <rect key="frame" x="134" y="21" width="42" height="11"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="42" id="2HQ-1i-rxi"/>
+                                <constraint firstAttribute="height" constant="11" id="OXS-BN-AoM"/>
+                            </constraints>
+                        </imageView>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstItem="jtr-9U-4pE" firstAttribute="bottom" secondItem="kym-9T-zqG" secondAttribute="bottom" constant="-3" id="4Di-W7-jnu"/>
+                        <constraint firstAttribute="bottom" secondItem="97H-bD-qwq" secondAttribute="bottom" id="Bkf-Qb-AtR"/>
+                        <constraint firstItem="kym-9T-zqG" firstAttribute="centerY" secondItem="ZEC-j4-uuQ" secondAttribute="centerY" id="Ca1-57-Yqy"/>
+                        <constraint firstAttribute="height" constant="50" id="Nzy-ip-W6d"/>
+                        <constraint firstItem="kym-9T-zqG" firstAttribute="leading" secondItem="rey-mR-5vl" secondAttribute="trailing" constant="10" id="OD9-Ah-p9Z"/>
+                        <constraint firstItem="rey-mR-5vl" firstAttribute="leading" secondItem="ZEC-j4-uuQ" secondAttribute="leading" constant="17" id="eOe-9P-Rtq"/>
+                        <constraint firstAttribute="trailing" secondItem="97H-bD-qwq" secondAttribute="trailing" id="gFO-oa-jk2"/>
+                        <constraint firstItem="rey-mR-5vl" firstAttribute="centerY" secondItem="ZEC-j4-uuQ" secondAttribute="centerY" id="iad-qF-Zhc"/>
+                        <constraint firstItem="97H-bD-qwq" firstAttribute="leading" secondItem="ZEC-j4-uuQ" secondAttribute="leading" id="nX7-TP-JF6"/>
+                        <constraint firstItem="jtr-9U-4pE" firstAttribute="leading" secondItem="kym-9T-zqG" secondAttribute="trailing" constant="5" id="uPu-ch-Ond"/>
+                    </constraints>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9T5-c0-eaP">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="130"/>
+                    <subviews>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="banner_product" translatesAutoresizingMaskIntoConstraints="NO" id="SY9-av-UwU">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="130"/>
+                        </imageView>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="界一域名产品动态" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Xwj-YF-9UQ">
+                            <rect key="frame" x="109.5" y="50.5" width="195" height="29"/>
+                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="24"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="trailing" secondItem="SY9-av-UwU" secondAttribute="trailing" id="1Lu-dO-W8K"/>
+                        <constraint firstAttribute="height" constant="130" id="9rQ-Rd-t95"/>
+                        <constraint firstItem="Xwj-YF-9UQ" firstAttribute="centerX" secondItem="9T5-c0-eaP" secondAttribute="centerX" id="JmU-Af-bso"/>
+                        <constraint firstItem="SY9-av-UwU" firstAttribute="leading" secondItem="9T5-c0-eaP" secondAttribute="leading" id="Qdx-2X-tk5"/>
+                        <constraint firstAttribute="bottom" secondItem="SY9-av-UwU" secondAttribute="bottom" id="h4w-rh-jMl"/>
+                        <constraint firstItem="SY9-av-UwU" firstAttribute="top" secondItem="9T5-c0-eaP" secondAttribute="top" id="wWi-AI-mOE"/>
+                        <constraint firstItem="Xwj-YF-9UQ" firstAttribute="centerY" secondItem="9T5-c0-eaP" secondAttribute="centerY" id="xTG-y7-fPm"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="ZEC-j4-uuQ" firstAttribute="top" secondItem="9T5-c0-eaP" secondAttribute="bottom" id="18r-vS-VJh"/>
+                <constraint firstAttribute="trailing" secondItem="ZEC-j4-uuQ" secondAttribute="trailing" id="4Td-AA-wwO"/>
+                <constraint firstItem="9T5-c0-eaP" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="J75-vS-HJ4"/>
+                <constraint firstItem="ZEC-j4-uuQ" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="MIn-6b-89q"/>
+                <constraint firstAttribute="trailing" secondItem="9T5-c0-eaP" secondAttribute="trailing" id="SYC-JX-st9"/>
+                <constraint firstItem="9T5-c0-eaP" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="vs4-qE-4pz"/>
+            </constraints>
+            <point key="canvasLocation" x="131.8840579710145" y="138.61607142857142"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="banner_product" width="375" height="130"/>
+        <image name="logo_product" width="42" height="10"/>
+    </resources>
+</document>

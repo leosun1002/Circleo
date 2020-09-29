@@ -1,0 +1,29 @@
+//
+//  EvidenceHomeModel.h
+//  ScmProject
+//
+//  Created by leosun on 2020/4/24.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface EvidenceUserModel : NSObject
+@property(nonatomic,assign) long evidenceUserid;
+@property(nonatomic,assign) long number;
+@property(nonatomic,assign) long deposit_certificate_category_id;
+
+@end
+
+@interface EvidenceHomeModel : NSObject
+
+@property(nonatomic,assign) long evidenceid;
+@property(nonatomic,strong) NSString *name;
+@property(nonatomic,strong) NSString *unit_price;
+@property(nonatomic,strong) EvidenceUserModel *user;
+
+@end
+
+NS_ASSUME_NONNULL_END

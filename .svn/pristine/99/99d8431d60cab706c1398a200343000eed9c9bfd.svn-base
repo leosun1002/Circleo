@@ -1,0 +1,124 @@
+//
+//  AgentIncomeSubDetailVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "AgentIncomeSubDetailVC.h"
+#import "AgentIncomeTableViewCell.h"
+#import "AgentIncomeModel.h"
+
+@interface AgentIncomeSubDetailVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>
+
+@property(nonatomic,strong)NSMutableArray <NSMutableArray *> *datas;
+@property(nonatomic,strong)NSMutableArray *pages;
+@property(nonatomic,strong)NSMutableArray *refreshs;
+
+@end
+
+@implementation AgentIncomeSubDetailVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getDatas:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getDatas:NO];
+    }];
+}
+
+-(void)refreshData{
+    NSString *refrsh = self.refreshs[self.type];
+    if ([refrsh isEqualToString:@"0"]) {
+        [self.tableview.mj_header beginRefreshing];
+        [self.refreshs replaceObjectAtIndex:self.type withObject:@"1"];
+    }
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"AgentIncomeTableViewCell" bundle:nil] forCellReuseIdentifier:@"AgentIncomeTableViewCell"];
+}
+
+-(void)getDatas:(BOOL)ifFresh{
+    NSMutableArray *tempDatas = self.datas[self.type];
+    NSInteger page = [self.pages[self.type] integerValue];
+    ifFresh?(page = 1):(page ++);
+    NSDictionary *dict = @{@"type":[NSString stringWithFormat:@"%ld",self.type+1],@"page":[NSString stringWithFormat:@"%ld",(long)page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:IncomeDetails param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[tempDatas removeAllObjects];
+                NSMutableArray<AgentIncomeModel *> *applicationList = [AgentIncomeModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [tempDatas addObjectsFromArray:applicationList];
+                [weakself.datas replaceObjectAtIndex:weakself.type withObject:tempDatas];
+                [weakself.pages replaceObjectAtIndex:weakself.type withObject:[NSString stringWithFormat:@"%ld",(long)page]];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = self.type == 0?NSLocalizedString(@"当前暂无平台收益", nil):NSLocalizedString(@"当前暂无推广收益", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    NSMutableArray *datas = self.datas[self.type];
+    return datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSMutableArray *datas = self.datas[self.type];
+    AgentIncomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"AgentIncomeTableViewCell"];
+    cell.model = datas[indexPath.row];
+    return cell;
+}
+
+#pragma -mark getter
+-(NSMutableArray<NSMutableArray *> *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray arrayWithObjects:[NSMutableArray array],[NSMutableArray array], nil];
+    }
+    return _datas;
+}
+
+-(NSMutableArray *)pages{
+    if (!_pages) {
+        _pages = [NSMutableArray arrayWithObjects:@"1",@"1", nil];
+    }
+    return _pages;
+}
+
+-(NSMutableArray *)refreshs{
+    if (!_refreshs) {
+        _refreshs = [NSMutableArray arrayWithObjects:@"0",@"0", nil];
+    }
+    return _refreshs;
+}
+@end

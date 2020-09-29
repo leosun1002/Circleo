@@ -1,0 +1,41 @@
+//
+//  ShopAssetsHomeTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/14.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopAssetsHomeTableViewCell.h"
+
+@implementation ShopAssetsHomeTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    self.bgview.layer.cornerRadius = 10.f;
+    
+    self.bgview.layer.shadowColor = [UIColor colorWithRGBHex:@"#2D3540"].CGColor;
+    self.bgview.layer.shadowOffset = CGSizeMake(3, 3);
+    self.bgview.layer.shadowRadius = 3.0f;
+    self.bgview.layer.shadowOpacity = 0.1f;
+    [self.bgview.layer setShadowPath:[[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, ksrcwidth - 32, 80)] CGPath]];
+//    self.bgview.layer.shadowPath = [UIBezierPath bezierPathWithRect:self.bgview.frame].CGPath;
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(ShopAssetModel *)model{
+    _model = model;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(model.small_image)]];
+    self.nameLabel.text = model.name;
+    self.descLabel.text = model.specification;
+    self.countLabel.text = model.number;
+    self.numberLabel.text = [NSString stringWithFormat:@"≈%@ CNY",model.total_price];
+}
+
+@end

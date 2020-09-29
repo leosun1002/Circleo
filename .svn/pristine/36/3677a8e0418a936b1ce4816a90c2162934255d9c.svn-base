@@ -1,0 +1,288 @@
+//
+//  DNSRenewViewController.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSRenewViewController.h"
+#import "DNSRenewCell.h"
+#import "DNSBuyModel.h"
+#import "PayDetailVC.h"
+#import "JieyiXieyiVC.h"
+
+@interface DNSRenewViewController ()<UITableViewDelegate,UITableViewDataSource>
+
+@property(nonatomic,strong)NSMutableArray *datas;
+@property(assign,nonatomic)long type;// 0正常状态  1删除状态
+@property(nonatomic,weak)UIButton *rightBtn;
+@property(nonatomic,strong)NSString *add_limit;
+
+@end
+
+@implementation DNSRenewViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:self.newType == 0?NSLocalizedString(@"域名购买", nil):NSLocalizedString(@"域名续费", nil)  hiddeBack:NO];
+    [self prepareUi];
+    [self addRightBtn];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)prepareUi{
+    self.topConst.constant += navBarHeight;
+    if (IS_IPHONEX) {
+        self.bottomHeightConst.constant += 10;
+    }
+    self.type = 0;
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNSRenewCell" bundle:nil] forCellReuseIdentifier:@"DNSRenewCell"];
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        if (weakself.datas.count > 0) {
+            [weakself.tableview.mj_header endRefreshing];
+        }else{
+            [weakself getDatas];
+        }
+    }];
+}
+
+-(void)addRightBtn{
+    UIView *bar = [self gerNavBar];
+    
+    UIView *view = [[UIView alloc] initWithFrame:CGRectMake(ksrcwidth - 65,navBarHeight - 35, 60, 20)];
+    [bar addSubview:view];
+    
+    UIButton *rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    rightBtn.frame = CGRectMake(0, 0, 60, 20);
+    [rightBtn setTitle:NSLocalizedString(@"删除", nil) forState:UIControlStateNormal];
+    [rightBtn setTitleColor:[UIColor colorWithRGBHex:@"#18181A"] forState:UIControlStateNormal];
+    rightBtn.titleLabel.font = [UIFont boldSystemFontOfSize:14.f];
+    rightBtn.hidden = YES;
+    rightBtn.titleLabel.textAlignment = NSTextAlignmentRight;
+    WeakSelf(self);
+    [[rightBtn rac_signalForControlEvents:(UIControlEventTouchUpInside)] subscribeNext:^(id x) {
+        weakself.type = weakself.type == 0?1:0;
+        [weakself.rightBtn setTitle:weakself.type == 0?NSLocalizedString(@"删除", nil):NSLocalizedString(@"完成", nil) forState:UIControlStateNormal];
+        [weakself.tableview reloadData];
+    }];
+    [view addSubview:_rightBtn = rightBtn];
+}
+
+-(void)getDatas{
+    WeakSelf(self);
+    NSString *url = self.newType == 0?DomainPurchase:DomainRenewList;
+    NSDictionary *dict = self.newType ==0?@{@"domain_names":AssectString(self.domains)}:@{@"domain_name_ids":AssectString(self.domains)};
+    [WebServices postFormReqUrl:url param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                NSMutableArray <DNSBuyModel *> *applicationList = [DNSBuyModel mj_objectArrayWithKeyValuesArray:weakself.newType == 0?json[@"data"][@"domain_info"]:json[@"data"][@"domain_names"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+                weakself.add_limit = json[@"data"][@"add_limit"];
+                [weakself calculte];
+                weakself.type = 0;
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview reloadData];
+    }];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 40;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *view = [[UIView new] initWithFrame:CGRectMake(0, 0, ksrcwidth , 40)];
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(16, 25, 100, 15)];
+    label.text = self.newType == 0?NSLocalizedString(@"购买列表", nil):NSLocalizedString(@"域名续费", nil);
+    label.textColor = [UIColor colorWithRGBHex:@"#9999A3"];
+    label.font = [UIFont systemFontOfSize:11];
+    [view addSubview:label];
+    
+    return view;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    if (self.datas.count != 0) {
+        return 0.001;
+    }
+    return self.tableview.height;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    if (self.datas.count != 0) {
+        return [UIView new];
+    }
+    
+    UILabel *label = [[UILabel alloc] initWithFrame:self.tableview.bounds];
+    label.text = NSLocalizedString(@"暂无搜索记录", nil);
+    label.textColor = [UIColor colorWithRGBHex:@"#AAAAB5"];
+    label.font = [UIFont systemFontOfSize:14];
+    label.textAlignment = NSTextAlignmentCenter;
+    return label;
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNSRenewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNSRenewCell"];
+    cell.type = self.type;
+    cell.newType = self.newType;
+    cell.model =  self.datas[indexPath.row];
+    cell.addBtn.tag = indexPath.row;
+    cell.minusBtn.tag = indexPath.row;
+    cell.delBtn.tag = indexPath.row;
+    [cell.addBtn addTarget:self action:@selector(addClick:) forControlEvents:UIControlEventTouchUpInside];
+    [cell.minusBtn addTarget:self action:@selector(minusClick:) forControlEvents:UIControlEventTouchUpInside];
+    [cell.delBtn addTarget:self action:@selector(deleteClick:event:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)addClick:(UIButton *)sender{
+    NSInteger tag = sender.tag;
+    DNSBuyModel *model = self.datas[tag];
+    if (model.years == [self.add_limit intValue]) {
+        if (self.newType == 0) {
+            [self showMsg:[NSString stringWithFormat:NSLocalizedString(@"购买时长最长为%@年", nil),self.add_limit] location:centre];
+        }else{
+            [self showMsg:[NSString stringWithFormat:NSLocalizedString(@"续费时长最长为%@年", nil),self.add_limit] location:centre];
+        }
+        return;
+    }
+    model.years ++;
+    model.end_time = [self addOneyear:model.end_time];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:tag inSection:0];
+    [self.tableview reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+    [self calculte];
+}
+
+-(void)minusClick:(UIButton *)sender{
+    NSInteger tag = sender.tag;
+    DNSBuyModel *model = self.datas[tag];
+    if (model.years ==  1)return;
+    model.years --;
+    model.end_time = [self minusOneyear:model.end_time];
+    NSIndexPath *indexPath = [NSIndexPath indexPathForRow:tag inSection:0];
+    [self.tableview reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+    [self calculte];
+}
+
+-(void)deleteClick:(UIButton *)sender event:(id)event{
+    //获取触摸点的集合，可以判断多点触摸事件
+    NSSet *touches=[event allTouches];
+    //两句话是保存触摸起点位置
+    UITouch *touch=[touches anyObject];
+    CGPoint cureentTouchPosition = [touch locationInView:self.tableview];
+    //得到cell中的IndexPath
+    NSIndexPath *indexPath = [self.tableview indexPathForRowAtPoint:cureentTouchPosition];
+    //操作
+    NSMutableArray *indexPaths = [[NSMutableArray alloc] init];
+    [self.datas removeObjectAtIndex:indexPath.row];
+    if (self.datas.count == 0) {
+        WeakSelf(self);
+        [self showMsg:self.newType == 0?NSLocalizedString(@"暂无待购域名", nil):NSLocalizedString(@"暂无待续费域名", nil) withBlcok:^{
+            [weakself.navigationController popViewControllerAnimated:YES];
+        }];
+    }
+    [indexPaths addObject:indexPath];
+    [self.tableview beginUpdates];
+    [self.tableview deleteRowsAtIndexPaths:indexPaths withRowAnimation:UITableViewRowAnimationNone];
+    [self.tableview endUpdates];
+    [self calculte];
+}
+
+-(void)calculte{
+    NSString *cnyPrice = @"0.00";
+    NSString *usdtPrice = @"0.00";
+    for (DNSBuyModel *model in self.datas) {
+        NSString *year = [NSString stringWithFormat:@"%ld",model.years];
+        if (self.newType == 0) {
+            cnyPrice = [GaoJingDu add:@[cnyPrice,[GaoJingDu add:@[AssectNumber(model.cny_fee),[GaoJingDu cheng:@[AssectNumber(model.cny_price),AssectNumber(year)] jindu:@"2"]] jindu:@"2"]] jindu:@"2"];
+            usdtPrice = [GaoJingDu add:@[usdtPrice,[GaoJingDu add:@[AssectNumber(model.usdt_fee),[GaoJingDu cheng:@[AssectNumber(model.usdt_price),AssectNumber(year)] jindu:@"2"]] jindu:@"2"]] jindu:@"2"];
+        }else{
+            cnyPrice = [GaoJingDu add:@[cnyPrice,[GaoJingDu cheng:@[AssectNumber(model.unit_price),AssectNumber(year)] jindu:@"2"]] jindu:@"2"];
+            usdtPrice = [GaoJingDu add:@[usdtPrice,[GaoJingDu cheng:@[AssectNumber(model.usdt_price),AssectNumber(year)] jindu:@"2"]] jindu:@"2"];
+        }
+    }
+    self.cnyPrice.text = cnyPrice;
+    self.usdtPrice.text = usdtPrice;
+    self.countLabel.text = [NSString stringWithFormat:@"%lu",(unsigned long)self.datas.count];
+    self.checkBtn.enabled = self.datas.count > 0;
+    self.rightBtn.hidden = self.datas.count <= 0;
+}
+
+- (IBAction)xieyiClick:(id)sender {
+    JieyiXieyiVC *xieyi = [[JieyiXieyiVC alloc] init];
+    xieyi.type = 3;
+    [self.navigationController pushViewController:xieyi animated:YES];
+}
+
+- (IBAction)payClick:(id)sender {
+    if (self.newType == 1) {
+        PayDetailVC *payDetail = [[PayDetailVC alloc] init];
+        payDetail.datas = self.datas;
+        payDetail.newType = self.newType;
+        [self.navigationController pushViewController:payDetail animated:YES];
+        return;
+    }
+    
+    NSString *ids = @"";
+    NSString *years = @"";
+    for (DNSBuyModel *model in self.datas) {
+        ids = [ids stringByAppendingString:[NSString stringWithFormat:@"%ld,",model.buyid]];
+        years = [years stringByAppendingString:[NSString stringWithFormat:@"%ld,",model.years]];
+    }
+    PayDetailVC *payDetail = [[PayDetailVC alloc] init];
+    payDetail.years = !years || [years isEqualToString:@""]?years:[years substringToIndex:years.length - 1];
+    payDetail.ids = !ids || [ids isEqualToString:@""]?ids:[ids substringToIndex:ids.length - 1];
+    payDetail.newType = self.newType;
+    [self.navigationController pushViewController:payDetail animated:YES];
+}
+
+-(NSString *)addOneyear:(NSString*)string{
+    //设置转换格式
+    NSDateFormatter *formatter=[[NSDateFormatter alloc]init];
+    [formatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSDate *date = [formatter dateFromString:string];
+    NSDate *oneYearDate = [date dateByAddingTimeInterval:60*60*24*365];
+    NSString *oneYear = [formatter stringFromDate:oneYearDate];
+    return oneYear;
+}
+
+-(NSString *)minusOneyear:(NSString*)string{
+    //设置转换格式
+    NSDateFormatter *formatter=[[NSDateFormatter alloc]init];
+    [formatter setDateFormat:@"yyyy-MM-dd HH:mm:ss"];
+    NSDate *date = [formatter dateFromString:string];
+    NSDate *oneYearDate = [date dateByAddingTimeInterval:-60*60*24*365];
+    NSString *oneYear = [formatter stringFromDate:oneYearDate];
+    return oneYear;
+}
+
+#pragma -mar getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

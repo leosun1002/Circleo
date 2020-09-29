@@ -1,0 +1,23 @@
+//
+//  CurrencyRecordModel.m
+//  ScmProject
+//
+//  Created by leosun on 2019/10/19.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "CurrencyRecordModel.h"
+
+@implementation CurrencyDetailModel
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"detailid":@"id"};
+}
+
+@end
+
+@implementation CurrencyRecordModel
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"record_id":@"id",@"hashcontent":@"hash"};
+}
+@end

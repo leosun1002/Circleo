@@ -1,0 +1,24 @@
+//
+//  ShopCarClearCollectionViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "ShopCarClearCollectionViewCell.h"
+
+@implementation ShopCarClearCollectionViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+-(void)setModel:(ShopCarModel *)model{
+    _model = model;
+    self.selectBtn.selected = model.hasSelect == 1;
+    self.nameLabel.text = model.domain_name;
+}
+
+@end

@@ -1,0 +1,264 @@
+//
+//  DNBrowserNewsTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/11/15.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNBrowserNewsTableViewCell.h"
+
+@implementation DNBrowserNewsTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(DNSMyBrowserModel *)model{
+    _model = model;
+    self.titleLabel.text = model.title;
+    self.contentLabel.text = model.content;
+    /// 0待上链，1上链中，2上链成功，3上链失败
+    NSString *status = @"";
+    if (model.status == 0) {
+        ///0未审核，1审核通过，2审核失败
+        long is_review = model.is_review;
+        if (is_review == 0) {
+            status = NSLocalizedString(@"审核中", nil);
+            self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        }else if (is_review == 1){
+            status = NSLocalizedString(@"审核通过", nil);
+            self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        }else if (is_review == 2){
+            status = NSLocalizedString(@"审核失败", nil);
+            self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+        }else{
+            status = NSLocalizedString(@"待上链", nil);
+            self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+        }
+    }else if (model.status == 1){
+        status = NSLocalizedString(@"上链中", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else if (model.status == 2){
+        status = @"";
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else{
+        status = NSLocalizedString(@"审核失败", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+    }
+    self.statusLabel.text = status;
+    self.widthConst.constant = [self calculateWidth:status];
+
+    self.timeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%@发布", nil),model.time];
+    self.dnNameLabel.text = model.domain_names.domain_name;
+    [self.chainImg sd_setImageWithURL:[NSURL URLWithString:AssectString(model.article_public_chain_info.image_address)]];
+    self.chainLabel.text = model.article_public_chain_info.name;
+    
+    NSString *name = model.article_type[@"name"];
+    self.typeLabel.text = AssectString(name);
+    self.typeView.hidden = [AssectString(name) isEqualToString:@""];
+    CGFloat typelead = 15;
+    if (![AssectString(self.dnNameLabel.text) isEqualToString:@""]) {
+        typelead += [self calculateTagWidth:AssectString(self.dnNameLabel.text) withTag:NO] + 15;
+    }
+    
+    if (![AssectString(model.article_public_chain_info.image_address) isEqualToString:@""]) {
+        typelead += 14 + 5;
+    }
+    
+    if (![AssectString(self.chainLabel.text) isEqualToString:@""]) {
+        typelead += [self calculateTagWidth:AssectString(self.chainLabel.text) withTag:NO] + 15;
+    }
+    self.typeviewLeading.constant = typelead;
+    
+    self.contentLabel.numberOfLines = 3;
+
+    self.topImage.hidden = model.is_sticky == 0;
+
+    NSArray *article_labels = model.article_labels;
+    if (article_labels.count == 0) {
+        self.tagView.hidden = YES;
+    }else{
+        self.tagView.hidden = NO;
+        self.tagLeadConst.constant = model.is_sticky == 0?16:41;
+        NSDictionary *dict = article_labels[0];
+        self.tagLabel.text = AssectString(dict[@"name"]);
+        if ([dict[@"id"] longLongValue] == 1) {
+            self.tagView.backgroundColor = [UIColor colorWithRGBHex:@"#C76F63"];
+        }else if ([dict[@"id"] longLongValue] == 2){
+            self.tagView.backgroundColor = [UIColor colorWithRGBHex:@"#C79363"];
+        }else{
+            self.tagView.backgroundColor = [UIColor colorWithRGBHex:@"#7563C7"];
+        }
+    }
+    
+    CGFloat contentLead = 16;
+    if (model.is_sticky == 1) {
+        contentLead += 25;
+    }
+    if (article_labels.count != 0){
+        NSDictionary *dict = article_labels[0];
+        contentLead += [self calculateTagWidth:AssectString(dict[@"name"]) withTag:YES] + 5;
+    }
+    self.titleLeadConst.constant = contentLead;
+}
+
+//收藏
+-(void)setCollectModel:(DNSMyBrowserModel *)collectModel{
+    _collectModel = collectModel;
+    self.titleLabel.text = collectModel.title;
+    self.contentLabel.text = collectModel.content;
+    /// 0待上链，1上链中，2上链成功，3上链失败
+    NSString *status = @"";
+    if (collectModel.status == 0) {
+        status = NSLocalizedString(@"待上链", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else if (collectModel.status == 1){
+        status = NSLocalizedString(@"上链中", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else if (collectModel.status == 2){
+        status = @"";
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else{
+        status = NSLocalizedString(@"审核失败", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+    }
+
+    self.statusLabel.hidden = status;
+    self.widthConst.constant = 0;
+    
+    self.timeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%@发布", nil),collectModel.time];
+    self.dnNameLabel.text = collectModel.domain_names.domain_name;
+    [self.chainImg sd_setImageWithURL:[NSURL URLWithString:AssectString(collectModel.article_public_chain_info.image_address)]];
+    self.chainLabel.text = collectModel.article_public_chain_info.name;
+    self.contentLabel.numberOfLines = 3;
+    
+    self.tagView.hidden = YES;
+    self.topImage.hidden = YES;
+    self.titleLeadConst.constant = 16;
+    if ([AssectString(collectModel.article_type[@"name"]) isEqualToString:@""]) {
+        self.typeView.hidden = YES;
+    }else{
+        self.typeView.hidden = NO;
+        self.typeLabel.text = AssectString(collectModel.article_type[@"name"]);
+    }
+    CGFloat typelead = 15;
+    if (![AssectString(self.dnNameLabel.text) isEqualToString:@""]) {
+        typelead += [self calculateTagWidth:AssectString(self.dnNameLabel.text) withTag:NO] + 10;
+    }
+    
+    if (![AssectString(collectModel.article_public_chain_info.image_address) isEqualToString:@""]) {
+        typelead += 14 + 5;
+    }
+    
+    if (![AssectString(self.chainLabel.text) isEqualToString:@""]) {
+        typelead += [self calculateTagWidth:AssectString(self.chainLabel.text) withTag:NO] + 15;
+    }
+    self.typeviewLeading.constant = typelead;
+}
+
+-(void)setArticle:(DNSBrowserArticleModel *)article{
+    _article = article;
+    /// 0待上链，1上链中，2上链成功，3上链失败
+    long status = [article.article_public_chain[@"pivot"][@"status"] longLongValue];
+    NSString *statusStr = @"";
+    if (status == 0) {
+        statusStr = NSLocalizedString(@"待上链", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else if (status == 1){
+        statusStr = NSLocalizedString(@"上链中", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else if (status == 2){
+        statusStr = @"";
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else{
+        statusStr = NSLocalizedString(@"审核失败", nil);
+        self.statusLabel.textColor = [UIColor colorWithRGBHex:@"#F95947"];
+    }
+    self.statusLabel.text = statusStr;
+    self.widthConst.constant = [self calculateWidth:statusStr];
+    self.timeLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%@发布", nil),article.time];
+    [self.chainImg sd_setImageWithURL:[NSURL URLWithString:AssectString(article.article_public_chain[@"image_address"])]];
+    self.chainLabel.text = AssectString(article.article_public_chain[@"name"]);
+    
+    NSMutableAttributedString *contentAttStr = [[NSMutableAttributedString alloc] initWithString:article.content];
+    [contentAttStr addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithRGBHex:@"#FF5773"] range:[article.content rangeOfString:AssectString(self.searchStr)]];
+    self.contentLabel.attributedText = contentAttStr;
+    self.contentLabel.numberOfLines = 3;
+
+    NSMutableAttributedString *titleAttStr = [[NSMutableAttributedString alloc] initWithString:article.title];
+    [titleAttStr addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithRGBHex:@"#FF5773"] range:[article.title rangeOfString:AssectString(self.searchStr)]];
+    self.titleLabel.attributedText = titleAttStr;
+    
+    NSString *dnName = AssectString(article.domain_names[@"domain_name"]);
+    NSMutableAttributedString *dnAttStr = [[NSMutableAttributedString alloc] initWithString:dnName];
+       NSRange range = [dnName rangeOfString:AssectString(self.searchStr)];
+    [dnAttStr addAttribute:NSForegroundColorAttributeName value:[UIColor colorWithRGBHex:@"#FF5773"] range:range];
+    self.dnNameLabel.attributedText = dnAttStr;
+    
+    self.topImage.hidden = article.is_sticky == 0;
+    
+    NSString *name = article.article_type[@"name"];
+    self.typeLabel.text = AssectString(name);
+    self.typeView.hidden = [AssectString(name) isEqualToString:@""];
+    CGFloat typelead = 15;
+    if (![AssectString(self.dnNameLabel.text) isEqualToString:@""]) {
+        typelead += [self calculateTagWidth:AssectString(self.dnNameLabel.text) withTag:NO] + 15;
+    }
+    
+    if (![AssectString(article.article_public_chain[@"image_address"]) isEqualToString:@""]) {
+        typelead += 14 + 5;
+    }
+    
+    if (![AssectString(self.chainLabel.text) isEqualToString:@""]) {
+        typelead += [self calculateTagWidth:AssectString(self.chainLabel.text) withTag:NO] + 15;
+    }
+    self.typeviewLeading.constant = typelead;
+
+    NSArray *article_labels = article.article_labels;
+    if (article_labels.count == 0) {
+        self.tagView.hidden = YES;
+    }else{
+        self.tagView.hidden = NO;
+        self.tagLeadConst.constant = article.is_sticky == 0?16:41;
+        NSDictionary *dict = article_labels[0];
+        self.tagLabel.text = AssectString(dict[@"name"]);
+        if ([dict[@"id"] longLongValue] == 1) {
+            self.tagView.backgroundColor = [UIColor colorWithRGBHex:@"#C76F63"];
+        }else if ([dict[@"id"] longLongValue] == 2){
+            self.tagView.backgroundColor = [UIColor colorWithRGBHex:@"#C79363"];
+        }else{
+            self.tagView.backgroundColor = [UIColor colorWithRGBHex:@"#7563C7"];
+        }
+    }
+    
+    CGFloat contentLead = 16;
+    if (article.is_sticky == 1) {
+        contentLead += 25;
+    }
+    if (article_labels.count != 0){
+        NSDictionary *dict = article_labels[0];
+        contentLead += [self calculateTagWidth:AssectString(dict[@"name"]) withTag:YES] + 5;
+    }
+    self.titleLeadConst.constant = contentLead;
+}
+
+-(CGFloat)calculateWidth:(NSString *)content{
+    //计算文本文字size
+    CGSize size = [content sizeWithAttributes:@{NSFontAttributeName: [UIFont boldSystemFontOfSize:15.f]}];
+    return size.width + 5;
+}
+
+-(CGFloat)calculateTagWidth:(NSString *)content withTag:(BOOL)ifTag{
+    //计算文本文字size
+    CGSize size = [content sizeWithAttributes:@{NSFontAttributeName: [UIFont systemFontOfSize:10 weight:(UIFontWeightMedium)]}];
+    return ifTag?size.width + 14:size.width;
+}
+@end

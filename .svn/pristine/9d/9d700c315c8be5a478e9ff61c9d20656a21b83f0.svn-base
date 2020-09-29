@@ -1,0 +1,68 @@
+//
+//  DNSHomeRollCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/4.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSHomeRollCell.h"
+
+@implementation DNSHomeRollCell
+
+- (instancetype)initWithFrame:(CGRect)frame{
+    if (self == [super initWithFrame:frame]) {
+        [self prepareUi];
+    }
+    return self;
+}
+
+-(void)prepareUi{
+    
+    self.bgview = [[UIView alloc] init];
+    self.bgview.backgroundColor = [UIColor whiteColor];
+    [self.contentView addSubview:self.bgview];
+
+    self.backview = [[UIView alloc] init];
+    self.backview.backgroundColor = [UIColor colorWithRGBHex:@"#5151F0"];
+    [self.bgview addSubview:self.backview];
+    
+    self.headerV = [[UIImageView alloc] init];
+    self.headerV.backgroundColor = [UIColor whiteColor];
+    [self.bgview addSubview:self.headerV];
+    
+    self.nameLabel = [[UILabel alloc] init];
+    self.nameLabel.textColor = [UIColor whiteColor];
+    self.nameLabel.font = [UIFont boldSystemFontOfSize:10];
+    [self.backview addSubview:self.nameLabel];
+    
+    self.content = [[UILabel alloc] init];
+    self.content.textColor = [UIColor whiteColor];
+    self.content.font = [UIFont systemFontOfSize:10];
+    [self.backview addSubview:self.content];
+}
+
+- (void)refreshDataWithType:(int)type{
+    self.bgview.frame = CGRectMake(0, 0, self.width, self.height);
+    
+    if (type == 1) {
+        self.backview.frame = CGRectMake(18, 1, self.width - 31, 24);
+    }else{
+        self.backview.frame = CGRectMake(15, 1, self.width - 31, 24);
+    }
+    self.backview.layer.masksToBounds = YES;
+    self.backview.layer.cornerRadius = 13;
+    
+    if (type == 1) {
+        self.headerV.frame = CGRectMake(17 , 0, 26, 26);
+    }else{
+        self.headerV.frame = CGRectMake(14 , 0, 26, 26);
+    }
+    self.headerV.layer.masksToBounds = YES;
+    self.headerV.layer.cornerRadius = 13;
+    
+    self.nameLabel.frame = CGRectMake(28, 0, 40, self.backview.height);
+
+    self.content.frame = CGRectMake(CGRectGetMaxX(self.nameLabel.frame) + 3, 0, self.backview.width - (CGRectGetMaxX(self.nameLabel.frame) + 3) - 10, self.backview.height);
+}
+@end

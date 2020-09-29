@@ -1,0 +1,36 @@
+//
+//  IntegrationTableViewCell.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "IntegrationTableViewCell.h"
+
+@implementation IntegrationTableViewCell
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+}
+
+- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
+    [super setSelected:selected animated:animated];
+
+    // Configure the view for the selected state
+}
+
+-(void)setModel:(IntegralModel *)model{
+    _model = model;
+    self.nameLabel.text = model.type_name;
+    self.orderLabel.text = [NSString stringWithFormat:@"%ld",model.integralid];
+    if (model.in_or_out == 1) {
+        self.countLabel.text = [NSString stringWithFormat:@"+%@",model.integral_number];
+    }else{
+        self.countLabel.text = [NSString stringWithFormat:@"-%@",model.integral_number];
+    }
+    self.timeLabel.text = model.created_at;
+}
+
+@end

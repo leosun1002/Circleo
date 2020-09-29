@@ -1,0 +1,101 @@
+//
+//  DNBrowserAwardListVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/12/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNBrowserAwardListVC.h"
+#import "DNBrowserAwardTableViewCell.h"
+
+@interface DNBrowserAwardListVC ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong) NSMutableArray *datas;
+
+@end
+
+@implementation DNBrowserAwardListVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self addRefresh];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.topConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNBrowserAwardTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNBrowserAwardTableViewCell"];
+    [self.tableview.mj_header beginRefreshing];
+    self.titleLabel.text = [NSString stringWithFormat:NSLocalizedString(@"%tu人赞赏", nil),self.awardCount];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    //使用这个加载  可以隐藏最后的一行字
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSDictionary *dict = @{@"article_chain_id":[NSString stringWithFormat:@"%ld",self.articleid],@"page":[NSString stringWithFormat:@"%d",page]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:BrowserArticleAppreciationList param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                [weakself.datas addObjectsFromArray:json[@"data"][@"data"]];
+            }
+        }
+        [weakself.tableview cyl_reloadData];
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+    }];
+}
+
+- (IBAction)closeClick:(id)sender {
+    [self dismissViewControllerAnimated:YES completion:^{
+        
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无赞赏", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNBrowserAwardTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNBrowserAwardTableViewCell"];
+    NSDictionary *dict = self.datas[indexPath.row];
+    [cell.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(dict[@"user"][@"avatar"])] placeholderImage:[UIImage imageNamed:@"pic_head"]];
+    cell.nameLabel.text = AssectString(dict[@"user"][@"name"]);
+    cell.moneyLabel.text = [NSString stringWithFormat:@"%@ %@",AssectString(dict[@"payment_amount"]),[dict[@"payment_method"] longLongValue] == 1?@"CNY":@"USDT"];
+    return cell;
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+@end

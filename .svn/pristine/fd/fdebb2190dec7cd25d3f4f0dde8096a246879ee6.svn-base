@@ -1,0 +1,149 @@
+//
+//  PersonSafeVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "PersonSafeVC.h"
+#import "PersonalCell.h"
+#import "SetTradePasswordVC.h"
+#import "ChangeTradePasswordVC.h"
+#import "AuthenVC.h"
+#import "SetPasswordVC.h"
+#import "ReceiptWayVC.h"
+#import "AddressManageVC.h"
+#import "ChangeBindPhoneVC.h"
+
+@interface PersonSafeVC ()<UITableViewDataSource,UITableViewDelegate,UIScrollViewDelegate>
+
+@property(nonatomic,copy)NSArray *datas;
+@end
+
+@implementation PersonSafeVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"PersonalCell" bundle:nil] forCellReuseIdentifier:@"PersonalCell"];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:UserInformation param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [Manager saveUserInfo:json];
+            }
+        }
+        [weakself.tableview reloadData];
+    }];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popToRootViewControllerAnimated:YES];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getUserInfo];
+}
+
+#pragma -mark PersonSettingTableViewCell
+-(NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
+    return 1;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 70;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *view = [[UIView alloc] init];
+    UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(16, 10, ksrcwidth - 16, 34)];
+    label.text = NSLocalizedString(@"账户与安全", nil);
+    label.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    label.font = [UIFont boldSystemFontOfSize:24.f];
+    [view addSubview:label];
+    return view;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0.01f;
+}
+
+-(UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
+}
+
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    PersonalCell *cell = [tableView dequeueReusableCellWithIdentifier:@"PersonalCell"];
+    cell.contentLabel.hidden = NO;
+    cell.lineConst.constant = 15;
+    cell.leftConst.constant = -15;
+    cell.imageV.hidden = YES;
+    cell.countLabel.hidden = YES;
+    cell.nameLabel.text = self.datas[indexPath.row];
+
+    if (indexPath.row == 1) {
+        NSString *paypsw = dict[JYPayPassword];
+        cell.contentLabel.text = [paypsw isEqualToString:@"0"]?NSLocalizedString(@"未设置", nil):NSLocalizedString(@"已设置", nil);
+        cell.contentLabel.textColor = [paypsw isEqualToString:@"0"]?[UIColor colorWithRGBHex:@"#9999A3"]:[UIColor colorWithRGBHex:@"#18181A"];
+    }else if (indexPath.row == 2) {
+        NSString *phone = dict[JYPhone];
+        cell.contentLabel.text = phone;
+        cell.contentLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }else{
+        cell.contentLabel.text = NSLocalizedString(@"已设置", nil);
+        cell.contentLabel.textColor = [UIColor colorWithRGBHex:@"#18181A"];
+    }
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    NSDictionary *dict = [Manager takeoutUserTokenkey:JYLoginuser];
+    if (indexPath.row == 1) {
+        NSString *paypsw = dict[JYPayPassword];
+        if ([paypsw isEqualToString:@"0"]) {
+            SetTradePasswordVC *psw = [[SetTradePasswordVC alloc] init];
+            [self.navigationController pushViewController:psw animated:YES];
+        }else{
+            ChangeTradePasswordVC *psw = [[ChangeTradePasswordVC alloc] init];
+            [self.navigationController pushViewController:psw animated:YES];
+        }
+    }else if (indexPath.row == 2){
+        ChangeBindPhoneVC *change = [[ChangeBindPhoneVC alloc] init];
+        [self.navigationController pushViewController:change animated:YES];
+    }else {
+        SetPasswordVC *setpsw = [[SetPasswordVC alloc] init];
+        [self.navigationController pushViewController:setpsw animated:YES];
+    }
+}
+
+#pragma -mark UIScrollViewDelegate
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (scrollView == self.tableview) {
+        CGFloat scrollY = scrollView.contentOffset.y;
+        self.titleLabel.hidden = scrollY < 40;
+    }
+}
+
+#pragma -mark getter
+-(NSArray *)datas{
+    if (!_datas) {
+        _datas = [NSArray arrayWithObjects:NSLocalizedString(@"登录密码", nil),NSLocalizedString(@"资产密码", nil),NSLocalizedString(@"绑定手机", nil),/**NSLocalizedString(@"邮箱绑定", nil),*/ nil];
+    }
+    return _datas;
+}
+@end

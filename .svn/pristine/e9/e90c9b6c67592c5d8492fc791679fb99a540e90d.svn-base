@@ -1,0 +1,122 @@
+//
+//  DNBrowserAssetsViewController.m
+//  ScmProject
+//
+//  Created by leosun on 2020/4/16.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "DNBrowserAssetsViewController.h"
+#import "DNBrowserAssetsTableViewCell.h"
+#import "NewsWebViewController.h"
+#import "DNBrowserErVC.h"
+
+@interface DNBrowserAssetsViewController ()<UITableViewDelegate,UITableViewDataSource,CYLTableViewPlaceHolderDelegate>
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (strong, nonatomic) NSMutableArray *datas;
+
+@end
+
+@implementation DNBrowserAssetsViewController
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self setBanar:NSLocalizedString(@"资产信息", nil) hiddeBack:NO];
+    self.topConst.constant = navBarHeight;
+    [self addRefresh];
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self.tableview registerNib:[UINib nibWithNibName:@"DNBrowserAssetsTableViewCell" bundle:nil] forCellReuseIdentifier:@"DNBrowserAssetsTableViewCell"];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData];
+    }];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+-(void)getData{
+    NSDictionary *dict = @{@"public_chain_name":AssectString(self.name),@"address":AssectString(self.address)};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:BrowserChainSearch param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.datas removeAllObjects];
+                [weakself.datas addObjectsFromArray:json[@"data"][@"public_chain"]];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    EmptyView *view = [EmptyView flagView];
+    view.contents.text = NSLocalizedString(@"当前暂无资产信息", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    DNBrowserAssetsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"DNBrowserAssetsTableViewCell"];
+    NSDictionary *dict = self.datas[indexPath.row];
+    [cell.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(dict[@"logo_image"])]];
+    cell.nameLabel.text = dict[@"name"];
+    cell.addressLabel.text = dict[@"address"];
+    cell.yueLabel.text = [NSString stringWithFormat:@"%@%@",AssectString(dict[@"balance"]),AssectString(dict[@"name"])];
+    cell.detailBtn.tag = indexPath.row;
+    [cell.detailBtn addTarget:self action:@selector(detailClick:) forControlEvents:UIControlEventTouchUpInside];
+    cell.erBtn.tag = indexPath.row;
+    [cell.erBtn addTarget:self action:@selector(erClick:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)detailClick:(UIButton *)sender{
+    NSDictionary *dict = self.datas[sender.tag];
+    NSString *url = @"";
+    if ([AssectString(dict[@"name"]) isEqualToString:@"VSYS"]) {
+        url = [NSString stringWithFormat:@"https://explorer.v.systems/address/%@",AssectString(dict[@"address"])];
+    }else if ([AssectString(dict[@"name"]) isEqualToString:@"NULS"]){
+        url = [NSString stringWithFormat:@"https://nulscan.io/address/info?address=%@",AssectString(dict[@"address"])];
+    }else{
+        url = [NSString stringWithFormat:@"https://%@.tokenview.com/cn/address/%@",[AssectNumber(dict[@"name"]) lowercaseString],AssectString(dict[@"address"])];
+    }
+    NewsWebViewController* webViewObj =  [[NewsWebViewController alloc] init];
+    webViewObj.loadUrl = AssectString(url);
+    webViewObj.titleStr = AssectString(dict[@"name"]);
+    [self.navigationController pushViewController:webViewObj animated:YES];
+}
+
+-(void)erClick:(UIButton *)sender{
+    NSDictionary *dict = self.datas[sender.tag];
+    DNBrowserErVC *erVc = [[DNBrowserErVC alloc] init];
+    erVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    erVc.address = AssectString(dict[@"address"]);
+    [self presentViewController:erVc animated:NO completion:^{
+        
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+@end

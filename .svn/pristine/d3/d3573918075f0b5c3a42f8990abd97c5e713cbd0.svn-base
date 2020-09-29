@@ -1,0 +1,56 @@
+//
+//  DNSShopRecommendModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface LabelModel : NSObject
+
+@property(nonatomic,copy)NSString *name;
+/**
+ 0不显示，1显示
+ */
+@property(nonatomic,assign)long status;
+
+@end
+
+@interface PivotModel : NSObject
+
+@property(nonatomic,assign)long label_id;
+
+@property(nonatomic,assign)long recommended_id;
+
+@end
+
+@interface DNSShopRecommendModel : NSObject
+
+@property(nonatomic,assign)long reccomendid;
+@property(nonatomic,assign)long domain_name_category_id;
+@property(nonatomic,copy)NSString *domain_name;
+@property(nonatomic,copy)NSString *domain_name_before;
+@property(nonatomic,copy)NSString *domain_name_after;
+@property(nonatomic,copy)NSString *usdt_fee;
+@property(nonatomic,copy)NSString *cny_fee;
+@property(nonatomic,copy)NSString *unit_price;
+@property(nonatomic,copy)NSString *unit_usdt_price;
+@property(nonatomic,copy)NSString *title;
+
+/**
+ 0未注册，1已注册
+ */
+@property(nonatomic,assign)long status;
+@property(nonatomic,copy)NSMutableArray <LabelModel *> *labels;
+@property(nonatomic,copy)NSString *created_at;
+@property(nonatomic,copy)NSString *updated_at;
+@property(nonatomic,assign)long hasSelect;
+@property(nonatomic,strong)PivotModel *pivot;
+
+@end
+
+NS_ASSUME_NONNULL_END

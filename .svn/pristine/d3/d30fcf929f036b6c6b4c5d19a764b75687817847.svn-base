@@ -1,0 +1,31 @@
+//
+//  BankCardAddVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+#import "BankCardModel.h"
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BankCardAddVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UIView *cardView;
+@property (weak, nonatomic) IBOutlet UIButton *delBtn;
+@property (weak, nonatomic) IBOutlet UIImageView *cardImg;
+@property (weak, nonatomic) IBOutlet UITextField *nameText;
+@property (weak, nonatomic) IBOutlet UITextField *cardNumText;
+@property (weak, nonatomic) IBOutlet UITextField *bankText;
+@property (strong, nonatomic) BankCardModel *cardModel;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (strong, nonatomic) RACSubject *subject;
+@property (weak, nonatomic) IBOutlet UITextField *payText;
+@property (weak, nonatomic) IBOutlet UIView *payView;
+@property (weak, nonatomic) IBOutlet UILabel *pswTipLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

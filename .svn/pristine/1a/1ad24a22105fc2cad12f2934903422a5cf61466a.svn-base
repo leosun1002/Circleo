@@ -1,0 +1,79 @@
+//
+//  InviteFriendVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/20.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "InviteFriendVC.h"
+#import "SpreadCenterVC.h"
+
+@interface InviteFriendVC ()
+
+@end
+
+@implementation InviteFriendVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+}
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+    if (IS_IPHONEX) {
+        self.topConst.constant += 24;
+        self.bottomConst.constant += 10;
+    }
+    self.backScroll.backgroundColor = [UIColor colorWithRGBHex:@"#6F1BB5"];
+    
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    self.yqLabel.text = AssectString(userdict[JYInvitationCode]);
+    
+    self.topBackImage.image = [[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?[UIImage imageNamed:@"yqhy_top_bg_eng"]:[UIImage imageNamed:@"yqhy_top_bg"];
+    
+    UIBezierPath *path1 = [UIBezierPath bezierPathWithRoundedRect:self.directLabel.bounds byRoundingCorners:UIRectCornerTopRight|UIRectCornerBottomRight cornerRadii:CGSizeMake(10, 10)];
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+    maskLayer.frame = self.directLabel.bounds;
+    maskLayer.path = path1.CGPath;
+    self.directLabel.layer.mask = maskLayer;
+    
+    UIBezierPath *path2 = [UIBezierPath bezierPathWithRoundedRect:self.indirectLabel.bounds byRoundingCorners:UIRectCornerTopRight|UIRectCornerBottomRight cornerRadii:CGSizeMake(10, 10)];
+    CAShapeLayer *maskLayer1 = [[CAShapeLayer alloc] init];
+    maskLayer1.frame = self.indirectLabel.bounds;
+    maskLayer1.path = path2.CGPath;
+    self.indirectLabel.layer.mask = maskLayer1
+    ;
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (IBAction)fzClick:(id)sender {
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(userdict[JYInvitationCode]);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)inviteClick:(id)sender {
+    NSDictionary *userdict = [Manager takeoutUserTokenkey:JYLoginuser];
+    NSString *url = [NSString stringWithFormat:@"%@dns/jy/register.html?yqmcode=%@&tst=%d&platformCode=%@",serviseShareIP,AssectString(userdict[JYInvitationCode]),SERVICE_LINK_FLAG,PlatformCode];
+    UIPasteboard *pasteboard = [UIPasteboard generalPasteboard];
+    pasteboard.string = AssectString(url);
+    [self showMsg:NSLocalizedString(@"复制成功", nil) location:centre];
+}
+
+- (IBAction)hbClick:(id)sender {
+    SpreadCenterVC *spreadVC = [[SpreadCenterVC alloc] init];
+    [self.navigationController pushViewController:spreadVC animated:YES];
+}
+
+@end

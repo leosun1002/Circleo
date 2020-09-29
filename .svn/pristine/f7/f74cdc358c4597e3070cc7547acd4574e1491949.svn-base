@@ -1,0 +1,31 @@
+//
+//  CNYPullOutVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface CNYPullOutVC : BaseViewController
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UITextField *pullText;
+@property (weak, nonatomic) IBOutlet UITextField *sxfText;
+@property (weak, nonatomic) IBOutlet UITextField *dztext;
+@property (weak, nonatomic) IBOutlet UITextView *remarkText;
+@property (weak, nonatomic) IBOutlet UILabel *remarkLabel;
+@property (weak, nonatomic) IBOutlet UIView *cardSelectview;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cardNumLabel;
+@property (weak, nonatomic) IBOutlet UILabel *bankLabel;
+@property (weak, nonatomic) IBOutlet UIView *topBgview;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+@property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+
+@end
+
+NS_ASSUME_NONNULL_END

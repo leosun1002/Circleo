@@ -1,0 +1,199 @@
+//
+//  ShopTraceSourceVC.m
+//  ScmProject
+//
+//  Created by leosun on 2020/7/18.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "ShopTraceSourceVC.h"
+#import "ShopTraceSourceTableViewCell.h"
+#import "SourceListModel.h"
+#import "ShopTraceSourceSelectVC.h"
+#import "ShopTraceSourceRecordVC.h"
+
+@interface ShopTraceSourceVC ()<UITableViewDataSource,UITableViewDelegate>{
+    int page;
+}
+
+@property(nonatomic,strong) NSMutableArray *datas;
+
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet UIView *selectBgview;
+
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UILabel *countLabel;
+@property (weak, nonatomic) IBOutlet UILabel *specLabel;
+@property (weak, nonatomic) IBOutlet UILabel *cnyLabel;
+
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *countWidth;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *cnyWidth;
+
+@property(nonatomic,strong)NSString *selectName;
+
+@end
+
+@implementation ShopTraceSourceVC
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    self.selectName = @"全部";
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#323236"];
+    [self.tableview registerNib:[UINib nibWithNibName:@"ShopTraceSourceTableViewCell" bundle:nil] forCellReuseIdentifier:@"ShopTraceSourceTableViewCell"];
+    
+    self.selectBgview.layer.shadowColor = [UIColor colorWithRGBHex:@"#2D3540"].CGColor;
+    self.selectBgview.layer.shadowOffset = CGSizeMake(1, 1);
+    self.selectBgview.layer.shadowRadius = 3.0f;
+    self.selectBgview.layer.shadowOpacity = 0.1f;
+    [self.selectBgview.layer setShadowPath:[[UIBezierPath bezierPathWithRect:CGRectMake(0, 0, ksrcwidth - 32, 55)] CGPath]];
+    
+    self.headV.layer.borderColor = [UIColor whiteColor].CGColor;
+    self.headV.layer.borderWidth = 0.5f;
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.shopModel.small_image)]];
+    self.nameLabel.text = self.shopModel.name;
+    self.specLabel.text = self.shopModel.specification;
+    self.countLabel.text = self.shopModel.number;
+    self.cnyLabel.text = [NSString stringWithFormat:@"≈ %@CNY",self.shopModel.total_price];
+    
+    self.countWidth.constant = [self calculateWidth:self.countLabel];
+    self.cnyWidth.constant = [self calculateWidth:self.cnyLabel];
+}
+
+- (IBAction)typeClick:(id)sender {
+    ShopTraceSourceSelectVC *selectVc = [[ShopTraceSourceSelectVC alloc] init];
+    selectVc.selectName = self.selectName;
+    selectVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    selectVc.subject = [RACSubject subject];
+    WeakSelf(self);
+    [selectVc.subject subscribeNext:^(NSString *selectStr) {
+        weakself.selectName = selectStr;
+        [weakself.tableview.mj_header beginRefreshing];
+    }];
+    [self presentViewController:selectVc animated:NO completion:^{
+        
+    }];
+}
+
+- (IBAction)timeClick:(id)sender {
+    ShopTraceSourceSelectVC *selectVc = [[ShopTraceSourceSelectVC alloc] init];
+    selectVc.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+    [self presentViewController:selectVc animated:NO completion:^{
+        
+    }];
+}
+
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [PersonGifHeader headerWithRefreshingBlock:^{
+        [weakself getData:YES];
+    }];
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getData:NO];
+    }];
+}
+
+-(void)getData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    NSString *typeStr = [self getType:self.selectName];
+    NSDictionary *dict = @{@"type":AssectString(typeStr),@"page":[NSString stringWithFormat:@"%d",page],@"good_id":[NSString stringWithFormat:@"%ld",self.shopModel.assetId]};
+    WeakSelf(self);
+    [WebServices postFormReqUrl:SourceList param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                !ifFresh?:[weakself.datas removeAllObjects];
+                NSMutableArray<SourceListModel*> *applicationList = [SourceListModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.datas addObjectsFromArray:applicationList];
+            }
+        }
+        [weakself.tableview.mj_header endRefreshing];
+        [weakself.tableview.mj_footer endRefreshing];
+        [weakself.tableview cyl_reloadData];
+    }];
+}
+
+#pragma -mark CYLTableViewPlaceHolderDelegate
+-(BOOL)enableScrollWhenPlaceHolderViewShowing{
+    return YES;
+}
+
+-(UIView *)makePlaceHolderView{
+    ShopEmptyView *view = [ShopEmptyView flagView];
+    view.contentLabel.text = NSLocalizedString(@"当前暂无溯源数据", nil);
+    return view;
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return self.datas.count;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    ShopTraceSourceTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"ShopTraceSourceTableViewCell"];
+    SourceListModel *model = self.datas[indexPath.row];
+    if (model.types == 1) {
+        cell.nameLabel.text = @"购买";
+    }else if (model.types == 2){
+        cell.nameLabel.text = @"提取";
+    }else if (model.types == 3){
+        cell.nameLabel.text = @"二手";
+    }else if (model.types == 9){
+        cell.nameLabel.text = @"提货";
+    }
+    cell.codeLabel.text = model.code;
+    return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    SourceListModel *model = self.datas[indexPath.row];
+
+    ShopTraceSourceRecordVC *source = [[ShopTraceSourceRecordVC alloc] init];
+    source.code = model.code;
+    [self.navigationController pushViewController:source animated:YES];
+}
+
+#pragma -mark gettet
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
+}
+
+#pragma -mark calculateWidth
+-(CGFloat)calculateWidth:(UILabel *)content{
+    //计算文本文字size
+    CGSize size = [content.text sizeWithAttributes:@{NSFontAttributeName: content.font}];
+//    //获取宽高
+//    CGSize statuseStrSize = CGSizeMake(ceilf(size.width), ceilf(size.height));
+//    //打印宽高
+//    NSLog(@"%@_width:%f_height:%f",NSStringFromCGSize(statuseStrSize),size.width,size.height);
+    return size.width;
+}
+
+-(NSString *)getType:(NSString *)selectStr{
+    NSString *typeStr = @"0";
+    if ([selectStr isEqualToString:@"全部"]) {
+        typeStr = @"0";
+    }else if ([selectStr isEqualToString:@"购买"]) {
+        typeStr = @"1";
+    }else if ([selectStr isEqualToString:@"提取"]) {
+        typeStr = @"2";
+    }else if ([selectStr isEqualToString:@"二手"]) {
+        typeStr = @"3";
+    }else if ([selectStr isEqualToString:@"提货"]) {
+        typeStr = @"9";
+    }
+    return typeStr;
+}
+@end

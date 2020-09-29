@@ -1,0 +1,22 @@
+//
+//  DNSManageChildVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/7/17.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <UIKit/UIKit.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface DNSManageChildVC : BaseViewController
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (assign, nonatomic) long type;//1为域名列表，2已绑定，3未绑定，4即将到期
+@property(nonatomic,strong)RACSubject *subject;
+@property(nonatomic,strong)RACSubject *renewSubject;
+
+-(void)refreshData;
+@end
+
+NS_ASSUME_NONNULL_END

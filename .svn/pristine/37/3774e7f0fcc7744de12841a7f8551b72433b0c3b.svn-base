@@ -1,0 +1,22 @@
+//
+//  BrowserDomainModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/11/26.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface BrowserDomainModel : NSObject
+
+@property(nonatomic,assign) long domainid;
+@property(nonatomic,copy) NSString *domain_name;
+/// 0不是，1是
+@property(nonatomic,assign) long type;
+
+@end
+
+NS_ASSUME_NONNULL_END

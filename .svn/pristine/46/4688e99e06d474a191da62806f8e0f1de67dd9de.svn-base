@@ -1,0 +1,430 @@
+//
+//  DNSHomePageVC.m
+//  ScmProject
+//
+//  Created by leosun on 2019/7/22.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSHomePageVC.h"
+#import "DNSHomePageCollectionViewCell.h"
+#import "DNSHomePageReusableView.h"
+#import "ShopCarViewController.h"
+#import "DNSBannerModel.h"
+#import "DNSCateroyModel.h"
+#import "DNSShopRecommendModel.h"
+#import "DNSShopModel.h"
+#import "OYCountDownManager.h"
+#import "DNSShopHomeVC.h"
+#import "DNSSearchVC.h"
+#import "DNSSellOrderVC.h"
+#import "DNHomeCollectionViewFlowLayout.h"
+
+@interface DNSHomePageVC ()<UICollectionViewDelegate,UICollectionViewDataSource,UITextFieldDelegate>{
+}
+
+@property(nonatomic,strong)NSMutableArray *banners;//轮播图
+@property(nonatomic,strong)NSMutableArray *categorys;//域名分类
+@property(nonatomic,strong)NSMutableArray *recommends;//推荐域名
+@property(nonatomic,strong)NSMutableArray *hangsales;//挂单
+@property(nonatomic,assign)CGFloat topHeight;//顶部高度
+@property(nonatomic,assign)BOOL hasRefreh;//是否已经刷新过
+///0是圆角  1是直角
+@property(nonatomic,assign)long cornerType;
+
+@end
+
+@implementation DNSHomePageVC
+
+- (void)dealloc {
+    [kCountDownManager removeAllSource];
+    [kCountDownManager invalidate];
+}
+
+- (void)viewDidLoad {
+    [super viewDidLoad];
+    [self prepareUi];
+    [self addRefresh];
+    [kCountDownManager start];
+    self.hasRefreh = NO;
+    [self.collect.mj_header beginRefreshing];
+}
+
+-(void)viewDidAppear:(BOOL)animated{
+    [super viewDidAppear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleLightContent;
+    [self getHomePageData];
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getRedCount];
+    [self addTradeAnimation];
+}
+
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    [UIApplication sharedApplication].statusBarStyle = UIStatusBarStyleDefault;
+}
+
+-(void)addRefresh{
+    PersonWhiteGifHeader *header = [PersonWhiteGifHeader headerWithRefreshingTarget:self refreshingAction:@selector(getHomePageData)];
+    self.collect.mj_header = header;
+}
+
+-(void)prepareUi{
+    self.view.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+    self.heightConst.constant = navBarHeight;
+    self.collectionTopConst.constant = navBarHeight;
+    self.shopCarBotConst.constant = 17 + tabbarHeight;
+    if (IS_IPHONEX) {
+        self.topHeightConst.constant += 44;
+    }
+    self.topHeight = self.topHeightConst.constant;
+    [self addGradientLayer:self.topGradientView withHeight:self.topHeight withColor:nil toColor:nil];
+    //重写flowout   解决缝隙的问题
+    DNHomeCollectionViewFlowLayout *flowout = [[DNHomeCollectionViewFlowLayout alloc] init];
+    flowout.headerReferenceSize = CGSizeMake(ksrcwidth, 628);
+    flowout.footerReferenceSize = CGSizeMake(ksrcwidth, 71);
+    flowout.minimumLineSpacing = 0;
+    flowout.minimumInteritemSpacing = 0;
+    flowout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    flowout.itemSize = CGSizeMake(ksrcwidth/2, 118);
+    [self.collect setCollectionViewLayout:flowout];
+    
+    [self.collect registerNib:[UINib nibWithNibName:@"DNSHomePageCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"DNSHomePageCollectionViewCell"];
+    [self.collect registerNib:[UINib nibWithNibName:@"DNSHomePageReusableView" bundle:nil] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"DNSHomePageReusableView"];
+    [self.collect registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterReusableViewFooter"];
+    
+    self.searchText.attributedPlaceholder = [[NSMutableAttributedString alloc]initWithString:self.searchText.placeholder attributes:@{NSForegroundColorAttributeName:[UIColor getColor:@"#FFFFFF" alpha:0.8],NSFontAttributeName:[UIFont systemFontOfSize:12]}];
+    self.shopcarLabel.adjustsFontSizeToFitWidth = YES;
+
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        DNSShopHomeVC *home = [[DNSShopHomeVC alloc] init];
+        [weakself.navigationController pushViewController:home animated:YES];
+    }];
+    [self.tradeView addGestureRecognizer:tap];
+    
+}
+
+-(void)addTradeAnimation{
+    NSMutableArray *animatedImages = [NSMutableArray array];
+    for (int i = 1; i < 16; i++) {
+        NSString *animatedImageName = [NSString stringWithFormat:@"TradeAreaIcon%d",i];
+        UIImage *animatedImage = [UIImage imageNamed:animatedImageName];
+        [animatedImages addObject:animatedImage];
+    }
+
+    self.tradeImage.animationImages = animatedImages;
+    self.tradeImage.animationRepeatCount = 1;
+    self.tradeImage.animationDuration = 1;
+    [self.tradeImage startAnimating];
+}
+
+-(void)addGradientLayer:(UIView *)bgview withHeight:(CGFloat)height withColor:(UIColor *)color toColor:(UIColor *)tocolor{
+    [bgview.layer.sublayers makeObjectsPerformSelector:@selector(removeFromSuperlayer)];
+
+    CAGradientLayer *gradient = [CAGradientLayer layer];
+    gradient.frame = CGRectMake(0, 0, ksrcwidth, height);
+    gradient.startPoint = CGPointMake(0, 0);
+    gradient.endPoint = CGPointMake(0, 1);
+    if (color && tocolor) {
+        gradient.colors = [NSArray arrayWithObjects:(id)color.CGColor,(id)tocolor.CGColor,nil];
+    }else{
+            gradient.colors = [NSArray arrayWithObjects:
+                             (id)[UIColor getColor:@"#5151F0" alpha:1].CGColor,
+                             (id)[UIColor getColor:@"#5151F0" alpha:0.3].CGColor,nil];
+    }
+    [bgview.layer addSublayer:gradient];
+}
+
+- (IBAction)shopCarClick:(id)sender {
+    ShopCarViewController *shopCar = [[ShopCarViewController alloc] init];
+    [self.navigationController pushViewController:shopCar animated:YES];
+}
+
+//获取红点数
+-(void)getRedCount{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:ShoppingCartRedCount param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                long count =  [json[@"data"][@"count"] longValue];
+                weakself.shopcarLabel.hidden = count == 0;
+                if (count > 99) {
+                    weakself.shopcarLabel.text = [NSString stringWithFormat:@"99+"];
+                }else{
+                    weakself.shopcarLabel.text = [NSString stringWithFormat:@"%ld",count];
+                }
+            }
+        }
+    }];
+}
+
+-(void)addAnimation{
+    [UIView animateWithDuration:0.4 animations:^{
+        self.shopcarLabel.transform = CGAffineTransformMakeScale(1.3, 1.3);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.25 animations:^{
+            self.shopcarLabel.transform = CGAffineTransformIdentity;
+        }];
+    }];
+    
+    [UIView animateWithDuration:0.25 animations:^{
+         self.shopCarBtn.transform = CGAffineTransformMakeRotation(30 *M_PI / 180.0);
+    } completion:^(BOOL finished) {
+        [UIView animateWithDuration:0.25 animations:^{
+            self.shopCarBtn.transform = CGAffineTransformMakeRotation(-30 *M_PI / 180.0);
+        } completion:^(BOOL finished) {
+            self.shopCarBtn.transform = CGAffineTransformMakeRotation(0 *M_PI / 180.0);
+        }];
+    }];
+}
+
+-(void)getHomePageData{
+    dispatch_group_t group = dispatch_group_create();
+    dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+    
+    WeakSelf(self);
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        [weakself getBannerDatawithGroup:group];
+    });
+    
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        // 追加任务 2
+        [weakself getClassifyDatawithGroup:group];//获取域名分类
+    });
+    
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        // 追加任务 3
+        [weakself getRecommendDatawithGroup:group];
+    });
+    
+    dispatch_group_enter(group);
+    dispatch_async(queue, ^{
+        // 追加任务 4
+        [weakself getHangeSaleDatawithGroup:group];
+    });
+    
+    dispatch_group_notify(group, dispatch_get_main_queue(), ^{
+        weakself.hasRefreh = YES;
+        [weakself.collect.mj_header endRefreshing];
+        [weakself.collect reloadData];
+    });
+}
+
+//顶部轮播图
+-(void)getBannerDatawithGroup:(dispatch_group_t)group{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:RotaryPic param:@{@"image_type":@"2"} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                id temps = json[@"data"][@"rotary_picture"];
+                if ([temps isKindOfClass:[NSArray class]]) {
+                    [weakself.banners removeAllObjects];
+                    NSMutableArray<DNSBannerModel*> *applicationList = [DNSBannerModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"rotary_picture"]];
+                    [weakself.banners addObjectsFromArray:applicationList];
+                }
+            }
+        }
+    }];
+}
+
+//获取域名分类
+-(void)getClassifyDatawithGroup:(dispatch_group_t)group{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:DomainNameCategory param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                id temps = json[@"data"][@"domain_name_category"];
+                if ([temps isKindOfClass:[NSArray class]]) {
+                    [weakself.categorys removeAllObjects];
+                    [temps enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                        DNSCateroyModel *modules = [DNSCateroyModel mj_objectWithKeyValues:obj];
+                        if (modules.status == 1) {
+                            [weakself.categorys addObject:modules];
+                        }
+                    }];
+                }
+            }
+        }
+    }];
+}
+
+//推荐域名
+-(void)getRecommendDatawithGroup:(dispatch_group_t)group{
+    WeakSelf(self);
+    [WebServices getFormReqUrl:RecommendedDNHomepage param:@{} loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                id temps = json[@"data"][@"data"];
+                if ([temps isKindOfClass:[NSArray class]]) {
+                    [weakself.recommends removeAllObjects];
+                    [temps enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                        DNSShopRecommendModel *modules = [DNSShopRecommendModel mj_objectWithKeyValues:obj];
+                        [weakself.recommends addObject:modules];
+                    }];
+                }
+            }
+        }
+    }];
+}
+
+//交易区
+-(void)getHangeSaleDatawithGroup:(dispatch_group_t)group{
+    WeakSelf(self);
+    NSDictionary *dict = @{@"time_order":@"",@"price_order":@"",@"domain_suffix":@"",@"price":@"",@"domain_length":@"",@"days":@"",@"type":@"",@"domain_name":@"",@"page":@"1"};
+
+    [WebServices getFormReqUrl:ShopHangSale param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        dispatch_group_leave(group);
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself.hangsales removeAllObjects];
+                NSMutableArray<DNSShopModel *> *applicationList = [DNSShopModel mj_objectArrayWithKeyValuesArray:json[@"data"][@"data"]];
+                [weakself.hangsales addObjectsFromArray:applicationList];
+                [kCountDownManager reload];
+            }
+        }
+    }];
+}
+
+-(UICollectionReusableView *)collectionView:(UICollectionView *)collectionView viewForSupplementaryElementOfKind:(NSString *)kind atIndexPath:(NSIndexPath *)indexPath{
+    if ([kind isEqualToString:UICollectionElementKindSectionHeader]) {
+        DNSHomePageReusableView *homeHeader = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"DNSHomePageReusableView" forIndexPath:indexPath];
+        homeHeader.hasRefresh = self.hasRefreh;
+        homeHeader.banners = self.banners;
+        homeHeader.categorys = self.categorys;
+        homeHeader.recommends = self.recommends;
+        homeHeader.navigationVC = self.navigationController;
+        homeHeader.redSubject = [RACSubject subject];
+        WeakSelf(self);
+        [homeHeader.redSubject subscribeNext:^(id x) {
+            [weakself getRedCount];
+            [weakself addAnimation];
+        }];
+        homeHeader.colorSubject = [RACSubject subject];
+        [homeHeader.colorSubject subscribeNext:^(NSDictionary *dict) {
+            CGFloat topHeight = weakself.topHeightConst.constant;
+            if (topHeight <= navBarHeight + 25) return ;
+            UIColor *fromColor = dict[@"from"];
+            UIColor *tocolor = dict[@"to"];
+            [weakself addGradientLayer:weakself.topGradientView withHeight:weakself.topHeight withColor:fromColor toColor:tocolor];
+        }];
+        homeHeader.seeSubject = [RACSubject subject];
+        [homeHeader.seeSubject subscribeNext:^(id x) {
+            weakself.hasRefreh = NO;
+        }];
+        return homeHeader;
+    }
+    
+    UICollectionReusableView *footer = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionFooter withReuseIdentifier:@"FooterReusableViewFooter" forIndexPath:indexPath];
+    footer.backgroundColor = [UIColor colorWithRGBHex:@"#f7f7f9"];
+    return footer;
+}
+
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.hangsales.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    DNSHomePageCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DNSHomePageCollectionViewCell" forIndexPath:indexPath];
+    cell.model = self.hangsales[indexPath.item];
+    CGFloat width = 0;
+    if (indexPath.item %2 == 0) {
+        cell.leadConst.constant = 16;
+        cell.trailConst.constant = 7;
+        width = ksrcwidth/2 - 23;
+    }else{
+        cell.leadConst.constant = 0;
+        cell.trailConst.constant = 16;
+        width = ksrcwidth/2 - 16;
+    }
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.hangsales.count == 0)return;
+    
+    DNSShopModel *model = self.hangsales[indexPath.item];
+    DNSSellOrderVC *order = [[DNSSellOrderVC alloc] init];
+    order.selectid = [NSString stringWithFormat:@"%ld",model.shopid];
+    [self.navigationController pushViewController:order animated:YES];
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (scrollView != self.collect) return;
+    if(scrollView.contentOffset.y<-100){
+        [scrollView setContentOffset:CGPointMake(0, -100)];
+    }
+    
+    CGFloat origin = IS_IPHONEX?266:222 + 25;
+    CGFloat scrollY = scrollView.contentOffset.y;
+    CGFloat height = origin - scrollY;
+    if (scrollY <= 0) {
+        self.topHeightConst.constant = height > origin?origin:height;
+    }else{
+        self.topHeightConst.constant = height <= navBarHeight+25?navBarHeight+25:height;
+    }
+    self.cornerType = self.topHeightConst.constant == navBarHeight + 25?1:0;
+}
+
+#pragma -mark UITextFieldDelegate
+- (BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
+    DNSSearchVC *searchVC = [[DNSSearchVC alloc]init];
+    [self.navigationController pushViewController:searchVC animated:YES];
+    return NO;
+}
+
+#pragma -mark setter
+-(void)setCornerType:(long)cornerType{
+    if (_cornerType == cornerType) return;
+    if (cornerType == 0) {
+        [UIView animateWithDuration:0.25 animations:^{
+            self.topBgview.layer.cornerRadius = 25;
+        }];
+        _cornerType = cornerType;
+    }else{
+        [UIView animateWithDuration:0.25 animations:^{
+            self.topBgview.layer.cornerRadius = 0;
+        }];
+        _cornerType = cornerType;
+    }
+}
+
+#pragma -mark getter
+-(NSMutableArray *)banners{
+    if (!_banners) {
+        _banners = [NSMutableArray array];
+    }
+    return _banners;
+}
+
+-(NSMutableArray *)categorys{
+    if (!_categorys) {
+        _categorys = [NSMutableArray array];
+    }
+    return _categorys;
+}
+
+-(NSMutableArray *)recommends{
+    if (!_recommends) {
+        _recommends = [NSMutableArray array];
+    }
+    return _recommends;
+}
+
+-(NSMutableArray *)hangsales{
+    if (!_hangsales) {
+        _hangsales = [NSMutableArray array];
+    }
+    return _hangsales;
+}
+@end

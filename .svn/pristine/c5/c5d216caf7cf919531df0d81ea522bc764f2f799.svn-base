@@ -1,0 +1,23 @@
+//
+//  DNSShopRecommendModel.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/25.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSShopRecommendModel.h"
+
+@implementation LabelModel
+
+@end
+
+@implementation DNSShopRecommendModel
++ (NSDictionary *)mj_objectClassInArray{
+    return @{@"labels" : @"LabelModel"};//前边，是属性数组的名字，后边就是类名
+}
+
++(NSDictionary *)mj_replacedKeyFromPropertyName{
+    return @{@"reccomendid":@"id"};
+}
+@end

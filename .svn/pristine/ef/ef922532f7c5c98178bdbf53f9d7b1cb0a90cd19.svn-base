@@ -1,0 +1,339 @@
+//
+//  DNSHomePageReusableView.m
+//  ScmProject
+//
+//  Created by leosun on 2019/9/24.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "DNSHomePageReusableView.h"
+#import "NewPagedFlowView.h"
+#import "PGIndexBannerSubiew.h"
+#import "JhPageControl.h"
+#import "DNSTypeCollectionViewCell.h"
+#import "DNRecomendCollectionViewCell.h"
+#import "DNSBannerModel.h"
+#import "DNSCateroyModel.h"
+#import "DNSShopRecommendModel.h"
+#import "RecommendDNVC.h"
+#import "DNSShopHomeVC.h"
+#import "DNSRenewViewController.h"
+#import "UIColor+extend.h"
+#import "UIImage+Palette.h"
+#import "UIImage+GIFImage.h"
+
+@interface DNSHomePageReusableView () <NewPagedFlowViewDelegate,NewPagedFlowViewDataSource,UICollectionViewDelegate,UICollectionViewDataSource>
+
+@property(nonatomic,weak)NewPagedFlowView *pageFlowView;
+@property (nonatomic, strong) JhPageControl *pageControl;
+@property (strong, nonatomic) UICollectionView *midCollect;
+
+@end
+
+@implementation DNSHomePageReusableView
+
+- (void)awakeFromNib {
+    [super awakeFromNib];
+    // Initialization code
+    [self prepareUi];
+}
+
+-(void)prepareUi{
+    [self addCollectView];
+    [self addMidCollect];
+    [self addBotCollect];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        DNSShopHomeVC *home = [[DNSShopHomeVC alloc] init];
+        [weakself.navigationVC pushViewController:home animated:YES];
+    }];
+    [self.tradeView addGestureRecognizer:tap];
+    
+    self.tradeView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+}
+
+-(void)addCollectView{
+    NewPagedFlowView *pageFlowView = [[NewPagedFlowView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 100)];
+    pageFlowView.delegate = self;
+    pageFlowView.dataSource = self;
+    pageFlowView.minimumPageAlpha = 0.1;
+    pageFlowView.isCarousel = YES;
+    pageFlowView.leftRightMargin = 10;
+    pageFlowView.topBottomMargin = 0;
+    pageFlowView.orientation = NewPagedFlowViewOrientationHorizontal;
+    pageFlowView.isOpenAutoScroll = YES;
+    pageFlowView.backgroundColor = [UIColor clearColor];
+    [self.scrollBgview addSubview:_pageFlowView = pageFlowView];
+}
+
+-(void)addMidCollect{
+    self.midCollectBgview.layer.shadowColor = [UIColor colorWithRGBHex:@"#1F1F4D"].CGColor;//阴影颜色
+    self.midCollectBgview.layer.shadowOffset = CGSizeMake(2, 2);//偏移距离
+    self.midCollectBgview.layer.shadowOpacity = 0.1f;//不透明度
+    self.midCollectBgview.layer.shadowRadius = 5;//半径
+    self.midCollectBgview.layer.shadowPath = [[UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, ksrcwidth - 30, 98) byRoundingCorners:(UIRectCornerAllCorners) cornerRadii:CGSizeMake(2, 2)] CGPath];
+    
+    [self.midCollectBgview addSubview:self.midCollect];
+    [self.midCollect registerNib:[UINib nibWithNibName:@"DNSTypeCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"DNSTypeCollectionViewCell"];
+}
+
+-(void)addBotCollect{
+    self.botCollect.backgroundColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
+    self.botFlowLayout.itemSize = CGSizeMake(111, 113);
+    self.botFlowLayout.minimumLineSpacing = 5;
+    self.botFlowLayout.minimumInteritemSpacing = 5;
+    self.botFlowLayout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+    [self.botCollect registerNib:[UINib nibWithNibName:@"DNRecomendCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"DNRecomendCollectionViewCell"];
+}
+
+- (IBAction)moreClick:(id)sender {
+    RecommendDNVC *recommendVC = [[RecommendDNVC alloc] init];
+    recommendVC.domain_name_category_id = @"";
+    recommendVC.type = 0;
+    [self.navigationVC pushViewController:recommendVC animated:YES];
+}
+
+#pragma mark NewPagedFlowView Delegate
+- (CGSize)sizeForPageInFlowView:(NewPagedFlowView *)flowView {
+    return CGSizeMake(ksrcwidth - 32, 100);
+}
+
+- (void)didSelectCell:(UIView *)subView withSubViewIndex:(NSInteger)subIndex {
+    NSLog(@"点击了第%ld张图",(long)subIndex + 1);
+}
+
+#pragma mark NewPagedFlowView Datasource
+- (NSInteger)numberOfPagesInFlowView:(NewPagedFlowView *)flowView {
+    return self.banners.count;
+}
+
+-(void)didScrollToPage:(NSInteger)pageNumber inFlowView:(NewPagedFlowView *)flowView{
+    self.pageControl.currentPage = pageNumber;
+    DNSBannerModel *banner = self.banners[pageNumber];
+    UIImage *image = [self getImageWithUrl:AssectString(banner.image_address)];
+    [self getgradientWithImage:image];
+}
+
+- (PGIndexBannerSubiew *)flowView:(NewPagedFlowView *)flowView cellForPageAtIndex:(NSInteger)index{
+    PGIndexBannerSubiew *bannerView = (PGIndexBannerSubiew *)[flowView dequeueReusableCell];
+    if (!bannerView) {
+        bannerView = [[PGIndexBannerSubiew alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth - 32, 100) withType:0];
+        bannerView.tag = index;
+        bannerView.layer.cornerRadius = 4;
+        bannerView.layer.masksToBounds = YES;
+    }
+    //在这里下载网络图片
+    DNSBannerModel *banner = self.banners[index];
+    bannerView.mainImageView.backgroundColor = [UIColor colorWithRGBHex:@"#f7f7f9"];
+    [bannerView.mainImageView sd_setImageWithURL:[NSURL URLWithString:AssectString(banner.image_address)] placeholderImage:[UIImage imageNamed:@"placeImage_shop"]];
+    return bannerView;
+}
+
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    if (collectionView == self.midCollect) {
+        return self.categorys.count;
+    }
+    return self.recommends.count;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (collectionView == self.midCollect) {
+        DNSTypeCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DNSTypeCollectionViewCell" forIndexPath:indexPath];
+        DNSCateroyModel *model = self.categorys[indexPath.item];
+        [cell.headV sd_setImageWithURL:[NSURL URLWithString:model.image_address] placeholderImage:[UIColor createColorImg:@"#f7f7f9"] options:SDWebImageAllowInvalidSSLCertificates];
+        cell.nameLabel.text = model.name;
+        return cell;
+    }
+    DNRecomendCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"DNRecomendCollectionViewCell" forIndexPath:indexPath];
+    cell.model = self.recommends[indexPath.item];
+    cell.addBtn.tag = indexPath.item;
+    [cell.addBtn addTarget:self action:@selector(addShopCar:) forControlEvents:UIControlEventTouchUpInside];
+    return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    if (collectionView == self.midCollect) {
+        DNSCateroyModel *model = self.categorys[indexPath.item];
+        RecommendDNVC *recommendVC = [[RecommendDNVC alloc] init];
+        recommendVC.domain_name_category_id = [NSString stringWithFormat:@"%ld",model.domain_name_category_id];
+        recommendVC.titlename = model.name;
+        recommendVC.type = 1;
+        [self.navigationVC pushViewController:recommendVC animated:YES];
+    }else{
+        DNSShopRecommendModel *model = self.recommends[indexPath.item];
+
+        DNSRenewViewController *renuw = [[DNSRenewViewController alloc] init];
+        renuw.newType = 0;
+        renuw.domains = AssectString(model.domain_name);
+        [self.navigationVC pushViewController:renuw animated:YES];
+    }
+}
+
+-(void)addShopCar:(UIButton *)sender{
+    NSInteger tag = sender.tag;
+    DNSShopRecommendModel *model = self.recommends[tag];
+    [self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:NO];
+    WeakSelf(self);
+    NSDictionary *dict = @{@"domain_names":AssectString(model.domain_name)};
+    [WebServices postFormReqUrl:ShoppingCartStore param:dict loadingTime:12.f callbackBlock:^(NSDictionary *json, NSInteger startCode, NSString *error) {
+        [weakself dismissLoading];
+        if(json != nil){
+            if ([AssectString(json[@"code"]) isEqualToString:@"1"]) {
+                [weakself addAnimation:tag];
+                [weakself.redSubject sendNext:@""];
+            }else{
+                [weakself showMsg:json[@"msg"] location:centre];
+            }
+        }else{
+            [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+        }
+    }];
+}
+
+-(void)addAnimation:(NSInteger)tag{
+    DNRecomendCollectionViewCell *cell = (DNRecomendCollectionViewCell *)[self.botCollect cellForItemAtIndexPath:[NSIndexPath indexPathForItem:tag inSection:0]];
+    UIButton *sender =  cell.addBtn;
+    sender.hidden = YES;
+    LOTAnimationView *animation = [LOTAnimationView animationNamed:@"addShopCart"];
+    animation.frame = CGRectMake(CGRectGetMidX(sender.frame) - 13, CGRectGetMidY(sender.frame) - 15, 30, 30);
+    [cell addSubview:animation];
+    [animation playWithCompletion:^(BOOL animationFinished) {
+        [animation removeFromSuperview];
+      // Do Something
+        sender.hidden = NO;
+    }];
+}
+
+-(void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (scrollView == self.self.botCollect) {
+        CGFloat scrollX = scrollView.contentOffset.x;
+        CGFloat scrollWidth = scrollView.contentSize.width - self.botCollect.width;
+        self.botScrollView.x = 60 * scrollX/scrollWidth;
+    }
+}
+
+-(void)getgradientWithImage:(UIImage *)image{
+    WeakSelf(self);
+    [image getPaletteImageColorWithMode:ALL_MODE_PALETTE withCallBack:^(PaletteColorModel *recommendColor, NSDictionary *allModeColorDic,NSError *error) {
+        if (!recommendColor){
+            return;
+        }
+        
+        id dark_vibrant = allModeColorDic[@"dark_vibrant"];
+        if ([dark_vibrant isKindOfClass:[PaletteColorModel class]]) {
+            PaletteColorModel *vibrantModel = (PaletteColorModel *)dark_vibrant;
+            UIColor *fromcolor = [UIColor getColor:AssectString(vibrantModel.imageColorString) alpha:1];
+            UIColor *toColor = [UIColor getColor:AssectString(vibrantModel.imageColorString) alpha:0.3];
+            if (fromcolor && toColor) {
+                NSDictionary *dict = @{@"from":fromcolor,@"to":toColor};
+                [weakself.colorSubject sendNext:dict];
+            }
+            return;
+        }
+        
+        id dark_muted = allModeColorDic[@"dark_muted"];
+        if ([dark_muted isKindOfClass:[PaletteColorModel class]]) {
+            PaletteColorModel *mutedModel = (PaletteColorModel *)dark_muted;
+            UIColor *fromcolor = [UIColor getColor:AssectString(mutedModel.imageColorString) alpha:1];
+            UIColor *toColor = [UIColor getColor:AssectString(mutedModel.imageColorString) alpha:0.3];
+            if (fromcolor && toColor) {
+                NSDictionary *dict = @{@"from":fromcolor,@"to":toColor};
+                [weakself.colorSubject sendNext:dict];
+            }
+            return;
+        }
+        
+        UIColor *fromcolor = [UIColor getColor:AssectString(recommendColor.imageColorString) alpha:1];
+        UIColor *toColor = [UIColor getColor:AssectString(recommendColor.imageColorString) alpha:0.3];
+        if (fromcolor && toColor) {
+            NSDictionary *dict = @{@"from":fromcolor,@"to":toColor};
+            [weakself.colorSubject sendNext:dict];
+        }
+    }];
+}
+
+//根据url获取图片
+-(UIImage *)getImageWithUrl:(NSString *)url{
+    SDWebImageManager *manager = [SDWebImageManager sharedManager];
+    NSString* key = [manager cacheKeyForURL:[NSURL URLWithString:url]];
+    SDImageCache* cache = [SDImageCache sharedImageCache];
+    //此方法会先从memory中取。
+    UIImage *image = [cache imageFromDiskCacheForKey:key];
+    return image;
+}
+
+#pragma -mark getter
+-(JhPageControl *)pageControl{
+    if (!_pageControl) {
+        _pageControl = [[JhPageControl alloc] init];
+        _pageControl.frame = CGRectMake(0, 100 - 17, ksrcwidth, 6);
+        _pageControl.currentPage = 0;
+        _pageControl.otherColor = [UIColor getColor:@"#ffffff" alpha:0.8];
+        _pageControl.currentColor = [UIColor whiteColor];
+        _pageControl.PageControlContentMode = JhPageControlContentModeCenter; //设置对齐方式
+        _pageControl.controlSpacing = 10.0;  //间距
+        _pageControl.marginSpacing = 0.f;  //距离初始位置 间距  默认10
+        _pageControl.PageControlStyle = JhPageControlStyelDotAndRectangle;//长条样式
+    }
+    return _pageControl;
+}
+
+#pragma -mark setter
+-(void)setBanners:(NSMutableArray *)banners{
+    _banners = banners;
+    if (!self.hasRefresh) return;
+    [self.pageFlowView reloadData];
+    [self.scrollBgview addSubview:self.pageControl];
+    self.pageControl.numberOfPages = self.banners.count;
+    if (self.banners.count == 0)return;
+    DNSBannerModel *banner = self.banners[0];
+    UIImage *image = [self getImageWithUrl:AssectString(banner.image_address)];
+    [self getgradientWithImage:image];
+}
+
+-(void)setCategorys:(NSMutableArray *)categorys{
+    _categorys = categorys;
+    if (!self.hasRefresh) return;
+    [self.midCollect reloadData];
+}
+
+-(void)setRecommends:(NSMutableArray *)recommends{
+    _recommends = recommends;
+    if (!self.hasRefresh) return;
+    [self.botCollect reloadData];
+    [self.seeSubject sendNext:@""];
+}
+
+-(UICollectionView *)midCollect{
+    if (!_midCollect) {
+        UICollectionViewFlowLayout * layout = [[UICollectionViewFlowLayout alloc] init];
+        layout.minimumLineSpacing = 0;
+        layout.minimumLineSpacing = 0;
+        layout.itemSize = CGSizeMake((ksrcwidth - 30)/4,98);
+        layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        
+        _midCollect = [[UICollectionView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth-30, 98) collectionViewLayout:layout];
+        _midCollect.backgroundColor = [UIColor whiteColor];
+        _midCollect.layer.cornerRadius = 5;
+        _midCollect.layer.masksToBounds = YES;
+        _midCollect.showsHorizontalScrollIndicator = NO;
+        _midCollect.delegate = self;
+        _midCollect.dataSource = self;
+    }
+    return _midCollect;
+}
+
+- (UIImage *)scaleImage:(UIImage *)srcImage toSzie:(CGSize)newsize
+{
+    ///YES 不透明，NO透明  opaque的中文为"不透明"
+    UIGraphicsBeginImageContextWithOptions(newsize, YES, 0);
+    [srcImage drawInRect:CGRectMake(0, 0, newsize.width, newsize.height)];
+    UIImage *scaleimg = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return scaleimg;
+}
+
+@end

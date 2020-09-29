@@ -1,0 +1,28 @@
+//
+//  MyTeamModel.h
+//  ScmProject
+//
+//  Created by leosun on 2019/8/3.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface MyTeamModel : NSObject
+
+@property(nonatomic,copy)NSString *phone;
+@property(nonatomic,assign)long teamId;
+@property(nonatomic,assign)long level;
+@property(nonatomic,assign)long parent_user_id;
+@property(nonatomic,copy)NSString *grade;
+@property(nonatomic,assign)long local_user_id;
+@property(nonatomic,assign)long count;
+@property(nonatomic,assign)long grade_type;
+@property(nonatomic,copy)NSString *avatar;
+@property(nonatomic,assign)long user_title;
+
+@end
+
+NS_ASSUME_NONNULL_END

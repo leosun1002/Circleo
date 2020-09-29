@@ -1,0 +1,23 @@
+//
+//  JYShortMassageChildVC.h
+//  ScmProject
+//
+//  Created by leosun on 2019/9/21.
+//  Copyright © 2019 session. All rights reserved.
+//
+
+#import "BaseViewController.h"
+
+NS_ASSUME_NONNULL_BEGIN
+
+@interface JYShortMassageChildVC : BaseViewController
+
+@property(nonatomic,assign) long type;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (strong, nonatomic) RACSubject *subject;
+
+-(void)refreshData;
+
+@end
+
+NS_ASSUME_NONNULL_END
