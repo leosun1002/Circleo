@@ -17,6 +17,7 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
+    NSLog(@"asd");
 }
 
 /*
