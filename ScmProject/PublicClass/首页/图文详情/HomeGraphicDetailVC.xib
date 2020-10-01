@@ -121,21 +121,22 @@
                                         <constraint firstAttribute="width" constant="11" id="lTY-64-Atn"/>
                                     </constraints>
                                 </imageView>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="对TA说点什么吧..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kzK-Dz-Itl">
-                                    <rect key="frame" x="37" y="11" width="98.5" height="14.5"/>
-                                    <fontDescription key="fontDescription" type="system" weight="light" pointSize="12"/>
-                                    <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                    <nil key="highlightedColor"/>
-                                </label>
+                                <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="对TA说点什么吧..." textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="yw0-Af-ff8">
+                                    <rect key="frame" x="37" y="0.0" width="103" height="36"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                    <textInputTraits key="textInputTraits"/>
+                                </textField>
                             </subviews>
                             <color key="backgroundColor" red="0.96470588235294119" green="0.96470588235294119" blue="0.96470588235294119" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
+                                <constraint firstAttribute="trailing" secondItem="yw0-Af-ff8" secondAttribute="trailing" constant="10" id="3GY-tk-BkX"/>
                                 <constraint firstItem="sQD-eT-6c9" firstAttribute="leading" secondItem="IlS-jO-VJB" secondAttribute="leading" constant="16" id="4hm-FZ-ovr"/>
                                 <constraint firstItem="sQD-eT-6c9" firstAttribute="centerY" secondItem="IlS-jO-VJB" secondAttribute="centerY" id="EPL-qv-459"/>
                                 <constraint firstAttribute="width" constant="150" id="Lbv-kx-JGX"/>
-                                <constraint firstItem="kzK-Dz-Itl" firstAttribute="leading" secondItem="sQD-eT-6c9" secondAttribute="trailing" constant="10" id="NcY-TV-PIt"/>
+                                <constraint firstItem="yw0-Af-ff8" firstAttribute="top" secondItem="IlS-jO-VJB" secondAttribute="top" id="aIP-HO-l3m"/>
+                                <constraint firstItem="yw0-Af-ff8" firstAttribute="leading" secondItem="sQD-eT-6c9" secondAttribute="trailing" constant="10" id="g7u-h3-Ejf"/>
                                 <constraint firstAttribute="height" constant="36" id="mGI-rB-ptp"/>
-                                <constraint firstItem="kzK-Dz-Itl" firstAttribute="centerY" secondItem="sQD-eT-6c9" secondAttribute="centerY" id="nLL-6P-Oi4"/>
+                                <constraint firstAttribute="bottom" secondItem="yw0-Af-ff8" secondAttribute="bottom" id="pxe-oL-ln4"/>
                             </constraints>
                             <userDefinedRuntimeAttributes>
                                 <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="18"/>

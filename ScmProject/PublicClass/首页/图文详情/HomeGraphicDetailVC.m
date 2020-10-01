@@ -43,13 +43,6 @@
     self.gzBtn.layer.borderWidth = [UIScreen mainScreen].scale * 0.5;
     [self.tableview registerNib:[UINib nibWithNibName:@"HomeGraphicDetailTableViewCell" bundle:nil] forCellReuseIdentifier:@"HomeGraphicDetailTableViewCell"];
     [self.tableview registerNib:[UINib nibWithNibName:@"HomeGraphicCommentTableViewCell" bundle:nil] forCellReuseIdentifier:@"HomeGraphicCommentTableViewCell"];
-    
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
-    WeakSelf(self);
-    [[tap rac_gestureSignal] subscribeNext:^(id x) {
-        [weakself.view endEditing:];
-    }];
-    [self.commentView addGestureRecognizer:tap];
 }
 
 #pragma -mark UITableViewDelegate
