@@ -40,6 +40,7 @@ pod 'OYCountDownManager'
 pod 'lottie-ios'
 pod 'BHBPopView'
 pod 'BRPickerView'
+pod 'TXLiteAVSDK_Player'  # 腾讯云播放器-独立播放器
 
 end        
 

@@ -477,6 +477,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
+## TXLiteAVSDK_Player
+
+copyright 2017 tencent Ltd. All rights reserved.
+
+
 ## TZImagePickerController
 
 The MIT License (MIT)

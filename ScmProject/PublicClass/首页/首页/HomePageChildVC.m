@@ -10,6 +10,7 @@
 #import "HomePageCollectionViewCell.h"
 #import "LMHWaterFallLayout.h"
 #import "HomeGraphicDetailVC.h"
+#import "HomeVideoDetailVC.h"
 
 @interface HomePageChildVC ()<UICollectionViewDelegate,UICollectionViewDataSource,LMHWaterFallLayoutDelegate>
 
@@ -55,8 +56,13 @@
 }
 
 -(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
-    HomeGraphicDetailVC *graphic = [[HomeGraphicDetailVC alloc] init];
-    [self.navigation pushViewController:graphic animated:YES];
+    if (indexPath.item%2 == 0) {
+        HomeGraphicDetailVC *graphic = [[HomeGraphicDetailVC alloc] init];
+        [self.navigation pushViewController:graphic animated:YES];
+    }else{
+        HomeVideoDetailVC *detail = [[HomeVideoDetailVC alloc] init];
+        [self.navigationController pushViewController:detail animated:YES];
+    }
 }
 
 #pragma mark  - <LMHWaterFallLayoutDeleaget>
