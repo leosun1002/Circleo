@@ -56,7 +56,7 @@
     }else if (textField == self.addressText){
         BRStringPickerView *stringPickerView = [[BRStringPickerView alloc]init];
         stringPickerView.pickerMode = BRStringPickerComponentLinkage;
-        stringPickerView.title = @"二级联动选择";
+        stringPickerView.title = NSLocalizedString(@"所在地区", nil);
         stringPickerView.dataSourceArr = [self getLinkag2DataSource];
         stringPickerView.selectIndexs = self.linkage2SelectIndexs;
         stringPickerView.isAutoSelect = YES;

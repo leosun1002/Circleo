@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="HomeGraphicFirstHeader">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Tli-95-rQC">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                </view>
+                <view alpha="0.5" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kM6-Lb-pv9">
+                    <rect key="frame" x="372" y="838" width="32" height="18"/>
+                    <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="18" id="ftz-ei-dIw"/>
+                        <constraint firstAttribute="width" constant="32" id="o58-Bz-hbE"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="9"/>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2/14" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qyi-RO-sZG">
+                    <rect key="frame" x="377" y="841" width="22" height="12"/>
+                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="10"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hnt-ik-E1U">
+                    <rect key="frame" x="0.0" y="881" width="414" height="15"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="15" id="tgn-2h-zKt"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="Tli-95-rQC" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="3yo-ee-I3n"/>
+                <constraint firstAttribute="trailing" secondItem="kM6-Lb-pv9" secondAttribute="trailing" constant="10" id="KHx-Rl-gB5"/>
+                <constraint firstAttribute="trailing" secondItem="Tli-95-rQC" secondAttribute="trailing" id="Lgy-lJ-WMk"/>
+                <constraint firstAttribute="bottom" secondItem="hnt-ik-E1U" secondAttribute="bottom" id="LoZ-tE-Yif"/>
+                <constraint firstAttribute="bottom" secondItem="Tli-95-rQC" secondAttribute="bottom" id="R9Z-lP-oSF"/>
+                <constraint firstItem="Qyi-RO-sZG" firstAttribute="centerY" secondItem="kM6-Lb-pv9" secondAttribute="centerY" id="ZSc-ne-XV1"/>
+                <constraint firstItem="hnt-ik-E1U" firstAttribute="top" secondItem="kM6-Lb-pv9" secondAttribute="bottom" constant="25" id="hT4-9f-baz"/>
+                <constraint firstItem="Qyi-RO-sZG" firstAttribute="centerX" secondItem="kM6-Lb-pv9" secondAttribute="centerX" id="ibz-Xi-2HN"/>
+                <constraint firstItem="Tli-95-rQC" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="mXj-yA-cuL"/>
+                <constraint firstItem="hnt-ik-E1U" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="uk3-46-IsE"/>
+                <constraint firstAttribute="trailing" secondItem="hnt-ik-E1U" secondAttribute="trailing" id="xq1-zP-eTu"/>
+            </constraints>
+            <connections>
+                <outlet property="bgView" destination="Tli-95-rQC" id="x9A-PT-Kgs"/>
+                <outlet property="botView" destination="hnt-ik-E1U" id="dzR-bS-Vjq"/>
+            </connections>
+            <point key="canvasLocation" x="139" y="88"/>
+        </view>
+    </objects>
+</document>

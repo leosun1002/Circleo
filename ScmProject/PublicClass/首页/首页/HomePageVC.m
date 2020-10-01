@@ -11,6 +11,8 @@
 #import "SGPageTitleViewConfigure.h"
 #import "SGPageContentScrollView.h"
 #import "HomePageChildVC.h"
+#import "HomeFindVC.h"
+#import "FindClassifyVC.h"
 
 @interface HomePageVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate>
 
@@ -73,8 +75,20 @@
 
 -(void)loadVCs{
     for (int i = 0; i<self.titles.count; i++) {
-        HomePageChildVC *childVC = [[HomePageChildVC alloc] init];
-        [self.vcs addObject:childVC];
+        if (i == self.titles.count - 1) {
+            HomeFindVC *findVC = [[HomeFindVC alloc] init];
+            findVC.subject = [RACSubject subject];
+            WeakSelf(self);
+            [findVC.subject subscribeNext:^(id x) {
+                FindClassifyVC *classify = [[FindClassifyVC alloc] init];
+                [weakself.navigationController pushViewController:classify animated:YES];
+            }];
+            [self.vcs addObject:findVC];
+        }else{
+            HomePageChildVC *childVC = [[HomePageChildVC alloc] init];
+            childVC.navigation = self.navigationController;
+            [self.vcs addObject:childVC];
+        }
     }
 }
 

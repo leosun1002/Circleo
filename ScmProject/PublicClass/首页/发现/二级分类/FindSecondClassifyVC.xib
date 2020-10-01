@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="FindSecondClassifyVC">
+            <connections>
+                <outlet property="collectView" destination="VwU-Nu-edE" id="IuM-xi-bI6"/>
+                <outlet property="heightConst" destination="nme-2C-9vf" id="0bw-IT-8J5"/>
+                <outlet property="topConst" destination="NbL-mN-7od" id="m7B-vz-afe"/>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HK4-O6-qwr">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="266"/>
+                    <subviews>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Vqv-n7-oMh">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="266"/>
+                            <color key="backgroundColor" red="1" green="0.30980392159999998" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
+                        </imageView>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="1Uv-gc-Unb">
+                            <rect key="frame" x="0.0" y="20" width="414" height="44"/>
+                            <subviews>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="类名" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="r7D-oK-0ES">
+                                    <rect key="frame" x="191" y="11.5" width="32" height="22.5"/>
+                                    <fontDescription key="fontDescription" name="PingFangSC-Medium" family="PingFang SC" pointSize="16"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="SIA-LA-h6t">
+                                    <rect key="frame" x="10" y="8" width="30" height="30"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="30" id="ccP-Ml-EYZ"/>
+                                        <constraint firstAttribute="width" constant="30" id="epw-aO-T57"/>
+                                    </constraints>
+                                    <state key="normal" image="back_white"/>
+                                    <connections>
+                                        <action selector="backClick:" destination="-1" eventType="touchUpInside" id="Z8Y-kC-cKw"/>
+                                    </connections>
+                                </button>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="bottom" secondItem="r7D-oK-0ES" secondAttribute="bottom" constant="10" id="665-a6-83d"/>
+                                <constraint firstItem="SIA-LA-h6t" firstAttribute="leading" secondItem="1Uv-gc-Unb" secondAttribute="leading" constant="10" id="7qH-gY-ffI"/>
+                                <constraint firstItem="r7D-oK-0ES" firstAttribute="centerX" secondItem="1Uv-gc-Unb" secondAttribute="centerX" id="P69-LY-P87"/>
+                                <constraint firstItem="SIA-LA-h6t" firstAttribute="centerY" secondItem="r7D-oK-0ES" secondAttribute="centerY" id="f7i-rr-QJd"/>
+                                <constraint firstAttribute="height" constant="44" id="q4o-RO-Bfp"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8uG-1Q-B0Z">
+                            <rect key="frame" x="10" y="202.5" width="384" height="33.5"/>
+                            <subviews>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="简介：盖朗厄尔峡湾(Geirangerfjord)，位于卑尔根北部，长15公里，两岸耸立着海拔1500米以上的群山，是..." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fgu-lf-l1z">
+                                    <rect key="frame" x="0.0" y="0.0" width="384" height="33.5"/>
+                                    <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon_more_white" translatesAutoresizingMaskIntoConstraints="NO" id="don-S6-42P">
+                                    <rect key="frame" x="377" y="21.5" width="7" height="12"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="12" id="7NM-8z-mdt"/>
+                                        <constraint firstAttribute="width" constant="7" id="eMx-3B-Imr"/>
+                                    </constraints>
+                                </imageView>
+                            </subviews>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <constraints>
+                                <constraint firstAttribute="bottom" secondItem="Fgu-lf-l1z" secondAttribute="bottom" id="4JE-Dt-y1E"/>
+                                <constraint firstAttribute="bottom" secondItem="don-S6-42P" secondAttribute="bottom" id="4ln-KJ-dbS"/>
+                                <constraint firstAttribute="trailing" secondItem="Fgu-lf-l1z" secondAttribute="trailing" id="DmJ-dc-H9w"/>
+                                <constraint firstAttribute="trailing" secondItem="don-S6-42P" secondAttribute="trailing" id="WL9-hd-HwD"/>
+                                <constraint firstItem="Fgu-lf-l1z" firstAttribute="leading" secondItem="8uG-1Q-B0Z" secondAttribute="leading" id="d9Z-g4-at9"/>
+                                <constraint firstItem="Fgu-lf-l1z" firstAttribute="top" secondItem="8uG-1Q-B0Z" secondAttribute="top" id="hHz-KA-6d8"/>
+                            </constraints>
+                        </view>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="卑尔根北部的盖朗厄尔峡湾打卡点" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ETN-3x-Tas">
+                            <rect key="frame" x="12" y="172.5" width="382" height="15"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="15" id="Gdf-fw-WJm"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="16"/>
+                            <color key="textColor" red="1" green="0.99607843137254903" blue="0.99607843137254903" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstItem="1Uv-gc-Unb" firstAttribute="leading" secondItem="HK4-O6-qwr" secondAttribute="leading" id="3i1-Q4-R1r"/>
+                        <constraint firstAttribute="trailing" secondItem="Vqv-n7-oMh" secondAttribute="trailing" id="5Dy-fR-M9O"/>
+                        <constraint firstAttribute="bottom" secondItem="8uG-1Q-B0Z" secondAttribute="bottom" constant="30" id="ARd-wV-DlU"/>
+                        <constraint firstItem="8uG-1Q-B0Z" firstAttribute="top" secondItem="ETN-3x-Tas" secondAttribute="bottom" constant="15" id="Dl4-LH-zkn"/>
+                        <constraint firstAttribute="bottom" secondItem="Vqv-n7-oMh" secondAttribute="bottom" id="FSs-UB-0CY"/>
+                        <constraint firstAttribute="trailing" secondItem="8uG-1Q-B0Z" secondAttribute="trailing" constant="20" id="Js0-uN-Rlz"/>
+                        <constraint firstItem="Vqv-n7-oMh" firstAttribute="top" secondItem="HK4-O6-qwr" secondAttribute="top" id="K32-qj-Kpg"/>
+                        <constraint firstItem="1Uv-gc-Unb" firstAttribute="top" secondItem="HK4-O6-qwr" secondAttribute="top" constant="20" id="NbL-mN-7od"/>
+                        <constraint firstAttribute="trailing" secondItem="1Uv-gc-Unb" secondAttribute="trailing" id="gaz-8z-VHO"/>
+                        <constraint firstItem="Vqv-n7-oMh" firstAttribute="leading" secondItem="HK4-O6-qwr" secondAttribute="leading" id="kPp-Hy-Dhs"/>
+                        <constraint firstAttribute="height" constant="266" id="nme-2C-9vf"/>
+                        <constraint firstAttribute="trailing" secondItem="ETN-3x-Tas" secondAttribute="trailing" constant="20" id="sas-rl-qeu"/>
+                        <constraint firstItem="8uG-1Q-B0Z" firstAttribute="leading" secondItem="HK4-O6-qwr" secondAttribute="leading" constant="10" id="sq1-bn-o1U"/>
+                        <constraint firstItem="ETN-3x-Tas" firstAttribute="leading" secondItem="HK4-O6-qwr" secondAttribute="leading" constant="12" id="wq5-ZH-vyd"/>
+                    </constraints>
+                </view>
+                <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="VwU-Nu-edE">
+                    <rect key="frame" x="0.0" y="256" width="414" height="640"/>
+                    <color key="backgroundColor" red="0.96862745100000003" green="0.96078431369999995" blue="0.98039215690000003" alpha="1" colorSpace="calibratedRGB"/>
+                    <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="tvf-ON-VY0">
+                        <size key="itemSize" width="50" height="50"/>
+                        <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                        <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                        <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                    </collectionViewFlowLayout>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="10"/>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                    </userDefinedRuntimeAttributes>
+                    <connections>
+                        <outlet property="dataSource" destination="-1" id="nKY-AB-HcT"/>
+                        <outlet property="delegate" destination="-1" id="hZE-yX-f6C"/>
+                    </connections>
+                </collectionView>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="VwU-Nu-edE" secondAttribute="bottom" id="APs-BM-m92"/>
+                <constraint firstItem="VwU-Nu-edE" firstAttribute="top" secondItem="HK4-O6-qwr" secondAttribute="bottom" constant="-10" id="Mrr-1x-1qL"/>
+                <constraint firstAttribute="trailing" secondItem="HK4-O6-qwr" secondAttribute="trailing" id="TJu-8Y-r5g"/>
+                <constraint firstItem="HK4-O6-qwr" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="flS-nX-1Ik"/>
+                <constraint firstItem="VwU-Nu-edE" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="h0L-ko-KQR"/>
+                <constraint firstItem="HK4-O6-qwr" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="tWf-cn-lfK"/>
+                <constraint firstAttribute="trailing" secondItem="VwU-Nu-edE" secondAttribute="trailing" id="yvt-1U-dBp"/>
+            </constraints>
+            <point key="canvasLocation" x="139" y="88"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="back_white" width="9" height="16"/>
+        <image name="icon_more_white" width="7" height="12.5"/>
+    </resources>
+</document>

@@ -1,43 +1,44 @@
 //
-//  HomePageChildVC.m
+//  FindSecondClassifyVC.m
 //  ScmProject
 //
-//  Created by leosun on 2020/9/29.
+//  Created by leosun on 2020/9/30.
 //  Copyright © 2020 session. All rights reserved.
 //
 
-#import "HomePageChildVC.h"
-#import "HomePageCollectionViewCell.h"
+#import "FindSecondClassifyVC.h"
 #import "LMHWaterFallLayout.h"
-#import "HomeGraphicDetailVC.h"
+#import "HomePageCollectionViewCell.h"
 
-@interface HomePageChildVC ()<UICollectionViewDelegate,UICollectionViewDataSource,LMHWaterFallLayoutDelegate>
-
-@property (nonatomic, weak) UICollectionView * collectionView;
+@interface FindSecondClassifyVC ()<UICollectionViewDelegate,UICollectionViewDataSource,LMHWaterFallLayoutDelegate>
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
+@property (weak, nonatomic) IBOutlet UICollectionView *collectView;
 
 @end
 
-@implementation HomePageChildVC
+@implementation FindSecondClassifyVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self prepareUi];
 }
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
 
 -(void)prepareUi{
+    self.topConst.constant = statusHeight;
+    if (IS_IPHONEX) {
+        self.heightConst.constant += 24;
+    }
+    
     // 创建布局
     LMHWaterFallLayout * waterFallLayout = [[LMHWaterFallLayout alloc]init];
     waterFallLayout.delegate = self;
+    self.collectView.collectionViewLayout = waterFallLayout;
     
-    // 创建collectionView
-    UICollectionView * collectionView = [[UICollectionView alloc]initWithFrame:self.view.bounds collectionViewLayout:waterFallLayout];
-    collectionView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
-    collectionView.dataSource = self;
-    collectionView.delegate = self;
-    [self.view addSubview:collectionView];
-    // 注册
-    [collectionView registerNib:[UINib nibWithNibName:@"HomePageCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"HomePageCollectionViewCell"];
-    self.collectionView = collectionView;
+    [self.collectView registerNib:[UINib nibWithNibName:@"HomePageCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"HomePageCollectionViewCell"];
 }
 
 #pragma -mark UICollectionViewDelegate
@@ -54,11 +55,6 @@
     return cell;
 }
 
--(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
-    HomeGraphicDetailVC *graphic = [[HomeGraphicDetailVC alloc] init];
-    [self.navigation pushViewController:graphic animated:YES];
-}
-
 #pragma mark  - <LMHWaterFallLayoutDeleaget>
 - (CGFloat)waterFallLayout:(LMHWaterFallLayout *)waterFallLayout heightForItemAtIndexPath:(NSUInteger)indexPath itemWidth:(CGFloat)itemWidth{
     return indexPath % 2 == 0?320:300;
@@ -71,5 +67,4 @@
 - (NSUInteger)columnCountInWaterFallLayout:(LMHWaterFallLayout *)waterFallLayout{
     return 2;
 }
-
 @end

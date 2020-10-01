@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="U6b-Vx-4bR" customClass="HomeFindFooterReusableView">
+            <rect key="frame" x="0.0" y="0.0" width="411" height="120"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bdj-JA-8hl">
+                    <rect key="frame" x="0.0" y="0.0" width="411" height="20"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="20" id="8X4-Wm-U4k"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="0.96862745100000003" green="0.96078431369999995" blue="0.98039215690000003" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstItem="bdj-JA-8hl" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" id="GLY-Z4-duu"/>
+                <constraint firstAttribute="trailing" secondItem="bdj-JA-8hl" secondAttribute="trailing" id="VYU-RU-osS"/>
+                <constraint firstItem="bdj-JA-8hl" firstAttribute="top" secondItem="U6b-Vx-4bR" secondAttribute="top" id="zlB-Wp-eh0"/>
+            </constraints>
+            <connections>
+                <outlet property="bgView" destination="bdj-JA-8hl" id="QId-bM-TdS"/>
+            </connections>
+            <point key="canvasLocation" x="139.85507246376812" y="56.25"/>
+        </collectionReusableView>
+    </objects>
+</document>

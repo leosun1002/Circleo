@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionReusableView opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="U6b-Vx-4bR" customClass="HomeFidHeaderReusableView">
+            <rect key="frame" x="0.0" y="0.0" width="402" height="113"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BVY-6Y-iiu">
+                    <rect key="frame" x="0.0" y="0.0" width="402" height="113"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="旅行摄影" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="0XZ-lZ-yhP">
+                            <rect key="frame" x="10" y="15" width="65.5" height="15"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="15" id="7fz-d3-JAp"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
+                            <color key="textColor" red="0.20392156862745098" green="0.20392156862745098" blue="0.20392156862745098" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstItem="0XZ-lZ-yhP" firstAttribute="top" secondItem="BVY-6Y-iiu" secondAttribute="top" constant="15" id="J2Z-9C-tWE"/>
+                        <constraint firstItem="0XZ-lZ-yhP" firstAttribute="leading" secondItem="BVY-6Y-iiu" secondAttribute="leading" constant="10" id="mrH-2f-qRy"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="BVY-6Y-iiu" secondAttribute="bottom" id="5fx-MM-zPP"/>
+                <constraint firstAttribute="trailing" secondItem="BVY-6Y-iiu" secondAttribute="trailing" id="Tij-Tt-Jwp"/>
+                <constraint firstItem="BVY-6Y-iiu" firstAttribute="top" secondItem="U6b-Vx-4bR" secondAttribute="top" id="f1Y-DC-4wj"/>
+                <constraint firstItem="BVY-6Y-iiu" firstAttribute="leading" secondItem="U6b-Vx-4bR" secondAttribute="leading" id="qd9-CL-fRf"/>
+            </constraints>
+            <connections>
+                <outlet property="bgView" destination="BVY-6Y-iiu" id="ct5-G5-2my"/>
+            </connections>
+            <point key="canvasLocation" x="197.10144927536234" y="93.415178571428569"/>
+        </collectionReusableView>
+    </objects>
+</document>

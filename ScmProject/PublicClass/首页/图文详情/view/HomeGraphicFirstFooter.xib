@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB" customClass="HomeGraphicFirstFooter">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="za7-Me-Juw">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="10"/>
+                    <color key="backgroundColor" red="0.79215686269999996" green="0.79215686269999996" blue="0.79215686269999996" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="10" id="thH-ZS-9n6"/>
+                    </constraints>
+                </view>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="共 2623 条评论" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="teC-wM-eNq">
+                    <rect key="frame" x="10" y="25" width="99.5" height="13.5"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="13.5" id="n0t-FG-IwB"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                    <color key="textColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="za7-Me-Juw" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="1id-pg-bOq"/>
+                <constraint firstAttribute="trailing" secondItem="za7-Me-Juw" secondAttribute="trailing" id="D0t-9I-bNR"/>
+                <constraint firstItem="za7-Me-Juw" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="KVz-aW-yfG"/>
+                <constraint firstItem="teC-wM-eNq" firstAttribute="top" secondItem="za7-Me-Juw" secondAttribute="bottom" constant="15" id="fgF-bE-GvE"/>
+                <constraint firstItem="teC-wM-eNq" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="10" id="x3q-PQ-hx9"/>
+            </constraints>
+            <point key="canvasLocation" x="139" y="88"/>
+        </view>
+    </objects>
+</document>
