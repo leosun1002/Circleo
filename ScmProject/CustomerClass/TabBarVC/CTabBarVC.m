@@ -7,7 +7,10 @@
 //
 
 #import "CTabBarVC.h"
+//首页
 #import "HomePageVC.h"
+//商家
+#import "MerchatHomeVC.h"
 #import "MyTabBar.h"
 
 @interface CTabBarVC ()
@@ -37,14 +40,13 @@
 
     HomePageVC *homeVC = [[HomePageVC alloc] init];
     [self controller:homeVC Title:NSLocalizedString(@"首页", nil) tabBarItemImage:@"home_n" tabBarItemSelectedImage:@"home_n"];
-    HomePageVC *homeVC1 = [[HomePageVC alloc] init];
-    [self controller:homeVC1 Title:NSLocalizedString(@"商家", nil) tabBarItemImage:@"mer_n" tabBarItemSelectedImage:@"home_n"];
-    
+    MerchatHomeVC *merchantVC = [[MerchatHomeVC alloc] init];
+    [self controller:merchantVC Title:NSLocalizedString(@"商家", nil) tabBarItemImage:@"mer_n" tabBarItemSelectedImage:@"home_n"];
     HomePageVC *homeVC2 = [[HomePageVC alloc] init];
     [self controller:homeVC2 Title:NSLocalizedString(@"消息", nil) tabBarItemImage:@"message_n" tabBarItemSelectedImage:@"home_n"];
     HomePageVC *homeVC3 = [[HomePageVC alloc] init];
     [self controller:homeVC3 Title:NSLocalizedString(@"我的", nil) tabBarItemImage:@"my_n" tabBarItemSelectedImage:@"home_n"];
-    self.viewControllers = @[homeVC,homeVC1,homeVC2,homeVC3];
+    self.viewControllers = @[homeVC,merchantVC,homeVC2,homeVC3];
     
 }
 

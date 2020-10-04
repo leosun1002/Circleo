@@ -1,23 +1,19 @@
 //
-//  HomePageVC.m
+//  MerchantSearchResultVC.m
 //  ScmProject
 //
-//  Created by leosun on 2020/9/29.
+//  Created by leosun on 2020/10/3.
 //  Copyright © 2020 session. All rights reserved.
 //
 
-#import "HomePageVC.h"
+#import "MerchantSearchResultVC.h"
 #import "SGPageTitleView.h"
 #import "SGPageTitleViewConfigure.h"
 #import "SGPageContentScrollView.h"
-#import "HomePageChildVC.h"
-#import "HomeFindVC.h"
-#import "FindClassifyVC.h"
-#import "HomeSearchVC.h"
+#import "MerchantSearchChildVC.h"
+#import "HomeSearchHistoryCollectionViewCell.h"
 
-@interface HomePageVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate,UITextFieldDelegate>
-
-@property (weak, nonatomic) IBOutlet UIView *topView;
+@interface MerchantSearchResultVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate,UICollectionViewDataSource,UICollectionViewDelegate>
 
 @property(nonatomic,weak)SGPageContentScrollView *mPageContentScrollView;
 @property(nonatomic,weak)SGPageTitleView *mPageTitleView;
@@ -26,14 +22,37 @@
 @property(nonatomic,strong)NSMutableArray *vcs;
 @property(nonatomic,assign)NSInteger selectedPage;
 
+//历史
+@property (weak, nonatomic) IBOutlet UICollectionView *historyCollect;
+@property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+@property (weak, nonatomic) IBOutlet UIView *historyBgView;
+
+//结果view
+@property (weak, nonatomic) IBOutlet UIView *resultView;
+
 @end
 
-@implementation HomePageVC
+@implementation MerchantSearchResultVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [self addHistoryView];
     [self loadVCs];
     [self prepareUi];
+}
+
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)addHistoryView{
+    self.flowLayout.itemSize = CGSizeMake((ksrcwidth - 50)/3, 30);
+    self.flowLayout.minimumLineSpacing = 15;
+    self.flowLayout.minimumInteritemSpacing = 15;
+    self.flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
+    
+    [self.historyCollect registerNib:[UINib nibWithNibName:@"HomeSearchHistoryCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"HomeSearchHistoryCollectionViewCell"];
+    self.historyBgView.hidden = YES;
 }
 
 -(void)prepareUi{
@@ -42,31 +61,31 @@
     
     //配置容器
     SGPageTitleViewConfigure *configure = [SGPageTitleViewConfigure pageTitleViewConfigure];
-    configure.titleGradientEffect = NO;
-    configure.indicatorAdditionalWidth = 32.f;
-    configure.indicatorHeight = 33.f;
-    configure.indicatorCornerRadius = 16.5f;
-    configure.indicatorStyle = SGIndicatorStyleCover;
+    configure.titleGradientEffect = YES;
+    configure.indicatorHeight = 2.0f;
+    configure.indicatorFixedWidth = 30.f;
+    configure.indicatorStyle = SGIndicatorStyleFixed;
     configure.indicatorColor = [UIColor colorWithRGBHex:@"#333333"];
-    configure.titleSelectedColor = [UIColor colorWithRGBHex:@"#FFFFFF"];
+    configure.titleSelectedColor = [UIColor colorWithRGBHex:@"#333333"];
     configure.titleSelectedFont = [UIFont fontWithName:@"PingFang-SC-Bold" size:17];
     configure.titleColor = [UIColor colorWithRGBHex:@"#AAA5AF"];
     configure.titleFont = [UIFont fontWithName:@"PingFang-SC-Medium" size:17];
+    configure.indicatorToBottomDistance = 5.0f;
     configure.showBottomSeparator = NO;
     
     //顶部Title数据源
-    SGPageTitleView *pageTitleView = [SGPageTitleView pageTitleViewWithFrame:CGRectMake(0, statusHeight + 53, ksrcwidth, 45) delegate:self titleNames:self.titles configure:configure];
+    SGPageTitleView *pageTitleView = [SGPageTitleView pageTitleViewWithFrame:CGRectMake(0, 0, ksrcwidth, 45) delegate:self titleNames:self.titles configure:configure];
     pageTitleView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
     _mPageTitleView = pageTitleView;
     pageTitleView.selectedIndex = self.selectedPage;
-    [self.view addSubview:pageTitleView];
+    [self.resultView addSubview:pageTitleView];
     
-    SGPageContentScrollView *pageContentScrollView = [[SGPageContentScrollView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(pageTitleView.frame),ksrcwidth,self.view.height - statusHeight - 45 - 53) parentVC:self childVCs:[self.vcs copy]];
+    SGPageContentScrollView *pageContentScrollView = [[SGPageContentScrollView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(pageTitleView.frame)+ 10,ksrcwidth,self.view.height - statusHeight - 60) parentVC:self childVCs:[self.vcs copy]];
     pageContentScrollView.delegatePageContentScrollView = self;
     pageContentScrollView.isAnimated = NO;
     pageContentScrollView.backgroundColor = [UIColor whiteColor];
     _mPageContentScrollView = pageContentScrollView;
-    [self.view addSubview:pageContentScrollView];
+    [self.resultView addSubview:pageContentScrollView];
     for (int b=0; b<self.vcs.count; b++) {//全部加载出来
         [pageContentScrollView setPageContentScrollViewCurrentIndex:b];
     }
@@ -76,25 +95,10 @@
 
 -(void)loadVCs{
     for (int i = 0; i<self.titles.count; i++) {
-        if (i == self.titles.count - 1) {
-            HomeFindVC *findVC = [[HomeFindVC alloc] init];
-            findVC.subject = [RACSubject subject];
-            WeakSelf(self);
-            [findVC.subject subscribeNext:^(id x) {
-                FindClassifyVC *classify = [[FindClassifyVC alloc] init];
-                [weakself.navigationController pushViewController:classify animated:YES];
-            }];
-            [self.vcs addObject:findVC];
-        }else{
-            HomePageChildVC *childVC = [[HomePageChildVC alloc] init];
-            childVC.navigation = self.navigationController;
-            [self.vcs addObject:childVC];
-        }
+        MerchantSearchChildVC *childVC = [[MerchantSearchChildVC alloc] init];
+//        childVC.navigation = self.navigationController;
+        [self.vcs addObject:childVC];
     }
-}
-
-- (IBAction)backClick:(id)sender {
-    [self.navigationController popViewControllerAnimated:YES];
 }
 
 //顶部title切换完成调用
@@ -121,11 +125,14 @@
     self.selectedPage=index;
 }
 
-#pragma -mark UITextFieldDelegate
--(BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
-    HomeSearchVC *search = [[HomeSearchVC alloc] init];
-    [self.navigationController pushViewController:search animated:YES];
-    return NO;
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return 10;
+}
+
+-(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
+    HomeSearchHistoryCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"HomeSearchHistoryCollectionViewCell" forIndexPath:indexPath];
+    return cell;
 }
 
 #pragma -mark getter
@@ -138,7 +145,7 @@
 
 -(NSArray *)titles{
     if (!_titles) {
-        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"关注", nil),NSLocalizedString(@"最新", nil),NSLocalizedString(@"附近", nil),NSLocalizedString(@"发现", nil), nil];
+        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"商家", nil),NSLocalizedString(@"商品", nil), nil];
     }
     return _titles;
 }

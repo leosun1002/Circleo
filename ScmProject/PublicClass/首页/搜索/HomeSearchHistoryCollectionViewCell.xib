@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="HomeSearchHistoryCollectionViewCell">
+            <rect key="frame" x="0.0" y="0.0" width="307" height="96"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="307" height="96"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jEj-nz-NOw">
+                        <rect key="frame" x="0.0" y="0.0" width="307" height="96"/>
+                        <subviews>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="挪威旅游攻略" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nLa-dQ-wYx">
+                                <rect key="frame" x="116.5" y="41" width="74" height="14.5"/>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="12"/>
+                                <color key="textColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="nLa-dQ-wYx" firstAttribute="centerY" secondItem="jEj-nz-NOw" secondAttribute="centerY" id="02T-pZ-3Pt"/>
+                            <constraint firstItem="nLa-dQ-wYx" firstAttribute="centerX" secondItem="jEj-nz-NOw" secondAttribute="centerX" id="R6Y-pf-oxx"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="15"/>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                </subviews>
+            </view>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="jEj-nz-NOw" secondAttribute="bottom" id="HDB-Bs-658"/>
+                <constraint firstAttribute="trailing" secondItem="jEj-nz-NOw" secondAttribute="trailing" id="IBU-7C-rUn"/>
+                <constraint firstItem="jEj-nz-NOw" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="eA8-Y1-wZi"/>
+                <constraint firstItem="jEj-nz-NOw" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="hRJ-hf-n0n"/>
+            </constraints>
+            <size key="customSize" width="307" height="96"/>
+            <connections>
+                <outlet property="bgView" destination="jEj-nz-NOw" id="9IX-jf-HWo"/>
+            </connections>
+            <point key="canvasLocation" x="47.10144927536232" y="99.107142857142847"/>
+        </collectionViewCell>
+    </objects>
+</document>

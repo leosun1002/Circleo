@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15705" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15706"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" id="gTV-IL-0wX" customClass="MerchantHomeHeaderCollectionCell">
+            <rect key="frame" x="0.0" y="0.0" width="188" height="115"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center">
+                <rect key="frame" x="0.0" y="0.0" width="188" height="115"/>
+                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xbk-eO-8fO">
+                        <rect key="frame" x="0.0" y="0.0" width="188" height="115"/>
+                        <subviews>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="G8M-8I-UpR">
+                                <rect key="frame" x="71.5" y="25" width="45" height="45"/>
+                                <color key="backgroundColor" red="1" green="0.30980392159999998" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="45" id="BfV-sG-qDe"/>
+                                    <constraint firstAttribute="width" constant="45" id="SQg-PR-8mf"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="22.5"/>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                </userDefinedRuntimeAttributes>
+                            </imageView>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="美食" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E53-Sq-bBu">
+                                <rect key="frame" x="0.0" y="79" width="188" height="13"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="13" id="shD-eI-yFg"/>
+                                </constraints>
+                                <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
+                                <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstItem="E53-Sq-bBu" firstAttribute="leading" secondItem="Xbk-eO-8fO" secondAttribute="leading" id="4GF-6J-JtP"/>
+                            <constraint firstItem="E53-Sq-bBu" firstAttribute="top" secondItem="G8M-8I-UpR" secondAttribute="bottom" constant="9" id="AoL-8s-FMe"/>
+                            <constraint firstItem="G8M-8I-UpR" firstAttribute="centerX" secondItem="Xbk-eO-8fO" secondAttribute="centerX" id="O63-kV-Wap"/>
+                            <constraint firstItem="G8M-8I-UpR" firstAttribute="top" secondItem="Xbk-eO-8fO" secondAttribute="top" constant="25" id="UDw-QB-yj4"/>
+                            <constraint firstAttribute="trailing" secondItem="E53-Sq-bBu" secondAttribute="trailing" id="XHs-tA-MMO"/>
+                        </constraints>
+                    </view>
+                </subviews>
+            </view>
+            <constraints>
+                <constraint firstItem="Xbk-eO-8fO" firstAttribute="leading" secondItem="gTV-IL-0wX" secondAttribute="leading" id="2R0-SW-aVi"/>
+                <constraint firstAttribute="trailing" secondItem="Xbk-eO-8fO" secondAttribute="trailing" id="9bI-D4-gA1"/>
+                <constraint firstItem="Xbk-eO-8fO" firstAttribute="top" secondItem="gTV-IL-0wX" secondAttribute="top" id="Z1k-z4-76V"/>
+                <constraint firstAttribute="bottom" secondItem="Xbk-eO-8fO" secondAttribute="bottom" id="m5x-cg-W1d"/>
+            </constraints>
+            <size key="customSize" width="188" height="115"/>
+            <point key="canvasLocation" x="-178" y="91"/>
+        </collectionViewCell>
+    </objects>
+</document>

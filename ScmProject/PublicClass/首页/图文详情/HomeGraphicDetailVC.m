@@ -14,9 +14,9 @@
 #import "HomeGraphicCommentHeader.h"
 #import "HomeGraphicCommentTableViewCell.h"
 
-#import "STInputBar.h"
-#import <IQKeyboardManager.h>
+//键盘
 #import "STEmojiKeyboard.h"
+#import "HomeUserInfoDetailVC.h"
 
 #define kSTTextviewMaxHeight 120
 #define kSTTextviewDefaultHeight 36
@@ -107,7 +107,11 @@
     [self.inputText becomeFirstResponder];
     button.tag = (button.tag+1)%2;
     [button setImage:[UIImage imageNamed:_switchKeyboardImages[button.tag]] forState:UIControlStateNormal];
+}
 
+- (IBAction)userClick:(id)sender {
+    HomeUserInfoDetailVC *detail = [[HomeUserInfoDetailVC alloc] init];
+    [self.navigationController pushViewController:detail animated:YES];
 }
 
 -(void)layout{

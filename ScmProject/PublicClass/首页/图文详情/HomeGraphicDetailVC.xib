@@ -86,6 +86,16 @@
                                 <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                             </userDefinedRuntimeAttributes>
                         </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="meE-dF-5Mv">
+                            <rect key="frame" x="50" y="7.5" width="32" height="32"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="32" id="OmW-YF-Axj"/>
+                                <constraint firstAttribute="width" constant="32" id="Q2g-hC-imw"/>
+                            </constraints>
+                            <connections>
+                                <action selector="userClick:" destination="-1" eventType="touchUpInside" id="cdS-S8-3J2"/>
+                            </connections>
+                        </button>
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                     <constraints>
@@ -94,8 +104,10 @@
                         <constraint firstItem="3lt-HU-E8T" firstAttribute="centerY" secondItem="yJ8-uB-Che" secondAttribute="centerY" id="8HB-OO-d0y"/>
                         <constraint firstItem="yJ8-uB-Che" firstAttribute="leading" secondItem="3lt-HU-E8T" secondAttribute="trailing" constant="10" id="LMS-oQ-gsQ"/>
                         <constraint firstItem="ig2-zH-huQ" firstAttribute="leading" secondItem="ZAc-Be-dIm" secondAttribute="trailing" constant="10" id="Sup-1s-ash"/>
+                        <constraint firstItem="meE-dF-5Mv" firstAttribute="centerY" secondItem="ig2-zH-huQ" secondAttribute="centerY" id="TSv-jY-uMZ"/>
                         <constraint firstAttribute="trailing" secondItem="yJ8-uB-Che" secondAttribute="trailing" constant="10" id="Wq6-7F-Rak"/>
                         <constraint firstItem="ig2-zH-huQ" firstAttribute="centerY" secondItem="ZAc-Be-dIm" secondAttribute="centerY" id="aEm-KI-Jnk"/>
+                        <constraint firstItem="meE-dF-5Mv" firstAttribute="centerX" secondItem="ig2-zH-huQ" secondAttribute="centerX" id="hMM-9v-9Fs"/>
                         <constraint firstItem="ZAc-Be-dIm" firstAttribute="leading" secondItem="wb5-fr-f4U" secondAttribute="leading" constant="10" id="l2n-IK-tfn"/>
                         <constraint firstItem="ZAc-Be-dIm" firstAttribute="centerY" secondItem="wb5-fr-f4U" secondAttribute="centerY" id="pHy-ms-vcr"/>
                         <constraint firstItem="yJ8-uB-Che" firstAttribute="centerY" secondItem="wb5-fr-f4U" secondAttribute="centerY" id="qmM-r5-2V9"/>
