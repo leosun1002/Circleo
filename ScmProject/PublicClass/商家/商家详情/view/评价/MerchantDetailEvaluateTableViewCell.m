@@ -1,20 +1,18 @@
 //
-//  MerchantHomeTableViewCell.m
+//  MerchantDetailEvaluateTableViewCell.m
 //  ScmProject
 //
-//  Created by leosun on 2020/10/3.
+//  Created by leosun on 2020/10/4.
 //  Copyright © 2020 session. All rights reserved.
 //
 
-#import "MerchantHomeTableViewCell.h"
+#import "MerchantDetailEvaluateTableViewCell.h"
 
-@implementation MerchantHomeTableViewCell
+@implementation MerchantDetailEvaluateTableViewCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code
-    self.tipLabel.layer.borderColor = [UIColor colorWithRGBHex:@"#CACACA"].CGColor;
-    self.tipLabel.layer.borderWidth = [[UIScreen mainScreen] scale] * 0.5;
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

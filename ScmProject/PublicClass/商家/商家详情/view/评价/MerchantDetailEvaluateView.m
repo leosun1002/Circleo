@@ -1,0 +1,87 @@
+//
+//  MerchantDetailEvaluateView.m
+//  ScmProject
+//
+//  Created by leosun on 2020/10/4.
+//  Copyright © 2020 session. All rights reserved.
+//
+
+#import "MerchantDetailEvaluateView.h"
+#import "MerchantDetailEvaluateTableViewCell.h"
+#import "MerchantDetailBusinessTableViewCell.h"
+
+@interface MerchantDetailEvaluateView ()<UITableViewDataSource,UITableViewDelegate>
+
+@property (nonatomic,weak) UITableView *tableview;
+
+@end
+
+@implementation MerchantDetailEvaluateView
+
+- (instancetype)initWithFrame:(CGRect)frame
+{
+    self = [super initWithFrame:frame];
+    if (self) {
+        self.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
+        [self prepareUi];
+    }
+    return self;
+}
+
+-(void)layoutSubviews{
+    [self.tableview setFrame:CGRectMake(10, 0, ksrcwidth - 20, self.height)];
+}
+
+-(void)prepareUi{
+    // 创建collectionView
+    UITableView * tableview = [[UITableView alloc] initWithFrame:self.bounds style:(UITableViewStylePlain)];
+    tableview.backgroundColor = [UIColor whiteColor];
+    tableview.dataSource = self;
+    tableview.delegate = self;
+    tableview.layer.cornerRadius = 10;
+    tableview.layer.masksToBounds = YES;
+    tableview.separatorStyle = UITableViewCellSeparatorStyleNone;
+    [self addSubview:_tableview = tableview];
+    // 注册
+    [tableview registerNib:[UINib nibWithNibName:@"MerchantDetailEvaluateTableViewCell" bundle:nil] forCellReuseIdentifier:@"MerchantDetailEvaluateTableViewCell"];
+    [tableview registerNib:[UINib nibWithNibName:@"MerchantDetailBusinessTableViewCell" bundle:nil] forCellReuseIdentifier:@"MerchantDetailBusinessTableViewCell"];
+}
+
+#pragma -mark UICollectionViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 10;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return UITableViewAutomaticDimension;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    if (self.index == 1) {
+        MerchantDetailEvaluateTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MerchantDetailEvaluateTableViewCell"];
+        return cell;
+    }else{
+        MerchantDetailBusinessTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MerchantDetailBusinessTableViewCell"];
+        return cell;
+    }
+}
+
+#pragma -mark JXPagerViewListViewDelegate
+- (UIScrollView *)listScrollView {
+    return self.tableview;
+}
+
+- (UIView *)listView {
+    return self;
+}
+
+// 必须加（用于联动）
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
+    self.scrollCallback(scrollView);
+}
+
+- (void)listViewDidScrollCallback:(void (^)(UIScrollView *))callback {
+    self.scrollCallback = callback;
+}
+
+@end

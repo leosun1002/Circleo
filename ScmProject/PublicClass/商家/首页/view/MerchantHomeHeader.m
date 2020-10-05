@@ -93,13 +93,12 @@
         _pageControl = [[JhPageControl alloc] init];
         _pageControl.frame = CGRectMake(0, 0, ksrcwidth - 40, 15);
         _pageControl.currentPage = 0;
-        _pageControl.numberOfPages = 4;
         _pageControl.otherColor = [UIColor colorWithRGBHex:@"#929292"];
         _pageControl.currentColor = [UIColor colorWithRGBHex:@"#333333"];
         _pageControl.PageControlContentMode = JhPageControlContentModeCenter; //设置对齐方式
-        _pageControl.controlSpacing = 5.0f;  //间距
+        _pageControl.controlSpacing = 10.0;  //间距
         _pageControl.marginSpacing = 0.f;  //距离初始位置 间距  默认10
-        _pageControl.PageControlStyle = JhPageControlStyelDefault;//长条样式
+        _pageControl.PageControlStyle = JhPageControlStyelDotAndRectangle;//长条样式
     }
     return _pageControl;
 }

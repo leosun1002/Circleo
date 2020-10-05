@@ -13,8 +13,9 @@
 #import "MerchantSelectVC.h"
 #import "HomeLocationVC.h"
 #import "MerchantSearchResultVC.h"
+#import "MerchantDetailVC.h"
 
-@interface MerchatHomeVC ()<UITableViewDelegate,UITableViewDataSource>
+@interface MerchatHomeVC ()<UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableview;
 
@@ -88,7 +89,14 @@
 }
 
 -(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    MerchantDetailVC *detail = [[MerchantDetailVC alloc] init];
+    [self.navigationController pushViewController:detail animated:YES];
+}
+
+#pragma -mark UITextFieldDelegate
+-(BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
     MerchantSearchResultVC *result = [[MerchantSearchResultVC alloc] init];
     [self.navigationController pushViewController:result animated:YES];
+    return NO;
 }
 @end
