@@ -1,31 +1,18 @@
 //
-//  MerchantBuyRightTableViewCell.m
+//  MerchantOrderTableViewCell.m
 //  ScmProject
 //
-//  Created by leosun on 2020/10/4.
+//  Created by leosun on 2020/10/7.
 //  Copyright © 2020 session. All rights reserved.
 //
 
-#import "MerchantBuyRightTableViewCell.h"
+#import "MerchantOrderTableViewCell.h"
 
-@interface MerchantBuyRightTableViewCell ()
-
-@property (weak, nonatomic) IBOutlet UILabel *label1;
-@property (weak, nonatomic) IBOutlet UILabel *label2;
-@property (weak, nonatomic) IBOutlet UILabel *oldPriceLabel;
-
-@end
-
-@implementation MerchantBuyRightTableViewCell
+@implementation MerchantOrderTableViewCell
 
 - (void)awakeFromNib {
     [super awakeFromNib];
     // Initialization code
-    self.label1.layer.borderColor = [UIColor colorWithRGBHex:@"#CACACA"].CGColor;
-    self.label1.layer.borderWidth = [[UIScreen mainScreen] scale] * 0.5;
-    
-    self.label2.layer.borderColor = [UIColor colorWithRGBHex:@"#CACACA"].CGColor;
-    self.label2.layer.borderWidth = [[UIScreen mainScreen] scale] * 0.5;
     
     //从这里开始就是设置富文本的属性
     NSString *oldPrice = @"＄299.9";
@@ -46,14 +33,6 @@
     //第三个参数：同上。
     [attri addAttribute:NSStrikethroughColorAttributeName value:[UIColor colorWithRGBHex:@"#999999"] range:NSMakeRange(0, oldPrice.length)];
     [self.oldPriceLabel setAttributedText:attri];
-    
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
-    WeakSelf(self);
-    [[tap rac_gestureSignal] subscribeNext:^(id x) {
-        [weakself.subject sendNext:@""];
-    }];
-    [self.specView addGestureRecognizer:tap];
-
 }
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {

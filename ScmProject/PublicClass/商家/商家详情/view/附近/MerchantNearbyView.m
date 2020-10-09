@@ -8,6 +8,7 @@
 
 #import "MerchantNearbyView.h"
 #import "MerchantHomeTableViewCell.h"
+#import "MerchantShopDetailVC.h"
 
 @interface MerchantNearbyView ()<UITableViewDataSource,UITableViewDelegate>
 
@@ -58,6 +59,11 @@
     MerchantHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MerchantHomeTableViewCell"];
     cell.contentView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
     return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    MerchantShopDetailVC *detail = [[MerchantShopDetailVC alloc] init];
+    [self.navigation pushViewController:detail animated:YES];
 }
 
 #pragma -mark JXPagerViewListViewDelegate

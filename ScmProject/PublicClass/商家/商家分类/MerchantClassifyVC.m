@@ -7,8 +7,15 @@
 //
 
 #import "MerchantClassifyVC.h"
+#import "MerchantHomeTableViewCell.h"
+#import "MerchantClassifySelectVC.h"
 
-@interface MerchantClassifyVC ()
+@interface MerchantClassifyVC ()<UITableViewDelegate,UITableViewDataSource>
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UIView *allView;
+@property (weak, nonatomic) IBOutlet UIView *areaView;
+@property (weak, nonatomic) IBOutlet UIView *seqView;
 
 @end
 
@@ -16,17 +23,38 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
+    [self prepareUi];
 }
 
-/*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
 }
-*/
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"MerchantHomeTableViewCell" bundle:nil] forCellReuseIdentifier:@"MerchantHomeTableViewCell"];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        MerchantClassifySelectVC *select = [[MerchantClassifySelectVC alloc] init];
+        select.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+        [weakself presentViewController:select animated:NO completion:^{
+            
+        }];
+    }];
+    [self.allView addGestureRecognizer:tap];
+}
+
+#pragma -mark UITableViewDelegate
+-(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
+    return 3;
+}
+
+-(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
+    MerchantHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MerchantHomeTableViewCell"];
+    cell.contentView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
+    return cell;
+}
 
 @end

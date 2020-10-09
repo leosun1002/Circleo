@@ -12,6 +12,9 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MerchantBuyRightTableViewCell : UITableViewCell
 
+@property (weak, nonatomic) IBOutlet UIView *specView;
+@property (strong, nonatomic) RACSubject *subject;
+
 @end
 
 NS_ASSUME_NONNULL_END

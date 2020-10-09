@@ -14,6 +14,8 @@
 #import "HomeLocationVC.h"
 #import "MerchantSearchResultVC.h"
 #import "MerchantDetailVC.h"
+#import "MerchantClassifyVC.h"
+#import "MerchantAtlasVC.h"
 
 @interface MerchatHomeVC ()<UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate>
 
@@ -34,6 +36,17 @@
     [self.tableview registerNib:[UINib nibWithNibName:@"MerchantHomeTableViewCell" bundle:nil] forCellReuseIdentifier:@"MerchantHomeTableViewCell"];
     
     MerchantHomeHeader *header = [[MerchantHomeHeader alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 450)];
+    WeakSelf(self);
+    header.subject = [RACSubject subject];
+    [header.subject subscribeNext:^(id x) {
+        MerchantClassifyVC *classify = [[MerchantClassifyVC alloc] init];
+        [weakself.navigationController pushViewController:classify animated:YES];
+    }];
+    header.pageSubject = [RACSubject subject];
+    [header.pageSubject subscribeNext:^(id x) {
+        MerchantAtlasVC *atlasVC = [[MerchantAtlasVC alloc] init];
+        [weakself.navigationController pushViewController:atlasVC animated:YES];
+    }];
     self.tableview.tableHeaderView = header;
 }
 

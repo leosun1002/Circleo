@@ -23,6 +23,10 @@
 //附近
 #import "MerchantNearbyView.h"
 
+#import "MerchantShopCarVC.h"
+#import "MerchantSpeVC.h"
+#import "MerchantOrderVC.h"
+
 @interface MerchantDetailVC ()<JXPagerViewDelegate, JXCategoryViewDelegate>
 
 /**
@@ -107,6 +111,7 @@
 - (NSUInteger)heightForPinSectionHeaderInPagerView:(JXPagerView *)pagerView {
     return JXheightForHeaderInSection;
 }
+
 /**
  上下滚动后调用
  */
@@ -126,12 +131,33 @@
 }
 
 - (id<JXPagerViewListViewDelegate>)pagerView:(JXPagerView *)pagerView initListAtIndex:(NSInteger)index {
+    WeakSelf(self);
     if (index == 0) {
         MerchantDetailBuyView *childview = [[MerchantDetailBuyView alloc] init];
+        childview.subject = [RACSubject subject];
+        [childview.subject subscribeNext:^(id x) {
+            MerchantShopCarVC *shopCar = [[MerchantShopCarVC alloc] init];
+            shopCar.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+            [weakself presentViewController:shopCar animated:NO completion:^{
+            }];
+        }];
+        childview.specSubject = [RACSubject subject];
+        [childview.specSubject subscribeNext:^(id x) {
+            MerchantSpeVC *specVC = [[MerchantSpeVC alloc] init];
+            specVC.modalPresentationStyle = UIModalPresentationOverCurrentContext;
+            [weakself presentViewController:specVC animated:NO completion:^{
+            }];
+        }];
+        childview.buySubject = [RACSubject subject];
+        [childview.buySubject subscribeNext:^(id x) {
+            MerchantOrderVC *orderVC = [[MerchantOrderVC alloc] init];
+            [weakself.navigationController pushViewController:orderVC animated:YES];
+        }];
         return childview;
     }
     if (index == 3) {
         MerchantNearbyView *childview = [[MerchantNearbyView alloc] init];
+        childview.navigation = self.navigationController;
         return childview;
     }
     MerchantDetailEvaluateView *childView = [[MerchantDetailEvaluateView alloc] init];

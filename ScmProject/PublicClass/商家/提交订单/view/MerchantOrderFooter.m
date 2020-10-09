@@ -1,31 +1,30 @@
 //
-//  MerchantBuyRightTableViewCell.m
+//  MerchantOrderFooter.m
 //  ScmProject
 //
-//  Created by leosun on 2020/10/4.
+//  Created by leosun on 2020/10/7.
 //  Copyright © 2020 session. All rights reserved.
 //
 
-#import "MerchantBuyRightTableViewCell.h"
+#import "MerchantOrderFooter.h"
 
-@interface MerchantBuyRightTableViewCell ()
+@implementation MerchantOrderFooter
 
-@property (weak, nonatomic) IBOutlet UILabel *label1;
-@property (weak, nonatomic) IBOutlet UILabel *label2;
-@property (weak, nonatomic) IBOutlet UILabel *oldPriceLabel;
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"MerchantOrderFooter" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
+        [self addBeizierPath];
+    }
+    return self;
+}
 
-@end
-
-@implementation MerchantBuyRightTableViewCell
-
-- (void)awakeFromNib {
-    [super awakeFromNib];
-    // Initialization code
-    self.label1.layer.borderColor = [UIColor colorWithRGBHex:@"#CACACA"].CGColor;
-    self.label1.layer.borderWidth = [[UIScreen mainScreen] scale] * 0.5;
-    
-    self.label2.layer.borderColor = [UIColor colorWithRGBHex:@"#CACACA"].CGColor;
-    self.label2.layer.borderWidth = [[UIScreen mainScreen] scale] * 0.5;
+-(void)addBeizierPath{
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, ksrcwidth - 20, 20) byRoundingCorners:UIRectCornerBottomLeft|UIRectCornerBottomRight cornerRadii:CGSizeMake(10, 10)];
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+    maskLayer.frame = CGRectMake(0, 0, ksrcwidth - 20, 20);
+    maskLayer.path = path.CGPath;
+    self.topView.layer.mask = maskLayer;
     
     //从这里开始就是设置富文本的属性
     NSString *oldPrice = @"＄299.9";
@@ -46,20 +45,6 @@
     //第三个参数：同上。
     [attri addAttribute:NSStrikethroughColorAttributeName value:[UIColor colorWithRGBHex:@"#999999"] range:NSMakeRange(0, oldPrice.length)];
     [self.oldPriceLabel setAttributedText:attri];
-    
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
-    WeakSelf(self);
-    [[tap rac_gestureSignal] subscribeNext:^(id x) {
-        [weakself.subject sendNext:@""];
-    }];
-    [self.specView addGestureRecognizer:tap];
 
 }
-
-- (void)setSelected:(BOOL)selected animated:(BOOL)animated {
-    [super setSelected:selected animated:animated];
-
-    // Configure the view for the selected state
-}
-
 @end

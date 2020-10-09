@@ -14,6 +14,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MerchantNearbyView : UIView<JXPagerViewListViewDelegate>
 
 @property (nonatomic, copy) void(^scrollCallback)(UIScrollView *scrollView);
+@property (nonatomic, strong) UINavigationController *navigation;
 
 @end
 

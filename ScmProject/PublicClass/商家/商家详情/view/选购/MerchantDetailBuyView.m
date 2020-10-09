@@ -14,6 +14,8 @@
 
 @property (weak, nonatomic) IBOutlet UITableView *leftTable;
 @property (weak, nonatomic) IBOutlet UITableView *rightTable;
+@property (weak, nonatomic) IBOutlet UIView *shopCarView;
+@property (weak, nonatomic) IBOutlet UIView *buyView;
 
 @end
 
@@ -32,6 +34,19 @@
 -(void)preapreUi{
     [self.leftTable registerNib:[UINib nibWithNibName:@"MerchantBuyLeftTableViewCell" bundle:nil] forCellReuseIdentifier:@"MerchantBuyLeftTableViewCell"];
     [self.rightTable registerNib:[UINib nibWithNibName:@"MerchantBuyRightTableViewCell" bundle:nil] forCellReuseIdentifier:@"MerchantBuyRightTableViewCell"];
+
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself.subject sendNext:@""];
+    }];
+    [self.shopCarView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself.buySubject sendNext:@""];
+    }];
+    [self.buyView addGestureRecognizer:tap1];
 }
 
 #pragma -mark UITableViewDelegate
@@ -45,6 +60,11 @@
         return cell;
     }else{
         MerchantBuyRightTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MerchantBuyRightTableViewCell"];
+        cell.subject = [RACSubject subject];
+        WeakSelf(self);
+        [cell.subject subscribeNext:^(id x) {
+            [weakself.specSubject sendNext:@""];
+        }];
         return cell;
     }
 }

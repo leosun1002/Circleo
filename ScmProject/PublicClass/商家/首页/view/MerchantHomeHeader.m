@@ -68,6 +68,13 @@
     self.scrollBgView.layer.cornerRadius = 10;
     
     [self.scrollBgView bringSubviewToFront:self.pageView];
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself.pageSubject sendNext:@""];
+    }];
+    [self.pageView addGestureRecognizer:tap];
 }
 
 #pragma -mark SDCycleScrollViewDelegate
@@ -85,6 +92,10 @@
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
     MerchantHomeHeaderCollectionCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"MerchantHomeHeaderCollectionCell" forIndexPath:indexPath];
     return cell;
+}
+
+-(void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    [self.subject sendNext:@""];
 }
 
 #pragma -mark getter
