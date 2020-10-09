@@ -10,6 +10,7 @@
 #import "MerchantOrderTableViewCell.h"
 #import "MerchantOrderHeader.h"
 #import "MerchantOrderFooter.h"
+#import "MerchantPayWayVC.h"
 
 @interface MerchantOrderVC ()<UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
@@ -64,5 +65,10 @@
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     MerchantOrderTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MerchantOrderTableViewCell"];
     return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    MerchantPayWayVC *payWay = [[MerchantPayWayVC alloc] init];
+    [self.navigationController pushViewController:payWay animated:YES];
 }
 @end
