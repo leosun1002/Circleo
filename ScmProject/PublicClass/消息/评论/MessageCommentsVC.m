@@ -1,60 +1,27 @@
 //
-//  MessageHomeVC.m
+//  MessageCommentsVC.m
 //  ScmProject
 //
 //  Created by leosun on 2020/10/9.
 //  Copyright © 2020 session. All rights reserved.
 //
 
-#import "MessageHomeVC.h"
-#import "MessageHomeTableViewCell.h"
-#import "MessageFansVC.h"
-#import "MessageThumsUpVC.h"
 #import "MessageCommentsVC.h"
-#import "MessageSystemVC.h"
-#import "MessageOrderVC.h"
+#import "MsgCommentsTableViewCell.h"
 
-@interface MessageHomeVC ()<UITableViewDelegate,UITableViewDataSource>
+@interface MessageCommentsVC ()<UITableViewDataSource,UITableViewDelegate>
 
-@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
 @property(nonatomic,strong)NSIndexPath *editingIndexPath;
-@property (weak, nonatomic) IBOutlet UIView *fansView;
-@property (weak, nonatomic) IBOutlet UIView *thumbsView;
-@property (weak, nonatomic) IBOutlet UIView *commentView;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
 
 @end
 
-@implementation MessageHomeVC
+@implementation MessageCommentsVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self prepareUi];
-}
-
--(void)prepareUi{
-    [self.tableview registerNib:[UINib nibWithNibName:@"MessageHomeTableViewCell" bundle:nil] forCellReuseIdentifier:@"MessageHomeTableViewCell"];
-    
-    WeakSelf(self);
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
-    [[tap rac_gestureSignal] subscribeNext:^(id x) {
-        MessageFansVC *fans = [[MessageFansVC alloc] init];
-        [weakself.navigationController pushViewController:fans animated:YES];
-    }];
-    [self.fansView addGestureRecognizer:tap];
-    
-    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
-    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
-        MessageThumsUpVC *thumbs = [[MessageThumsUpVC alloc] init];
-        [weakself.navigationController pushViewController:thumbs animated:YES];
-    }];
-    [self.thumbsView addGestureRecognizer:tap1];
-
-    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
-    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
-        MessageCommentsVC *comment = [[MessageCommentsVC alloc] init];
-        [weakself.navigationController pushViewController:comment animated:YES];
-    }];
-    [self.commentView addGestureRecognizer:tap2];
 }
 
 #pragma mark - viewDidLayoutSubviews
@@ -81,7 +48,7 @@
         }
     } else{
         // iOS 8-10层级 (Xcode 8编译): UITableView -> UITableViewCell -> UITableViewCellDeleteConfirmationView
-        MessageHomeTableViewCell *tableCell = [self.tableview cellForRowAtIndexPath:self.editingIndexPath];
+        MsgCommentsTableViewCell *tableCell = [self.tableview cellForRowAtIndexPath:self.editingIndexPath];
         for (UIView *subview in tableCell.subviews){
             NSLog(@"subview%@-----%zd",subview,subview.subviews.count);
             if ([subview isKindOfClass:NSClassFromString(@"UITableViewCellDeleteConfirmationView")] && [subview.subviews count] >= 1)
@@ -103,25 +70,28 @@
     }
 }
 
+- (IBAction)backClick:(id)sender {
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)prepareUi{
+    self.heightConst.constant = navBarHeight;
+    [self.tableview registerNib:[UINib nibWithNibName:@"MsgCommentsTableViewCell" bundle:nil] forCellReuseIdentifier:@"MsgCommentsTableViewCell"];
+    self.tableview.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
+}
 
 #pragma -mark UITableViewDelegate
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 3;
+    return 10;
+}
+
+-(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
+    return UITableViewAutomaticDimension;
 }
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
-    MessageHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MessageHomeTableViewCell"];
+    MsgCommentsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MsgCommentsTableViewCell"];
     return cell;
-}
-
--(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    if (indexPath.row == 0) {
-        MessageSystemVC *systemVC = [[MessageSystemVC alloc] init];
-        [self.navigationController pushViewController:systemVC animated:YES];
-    }else if (indexPath.row == 1){
-        MessageOrderVC *order = [[MessageOrderVC alloc] init];
-        [self.navigationController pushViewController:order animated:YES];
-    }
 }
 
 - (void)tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath{
