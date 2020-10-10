@@ -12,6 +12,7 @@
 #import "MineApplyRefundVC.h"
 #import "MineOrderWaitPayVC.h"
 #import "MineOrderUseVC.h"
+#import "MineOrderEvaluateVC.h"
 
 @interface MineOrderChildVC ()<UITableViewDelegate,UITableViewDataSource>
 @property (weak, nonatomic) IBOutlet UITableView *tableview;
@@ -55,6 +56,9 @@
     }else if (indexPath.row == 3){
         MineOrderUseVC *use = [[MineOrderUseVC alloc] init];
         [self.navigationController pushViewController:use animated:YES];
+    }else if (indexPath.row == 4){
+        MineOrderEvaluateVC *evaluate = [[MineOrderEvaluateVC alloc] init];
+        [self.navigationController pushViewController:evaluate animated:YES];
     }
 }
 @end

@@ -50,17 +50,20 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wgg-8H-U9G">
-                    <rect key="frame" x="0.0" y="846" width="414" height="50"/>
+                    <rect key="frame" x="0.0" y="826" width="414" height="70"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ke7-6Z-Vgz">
-                            <rect key="frame" x="10" y="6" width="394" height="38"/>
+                            <rect key="frame" x="10" y="6" width="394" height="40"/>
                             <color key="backgroundColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="40" id="fyb-7J-yQk"/>
+                            </constraints>
                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                             <state key="normal" title="申请退款">
                                 <color key="titleColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </state>
                             <userDefinedRuntimeAttributes>
-                                <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="19"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="20"/>
                                 <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                             </userDefinedRuntimeAttributes>
                         </button>
@@ -69,13 +72,12 @@
                     <constraints>
                         <constraint firstItem="ke7-6Z-Vgz" firstAttribute="top" secondItem="Wgg-8H-U9G" secondAttribute="top" constant="6" id="VSq-3Q-Cpa"/>
                         <constraint firstAttribute="trailing" secondItem="ke7-6Z-Vgz" secondAttribute="trailing" constant="10" id="ggX-zI-Efl"/>
-                        <constraint firstAttribute="bottom" secondItem="ke7-6Z-Vgz" secondAttribute="bottom" constant="6" id="i1y-i0-WHE"/>
-                        <constraint firstAttribute="height" constant="50" id="vdm-qh-f0L"/>
+                        <constraint firstAttribute="height" constant="70" id="vdm-qh-f0L"/>
                         <constraint firstItem="ke7-6Z-Vgz" firstAttribute="leading" secondItem="Wgg-8H-U9G" secondAttribute="leading" constant="10" id="yjn-Bo-lr5"/>
                     </constraints>
                 </view>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Zmx-SI-HPg">
-                    <rect key="frame" x="0.0" y="88" width="414" height="758"/>
+                    <rect key="frame" x="0.0" y="88" width="414" height="738"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yE3-km-0Ri">
                             <rect key="frame" x="10" y="10" width="394" height="200"/>
