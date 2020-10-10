@@ -15,6 +15,8 @@
 #import "MessageHomeVC.h"
 //个人中心
 #import "MineOrderVC.h"
+#import "MineMyAppointVC.h"
+
 #import "MyTabBar.h"
 
 @interface CTabBarVC ()
@@ -48,7 +50,7 @@
     [self controller:merchantVC Title:NSLocalizedString(@"商家", nil) tabBarItemImage:@"mer_n" tabBarItemSelectedImage:@"home_n"];
     MessageHomeVC *messageVC = [[MessageHomeVC alloc] init];
     [self controller:messageVC Title:NSLocalizedString(@"消息", nil) tabBarItemImage:@"message_n" tabBarItemSelectedImage:@"home_n"];
-    MineOrderVC *order = [[MineOrderVC alloc] init];
+    MineMyAppointVC *order = [[MineMyAppointVC alloc] init];
     [self controller:order Title:NSLocalizedString(@"我的", nil) tabBarItemImage:@"my_n" tabBarItemSelectedImage:@"home_n"];
     self.viewControllers = @[homeVC,merchantVC,messageVC,order];
     
