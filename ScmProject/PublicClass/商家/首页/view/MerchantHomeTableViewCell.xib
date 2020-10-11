@@ -17,7 +17,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="jsp-sA-7DR">
-                        <rect key="frame" x="10" y="0.0" width="384" height="145"/>
+                        <rect key="frame" x="60" y="0.0" width="394" height="145"/>
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ve6-n8-usG">
                                 <rect key="frame" x="10" y="27.5" width="90" height="90"/>
@@ -32,7 +32,7 @@
                                 </userDefinedRuntimeAttributes>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="卑尔根北部的盖朗厄尔峡湾网..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NQP-ft-cnk">
-                                <rect key="frame" x="110" y="27.5" width="264" height="15"/>
+                                <rect key="frame" x="110" y="27.5" width="274" height="15"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="15" id="HbM-Eu-rpC"/>
                                 </constraints>
@@ -105,7 +105,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="已售888" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E6c-KL-gTV">
-                                <rect key="frame" x="330" y="56" width="44" height="13.5"/>
+                                <rect key="frame" x="340" y="56" width="44" height="13.5"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                 <color key="textColor" red="0.60392156860000001" green="0.60392156860000001" blue="0.60392156860000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
@@ -125,7 +125,7 @@
                                 </userDefinedRuntimeAttributes>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="11.7km" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="kg3-DM-ghU">
-                                <rect key="frame" x="335.5" y="99" width="38.5" height="12"/>
+                                <rect key="frame" x="345.5" y="99" width="38.5" height="12"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="12" id="2Le-lT-IUI"/>
                                 </constraints>
@@ -134,7 +134,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="dizhi" translatesAutoresizingMaskIntoConstraints="NO" id="5VO-41-yIh">
-                                <rect key="frame" x="320.5" y="100" width="8" height="10"/>
+                                <rect key="frame" x="330.5" y="100" width="8" height="10"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="8" id="Hvs-zf-usv"/>
                                     <constraint firstAttribute="height" constant="10" id="OD2-d7-qwN"/>
@@ -165,12 +165,23 @@
                             <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="10"/>
                         </userDefinedRuntimeAttributes>
                     </view>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="yHk-mD-YqO">
+                        <rect key="frame" x="15" y="57.5" width="30" height="30"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="30" id="A6Y-AU-eKE"/>
+                            <constraint firstAttribute="height" constant="30" id="hZb-Si-Uxr"/>
+                        </constraints>
+                        <state key="normal" image="choose_n"/>
+                        <state key="selected" image="choose_s"/>
+                    </button>
                 </subviews>
                 <constraints>
+                    <constraint firstItem="yHk-mD-YqO" firstAttribute="centerY" secondItem="jsp-sA-7DR" secondAttribute="centerY" id="480-pT-k0P"/>
                     <constraint firstAttribute="bottom" secondItem="jsp-sA-7DR" secondAttribute="bottom" constant="10" id="LuG-Om-zns"/>
-                    <constraint firstAttribute="trailing" secondItem="jsp-sA-7DR" secondAttribute="trailing" constant="10" id="NcD-WX-orh"/>
+                    <constraint firstItem="yHk-mD-YqO" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="MJ6-Nu-1qc"/>
+                    <constraint firstAttribute="trailing" secondItem="jsp-sA-7DR" secondAttribute="trailing" constant="-50" id="NcD-WX-orh"/>
                     <constraint firstItem="jsp-sA-7DR" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="OpN-ru-Mqq"/>
-                    <constraint firstItem="jsp-sA-7DR" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="10" id="rGa-3z-dce"/>
+                    <constraint firstItem="jsp-sA-7DR" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="60" id="rGa-3z-dce"/>
                 </constraints>
             </tableViewCellContentView>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -181,6 +192,8 @@
         </tableViewCell>
     </objects>
     <resources>
+        <image name="choose_n" width="19" height="19"/>
+        <image name="choose_s" width="19" height="19"/>
         <image name="dizhi" width="10" height="13"/>
         <image name="x_n" width="10" height="10"/>
         <image name="x_s" width="10" height="10"/>
