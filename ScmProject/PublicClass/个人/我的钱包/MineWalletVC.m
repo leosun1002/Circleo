@@ -7,6 +7,7 @@
 //
 
 #import "MineWalletVC.h"
+#import "MineWalletDetailVC.h"
 
 @interface MineWalletVC ()
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
@@ -26,6 +27,11 @@
 
 -(void)prepareUi{
     self.heightConst.constant = navBarHeight;
+}
+
+- (IBAction)detaiClick:(id)sender {
+    MineWalletDetailVC *detail = [[MineWalletDetailVC alloc] init];
+    [self.navigationController pushViewController:detail animated:YES];
 }
 
 @end

@@ -12,7 +12,6 @@
 #import "SGPageContentScrollView.h"
 #import "MineMyAppointChildVC.h"
 
-
 @interface MineMyAppointVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate>
 
 @property(nonatomic,weak)SGPageContentScrollView *mPageContentScrollView;

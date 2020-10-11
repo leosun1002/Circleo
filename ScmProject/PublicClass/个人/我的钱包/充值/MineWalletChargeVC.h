@@ -1,5 +1,5 @@
 //
-//  MineWalletDetailChildVC.h
+//  MineWalletChargeVC.h
 //  ScmProject
 //
 //  Created by leosun on 2020/10/11.
@@ -10,9 +10,8 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MineWalletDetailChildVC : BaseViewController
+@interface MineWalletChargeVC : BaseViewController
 
-@property(nonatomic,strong) UINavigationController *navigation;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -261,6 +261,10 @@
 		73A2182A2532E98300D0BF23 /* MineWalletDetailVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 73A218282532E98300D0BF23 /* MineWalletDetailVC.xib */; };
 		73A2182E2532E99500D0BF23 /* MineWalletDetailChildVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 73A2182C2532E99500D0BF23 /* MineWalletDetailChildVC.m */; };
 		73A2182F2532E99500D0BF23 /* MineWalletDetailChildVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 73A2182D2532E99500D0BF23 /* MineWalletDetailChildVC.xib */; };
+		73A218342533343C00D0BF23 /* MineWalletDetailTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 73A218322533343C00D0BF23 /* MineWalletDetailTableViewCell.m */; };
+		73A218352533343C00D0BF23 /* MineWalletDetailTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 73A218332533343C00D0BF23 /* MineWalletDetailTableViewCell.xib */; };
+		73A2183A2533386800D0BF23 /* MineWalletChargeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 73A218382533386800D0BF23 /* MineWalletChargeVC.m */; };
+		73A2183B2533386800D0BF23 /* MineWalletChargeVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 73A218392533386800D0BF23 /* MineWalletChargeVC.xib */; };
 		73A4CE2725230FFB00903365 /* LoginPhoneChildVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 73A4CE2625230FFB00903365 /* LoginPhoneChildVC.m */; };
 		73A4CE292523105E00903365 /* LoginEmailChildVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 73A4CE282523105E00903365 /* LoginEmailChildVC.m */; };
 		73A4CE2B2523107F00903365 /* LoginEmailChildVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 73A4CE2A2523107E00903365 /* LoginEmailChildVC.xib */; };
@@ -767,6 +771,12 @@
 		73A2182B2532E99500D0BF23 /* MineWalletDetailChildVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MineWalletDetailChildVC.h; sourceTree = "<group>"; };
 		73A2182C2532E99500D0BF23 /* MineWalletDetailChildVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MineWalletDetailChildVC.m; sourceTree = "<group>"; };
 		73A2182D2532E99500D0BF23 /* MineWalletDetailChildVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MineWalletDetailChildVC.xib; sourceTree = "<group>"; };
+		73A218312533343C00D0BF23 /* MineWalletDetailTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MineWalletDetailTableViewCell.h; sourceTree = "<group>"; };
+		73A218322533343C00D0BF23 /* MineWalletDetailTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MineWalletDetailTableViewCell.m; sourceTree = "<group>"; };
+		73A218332533343C00D0BF23 /* MineWalletDetailTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MineWalletDetailTableViewCell.xib; sourceTree = "<group>"; };
+		73A218372533386800D0BF23 /* MineWalletChargeVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MineWalletChargeVC.h; sourceTree = "<group>"; };
+		73A218382533386800D0BF23 /* MineWalletChargeVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MineWalletChargeVC.m; sourceTree = "<group>"; };
+		73A218392533386800D0BF23 /* MineWalletChargeVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MineWalletChargeVC.xib; sourceTree = "<group>"; };
 		73A4CE2625230FFB00903365 /* LoginPhoneChildVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginPhoneChildVC.m; sourceTree = "<group>"; };
 		73A4CE282523105E00903365 /* LoginEmailChildVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LoginEmailChildVC.m; sourceTree = "<group>"; };
 		73A4CE2A2523107E00903365 /* LoginEmailChildVC.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = LoginEmailChildVC.xib; sourceTree = "<group>"; };
@@ -1993,6 +2003,7 @@
 		73A2181F2532E53800D0BF23 /* 我的钱包 */ = {
 			isa = PBXGroup;
 			children = (
+				73A218362533385400D0BF23 /* 充值 */,
 				73A218252532E96E00D0BF23 /* 明细 */,
 				73A218202532E56400D0BF23 /* MineWalletVC.h */,
 				73A218212532E56400D0BF23 /* MineWalletVC.m */,
@@ -2004,6 +2015,7 @@
 		73A218252532E96E00D0BF23 /* 明细 */ = {
 			isa = PBXGroup;
 			children = (
+				73A218302533342A00D0BF23 /* view */,
 				73A218262532E98300D0BF23 /* MineWalletDetailVC.h */,
 				73A218272532E98300D0BF23 /* MineWalletDetailVC.m */,
 				73A218282532E98300D0BF23 /* MineWalletDetailVC.xib */,
@@ -2012,6 +2024,26 @@
 				73A2182D2532E99500D0BF23 /* MineWalletDetailChildVC.xib */,
 			);
 			path = "明细";
+			sourceTree = "<group>";
+		};
+		73A218302533342A00D0BF23 /* view */ = {
+			isa = PBXGroup;
+			children = (
+				73A218312533343C00D0BF23 /* MineWalletDetailTableViewCell.h */,
+				73A218322533343C00D0BF23 /* MineWalletDetailTableViewCell.m */,
+				73A218332533343C00D0BF23 /* MineWalletDetailTableViewCell.xib */,
+			);
+			path = view;
+			sourceTree = "<group>";
+		};
+		73A218362533385400D0BF23 /* 充值 */ = {
+			isa = PBXGroup;
+			children = (
+				73A218372533386800D0BF23 /* MineWalletChargeVC.h */,
+				73A218382533386800D0BF23 /* MineWalletChargeVC.m */,
+				73A218392533386800D0BF23 /* MineWalletChargeVC.xib */,
+			);
+			path = "充值";
 			sourceTree = "<group>";
 		};
 		73A4CE2C252312C900903365 /* 找回密码 */ = {
@@ -2631,6 +2663,7 @@
 				738AD44F252DEADF00806513 /* MerchantOrderFooter.xib in Resources */,
 				738AD433252C689000806513 /* MerchantAtlasCollectionViewCell.xib in Resources */,
 				73A6559225221D73000A398E /* LoginPhoneChildVC.xib in Resources */,
+				73A2183B2533386800D0BF23 /* MineWalletChargeVC.xib in Resources */,
 				73CACF9E25245AA2001F90CF /* HomeGraphicFirstFooter.xib in Resources */,
 				7387E7B7252855D1009BDF13 /* MerchantSectionHeader.xib in Resources */,
 				737A794025305E18006DA787 /* MessageCommentsVC.xib in Resources */,
@@ -2758,6 +2791,7 @@
 				737A791225301054006DA787 /* MerchantAppointTableViewCell.xib in Resources */,
 				737A7907253002E3006DA787 /* MerchantPayDoneVC.xib in Resources */,
 				73A655A32522347A000A398E /* RegisterChildVC.xib in Resources */,
+				73A218352533343C00D0BF23 /* MineWalletDetailTableViewCell.xib in Resources */,
 				731B90D622FA7D0A001C01E6 /* sortedNameEN.plist in Resources */,
 				7387E7CD25286BEA009BDF13 /* HomeLocationVC.xib in Resources */,
 				73CACF8B25242CC0001F90CF /* HomeGraphicDetailVC.xib in Resources */,
@@ -3004,8 +3038,10 @@
 				738876FE2394E98600E4D710 /* BLStopwatch.m in Sources */,
 				7390B36725271AF90034F5C3 /* HomeSearchHistoryCollectionViewCell.m in Sources */,
 				942AC4B520F0C1B0009D4263 /* Foundation+Log.m in Sources */,
+				73A218342533343C00D0BF23 /* MineWalletDetailTableViewCell.m in Sources */,
 				730AB0EE236012B5006CD919 /* PaletteColorModel.m in Sources */,
 				7390B34B252705300034F5C3 /* HomeUserInfoHeader.m in Sources */,
+				73A2183A2533386800D0BF23 /* MineWalletChargeVC.m in Sources */,
 				94B0CE3920F89E03007C8610 /* CTabBarVC.m in Sources */,
 				73A4CE292523105E00903365 /* LoginEmailChildVC.m in Sources */,
 				730922A622F048FC005BDEF4 /* XYMScanView.m in Sources */,
