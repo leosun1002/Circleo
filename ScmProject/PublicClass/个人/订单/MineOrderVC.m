@@ -62,14 +62,16 @@
     SGPageContentScrollView *pageContentScrollView = [[SGPageContentScrollView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(pageTitleView.frame),ksrcwidth,self.view.height - statusHeight - 45 - 53) parentVC:self childVCs:[self.vcs copy]];
     pageContentScrollView.delegatePageContentScrollView = self;
     pageContentScrollView.isAnimated = NO;
-    pageContentScrollView.backgroundColor = [UIColor whiteColor];
+    pageContentScrollView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
     _mPageContentScrollView = pageContentScrollView;
     [self.view addSubview:pageContentScrollView];
-    for (int b=0; b<self.vcs.count; b++) {//全部加载出来
-        [pageContentScrollView setPageContentScrollViewCurrentIndex:b];
-    }
     pageTitleView.selectedIndex = self.selectedPage;
     [pageContentScrollView setPageContentScrollViewCurrentIndex:self.selectedPage];
+
+    //如果页面过多  一次性全部加载会卡
+//    for (int b=0; b<self.vcs.count; b++) {//全部加载出来
+//        [pageContentScrollView setPageContentScrollViewCurrentIndex:b];
+//    }
 }
 
 -(void)loadVCs{
