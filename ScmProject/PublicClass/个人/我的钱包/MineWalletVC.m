@@ -8,6 +8,7 @@
 
 #import "MineWalletVC.h"
 #import "MineWalletDetailVC.h"
+#import "MineWalletChargeVC.h"
 
 @interface MineWalletVC ()
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
@@ -32,6 +33,11 @@
 - (IBAction)detaiClick:(id)sender {
     MineWalletDetailVC *detail = [[MineWalletDetailVC alloc] init];
     [self.navigationController pushViewController:detail animated:YES];
+}
+
+- (IBAction)chargeClick:(id)sender {
+    MineWalletChargeVC *charge = [[MineWalletChargeVC alloc] init];
+    [self.navigationController pushViewController:charge animated:YES];
 }
 
 @end
