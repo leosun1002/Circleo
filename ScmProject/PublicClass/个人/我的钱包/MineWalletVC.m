@@ -9,9 +9,13 @@
 #import "MineWalletVC.h"
 #import "MineWalletDetailVC.h"
 #import "MineWalletChargeVC.h"
+#import "MineWalletWithdrawVC.h"
+#import "MineWalletBankCardVC.h"
 
 @interface MineWalletVC ()
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
+@property (weak, nonatomic) IBOutlet UIView *withdrawView;
+@property (weak, nonatomic) IBOutlet UIView *cardView;
 
 @end
 
@@ -28,6 +32,21 @@
 
 -(void)prepareUi{
     self.heightConst.constant = navBarHeight;
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        MineWalletWithdrawVC *withdraw = [[MineWalletWithdrawVC alloc] init];
+        [weakself.navigationController pushViewController:withdraw animated:YES];
+    }];
+    [self.withdrawView addGestureRecognizer:tap];
+    
+    UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
+    [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
+        MineWalletBankCardVC *card = [[MineWalletBankCardVC alloc] init];
+        [weakself.navigationController pushViewController:card animated:YES];
+    }];
+    [self.cardView addGestureRecognizer:tap1];
 }
 
 - (IBAction)detaiClick:(id)sender {
