@@ -151,6 +151,12 @@
 		738335BA25306981006721D5 /* MessageOrderVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 738335B825306981006721D5 /* MessageOrderVC.xib */; };
 		738335BE25306AAD006721D5 /* MessageOrderTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 738335BC25306AAD006721D5 /* MessageOrderTableViewCell.m */; };
 		738335BF25306AAD006721D5 /* MessageOrderTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 738335BD25306AAD006721D5 /* MessageOrderTableViewCell.xib */; };
+		7384266B2535E82600CE052D /* MineDraftsVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 738426692535E82600CE052D /* MineDraftsVC.m */; };
+		7384266C2535E82600CE052D /* MineDraftsVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7384266A2535E82600CE052D /* MineDraftsVC.xib */; };
+		738426702535E8F300CE052D /* MineDraftsTableViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7384266E2535E8F300CE052D /* MineDraftsTableViewCell.m */; };
+		738426712535E8F300CE052D /* MineDraftsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7384266F2535E8F300CE052D /* MineDraftsTableViewCell.xib */; };
+		738426762535EC2E00CE052D /* MineInviteFriendVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 738426742535EC2E00CE052D /* MineInviteFriendVC.m */; };
+		738426772535EC2E00CE052D /* MineInviteFriendVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 738426752535EC2E00CE052D /* MineInviteFriendVC.xib */; };
 		7387E7B12528535A009BDF13 /* MerchantHomeHeaderCollectionCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 7387E7AF2528535A009BDF13 /* MerchantHomeHeaderCollectionCell.m */; };
 		7387E7B22528535A009BDF13 /* MerchantHomeHeaderCollectionCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7387E7B02528535A009BDF13 /* MerchantHomeHeaderCollectionCell.xib */; };
 		7387E7B5252855C3009BDF13 /* MerchantSectionHeader.m in Sources */ = {isa = PBXBuildFile; fileRef = 7387E7B4252855C3009BDF13 /* MerchantSectionHeader.m */; };
@@ -616,6 +622,15 @@
 		738335BB25306AAD006721D5 /* MessageOrderTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageOrderTableViewCell.h; sourceTree = "<group>"; };
 		738335BC25306AAD006721D5 /* MessageOrderTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageOrderTableViewCell.m; sourceTree = "<group>"; };
 		738335BD25306AAD006721D5 /* MessageOrderTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MessageOrderTableViewCell.xib; sourceTree = "<group>"; };
+		738426682535E82600CE052D /* MineDraftsVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MineDraftsVC.h; sourceTree = "<group>"; };
+		738426692535E82600CE052D /* MineDraftsVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MineDraftsVC.m; sourceTree = "<group>"; };
+		7384266A2535E82600CE052D /* MineDraftsVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MineDraftsVC.xib; sourceTree = "<group>"; };
+		7384266D2535E8F300CE052D /* MineDraftsTableViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MineDraftsTableViewCell.h; sourceTree = "<group>"; };
+		7384266E2535E8F300CE052D /* MineDraftsTableViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MineDraftsTableViewCell.m; sourceTree = "<group>"; };
+		7384266F2535E8F300CE052D /* MineDraftsTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MineDraftsTableViewCell.xib; sourceTree = "<group>"; };
+		738426732535EC2E00CE052D /* MineInviteFriendVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MineInviteFriendVC.h; sourceTree = "<group>"; };
+		738426742535EC2E00CE052D /* MineInviteFriendVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MineInviteFriendVC.m; sourceTree = "<group>"; };
+		738426752535EC2E00CE052D /* MineInviteFriendVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MineInviteFriendVC.xib; sourceTree = "<group>"; };
 		7387E7AE2528535A009BDF13 /* MerchantHomeHeaderCollectionCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MerchantHomeHeaderCollectionCell.h; sourceTree = "<group>"; };
 		7387E7AF2528535A009BDF13 /* MerchantHomeHeaderCollectionCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MerchantHomeHeaderCollectionCell.m; sourceTree = "<group>"; };
 		7387E7B02528535A009BDF13 /* MerchantHomeHeaderCollectionCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MerchantHomeHeaderCollectionCell.xib; sourceTree = "<group>"; };
@@ -1354,6 +1369,8 @@
 		737E754525314F850035DD29 /* 个人 */ = {
 			isa = PBXGroup;
 			children = (
+				738426722535EC1600CE052D /* 邀请好友 */,
+				738426672535E7DC00CE052D /* 草稿箱 */,
 				73A2181F2532E53800D0BF23 /* 我的钱包 */,
 				738113A82532A38000156BEF /* 我的收藏 */,
 				7381139025320AA400156BEF /* 我的预约 */,
@@ -1606,6 +1623,29 @@
 				738335BD25306AAD006721D5 /* MessageOrderTableViewCell.xib */,
 			);
 			path = "订单消息";
+			sourceTree = "<group>";
+		};
+		738426672535E7DC00CE052D /* 草稿箱 */ = {
+			isa = PBXGroup;
+			children = (
+				738426682535E82600CE052D /* MineDraftsVC.h */,
+				738426692535E82600CE052D /* MineDraftsVC.m */,
+				7384266A2535E82600CE052D /* MineDraftsVC.xib */,
+				7384266D2535E8F300CE052D /* MineDraftsTableViewCell.h */,
+				7384266E2535E8F300CE052D /* MineDraftsTableViewCell.m */,
+				7384266F2535E8F300CE052D /* MineDraftsTableViewCell.xib */,
+			);
+			path = "草稿箱";
+			sourceTree = "<group>";
+		};
+		738426722535EC1600CE052D /* 邀请好友 */ = {
+			isa = PBXGroup;
+			children = (
+				738426732535EC2E00CE052D /* MineInviteFriendVC.h */,
+				738426742535EC2E00CE052D /* MineInviteFriendVC.m */,
+				738426752535EC2E00CE052D /* MineInviteFriendVC.xib */,
+			);
+			path = "邀请好友";
 			sourceTree = "<group>";
 		};
 		7387E7BD252860A2009BDF13 /* 筛选 */ = {
@@ -2772,6 +2812,7 @@
 				7390B36825271AF90034F5C3 /* HomeSearchHistoryCollectionViewCell.xib in Resources */,
 				73A2182F2532E99500D0BF23 /* MineWalletDetailChildVC.xib in Resources */,
 				73FFFB8C2534919F006EEE5F /* MineWithdrawRecordVC.xib in Resources */,
+				738426712535E8F300CE052D /* MineDraftsTableViewCell.xib in Resources */,
 				7387E7BC25285769009BDF13 /* MerchantHomeTableViewCell.xib in Resources */,
 				73A4CE2B2523107F00903365 /* LoginEmailChildVC.xib in Resources */,
 				730DEB5C24BD7F3300E72564 /* DINPro-Light.ttf in Resources */,
@@ -2804,6 +2845,7 @@
 				7387E7D725287556009BDF13 /* HomeLocationHeader.xib in Resources */,
 				738AD411252AE0EE00806513 /* MerchantShopCarVC.xib in Resources */,
 				7390B37525284E700034F5C3 /* MerchantHomeHeader.xib in Resources */,
+				7384266C2535E82600CE052D /* MineDraftsVC.xib in Resources */,
 				738AD42E252C67AD00806513 /* MerchantAtlasVC.xib in Resources */,
 				7307694423052A290031B7DC /* HZPhotoBrowser.bundle in Resources */,
 				7390B321252576FB0034F5C3 /* emoji.json in Resources */,
@@ -2869,6 +2911,7 @@
 				7308B3B823161ABC00B82DB6 /* EmptyView.xib in Resources */,
 				738113B22532C88F00156BEF /* MineCollectShopVC.xib in Resources */,
 				7390B347252703C00034F5C3 /* HomeUserInfoDetailVC.xib in Resources */,
+				738426772535EC2E00CE052D /* MineInviteFriendVC.xib in Resources */,
 				73CACF99252455E6001F90CF /* HomeGraphicDetailTableViewCell.xib in Resources */,
 				7390B33F2525DB300034F5C3 /* btn_expression@2x.png in Resources */,
 				7387E8142529B7CA009BDF13 /* MerchantDetailEvaluateTableViewCell.xib in Resources */,
@@ -3005,11 +3048,13 @@
 				94DC87F721948BAA00C17230 /* Manager.m in Sources */,
 				7390B32F252582B50034F5C3 /* HomeVideoDetailVC.m in Sources */,
 				738335BE25306AAD006721D5 /* MessageOrderTableViewCell.m in Sources */,
+				738426762535EC2E00CE052D /* MineInviteFriendVC.m in Sources */,
 				738AD43E252DE27900806513 /* MerchantOrderVC.m in Sources */,
 				735B91C92466A47B00CEB6FA /* AFSecurityPolicy.m in Sources */,
 				73CACFA125245C94001F90CF /* HomeGraphicCommentHeader.m in Sources */,
 				735B91C32466A47B00CEB6FA /* AFImageDownloader.m in Sources */,
 				7310BB6E2453DC8800CB2176 /* LZImageBrowserMainView.m in Sources */,
+				7384266B2535E82600CE052D /* MineDraftsVC.m in Sources */,
 				73FFFB912534934C006EEE5F /* MineWithdrawDetailVC.m in Sources */,
 				730AB0EC236012B5006CD919 /* PaletteSwatch.m in Sources */,
 				737E75812531A2200035DD29 /* MineOrderUseVC.m in Sources */,
@@ -3120,6 +3165,7 @@
 				731B90D522FA7D0A001C01E6 /* AreaSelectTableViewCell.m in Sources */,
 				73076974230687F90031B7DC /* YCMenuView.m in Sources */,
 				942AC4C720F0C861009D4263 /* BaseNavVC.m in Sources */,
+				738426702535E8F300CE052D /* MineDraftsTableViewCell.m in Sources */,
 				73CACF5325236685001F90CF /* HomePageCollectionViewCell.m in Sources */,
 				73076961230554A30031B7DC /* NSBundle+Language.m in Sources */,
 				73CACF7325241E25001F90CF /* HomeFindFooterReusableView.m in Sources */,

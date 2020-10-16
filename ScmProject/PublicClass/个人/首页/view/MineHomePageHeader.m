@@ -17,6 +17,10 @@
 #import "MineCollectionVC.h"
 //钱包
 #import "MineWalletVC.h"
+//草稿箱
+#import "MineDraftsVC.h"
+//邀请好友
+#import "MineInviteFriendVC.h"
 
 @interface MineHomePageHeader ()<UICollectionViewDataSource,UICollectionViewDelegate>
 
@@ -97,6 +101,12 @@
     }else if (indexPath.item == 3){
         MineWalletVC *wallet = [[MineWalletVC alloc] init];
         [self.navigation pushViewController:wallet animated:YES];
+    }else if (indexPath.item == 4){
+        MineDraftsVC *draft = [[MineDraftsVC alloc] init];
+        [self.navigation pushViewController:draft animated:YES];
+    }else if (indexPath.item == 5){
+        MineInviteFriendVC *friendVC = [[MineInviteFriendVC alloc] init];
+        [self.navigation pushViewController:friendVC animated:YES];
     }
 }
 
