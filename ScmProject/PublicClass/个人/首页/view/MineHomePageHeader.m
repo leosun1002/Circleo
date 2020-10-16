@@ -21,6 +21,8 @@
 #import "MineDraftsVC.h"
 //邀请好友
 #import "MineInviteFriendVC.h"
+//设置
+#import "MineSettingVC.h"
 
 @interface MineHomePageHeader ()<UICollectionViewDataSource,UICollectionViewDelegate>
 
@@ -64,6 +66,7 @@
     maskLayer.frame = CGRectMake(0, 0, ksrcwidth, heigth);
     maskLayer.path = path.CGPath;
     self.topView.layer.mask = maskLayer;
+
 }
 
 -(void)addCollect{
@@ -74,6 +77,11 @@
 
     self.collectView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
     [self.collectView registerNib:[UINib nibWithNibName:@"MineHomeHeaderCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"MineHomeHeaderCollectionViewCell"];
+}
+
+- (IBAction)settingClick:(UIButton *)sender {
+    MineSettingVC *setting = [[MineSettingVC alloc] init];
+    [self.navigation pushViewController:setting animated:YES];
 }
 
 #pragma -mark UICollectionViewDelegate

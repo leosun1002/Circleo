@@ -115,6 +115,7 @@
     CGFloat percent = scrollView.contentOffset.y/thresholdDistance;
     percent = MAX(0, MIN(1, percent));
     self.topBgView.alpha = percent;
+    self.topView.hidden = percent > 0.01?NO:YES;
     self.tipLabel.alpha = percent;
 }
 

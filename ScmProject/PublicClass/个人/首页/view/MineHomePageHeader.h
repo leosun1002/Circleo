@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MineHomePageHeader : UIView
 
 @property(nonatomic,strong)UINavigationController *navigation;
+
 @end
 
 NS_ASSUME_NONNULL_END

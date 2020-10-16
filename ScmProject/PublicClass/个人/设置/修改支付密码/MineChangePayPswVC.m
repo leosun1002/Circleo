@@ -1,18 +1,18 @@
 //
-//  MineWalletDetailVC.m
+//  MineChangePayPswVC.m
 //  ScmProject
 //
-//  Created by leosun on 2020/10/11.
+//  Created by leosun on 2020/10/16.
 //  Copyright © 2020 session. All rights reserved.
 //
 
-#import "MineWalletDetailVC.h"
+#import "MineChangePayPswVC.h"
 #import "SGPageTitleView.h"
 #import "SGPageTitleViewConfigure.h"
 #import "SGPageContentScrollView.h"
-#import "MineWalletDetailChildVC.h"
+#import "MineChangePayPswChildVC.h"
 
-@interface MineWalletDetailVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate>
+@interface MineChangePayPswVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate>
 
 @property(nonatomic,weak)SGPageContentScrollView *mPageContentScrollView;
 @property(nonatomic,weak)SGPageTitleView *mPageTitleView;
@@ -21,10 +21,9 @@
 @property(nonatomic,strong)NSMutableArray *vcs;
 @property(nonatomic,assign)NSInteger selectedPage;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
-
 @end
 
-@implementation MineWalletDetailVC
+@implementation MineChangePayPswVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -55,7 +54,7 @@
     
     //顶部Title数据源
     SGPageTitleView *pageTitleView = [SGPageTitleView pageTitleViewWithFrame:CGRectMake(0, navBarHeight , ksrcwidth, 50) delegate:self titleNames:self.titles configure:configure];
-    pageTitleView.backgroundColor = [UIColor whiteColor];
+    pageTitleView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
     _mPageTitleView = pageTitleView;
     pageTitleView.selectedIndex = self.selectedPage;
     [self.view addSubview:pageTitleView];
@@ -75,8 +74,7 @@
 
 -(void)loadVCs{
     for (int i = 0; i<self.titles.count; i++) {
-        MineWalletDetailChildVC *childVC = [[MineWalletDetailChildVC alloc] init];
-        childVC.navigation = self.navigationController;
+        MineChangePayPswChildVC *childVC = [[MineChangePayPswChildVC alloc] init];
         [self.vcs addObject:childVC];
     }
 }
@@ -115,7 +113,7 @@
 
 -(NSArray *)titles{
     if (!_titles) {
-        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"全部", nil),NSLocalizedString(@"收入", nil),NSLocalizedString(@"支出", nil), nil];
+        _titles = [NSArray arrayWithObjects:NSLocalizedString(@"手机", nil),NSLocalizedString(@"邮箱", nil), nil];
     }
     return _titles;
 }
