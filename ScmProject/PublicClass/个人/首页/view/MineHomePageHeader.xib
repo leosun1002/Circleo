@@ -77,6 +77,9 @@
                                 <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="13"/>
                                 <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                             </userDefinedRuntimeAttributes>
+                            <connections>
+                                <action selector="editInfoClick:" destination="iN0-l3-epB" eventType="touchUpInside" id="g94-nr-SmC"/>
+                            </connections>
                         </button>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="编辑资料" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9aA-MC-GsE">
                             <rect key="frame" x="293" y="36" width="49.5" height="14.5"/>
@@ -202,15 +205,25 @@
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qkh-Ro-aG4">
+                                            <rect key="frame" x="1" y="1" width="96.5" height="58"/>
+                                            <connections>
+                                                <action selector="fansClick:" destination="iN0-l3-epB" eventType="touchUpInside" id="6Ro-CM-mvD"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstItem="w1n-Wf-ch2" firstAttribute="top" secondItem="eyv-lF-jXs" secondAttribute="top" constant="15" id="JB9-qy-Hu4"/>
+                                        <constraint firstItem="qkh-Ro-aG4" firstAttribute="leading" secondItem="eyv-lF-jXs" secondAttribute="leading" constant="1" id="Mh7-Xt-sfp"/>
                                         <constraint firstAttribute="trailing" secondItem="w1n-Wf-ch2" secondAttribute="trailing" constant="1" id="Rbp-TZ-Cea"/>
+                                        <constraint firstAttribute="bottom" secondItem="qkh-Ro-aG4" secondAttribute="bottom" constant="1" id="Sn1-24-qUx"/>
                                         <constraint firstItem="w1n-Wf-ch2" firstAttribute="leading" secondItem="eyv-lF-jXs" secondAttribute="leading" constant="1" id="Wmv-Po-wxs"/>
                                         <constraint firstItem="PIu-yN-cVc" firstAttribute="leading" secondItem="eyv-lF-jXs" secondAttribute="leading" constant="1" id="YS8-dC-L4j"/>
+                                        <constraint firstAttribute="trailing" secondItem="qkh-Ro-aG4" secondAttribute="trailing" constant="1" id="bSu-lb-gRi"/>
                                         <constraint firstItem="PIu-yN-cVc" firstAttribute="top" secondItem="w1n-Wf-ch2" secondAttribute="bottom" constant="7" id="phf-fe-6hJ"/>
                                         <constraint firstAttribute="trailing" secondItem="PIu-yN-cVc" secondAttribute="trailing" constant="1" id="sP2-HM-eiv"/>
+                                        <constraint firstItem="qkh-Ro-aG4" firstAttribute="top" secondItem="eyv-lF-jXs" secondAttribute="top" constant="1" id="u7k-n6-Qu6"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MZe-3e-g1k">
@@ -234,12 +247,22 @@
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Aks-WG-tah">
+                                            <rect key="frame" x="1" y="1" width="96.5" height="58"/>
+                                            <connections>
+                                                <action selector="fansClick:" destination="iN0-l3-epB" eventType="touchUpInside" id="9E7-aH-hRF"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstItem="c6g-oR-3G2" firstAttribute="top" secondItem="MZe-3e-g1k" secondAttribute="top" constant="15" id="4OP-Qu-Dnc"/>
                                         <constraint firstAttribute="trailing" secondItem="c6g-oR-3G2" secondAttribute="trailing" constant="1" id="DcZ-cn-O52"/>
+                                        <constraint firstItem="Aks-WG-tah" firstAttribute="top" secondItem="MZe-3e-g1k" secondAttribute="top" constant="1" id="E9y-yc-wMi"/>
+                                        <constraint firstItem="Aks-WG-tah" firstAttribute="leading" secondItem="MZe-3e-g1k" secondAttribute="leading" constant="1" id="Rpt-fS-FHl"/>
+                                        <constraint firstAttribute="trailing" secondItem="Aks-WG-tah" secondAttribute="trailing" constant="1" id="bm0-2v-ezC"/>
                                         <constraint firstAttribute="trailing" secondItem="VtZ-u1-Gte" secondAttribute="trailing" constant="1" id="dnb-bd-2S3"/>
+                                        <constraint firstAttribute="bottom" secondItem="Aks-WG-tah" secondAttribute="bottom" constant="1" id="kLG-vm-hvO"/>
                                         <constraint firstItem="VtZ-u1-Gte" firstAttribute="top" secondItem="c6g-oR-3G2" secondAttribute="bottom" constant="7" id="moJ-Ie-blf"/>
                                         <constraint firstItem="c6g-oR-3G2" firstAttribute="leading" secondItem="MZe-3e-g1k" secondAttribute="leading" constant="1" id="nPd-zV-sXH"/>
                                         <constraint firstItem="VtZ-u1-Gte" firstAttribute="leading" secondItem="MZe-3e-g1k" secondAttribute="leading" constant="1" id="qjV-x6-6sv"/>
@@ -266,14 +289,24 @@
                                             <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <nil key="highlightedColor"/>
                                         </label>
+                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sME-sP-X7h">
+                                            <rect key="frame" x="1" y="1" width="88.5" height="58"/>
+                                            <connections>
+                                                <action selector="fansClick:" destination="iN0-l3-epB" eventType="touchUpInside" id="2Zk-nu-oAI"/>
+                                            </connections>
+                                        </button>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstItem="Ul6-jM-VeB" firstAttribute="top" secondItem="cFp-oa-7mH" secondAttribute="bottom" constant="7" id="2H2-Nc-hOK"/>
+                                        <constraint firstItem="sME-sP-X7h" firstAttribute="top" secondItem="GJr-W2-VuH" secondAttribute="top" constant="1" id="3fj-Rd-daq"/>
                                         <constraint firstItem="Ul6-jM-VeB" firstAttribute="leading" secondItem="GJr-W2-VuH" secondAttribute="leading" constant="1" id="8Qm-oj-Qrp"/>
                                         <constraint firstAttribute="trailing" secondItem="cFp-oa-7mH" secondAttribute="trailing" constant="1" id="Loq-0K-FXd"/>
+                                        <constraint firstAttribute="trailing" secondItem="sME-sP-X7h" secondAttribute="trailing" constant="1" id="PSG-hD-go1"/>
                                         <constraint firstAttribute="trailing" secondItem="Ul6-jM-VeB" secondAttribute="trailing" constant="1" id="Z2s-dk-jMe"/>
+                                        <constraint firstAttribute="bottom" secondItem="sME-sP-X7h" secondAttribute="bottom" constant="1" id="a8Y-ST-LWQ"/>
                                         <constraint firstItem="cFp-oa-7mH" firstAttribute="top" secondItem="GJr-W2-VuH" secondAttribute="top" constant="15" id="eCf-Nd-48h"/>
+                                        <constraint firstItem="sME-sP-X7h" firstAttribute="leading" secondItem="GJr-W2-VuH" secondAttribute="leading" constant="1" id="kEg-Oc-fXQ"/>
                                         <constraint firstItem="cFp-oa-7mH" firstAttribute="leading" secondItem="GJr-W2-VuH" secondAttribute="leading" constant="1" id="ubo-eS-Mex"/>
                                     </constraints>
                                 </view>

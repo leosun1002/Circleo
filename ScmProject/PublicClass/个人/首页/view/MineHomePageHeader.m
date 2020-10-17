@@ -23,6 +23,9 @@
 #import "MineInviteFriendVC.h"
 //设置
 #import "MineSettingVC.h"
+#import "MineChangeBackImageVC.h"
+#import "FansFollowListVC.h"
+#import "FillInformationVC.h"
 
 @interface MineHomePageHeader ()<UICollectionViewDataSource,UICollectionViewDelegate>
 
@@ -57,6 +60,14 @@
     }
     self.editBtn.layer.borderColor = [UIColor colorWithRGBHex:@"#FFFFFF"].CGColor;
     self.editBtn.layer.borderWidth = [UIScreen mainScreen].scale * 1;
+    
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        MineChangeBackImageVC *changeImage = [[MineChangeBackImageVC alloc] init];
+        [weakself.navigation pushViewController:changeImage animated:YES];
+    }];
+    [self.topView addGestureRecognizer:tap];
 }
 
 -(void)addBeizierPath{
@@ -82,6 +93,16 @@
 - (IBAction)settingClick:(UIButton *)sender {
     MineSettingVC *setting = [[MineSettingVC alloc] init];
     [self.navigation pushViewController:setting animated:YES];
+}
+
+- (IBAction)fansClick:(id)sender {
+    FansFollowListVC *fans = [[FansFollowListVC alloc] init];
+    [self.navigation pushViewController:fans animated:YES];
+}
+
+- (IBAction)editInfoClick:(id)sender {
+    FillInformationVC *fillInfo = [[FillInformationVC alloc] init];
+    [self.navigation pushViewController:fillInfo animated:YES];
 }
 
 #pragma -mark UICollectionViewDelegate

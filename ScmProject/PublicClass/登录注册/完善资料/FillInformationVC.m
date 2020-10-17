@@ -9,6 +9,9 @@
 #import "FillInformationVC.h"
 #import <BRPickerView.h>
 #import "ZWTagListView.h"
+#import "MineChangeNickNameVC.h"
+#import "MineChangeIDVC.h"
+#import "MineChangeIntroVC.h"
 
 @interface FillInformationVC ()<UITextFieldDelegate>
 
@@ -21,6 +24,10 @@
 @property (assign, nonatomic) NSInteger generIndex;
 @property (weak, nonatomic) IBOutlet UIView *tagBgView;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *tagHeight;
+@property (weak, nonatomic) IBOutlet UITextField *nickText;
+@property (weak, nonatomic) IBOutlet UITextField *idText;
+@property (weak, nonatomic) IBOutlet UITextField *emailText;
+@property (weak, nonatomic) IBOutlet UITextField *introText;
 
 @property(nonatomic,strong)ZWTagListView *tagView;
 @end
@@ -77,6 +84,18 @@
         };
         [stringPickerView show];
 
+        return NO;
+    }else if (textField == self.nickText || textField == self.emailText){
+        MineChangeNickNameVC *changeNick = [[MineChangeNickNameVC alloc] init];
+        [self.navigationController pushViewController:changeNick animated:YES];
+        return NO;
+    }else if (textField == self.idText){
+        MineChangeIDVC *changeId = [[MineChangeIDVC alloc] init];
+        [self.navigationController pushViewController:changeId animated:YES];
+        return NO;
+    }else if (textField == self.introText){
+        MineChangeIntroVC *intro = [[MineChangeIntroVC alloc] init];
+        [self.navigationController pushViewController:intro animated:YES];
         return NO;
     }
     return YES;
