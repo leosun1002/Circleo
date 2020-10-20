@@ -65,6 +65,10 @@
 		731B90D722FA7D0A001C01E6 /* sortedNameCH.plist in Resources */ = {isa = PBXBuildFile; fileRef = 731B90D222FA7D0A001C01E6 /* sortedNameCH.plist */; };
 		731B90D822FA7D0A001C01E6 /* XWCountryCodeController.m in Sources */ = {isa = PBXBuildFile; fileRef = 731B90D322FA7D0A001C01E6 /* XWCountryCodeController.m */; };
 		732BB78B232267820069F733 /* NSTimer+Block.m in Sources */ = {isa = PBXBuildFile; fileRef = 732BB78A232267820069F733 /* NSTimer+Block.m */; };
+		732CAD24253DD32500971AC4 /* PublishHomeVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 732CAD22253DD32500971AC4 /* PublishHomeVC.m */; };
+		732CAD25253DD32500971AC4 /* PublishHomeVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 732CAD23253DD32500971AC4 /* PublishHomeVC.xib */; };
+		732CAD2A253DDA8700971AC4 /* PublishHomeCollectionViewCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 732CAD28253DDA8700971AC4 /* PublishHomeCollectionViewCell.m */; };
+		732CAD2B253DDA8700971AC4 /* PublishHomeCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 732CAD29253DDA8700971AC4 /* PublishHomeCollectionViewCell.xib */; };
 		735B91B92466A47B00CEB6FA /* LICENSE in Resources */ = {isa = PBXBuildFile; fileRef = 735B91932466A47B00CEB6FA /* LICENSE */; };
 		735B91BA2466A47B00CEB6FA /* README.md in Resources */ = {isa = PBXBuildFile; fileRef = 735B91942466A47B00CEB6FA /* README.md */; };
 		735B91BB2466A47B00CEB6FA /* UIProgressView+AFNetworking.m in Sources */ = {isa = PBXBuildFile; fileRef = 735B91962466A47B00CEB6FA /* UIProgressView+AFNetworking.m */; };
@@ -502,6 +506,12 @@
 		731B90D322FA7D0A001C01E6 /* XWCountryCodeController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = XWCountryCodeController.m; sourceTree = "<group>"; };
 		732BB789232267820069F733 /* NSTimer+Block.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSTimer+Block.h"; sourceTree = "<group>"; };
 		732BB78A232267820069F733 /* NSTimer+Block.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSTimer+Block.m"; sourceTree = "<group>"; };
+		732CAD21253DD32500971AC4 /* PublishHomeVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PublishHomeVC.h; sourceTree = "<group>"; };
+		732CAD22253DD32500971AC4 /* PublishHomeVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PublishHomeVC.m; sourceTree = "<group>"; };
+		732CAD23253DD32500971AC4 /* PublishHomeVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PublishHomeVC.xib; sourceTree = "<group>"; };
+		732CAD27253DDA8700971AC4 /* PublishHomeCollectionViewCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PublishHomeCollectionViewCell.h; sourceTree = "<group>"; };
+		732CAD28253DDA8700971AC4 /* PublishHomeCollectionViewCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = PublishHomeCollectionViewCell.m; sourceTree = "<group>"; };
+		732CAD29253DDA8700971AC4 /* PublishHomeCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PublishHomeCollectionViewCell.xib; sourceTree = "<group>"; };
 		7355A6A4246AAB8E00E11E5B /* ScmProject.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScmProject.entitlements; sourceTree = "<group>"; };
 		735B91932466A47B00CEB6FA /* LICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE; sourceTree = "<group>"; };
 		735B91942466A47B00CEB6FA /* README.md */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
@@ -1294,6 +1304,27 @@
 				732BB78A232267820069F733 /* NSTimer+Block.m */,
 			);
 			path = NSTimer;
+			sourceTree = "<group>";
+		};
+		732CAD20253DD2FF00971AC4 /* 发布 */ = {
+			isa = PBXGroup;
+			children = (
+				732CAD26253DDA6E00971AC4 /* view */,
+				732CAD21253DD32500971AC4 /* PublishHomeVC.h */,
+				732CAD22253DD32500971AC4 /* PublishHomeVC.m */,
+				732CAD23253DD32500971AC4 /* PublishHomeVC.xib */,
+			);
+			path = "发布";
+			sourceTree = "<group>";
+		};
+		732CAD26253DDA6E00971AC4 /* view */ = {
+			isa = PBXGroup;
+			children = (
+				732CAD27253DDA8700971AC4 /* PublishHomeCollectionViewCell.h */,
+				732CAD28253DDA8700971AC4 /* PublishHomeCollectionViewCell.m */,
+				732CAD29253DDA8700971AC4 /* PublishHomeCollectionViewCell.xib */,
+			);
+			path = view;
 			sourceTree = "<group>";
 		};
 		735B91922466A47B00CEB6FA /* AFNetworking */ = {
@@ -2641,6 +2672,7 @@
 		942AC4E020F30C24009D4263 /* PublicClass */ = {
 			isa = PBXGroup;
 			children = (
+				732CAD20253DD2FF00971AC4 /* 发布 */,
 				737E754525314F850035DD29 /* 个人 */,
 				737A791925303CCA006DA787 /* 消息 */,
 				7390B36925284CA50034F5C3 /* 商家 */,
@@ -2994,6 +3026,7 @@
 				730DEB5B24BD7F3300E72564 /* DINPro-Medium.ttf in Resources */,
 				73A4CE3C2523155100903365 /* BindAccountChildVC.xib in Resources */,
 				737A792B25304698006DA787 /* MessageFansVC.xib in Resources */,
+				732CAD25253DD32500971AC4 /* PublishHomeVC.xib in Resources */,
 				737A793025304787006DA787 /* MessageFansTableViewCell.xib in Resources */,
 				731B90D722FA7D0A001C01E6 /* sortedNameCH.plist in Resources */,
 				7381139B25320C3300156BEF /* MineMyAppointChildVC.xib in Resources */,
@@ -3075,6 +3108,7 @@
 				7381137B2531AC3300156BEF /* MineOrderEvaluateDetailVC.xib in Resources */,
 				7387E7F725299F66009BDF13 /* MerchantDetailHeader.xib in Resources */,
 				73CACF5E25236BA4001F90CF /* FillInformationVC.xib in Resources */,
+				732CAD2B253DDA8700971AC4 /* PublishHomeCollectionViewCell.xib in Resources */,
 				738AD41D252AE9EB00806513 /* MerchantSpeVC.xib in Resources */,
 				73CACF6A25241BB8001F90CF /* HomeFindCollectionViewCell.xib in Resources */,
 				7308B3B823161ABC00B82DB6 /* EmptyView.xib in Resources */,
@@ -3199,6 +3233,7 @@
 				7390B35C2527129F0034F5C3 /* FansFollowTableViewCell.m in Sources */,
 				738113A025320D9B00156BEF /* MineMyAppointTableViewCell.m in Sources */,
 				7387E7CC25286BEA009BDF13 /* HomeLocationVC.m in Sources */,
+				732CAD24253DD32500971AC4 /* PublishHomeVC.m in Sources */,
 				73CACF6925241BB8001F90CF /* HomeFindCollectionViewCell.m in Sources */,
 				7387E8022529B15E009BDF13 /* MerchantBuyLeftTableViewCell.m in Sources */,
 				735B91C62466A47B00CEB6FA /* AFURLSessionManager.m in Sources */,
@@ -3335,6 +3370,7 @@
 				73FFFB9D25349EC4006EEE5F /* MineAddBankCardVC.m in Sources */,
 				737E7569253161C30035DD29 /* MineRefundDetailVC.m in Sources */,
 				737A790B25300A43006DA787 /* MerchantAppointView.m in Sources */,
+				732CAD2A253DDA8700971AC4 /* PublishHomeCollectionViewCell.m in Sources */,
 				7390B357252711FB0034F5C3 /* FansFollowListVC.m in Sources */,
 				738113BC2532CDE400156BEF /* MineCollectPostVC.m in Sources */,
 				735B91C42466A47B00CEB6FA /* AFURLResponseSerialization.m in Sources */,

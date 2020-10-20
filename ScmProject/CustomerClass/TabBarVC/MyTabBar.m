@@ -96,8 +96,7 @@
 
 
 - (void)centerTabBarBtnEvent {
-    
-    NSLog(@"click event");
+    !self.block?:self.block();
 }
 
 

@@ -17,6 +17,7 @@
 #import "MineHomePageVC.h"
 
 #import "MyTabBar.h"
+#import "PublishHomeVC.h"
 
 @interface CTabBarVC ()
 
@@ -27,8 +28,16 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
-    
-    [self setValue:[MyTabBar new] forKey:@"tabBar"];
+    MyTabBar *tabbar = [MyTabBar new];
+    WeakSelf(self);
+    tabbar.block = ^{
+        PublishHomeVC *publish = [[PublishHomeVC alloc] init];
+        publish.modalPresentationStyle = UIModalPresentationFullScreen;
+        [weakself presentViewController:publish animated:YES completion:^{
+            
+        }];
+    };
+    [self setValue:tabbar forKey:@"tabBar"];
 
 
     //去掉线
