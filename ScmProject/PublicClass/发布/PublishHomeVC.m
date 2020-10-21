@@ -18,6 +18,7 @@
 @property (weak, nonatomic) IBOutlet UICollectionView *collectView;
 @property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *collectHeight;
+@property (weak, nonatomic) IBOutlet UIView *bottomView;
 
 @end
 
@@ -27,6 +28,7 @@
     [super viewDidLoad];
     [self prepareUi];
     [self addCollect];
+    [self addBeizierPath];
 }
 
 - (IBAction)closeClick:(id)sender {
@@ -55,6 +57,14 @@
     
     [self.collectView registerNib:[UINib nibWithNibName:@"PublishHomeCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"PublishHomeCollectionViewCell"];
     self.collectHeight.constant = width * 2 + 10;
+}
+
+-(void)addBeizierPath{
+    UIBezierPath *path = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, ksrcwidth, 70) byRoundingCorners:UIRectCornerTopLeft|UIRectCornerTopRight cornerRadii:CGSizeMake(20, 20)];
+    CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
+    maskLayer.frame = CGRectMake(0, 0, ksrcwidth, 70);
+    maskLayer.path = path.CGPath;
+    self.bottomView.layer.mask = maskLayer;
 }
 
 #pragma -mark UITextViewDelegate

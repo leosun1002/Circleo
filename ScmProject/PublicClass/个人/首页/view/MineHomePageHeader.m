@@ -77,7 +77,6 @@
     maskLayer.frame = CGRectMake(0, 0, ksrcwidth, heigth);
     maskLayer.path = path.CGPath;
     self.topView.layer.mask = maskLayer;
-
 }
 
 -(void)addCollect{
