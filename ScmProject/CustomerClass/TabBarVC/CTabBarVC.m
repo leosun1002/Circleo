@@ -32,8 +32,9 @@
     WeakSelf(self);
     tabbar.block = ^{
         PublishHomeVC *publish = [[PublishHomeVC alloc] init];
-        publish.modalPresentationStyle = UIModalPresentationFullScreen;
-        [weakself presentViewController:publish animated:YES completion:^{
+        UINavigationController *navigation = [[UINavigationController alloc] initWithRootViewController:publish];
+        navigation.modalPresentationStyle = UIModalPresentationFullScreen;
+        [weakself presentViewController:navigation animated:YES completion:^{
             
         }];
     };

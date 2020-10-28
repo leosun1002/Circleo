@@ -8,6 +8,8 @@
 
 #import "PublishHomeVC.h"
 #import "PublishHomeCollectionViewCell.h"
+#import "PublishAddTopicVC.h"
+#import "PublishLocationVC.h"
 
 @interface PublishHomeVC ()<UITextViewDelegate,UICollectionViewDelegate,UICollectionViewDataSource>
 
@@ -19,6 +21,7 @@
 @property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *collectHeight;
 @property (weak, nonatomic) IBOutlet UIView *bottomView;
+@property (weak, nonatomic) IBOutlet UIView *locationView;
 
 @end
 
@@ -46,6 +49,14 @@
          }];
     self.titleText.attributedPlaceholder = attrString;
     self.placeLabel.textColor = [UIColor colorWithRGBHex:@"#9A9A9A"];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *locaTap = [[UITapGestureRecognizer alloc] init];
+    [[locaTap rac_gestureSignal] subscribeNext:^(id x) {
+        PublishLocationVC *location = [[PublishLocationVC alloc] init];
+        [weakself.navigationController pushViewController:location animated:YES];
+    }];
+    [self.locationView addGestureRecognizer:locaTap];
 }
 
 -(void)addCollect{
@@ -65,6 +76,11 @@
     maskLayer.frame = CGRectMake(0, 0, ksrcwidth, 70);
     maskLayer.path = path.CGPath;
     self.bottomView.layer.mask = maskLayer;
+}
+
+- (IBAction)addTopicClick:(id)sender {
+    PublishAddTopicVC *addTopic = [[PublishAddTopicVC alloc] init];
+    [self.navigationController pushViewController:addTopic animated:YES];
 }
 
 #pragma -mark UITextViewDelegate

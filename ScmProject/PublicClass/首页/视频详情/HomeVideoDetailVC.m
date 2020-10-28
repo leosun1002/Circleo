@@ -7,40 +7,165 @@
 //
 
 #import "HomeVideoDetailVC.h"
-#import "GKDYVideoPlayer.h"
+#import <AliyunPlayer/AliyunPlayer.h>
+#import "HomeVideoDetailView.h"
 
-@interface HomeVideoDetailVC ()<GKDYVideoPlayerDelegate>
+@interface HomeVideoDetailVC ()<AVPDelegate,HomeVideoDetailViewDelegate>
 
-@property (nonatomic, strong) GKDYVideoPlayer           *player; //播放器
+@property(nonatomic,strong)AliPlayer *player;
+@property(nonatomic,strong)HomeVideoDetailView *homeView;
+//是否暂停
+@property(nonatomic,assign)BOOL isPausing;
 
 @end
 
 @implementation HomeVideoDetailVC
+
+-(void)dealloc{
+    [self.player destroy];
+    self.player = nil;
+}
                                                                                                  
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self prepareUi];
+    [self prepareData];
+    [self.view addSubview:self.homeView];
 }
 
 -(void)prepareUi{
-    [self.player playVideoWithView:self.view url:@"http://tb-video.bdstatic.com/tieba-smallvideo-transcode/3516124_7c1eb724ef256b8d4e4eb30d34e16f4c_1.mp4"];
+    self.view.backgroundColor = [UIColor blackColor];
+    self.player = [[AliPlayer alloc] init];
+    self.player.playerView = self.view;
+    self.player.delegate = self;
+    self.player.autoPlay = YES;
+    self.player.loop = YES;
+    //设置画面的镜像模式：水平镜像，垂直镜像，无镜像。
+    self.player.mirrorMode = AVP_MIRRORMODE_NONE;
+    //设置画面旋转模式：旋转0度，90度，180度，270度
+    self.player.rotateMode = AVP_ROTATE_0;
+    //设置画面缩放模式：宽高比填充，宽高比适应，拉伸填充
+    self.player.scalingMode = AVP_SCALINGMODE_SCALETOFILL;
 }
 
-//播放器
-- (GKDYVideoPlayer *)player {
-    if (!_player) {
-        _player = [GKDYVideoPlayer new];
-        _player.delegate = self;
+-(void)prepareData{
+    //创建VidSts
+    AVPUrlSource *source = [[AVPUrlSource alloc] init];
+    source.playerUrl = [NSURL URLWithString:@"http://tb-video.bdstatic.com/tieba-smallvideo-transcode/2148489_1c9d8082c70caa732fc0648a21be383c_1.mp4"];
+     //设置播放源
+    [self.player setUrlSource:source];
+     //准备播放
+    [self.player prepare];
+    
+//    // 开始播放。
+//    [self.player start];
+}
+
+/**
+ @brief 错误代理回调
+ @param player 播放器player指针
+ @param errorModel 播放器错误描述，参考AliVcPlayerErrorModel
+ */
+- (void)onError:(AliPlayer*)player errorModel:(AVPErrorModel *)errorModel {
+    //提示错误，及stop播放
+}
+
+/**
+ @brief 播放器事件回调
+ @param player 播放器player指针
+ @param eventType 播放器事件类型，@see AVPEventType
+ */
+-(void)onPlayerEvent:(AliPlayer*)player eventType:(AVPEventType)eventType {
+    switch (eventType) {
+        case AVPEventPrepareDone: {
+            // 准备完成
+        }
+            break;
+        case AVPEventAutoPlayStart:
+            // 自动播放开始事件
+            break;
+        case AVPEventFirstRenderedStart:
+            // 首帧显示
+            break;
+        case AVPEventCompletion:
+            // 播放完成
+            break;
+        case AVPEventLoadingStart:
+            // 缓冲开始
+            break;
+        case AVPEventLoadingEnd:
+            // 缓冲完成
+            break;
+        case AVPEventSeekEnd:
+            // 跳转完成
+            break;
+        case AVPEventLoopingStart:
+            // 循环播放开始
+            break;
+        default:
+            break;
     }
-    return _player;
-}
-- (void)player:(nonnull GKDYVideoPlayer *)player currentTime:(float)currentTime totalTime:(float)totalTime progress:(float)progress {
 }
 
-- (void)player:(nonnull GKDYVideoPlayer *)player statusChanged:(GKDYVideoPlayerStatus)status {
+/**
+ @brief 视频当前播放位置回调
+ @param player 播放器player指针
+ @param position 视频当前播放位置
+ */
+- (void)onCurrentPositionUpdate:(AliPlayer*)player position:(int64_t)position {
+    // 更新进度条
 }
 
+/**
+ @brief 视频缓存位置回调
+ @param player 播放器player指针
+ @param position 视频当前缓存位置
+ */
+- (void)onBufferedPositionUpdate:(AliPlayer*)player position:(int64_t)position {
+    // 更新缓冲进度
+}
 
+/**
+ @brief 获取track信息回调
+ @param player 播放器player指针
+ @param info track流信息数组 参考AVPTrackInfo
+ */
+- (void)onTrackReady:(AliPlayer*)player info:(NSArray<AVPTrackInfo*>*)info {
+    // 获取多码率信息
+}
 
+/**
+ @brief 获取截图回调
+ @param player 播放器player指针
+ @param image 图像
+ */
+- (void)onCaptureScreen:(AliPlayer *)player image:(UIImage *)image {
+    // 预览，保存截图
+}
 
+#pragma -mark HomeVideoDetailViewDelegate
+-(void)popBack{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)playOrPauseClick{
+    if (self.isPausing) {
+        [self.player start];
+        self.isPausing = NO;
+        self.homeView.pauseImgV.hidden = YES;
+    }else{
+        [self.player pause];
+        self.isPausing = YES;
+        self.homeView.pauseImgV.hidden = NO;
+    }
+}
+
+#pragma -mark getter
+-(HomeVideoDetailView *)homeView{
+    if (!_homeView) {
+        _homeView = [[HomeVideoDetailView alloc] init];
+        _homeView.delegate = self;
+    }
+    return _homeView;
+}
 @end
