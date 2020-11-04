@@ -56,21 +56,21 @@
         [_recordButton setBackgroundImage:[[UIImage nim_imageInKit:@"icon_input_text_bg"] resizableImageWithCapInsets:UIEdgeInsetsMake(15,80,15,80) resizingMode:UIImageResizingModeStretch] forState:UIControlStateNormal];
         _recordButton.exclusiveTouch = YES;
         [_recordButton sizeToFit];
-        
+       
         _inputTextBkgImage = [[UIImageView alloc] initWithFrame:CGRectZero];
-//        [_inputTextBkgImage setImage:[[UIImage nim_imageInKit:@"icon_input_text_bg"] resizableImageWithCapInsets:UIEdgeInsetsMake(15,80,15,80) resizingMode:UIImageResizingModeStretch]];
+        _inputTextBkgImage.layer.masksToBounds = YES;
+        _inputTextBkgImage.layer.cornerRadius = 8.f;
+        [_inputTextBkgImage setImage:[[self createImageWithColor:NIMKit_UIColorFromRGB(0xF6F7FB)] resizableImageWithCapInsets:UIEdgeInsetsMake(15,80,15,80) resizingMode:UIImageResizingModeStretch]];
         
         _inputTextView = [[NIMGrowingTextView alloc] initWithFrame:CGRectZero];
         _inputTextView.font = [UIFont systemFontOfSize:14.0f];
         _inputTextView.maxNumberOfLines = 4;
         _inputTextView.minNumberOfLines = 1;
         _inputTextView.textColor = [UIColor blackColor];
-        _inputTextView.backgroundColor = NIMKit_UIColorFromRGB(0xF6F7FB);;
+        _inputTextView.backgroundColor = [UIColor clearColor];
         _inputTextView.nim_size = [_inputTextView intrinsicContentSize];
         _inputTextView.textViewDelegate = self;
         _inputTextView.returnKeyType = UIReturnKeySend;
-        _inputTextView.layer.masksToBounds = YES;
-        _inputTextView.layer.cornerRadius = 4;
         
         _sep = [[UIView alloc] initWithFrame:CGRectZero];
         _sep.backgroundColor = [UIColor lightGrayColor];
@@ -253,6 +253,17 @@
     [self.emoticonBtn setImage:selected?[UIImage nim_imageInKit:@"icon_toolview_emotion_pressed"]:[UIImage nim_imageInKit:@"icon_toolview_keyboard_pressed"] forState:UIControlStateHighlighted];
 }
 
+- (UIImage*) createImageWithColor: (UIColor*) color{
+    CGRect rect=CGRectMake(0.0f, 0.0f, 1.0f, 1.0f);
+    UIGraphicsBeginImageContext(rect.size);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    CGContextSetFillColorWithColor(context, [color CGColor]);
+    CGContextFillRect(context, rect);
+    UIImage *theImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return theImage;
+}
+
 
 #pragma mark - NIMGrowingTextViewDelegate
 - (BOOL)shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)replacementText
@@ -365,5 +376,7 @@
         self.inputTextView.selectedRange = newSelectRange;
     }
 }
+
+
 
 @end
