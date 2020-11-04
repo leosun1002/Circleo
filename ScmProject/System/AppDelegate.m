@@ -64,6 +64,13 @@
     #else
     #endif
     
+    //初始化网易云信
+    [self setUpNimSDK];
+    #ifdef DEBUG
+       [[BLStopwatch sharedStopwatch] splitWithDescription:@"设置默认颜色和字体"];
+    #else
+    #endif
+    
     #ifdef DEBUG
     [[BLStopwatch sharedStopwatch] splitWithType:BLStopwatchSplitTypeContinuous description:@"didFinish完成花费时间打印"];
     #else

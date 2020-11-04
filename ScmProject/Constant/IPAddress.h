@@ -34,7 +34,7 @@
 //登录注册
 #define verifyCode @"register-verify-code" //注册发验证码
 #define userRegister @"register" //注册
-#define login @"login" //登录
+#define loginIn @"loginIn" //登录
 #define loginVerifyCode @"login-verfy-code" //注册发验证码
 #define forgetVerifyCode @"forget-verfy-code" //注册发验证码
 #define forgetNextStep @"forget-next-step" //注册发验证码

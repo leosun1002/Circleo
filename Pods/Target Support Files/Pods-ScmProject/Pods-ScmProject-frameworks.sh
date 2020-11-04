@@ -179,12 +179,14 @@ if [[ "$CONFIGURATION" == "Debug" ]]; then
   install_framework "${PODS_ROOT}/AliPlayerSDK_iOS/alivcffmpeg.framework"
   install_framework "${PODS_ROOT}/AliPlayerSDK_iOS/AlivcConan.framework"
   install_framework "${PODS_ROOT}/AliPlayerSDK_iOS/AliyunMediaDownloader.framework"
+  install_framework "${PODS_ROOT}/AliyunVideoSDKStd/AliyunVideoCore.framework"
 fi
 if [[ "$CONFIGURATION" == "Release" ]]; then
   install_framework "${PODS_ROOT}/AliPlayerSDK_iOS/AliyunPlayer.framework"
   install_framework "${PODS_ROOT}/AliPlayerSDK_iOS/alivcffmpeg.framework"
   install_framework "${PODS_ROOT}/AliPlayerSDK_iOS/AlivcConan.framework"
   install_framework "${PODS_ROOT}/AliPlayerSDK_iOS/AliyunMediaDownloader.framework"
+  install_framework "${PODS_ROOT}/AliyunVideoSDKStd/AliyunVideoCore.framework"
 fi
 if [ "${COCOAPODS_PARALLEL_CODE_SIGN}" == "true" ]; then
   wait

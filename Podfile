@@ -1,13 +1,14 @@
 platform :ios,'8.0'
 source 'https://github.com/CocoaPods/Specs.git'
 inhibit_all_warnings!
+#use_frameworks!
 target "ScmProject" do
 pod 'SDWebImage', '~> 4.4.1'
 #pod 'AFNetworking', '~> 3.2.0'
 pod 'Masonry', '~> 1.1.0'
 #pod 'HHRouter', '~> 0.1.9'
 pod 'MJRefresh', '~> 3.1.15.3'
-#pod 'YYModel', '~> 1.0.4'
+pod 'YYText'
 
 pod 'ReactiveCocoa', '~> 2.5'
 pod 'SDCycleScrollView','~> 1.65’       #轮播广告控件
@@ -23,9 +24,7 @@ pod 'MLeaksFinder'        #开发时打开
 pod 'JXCategoryView'
 pod 'JXPagingView/Pager'
 pod 'Bugly'
-#pod 'GreedAlipaySDK', '~> 15.2.0'
-#pod 'libWeChatSDK', '~> 1.7.5'
-#pod 'GreedAlipaySDK'
+
 pod 'WechatOpenSDK'
 pod 'AlipaySDK-iOS'
 pod 'TZImagePickerController'
@@ -36,12 +35,20 @@ pod 'UMCShare/UI'
 pod 'UMCShare/Social/ReducedWeChat'   #友盟分享到微信
 pod 'FLAnimatedImage'
 pod 'SDWebImage/GIF'
-pod 'OYCountDownManager'
 pod 'lottie-ios'
 pod 'BHBPopView'
 pod 'BRPickerView'
 
 pod 'AliPlayerSDK_iOS'
+
+pod 'NIMKit'
+
+#视频剪辑
+pod 'AliyunVideoSDKStd', '3.16.2'
+#pod 'QuCore-ThirdParty', '3.15.0'
+#pod 'AlivcConan', '1.0.3'
+pod 'VODUpload'
+pod 'AliyunOSSiOS'
 
 end        
 

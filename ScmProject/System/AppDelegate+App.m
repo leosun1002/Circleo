@@ -11,6 +11,7 @@
 #import <Bugly/Bugly.h>
 #import <AlipaySDK/AlipaySDK.h>
 #import "GDLocalizableController.h"
+#import <NIMSDK/NIMSDKConfig.h>
 
 @implementation AppDelegate (App)
 -(void)changeStatusBar{
@@ -113,5 +114,33 @@
     if ([AssectString(color) isEqualToString:@""]) {
         [Manager saveToken:@"0" key:JYArticleColor];
     }
+}
+
+-(void)setUpNimSDK{
+    //配置额外配置信息 （需要在注册 appkey 前完成
+    [[NIMSDKConfig sharedConfig] setShouldSyncUnreadCount:YES];
+    [[NIMSDKConfig sharedConfig] setMaxAutoLoginRetryTimes:10];
+    [[NIMSDKConfig sharedConfig] setShouldConsiderRevokedMessageUnreadCount:YES];
+    [[NIMSDKConfig sharedConfig] setEnabledHttpsForInfo:YES];
+    [[NIMSDKConfig sharedConfig] setEnabledHttpsForMessage:YES];
+    
+    //注册信息
+    [[NIMSDK sharedSDK] registerWithOption:[NIMSDKOption optionWithAppKey:NIMSDKKEY]];
+    
+    [self registerIn];
+}
+
+-(void)registerIn{
+//    NSDictionary *dict = @{@"username":@"s111",@"password":@"6a9961bb76128524112964c950e973c9",@"nickname":@"1111"};
+//    [WebServices postFormReqUrl:@"https://app.netease.im/api/createDemoUser" param:dict loadingTime:12.f callbackBlock:^(id result, NSInteger startCode, NSString *error) {
+//        NSLog(@"asd");
+//    }];
+    NSString *account = @"s1111111111111111111";
+    NSString *psw = @"fdd9afcfbb8e5361022720f2f4710436";
+    [[[NIMSDK sharedSDK] loginManager] login:account
+         token:psw
+    completion:^(NSError *error) {
+        NSLog(@"asd");
+    }];
 }
 @end

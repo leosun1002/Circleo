@@ -9,6 +9,8 @@
 #import "HomeVideoDetailVC.h"
 #import <AliyunPlayer/AliyunPlayer.h>
 #import "HomeVideoDetailView.h"
+#import "GKDYCommentView.h"
+#import "GKSlidePopupView.h"
 
 @interface HomeVideoDetailVC ()<AVPDelegate,HomeVideoDetailViewDelegate>
 
@@ -21,9 +23,15 @@
 
 @implementation HomeVideoDetailVC
 
--(void)dealloc{
+-(void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
     [self.player destroy];
     self.player = nil;
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self prepareData];
 }
                                                                                                  
 - (void)viewDidLoad {
@@ -35,17 +43,6 @@
 
 -(void)prepareUi{
     self.view.backgroundColor = [UIColor blackColor];
-    self.player = [[AliPlayer alloc] init];
-    self.player.playerView = self.view;
-    self.player.delegate = self;
-    self.player.autoPlay = YES;
-    self.player.loop = YES;
-    //设置画面的镜像模式：水平镜像，垂直镜像，无镜像。
-    self.player.mirrorMode = AVP_MIRRORMODE_NONE;
-    //设置画面旋转模式：旋转0度，90度，180度，270度
-    self.player.rotateMode = AVP_ROTATE_0;
-    //设置画面缩放模式：宽高比填充，宽高比适应，拉伸填充
-    self.player.scalingMode = AVP_SCALINGMODE_SCALETOFILL;
 }
 
 -(void)prepareData{
@@ -54,11 +51,7 @@
     source.playerUrl = [NSURL URLWithString:@"http://tb-video.bdstatic.com/tieba-smallvideo-transcode/2148489_1c9d8082c70caa732fc0648a21be383c_1.mp4"];
      //设置播放源
     [self.player setUrlSource:source];
-     //准备播放
     [self.player prepare];
-    
-//    // 开始播放。
-//    [self.player start];
 }
 
 /**
@@ -160,6 +153,16 @@
     }
 }
 
+-(void)commentsClick{
+    GKDYCommentView *commentView = [GKDYCommentView new];
+    commentView.frame = CGRectMake(0, 0, ksrcwidth, 470);
+    
+    GKSlidePopupView *popupView = [GKSlidePopupView popupViewWithFrame:[UIScreen mainScreen].bounds contentView:commentView];
+    [popupView showFrom:[UIApplication sharedApplication].keyWindow completion:^{
+        [commentView requestData];
+    }];
+}
+
 #pragma -mark getter
 -(HomeVideoDetailView *)homeView{
     if (!_homeView) {
@@ -167,5 +170,22 @@
         _homeView.delegate = self;
     }
     return _homeView;
+}
+
+-(AliPlayer *)player{
+    if (!_player) {
+        _player = [[AliPlayer alloc] init];
+        _player.delegate = self;
+        _player.autoPlay = YES;
+        _player.loop = YES;
+        _player.playerView = self.view;
+        //设置画面的镜像模式：水平镜像，垂直镜像，无镜像。
+        _player.mirrorMode = AVP_MIRRORMODE_NONE;
+        //设置画面旋转模式：旋转0度，90度，180度，270度
+        _player.rotateMode = AVP_ROTATE_0;
+        //设置画面缩放模式：宽高比填充，宽高比适应，拉伸填充
+        _player.scalingMode = AVP_SCALINGMODE_SCALETOFILL;
+    }
+    return _player;
 }
 @end

@@ -23,6 +23,9 @@
 
 #define signKey       @"jyky@ccmai.xin"
 
+#define NIMSDKKEY @"45c6af3c98409b18a84451215d0bdd6e"
+
+
 #define PlatformCode  @"10000"  // 10000 界一科技    印度 10001
 
 #define zfbPaySuccessful @"zfbPay"

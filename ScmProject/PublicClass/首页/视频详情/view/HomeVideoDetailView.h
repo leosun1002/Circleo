@@ -10,12 +10,11 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@class HomeVideoDetailView;
-
 @protocol HomeVideoDetailViewDelegate <NSObject>
 
 -(void)popBack;
 -(void)playOrPauseClick;
+-(void)commentsClick;
 
 @end
 

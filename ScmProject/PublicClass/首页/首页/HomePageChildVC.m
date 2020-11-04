@@ -31,7 +31,7 @@
     waterFallLayout.delegate = self;
     
     // 创建collectionView
-    UICollectionView * collectionView = [[UICollectionView alloc]initWithFrame:self.view.bounds collectionViewLayout:waterFallLayout];
+    UICollectionView * collectionView = [[UICollectionView alloc]initWithFrame:CGRectMake(0, 0, ksrcwidth, ksrcheight - navBarHeight - tabbarHeight - 45 - 53) collectionViewLayout:waterFallLayout];
     collectionView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
     collectionView.dataSource = self;
     collectionView.delegate = self;

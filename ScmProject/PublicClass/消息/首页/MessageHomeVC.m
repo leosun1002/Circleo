@@ -13,6 +13,7 @@
 #import "MessageCommentsVC.h"
 #import "MessageSystemVC.h"
 #import "MessageOrderVC.h"
+#import "MessageChatVC.h"
 
 @interface MessageHomeVC ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -121,6 +122,11 @@
     }else if (indexPath.row == 1){
         MessageOrderVC *order = [[MessageOrderVC alloc] init];
         [self.navigationController pushViewController:order animated:YES];
+    }else{
+        NSString *account = @"s2222222222222222222";
+        NIMSession *session = [NIMSession session:account type:(NIMSessionTypeP2P)];
+        MessageChatVC *chatVC = [[MessageChatVC alloc] initWithSession:session];
+        [self.navigationController pushViewController:chatVC animated:YES];
     }
 }
 
@@ -147,7 +153,6 @@
 
 //iOS11 后的新方法,,  可以设置image和title
 - (UISwipeActionsConfiguration *)tableView:(UITableView *)tableView trailingSwipeActionsConfigurationForRowAtIndexPath:(NSIndexPath *)indexPath  API_AVAILABLE(ios(11.0)){
-    WeakSelf(self);
     //删除
     UIContextualAction *deleteRowAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:@"   " handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
         completionHandler (YES);
