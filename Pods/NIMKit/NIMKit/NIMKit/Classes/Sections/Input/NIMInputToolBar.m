@@ -11,6 +11,7 @@
 #import "UIView+NIM.h"
 #import "UIImage+NIMKit.h"
 #import "NIMInputBarItemType.h"
+#import "NIMGlobalMacro.h"
 
 @interface NIMInputToolBar()<NIMGrowingTextViewDelegate>
 
@@ -57,17 +58,19 @@
         [_recordButton sizeToFit];
         
         _inputTextBkgImage = [[UIImageView alloc] initWithFrame:CGRectZero];
-        [_inputTextBkgImage setImage:[[UIImage nim_imageInKit:@"icon_input_text_bg"] resizableImageWithCapInsets:UIEdgeInsetsMake(15,80,15,80) resizingMode:UIImageResizingModeStretch]];
+//        [_inputTextBkgImage setImage:[[UIImage nim_imageInKit:@"icon_input_text_bg"] resizableImageWithCapInsets:UIEdgeInsetsMake(15,80,15,80) resizingMode:UIImageResizingModeStretch]];
         
         _inputTextView = [[NIMGrowingTextView alloc] initWithFrame:CGRectZero];
         _inputTextView.font = [UIFont systemFontOfSize:14.0f];
         _inputTextView.maxNumberOfLines = 4;
         _inputTextView.minNumberOfLines = 1;
         _inputTextView.textColor = [UIColor blackColor];
-        _inputTextView.backgroundColor = [UIColor clearColor];
+        _inputTextView.backgroundColor = NIMKit_UIColorFromRGB(0xF6F7FB);;
         _inputTextView.nim_size = [_inputTextView intrinsicContentSize];
         _inputTextView.textViewDelegate = self;
         _inputTextView.returnKeyType = UIReturnKeySend;
+        _inputTextView.layer.masksToBounds = YES;
+        _inputTextView.layer.cornerRadius = 4;
         
         _sep = [[UIView alloc] initWithFrame:CGRectZero];
         _sep.backgroundColor = [UIColor lightGrayColor];
