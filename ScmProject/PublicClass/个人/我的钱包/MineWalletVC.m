@@ -16,6 +16,7 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
 @property (weak, nonatomic) IBOutlet UIView *withdrawView;
 @property (weak, nonatomic) IBOutlet UIView *cardView;
+@property (weak, nonatomic) IBOutlet UIView *creditView;
 
 @end
 
@@ -47,6 +48,13 @@
         [weakself.navigationController pushViewController:card animated:YES];
     }];
     [self.cardView addGestureRecognizer:tap1];
+    
+    UITapGestureRecognizer *tap2 = [[UITapGestureRecognizer alloc] init];
+    [[tap2 rac_gestureSignal] subscribeNext:^(id x) {
+        MineWalletBankCardVC *card = [[MineWalletBankCardVC alloc] init];
+        [weakself.navigationController pushViewController:card animated:YES];
+    }];
+    [self.creditView addGestureRecognizer:tap2];
 }
 
 - (IBAction)detaiClick:(id)sender {

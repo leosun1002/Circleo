@@ -13,6 +13,7 @@
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
 @property (weak, nonatomic) IBOutlet UITextField *moneyText;
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
 
 @end
 
@@ -31,6 +32,12 @@
                  NSFontAttributeName:[UIFont systemFontOfSize:14]
          }];
     self.moneyText.attributedPlaceholder = attrString;
+    
+    WeakSelf(self);
+    [[self.moneyText rac_signalForControlEvents:(UIControlEventEditingChanged)]  subscribeNext:^(id x) {
+        weakself.checkBtn.userInteractionEnabled = ![AssectString( weakself.moneyText.text) isEqualToString:@""];
+        weakself.checkBtn.backgroundColor = ![AssectString( weakself.moneyText.text) isEqualToString:@""]?[UIColor colorWithRGBHex:@"#333333"]:[UIColor colorWithRGBHex:@"##C0C0CC"];
+    }];
 }
 
 - (IBAction)backClick:(id)sender {

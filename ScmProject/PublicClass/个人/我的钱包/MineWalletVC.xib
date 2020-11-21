@@ -10,6 +10,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MineWalletVC">
             <connections>
                 <outlet property="cardView" destination="c0p-Il-E9D" id="kTD-Ga-DwH"/>
+                <outlet property="creditView" destination="HE2-eO-aWU" id="fjq-47-QLQ"/>
                 <outlet property="heightConst" destination="vSF-Pg-qxE" id="vxC-af-4qn"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
                 <outlet property="withdrawView" destination="8kC-nB-r2g" id="1Gc-wv-PYg"/>
@@ -152,7 +153,7 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="T7v-sy-r3d">
-                    <rect key="frame" x="10" y="346" width="394" height="100"/>
+                    <rect key="frame" x="10" y="346" width="394" height="150"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8kC-nB-r2g">
                             <rect key="frame" x="0.0" y="0.0" width="394" height="50"/>
@@ -206,13 +207,49 @@
                                         <constraint firstAttribute="height" constant="12" id="lek-J4-6cU"/>
                                     </constraints>
                                 </imageView>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xud-ui-egn">
+                                    <rect key="frame" x="10" y="49.5" width="374" height="0.5"/>
+                                    <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.93725490199999995" alpha="1" colorSpace="calibratedRGB"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="0.5" id="MRN-KC-HNu"/>
+                                    </constraints>
+                                </view>
                             </subviews>
                             <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                             <constraints>
                                 <constraint firstItem="raF-ro-HAY" firstAttribute="leading" secondItem="c0p-Il-E9D" secondAttribute="leading" constant="10" id="8Xf-U5-Vc7"/>
+                                <constraint firstItem="Xud-ui-egn" firstAttribute="leading" secondItem="c0p-Il-E9D" secondAttribute="leading" constant="10" id="8xa-r6-inK"/>
                                 <constraint firstAttribute="trailing" secondItem="620-e4-ZNW" secondAttribute="trailing" constant="10" id="AT3-WC-Cfb"/>
                                 <constraint firstItem="620-e4-ZNW" firstAttribute="centerY" secondItem="raF-ro-HAY" secondAttribute="centerY" id="Aqd-mx-1aK"/>
+                                <constraint firstAttribute="bottom" secondItem="Xud-ui-egn" secondAttribute="bottom" id="BF9-8v-5tf"/>
                                 <constraint firstItem="raF-ro-HAY" firstAttribute="centerY" secondItem="c0p-Il-E9D" secondAttribute="centerY" id="TZ1-gR-CPl"/>
+                                <constraint firstAttribute="trailing" secondItem="Xud-ui-egn" secondAttribute="trailing" constant="10" id="h94-0F-SJm"/>
+                                <constraint firstAttribute="height" constant="50" id="hlW-en-q1d"/>
+                            </constraints>
+                        </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HE2-eO-aWU">
+                            <rect key="frame" x="0.0" y="100" width="394" height="50"/>
+                            <subviews>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="信用卡" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Vos-dC-sNT">
+                                    <rect key="frame" x="10" y="16" width="46" height="18"/>
+                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
+                                    <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="icon_more_grey" translatesAutoresizingMaskIntoConstraints="NO" id="KcS-73-0Ef">
+                                    <rect key="frame" x="377" y="19" width="7" height="12"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="12" id="F0T-IW-YXT"/>
+                                        <constraint firstAttribute="width" constant="7" id="cBY-3q-6Dh"/>
+                                    </constraints>
+                                </imageView>
+                            </subviews>
+                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                            <constraints>
+                                <constraint firstItem="KcS-73-0Ef" firstAttribute="centerY" secondItem="Vos-dC-sNT" secondAttribute="centerY" id="GHb-Dk-LkG"/>
+                                <constraint firstItem="Vos-dC-sNT" firstAttribute="leading" secondItem="HE2-eO-aWU" secondAttribute="leading" constant="10" id="ORh-Ln-aUO"/>
+                                <constraint firstItem="Vos-dC-sNT" firstAttribute="centerY" secondItem="HE2-eO-aWU" secondAttribute="centerY" id="Tce-co-zry"/>
+                                <constraint firstAttribute="trailing" secondItem="KcS-73-0Ef" secondAttribute="trailing" constant="10" id="Wfp-PI-Twe"/>
                             </constraints>
                         </view>
                     </subviews>
@@ -221,10 +258,13 @@
                         <constraint firstItem="8kC-nB-r2g" firstAttribute="top" secondItem="T7v-sy-r3d" secondAttribute="top" id="0Mm-WN-QhZ"/>
                         <constraint firstAttribute="trailing" secondItem="8kC-nB-r2g" secondAttribute="trailing" id="8DC-cu-2Jn"/>
                         <constraint firstItem="c0p-Il-E9D" firstAttribute="leading" secondItem="T7v-sy-r3d" secondAttribute="leading" id="JhQ-cX-Y9L"/>
+                        <constraint firstItem="HE2-eO-aWU" firstAttribute="leading" secondItem="T7v-sy-r3d" secondAttribute="leading" id="MbP-mD-3Cx"/>
+                        <constraint firstAttribute="bottom" secondItem="HE2-eO-aWU" secondAttribute="bottom" id="O7Q-dH-mVv"/>
+                        <constraint firstItem="HE2-eO-aWU" firstAttribute="top" secondItem="c0p-Il-E9D" secondAttribute="bottom" id="Qi8-fJ-HZG"/>
+                        <constraint firstAttribute="trailing" secondItem="HE2-eO-aWU" secondAttribute="trailing" id="TWA-Pg-1o3"/>
                         <constraint firstItem="c0p-Il-E9D" firstAttribute="top" secondItem="8kC-nB-r2g" secondAttribute="bottom" id="Vp0-oN-hnC"/>
-                        <constraint firstAttribute="bottom" secondItem="c0p-Il-E9D" secondAttribute="bottom" id="doo-cH-vgc"/>
                         <constraint firstAttribute="trailing" secondItem="c0p-Il-E9D" secondAttribute="trailing" id="gsA-Cx-HMJ"/>
-                        <constraint firstAttribute="height" constant="100" id="yGf-RX-DwN"/>
+                        <constraint firstAttribute="height" constant="150" id="yGf-RX-DwN"/>
                         <constraint firstItem="8kC-nB-r2g" firstAttribute="leading" secondItem="T7v-sy-r3d" secondAttribute="leading" id="yY3-RG-64x"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>

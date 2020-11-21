@@ -8,10 +8,15 @@
 
 #import "BaseViewController.h"
 
+typedef enum : NSUInteger {
+    FillInformationLogin,
+    FillInformationMine,
+} FillInformationType;
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FillInformationVC : BaseViewController
 
+@property(nonatomic,assign)FillInformationType fillType;
 @end
 
 NS_ASSUME_NONNULL_END

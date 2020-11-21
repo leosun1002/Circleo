@@ -62,6 +62,7 @@
 
 -(void)fansClick{
     FansFollowListVC *fans = [[FansFollowListVC alloc] init];
+    fans.titleStr = NSLocalizedString(@"粉丝列表", nil);
     [self.navigationController pushViewController:fans animated:YES];
 }
 
@@ -213,7 +214,7 @@
  */
 -(NSArray *)itemArr{
     if(!_itemArr){
-        _itemArr=@[NSLocalizedString(@"已绑定", nil),NSLocalizedString(@"未绑定", nil)];
+        _itemArr=@[NSLocalizedString(@"动态", nil),NSLocalizedString(@"点赞", nil)];
     }
     return _itemArr;
 }

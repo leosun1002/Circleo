@@ -39,6 +39,7 @@
     [self prepareUi];
     [self prepareData];
     [self.view addSubview:self.homeView];
+    [self addUnLike];
 }
 
 -(void)prepareUi{
@@ -52,6 +53,34 @@
      //设置播放源
     [self.player setUrlSource:source];
     [self.player prepare];
+}
+
+-(void)addUnLike{
+    UILongPressGestureRecognizer *gesture = [[UILongPressGestureRecognizer
+    alloc] initWithTarget:self action:@selector(longPress:)];
+    // 为该控件添加手势处理器
+    [self.view addGestureRecognizer:gesture];
+}
+
+- (void) longPress:(UILongPressGestureRecognizer*)gesture{
+    UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"保存至相册", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#333333"] forKey:@"titleTextColor"];
+    
+    UIAlertAction*  sheetBtn2=[UIAlertAction actionWithTitle:NSLocalizedString(@"不感兴趣", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn2];
+    [sheetBtn2 setValue:[UIColor colorWithRGBHex:@"#333333"] forKey:@"titleTextColor"];
+    
+    UIAlertAction*  sheetBtn3=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn3];
+    [sheetBtn3 setValue:[UIColor colorWithRGBHex:@"#999999"] forKey:@"titleTextColor"];
+    
+    [self presentViewController:sheetVC animated:YES completion:nil];
 }
 
 /**

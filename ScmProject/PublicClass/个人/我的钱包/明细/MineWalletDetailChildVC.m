@@ -14,6 +14,8 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableview;
 @property (weak, nonatomic) IBOutlet UIView *fromView;
 @property (weak, nonatomic) IBOutlet UIView *toView;
+@property (weak, nonatomic) IBOutlet UILabel *fromDateLabel;
+@property (weak, nonatomic) IBOutlet UILabel *toDateLabel;
 
 @end
 
@@ -31,20 +33,25 @@
     WeakSelf(self);
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
     [[tap rac_gestureSignal] subscribeNext:^(id x) {
-        [weakself selectDate];
+        [weakself selectDate:@"from"];
     }];
     [self.fromView addGestureRecognizer:tap];
     
     UITapGestureRecognizer *tap1 = [[UITapGestureRecognizer alloc] init];
     [[tap1 rac_gestureSignal] subscribeNext:^(id x) {
-        [weakself selectDate];
+        [weakself selectDate:@"to"];
     }];
     [self.toView addGestureRecognizer:tap1];
 }
 
--(void)selectDate{
+-(void)selectDate:(NSString *)fromStr{
     WeakSelf(self);
     [BRDatePickerView showDatePickerWithMode:(BRDatePickerModeDate) title:NSLocalizedString(@"请选择选择日期", nil) selectValue:@"" resultBlock:^(NSDate * _Nullable selectDate, NSString * _Nullable selectValue) {
+        if ([fromStr isEqualToString:@"from"]) {
+            weakself.fromDateLabel.text = selectValue;
+        }else{
+            weakself.toDateLabel.text = selectValue;
+        }
     }];
 }
 

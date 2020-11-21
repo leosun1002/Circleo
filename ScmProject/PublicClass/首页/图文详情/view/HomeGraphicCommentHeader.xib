@@ -50,7 +50,7 @@
                             <state key="normal" image="like_n"/>
                             <state key="selected" image="like_s"/>
                         </button>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="哇，这里也太漂亮了吧！盖朗厄尔峡湾值得一 去！！" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WAg-b2-FX9">
+                        <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="哇，这里也太漂亮了吧！盖朗厄尔峡湾值得一 去！！" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WAg-b2-FX9">
                             <rect key="frame" x="52" y="49.5" width="309.5" height="16"/>
                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="13"/>
                             <color key="textColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -88,6 +88,9 @@
                 <constraint firstItem="RKt-6A-kW4" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="XtX-Nk-6Wp"/>
                 <constraint firstAttribute="trailing" secondItem="RKt-6A-kW4" secondAttribute="trailing" id="wSf-UY-F1S"/>
             </constraints>
+            <connections>
+                <outlet property="commentLabel" destination="WAg-b2-FX9" id="4u5-pk-out"/>
+            </connections>
             <point key="canvasLocation" x="139" y="88"/>
         </view>
     </objects>

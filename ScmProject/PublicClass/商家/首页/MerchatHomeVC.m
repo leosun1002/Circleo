@@ -35,6 +35,10 @@
     
     [self.tableview registerNib:[UINib nibWithNibName:@"MerchantHomeTableViewCell" bundle:nil] forCellReuseIdentifier:@"MerchantHomeTableViewCell"];
     
+    
+    UIView *headV = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 450)];
+    headV.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
+    
     MerchantHomeHeader *header = [[MerchantHomeHeader alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 450)];
     WeakSelf(self);
     header.subject = [RACSubject subject];
@@ -47,7 +51,8 @@
         MerchantAtlasVC *atlasVC = [[MerchantAtlasVC alloc] init];
         [weakself.navigationController pushViewController:atlasVC animated:YES];
     }];
-    self.tableview.tableHeaderView = header;
+    [headV addSubview:header];
+    self.tableview.tableHeaderView = headV;
 }
 
 -(void)jumpToSelect{

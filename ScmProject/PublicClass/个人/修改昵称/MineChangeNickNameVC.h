@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MineChangeNickNameVC : BaseViewController
 
+@property(nonatomic,strong)NSString *titleStr;
 @end
 
 NS_ASSUME_NONNULL_END

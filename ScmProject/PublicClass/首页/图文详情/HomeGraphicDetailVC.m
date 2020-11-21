@@ -172,6 +172,12 @@
         return header;
     }
     HomeGraphicCommentHeader *header = [[HomeGraphicCommentHeader alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 62)];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    WeakSelf(self);
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        [weakself addCommentClick];
+    }];
+    [header.commentLabel addGestureRecognizer:tap];
     return header;
 }
 
@@ -214,6 +220,33 @@
     }
     HomeGraphicCommentTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"HomeGraphicCommentTableViewCell"];
     return cell;
+}
+
+-(void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+     if (indexPath.section !=  0) {
+         [self addCommentClick];
+     }
+}
+
+-(void)addCommentClick{
+    UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+    
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"回复", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#333333"] forKey:@"titleTextColor"];
+    
+    UIAlertAction*  sheetBtn2=[UIAlertAction actionWithTitle:NSLocalizedString(@"举报", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn2];
+    [sheetBtn2 setValue:[UIColor colorWithRGBHex:@"#333333"] forKey:@"titleTextColor"];
+    
+    UIAlertAction*  sheetBtn3=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn3];
+    [sheetBtn3 setValue:[UIColor colorWithRGBHex:@"#999999"] forKey:@"titleTextColor"];
+    
+    [self presentViewController:sheetVC animated:YES completion:nil];
 }
 
 

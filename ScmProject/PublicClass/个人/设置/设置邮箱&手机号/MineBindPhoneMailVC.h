@@ -11,6 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MineBindPhoneMailVC : BaseViewController
+@property(nonatomic,strong) NSString *phoneMail;
 
 @end
 

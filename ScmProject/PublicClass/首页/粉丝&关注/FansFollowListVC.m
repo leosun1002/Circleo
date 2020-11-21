@@ -12,6 +12,7 @@
 @interface FansFollowListVC ()<UITableViewDelegate,UITableViewDataSource>
 
 @property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
 
 @end
 
@@ -23,6 +24,10 @@
 }
 
 -(void)prepareUi{
+    if (![AssectString(self.titleStr) isEqualToString:@""]) {
+        self.titleLabel.text = self.titleStr;
+    }
+    self.heightConst.constant = navBarHeight;
     [self.tableview registerNib:[UINib nibWithNibName:@"FansFollowTableViewCell" bundle:nil] forCellReuseIdentifier:@"FansFollowTableViewCell"];
 }
 

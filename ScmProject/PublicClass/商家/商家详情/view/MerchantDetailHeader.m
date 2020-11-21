@@ -48,4 +48,11 @@
     self.tipLabel.layer.borderColor = [UIColor colorWithRGBHex:@"#CACACA"].CGColor;
     self.tipLabel.layer.borderWidth = [UIScreen mainScreen].scale * 0.5;
 }
+
+- (IBAction)phoneClick:(id)sender {
+    NSMutableString *str=[[NSMutableString alloc] initWithFormat:@"telprompt://%@",@"18802760714"];
+
+    [[UIApplication sharedApplication] openURL:[NSURL URLWithString:str]];
+}
+
 @end

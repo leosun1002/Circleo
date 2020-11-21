@@ -9,7 +9,11 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MineChangeNickNameVC">
             <connections>
+                <outlet property="checkBtn" destination="zSw-Gx-mzo" id="Hoc-V1-0Vi"/>
                 <outlet property="heightConst" destination="Z6o-e3-OMN" id="7UM-J3-sYj"/>
+                <outlet property="maxLabel" destination="j8q-qN-3c4" id="ctn-Ki-tev"/>
+                <outlet property="text" destination="KjP-ht-zxg" id="Tkj-78-rrl"/>
+                <outlet property="titleLabel" destination="Lti-rA-vIO" id="4ln-Y1-Dtn"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -61,11 +65,14 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ahL-vJ-BuD">
                     <rect key="frame" x="0.0" y="89" width="414" height="50"/>
                     <subviews>
-                        <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="输入昵称" textAlignment="natural" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="KjP-ht-zxg">
+                        <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="输入昵称" textAlignment="natural" minimumFontSize="17" clearButtonMode="whileEditing" translatesAutoresizingMaskIntoConstraints="NO" id="KjP-ht-zxg">
                             <rect key="frame" x="15" y="0.0" width="384" height="50"/>
                             <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                             <textInputTraits key="textInputTraits"/>
+                            <connections>
+                                <outlet property="delegate" destination="-1" id="qbX-V1-aSD"/>
+                            </connections>
                         </textField>
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
@@ -80,9 +87,9 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ttw-Pg-bdL">
                     <rect key="frame" x="0.0" y="826" width="414" height="70"/>
                     <subviews>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zSw-Gx-mzo">
+                        <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="zSw-Gx-mzo">
                             <rect key="frame" x="10" y="6" width="394" height="40"/>
-                            <color key="backgroundColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" red="0.75294117647058822" green="0.75294117647058822" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="40" id="6xI-pN-m2m"/>
                             </constraints>
@@ -104,14 +111,22 @@
                         <constraint firstAttribute="height" constant="70" id="rgA-gb-YkF"/>
                     </constraints>
                 </view>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="最多输入8个字符" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="j8q-qN-3c4">
+                    <rect key="frame" x="15" y="153" width="93.5" height="14.5"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="calibratedRGB"/>
+                    <nil key="highlightedColor"/>
+                </label>
             </subviews>
             <color key="backgroundColor" red="0.96862745100000003" green="0.96078431369999995" blue="0.98039215690000003" alpha="1" colorSpace="calibratedRGB"/>
             <constraints>
                 <constraint firstItem="Ss3-cG-LgS" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="07i-ZT-EeL"/>
+                <constraint firstItem="j8q-qN-3c4" firstAttribute="top" secondItem="ahL-vJ-BuD" secondAttribute="bottom" constant="14" id="5E8-ll-ZeW"/>
                 <constraint firstItem="ttw-Pg-bdL" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="8qX-7p-zSy"/>
                 <constraint firstItem="ahL-vJ-BuD" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="FIG-mm-cfi"/>
                 <constraint firstItem="ahL-vJ-BuD" firstAttribute="top" secondItem="Ss3-cG-LgS" secondAttribute="bottom" constant="1" id="FcF-eX-p3Z"/>
                 <constraint firstAttribute="trailing" secondItem="ahL-vJ-BuD" secondAttribute="trailing" id="OV2-uu-9Sn"/>
+                <constraint firstItem="j8q-qN-3c4" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="15" id="W5z-mJ-Y8H"/>
                 <constraint firstItem="Ss3-cG-LgS" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="fWZ-up-xmp"/>
                 <constraint firstAttribute="trailing" secondItem="ttw-Pg-bdL" secondAttribute="trailing" id="jCn-0N-zdw"/>
                 <constraint firstAttribute="trailing" secondItem="Ss3-cG-LgS" secondAttribute="trailing" id="o6w-S7-Pv2"/>

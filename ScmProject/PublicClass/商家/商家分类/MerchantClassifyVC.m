@@ -54,6 +54,9 @@
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     MerchantHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MerchantHomeTableViewCell"];
     cell.contentView.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
+    cell.selectBtn.hidden = YES;
+    cell.headV.layer.cornerRadius = 10;
+    cell.headV.layer.masksToBounds = YES;
     return cell;
 }
 

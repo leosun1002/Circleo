@@ -9,6 +9,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MineSettingVC">
             <connections>
+                <outlet property="cacheLabel" destination="OY8-OJ-u8R" id="D9F-f4-Sth"/>
                 <outlet property="heightConst" destination="0Dy-2j-jsJ" id="N5m-pY-So7"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
@@ -424,6 +425,9 @@
                                 </view>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aqm-5b-DCd">
                                     <rect key="frame" x="1" y="1" width="412" height="47.5"/>
+                                    <connections>
+                                        <action selector="xieyiClick:" destination="-1" eventType="touchUpInside" id="SQJ-8e-biJ"/>
+                                    </connections>
                                 </button>
                             </subviews>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -475,6 +479,9 @@
                                 </view>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rVG-hk-nMn">
                                     <rect key="frame" x="1" y="1" width="412" height="47.5"/>
+                                    <connections>
+                                        <action selector="aboutClick:" destination="-1" eventType="touchUpInside" id="58i-8n-g4s"/>
+                                    </connections>
                                 </button>
                             </subviews>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -511,8 +518,8 @@
                                         <constraint firstAttribute="height" constant="12" id="L2z-Ai-FoO"/>
                                     </constraints>
                                 </imageView>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="300M" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OY8-OJ-u8R">
-                                    <rect key="frame" x="348.5" y="16.5" width="38.5" height="17"/>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="--" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="OY8-OJ-u8R">
+                                    <rect key="frame" x="374" y="16.5" width="13" height="17"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <color key="textColor" red="0.60392156860000001" green="0.60392156860000001" blue="0.60392156860000001" alpha="1" colorSpace="calibratedRGB"/>
                                     <nil key="highlightedColor"/>
@@ -526,6 +533,9 @@
                                 </view>
                                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="IQQ-cR-Jgy">
                                     <rect key="frame" x="1" y="1" width="412" height="47.5"/>
+                                    <connections>
+                                        <action selector="clearCacheClick:" destination="-1" eventType="touchUpInside" id="2yA-fT-SL3"/>
+                                    </connections>
                                 </button>
                             </subviews>
                             <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>

@@ -11,6 +11,7 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface HomeGraphicCommentHeader : UIView
+@property (weak, nonatomic) IBOutlet UILabel *commentLabel;
 
 @end
 

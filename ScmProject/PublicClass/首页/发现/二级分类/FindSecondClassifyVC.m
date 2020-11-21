@@ -9,11 +9,13 @@
 #import "FindSecondClassifyVC.h"
 #import "LMHWaterFallLayout.h"
 #import "HomePageCollectionViewCell.h"
+#import "FindTitleDetailVC.h"
 
 @interface FindSecondClassifyVC ()<UICollectionViewDelegate,UICollectionViewDataSource,LMHWaterFallLayoutDelegate>
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *topConst;
 @property (weak, nonatomic) IBOutlet UICollectionView *collectView;
+@property (weak, nonatomic) IBOutlet UIView *topView;
 
 @end
 
@@ -39,6 +41,15 @@
     self.collectView.collectionViewLayout = waterFallLayout;
     
     [self.collectView registerNib:[UINib nibWithNibName:@"HomePageCollectionViewCell" bundle:nil] forCellWithReuseIdentifier:@"HomePageCollectionViewCell"];
+    
+    WeakSelf(self);
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] init];
+    [[tap rac_gestureSignal] subscribeNext:^(id x) {
+        FindTitleDetailVC *detail = [[FindTitleDetailVC alloc] init];
+        detail.titleStr = NSLocalizedString(@"详情", nil);
+        [weakself.navigationController pushViewController:detail animated:YES];
+    }];
+    [self.topView addGestureRecognizer:tap];
 }
 
 #pragma -mark UICollectionViewDelegate

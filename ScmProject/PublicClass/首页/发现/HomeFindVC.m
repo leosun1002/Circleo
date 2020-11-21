@@ -15,6 +15,7 @@
 
 @property (weak, nonatomic) IBOutlet UICollectionView *collectView;
 @property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
 
 @end
 
@@ -26,6 +27,10 @@
 }
 
 -(void)prepareUi{
+    self.collectView.layer.cornerRadius = 10.f;
+    self.collectView.layer.masksToBounds = YES;
+    self.heightConst.constant = ksrcheight - navBarHeight - tabbarHeight - 45 - 53;
+    
     self.flowLayout.itemSize = CGSizeMake((ksrcwidth - 70)/4, (ksrcwidth - 70)/4);
     self.flowLayout.headerReferenceSize = CGSizeMake(ksrcwidth - 20, 50);
     self.flowLayout.footerReferenceSize = CGSizeMake(ksrcwidth - 20, 30);

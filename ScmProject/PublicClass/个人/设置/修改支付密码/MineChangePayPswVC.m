@@ -59,7 +59,7 @@
     pageTitleView.selectedIndex = self.selectedPage;
     [self.view addSubview:pageTitleView];
     
-    SGPageContentScrollView *pageContentScrollView = [[SGPageContentScrollView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(pageTitleView.frame),ksrcwidth,self.view.height - navBarHeight - 50) parentVC:self childVCs:[self.vcs copy]];
+    SGPageContentScrollView *pageContentScrollView = [[SGPageContentScrollView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(pageTitleView.frame),ksrcwidth,ksrcheight - navBarHeight - 50) parentVC:self childVCs:[self.vcs copy]];
     pageContentScrollView.delegatePageContentScrollView = self;
     pageContentScrollView.isAnimated = NO;
     pageContentScrollView.backgroundColor = [UIColor whiteColor];

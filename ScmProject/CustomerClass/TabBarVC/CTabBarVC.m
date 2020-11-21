@@ -54,13 +54,13 @@
     }
 
     HomePageVC *homeVC = [[HomePageVC alloc] init];
-    [self controller:homeVC Title:NSLocalizedString(@"首页", nil) tabBarItemImage:@"home_n" tabBarItemSelectedImage:@"home_n"];
+    [self controller:homeVC Title:NSLocalizedString(@"首页", nil) tabBarItemImage:@"home_n" tabBarItemSelectedImage:@"home_s"];
     MerchatHomeVC *merchantVC = [[MerchatHomeVC alloc] init];
-    [self controller:merchantVC Title:NSLocalizedString(@"商家", nil) tabBarItemImage:@"mer_n" tabBarItemSelectedImage:@"home_n"];
+    [self controller:merchantVC Title:NSLocalizedString(@"商家", nil) tabBarItemImage:@"mer_n" tabBarItemSelectedImage:@"mer_s"];
     MessageHomeVC *messageVC = [[MessageHomeVC alloc] init];
-    [self controller:messageVC Title:NSLocalizedString(@"消息", nil) tabBarItemImage:@"message_n" tabBarItemSelectedImage:@"home_n"];
+    [self controller:messageVC Title:NSLocalizedString(@"消息", nil) tabBarItemImage:@"message_n" tabBarItemSelectedImage:@"message_s"];
     MineHomePageVC *mineVC = [[MineHomePageVC alloc] init];
-    [self controller:mineVC Title:NSLocalizedString(@"我的", nil) tabBarItemImage:@"my_n" tabBarItemSelectedImage:@"home_n"];
+    [self controller:mineVC Title:NSLocalizedString(@"我的", nil) tabBarItemImage:@"my_n" tabBarItemSelectedImage:@"my_s"];
     self.viewControllers = @[homeVC,merchantVC,messageVC,mineVC];
     
 }

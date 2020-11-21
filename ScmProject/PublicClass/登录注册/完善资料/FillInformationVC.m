@@ -13,7 +13,7 @@
 #import "MineChangeIDVC.h"
 #import "MineChangeIntroVC.h"
 
-@interface FillInformationVC ()<UITextFieldDelegate>
+@interface FillInformationVC ()<UITextFieldDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate>
 
 @property (weak, nonatomic) IBOutlet UITextField *dateText;
 @property (weak, nonatomic) IBOutlet UITextField *generText;
@@ -30,20 +30,102 @@
 @property (weak, nonatomic) IBOutlet UITextField *introText;
 
 @property(nonatomic,strong)ZWTagListView *tagView;
+
+@property (weak, nonatomic) IBOutlet UIView *nickRed;
+@property (weak, nonatomic) IBOutlet UIView *mailRed;
+@property (weak, nonatomic) IBOutlet UIView *hobbyRed;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *nickLead;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *mailLead;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *hobbyLead;
+@property (weak, nonatomic) IBOutlet UIView *idView;
+@property (weak, nonatomic) IBOutlet UIView *descView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *descHeight;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *idHeight;
+
 @end
 
 @implementation FillInformationVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    
-    [self.tagBgView addSubview:self.tagView];
-    [self.tagView setTagWithTagArray:@[@"休闲娱乐",@"旅游摄影",@"美食",@"居家",@"宠物",@"话剧音乐剧",@"运动健身",@"生活分享",@"音乐乐器"]];
-    self.tagHeight.constant = self.tagView.height;
+    [self preapreUi];
 }
 
 - (IBAction)backClick:(id)sender {
     [self.navigationController popViewControllerAnimated:YES];
+}
+
+-(void)preapreUi{
+    [self.tagBgView addSubview:self.tagView];
+    [self.tagView setTagWithTagArray:@[@"休闲娱乐",@"旅游摄影",@"美食",@"居家",@"宠物",@"话剧音乐剧",@"运动健身",@"生活分享",@"音乐乐器"]];
+    self.tagHeight.constant = self.tagView.height;
+    if(self.fillType == FillInformationMine){
+        self.nickRed.hidden = YES;
+        self.mailRed.hidden = YES;
+        self.hobbyRed.hidden = YES;
+        self.nickLead.constant = 10;
+        self.mailLead.constant = 10;
+        self.hobbyLead.constant = 10;
+    }else{
+        self.idView.hidden = YES;
+        self.descView.hidden = YES;
+        self.idHeight.constant = 0;
+        self.descHeight.constant = 0;
+    }
+}
+
+- (IBAction)imageClick:(id)sender {
+    UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:nil message:nil preferredStyle:UIAlertControllerStyleActionSheet];
+
+    WeakSelf(self);
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"拍照上传",nil)  style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+            UIImagePickerController *pickerVC = [[UIImagePickerController alloc] init];
+            pickerVC.sourceType = UIImagePickerControllerSourceTypeCamera;
+            pickerVC.allowsEditing = YES;
+            pickerVC.delegate = weakself;
+            [weakself  presentViewController:pickerVC animated:YES completion:nil];
+        }else{
+            [weakself showMsg:NSLocalizedString(@"相机不可用",nil) location:centre];
+        }
+    }];
+    UIAlertAction*  sheetBtn2=[UIAlertAction actionWithTitle:NSLocalizedString(@"手机相册",nil)  style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        UIImagePickerController *pickerVC1 = [[UIImagePickerController alloc] init];
+        pickerVC1.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+        pickerVC1.allowsEditing = YES;
+        pickerVC1.delegate = weakself;
+        pickerVC1.navigationBar.translucent = NO;
+        pickerVC1.modalPresentationStyle = UIModalPresentationFullScreen;
+        [weakself presentViewController:pickerVC1 animated:YES completion:nil];
+    }];
+    UIAlertAction*  sheetBtn=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消",nil)  style:UIAlertActionStyleCancel handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetVC addAction:sheetBtn2];
+    [sheetVC addAction:sheetBtn];
+    [self presentViewController:sheetVC animated:YES completion:nil];
+}
+
+//choose 阿牛被点击
+-(void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary<NSString *,id> *)info{
+    //Nslog(@"[^"]*[u4E00-u9FA5]+[^"n]*?");
+    UIImage*   image=[info objectForKey:UIImagePickerControllerEditedImage];
+    //压缩图片
+    UIImage *newImg =[self compressImage:image toTargetWidth:120.0];
+    [picker dismissViewControllerAnimated:YES completion:nil];
+}
+
+- (UIImage *)compressImage:(UIImage *)sourceImage toTargetWidth:(CGFloat)targetWidth {
+    CGSize imageSize = sourceImage.size;
+    NSLog(@"%@",sourceImage); 
+    CGFloat width = imageSize.width;
+    CGFloat height = imageSize.height;
+    CGFloat targetHeight = (targetWidth / width) * height;
+    UIGraphicsBeginImageContext(CGSizeMake(targetWidth, targetHeight));
+    [sourceImage drawInRect:CGRectMake(0, 0, targetWidth, targetHeight)];
+    UIImage *newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
 }
 
 #pragma -mark UITextFieldDelegate
@@ -87,6 +169,7 @@
         return NO;
     }else if (textField == self.nickText || textField == self.emailText){
         MineChangeNickNameVC *changeNick = [[MineChangeNickNameVC alloc] init];
+        changeNick.titleStr = textField == self.emailText ? @"邮编":@"昵称";
         [self.navigationController pushViewController:changeNick animated:YES];
         return NO;
     }else if (textField == self.idText){

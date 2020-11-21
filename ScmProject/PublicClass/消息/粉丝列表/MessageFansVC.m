@@ -46,7 +46,7 @@
     view.backgroundColor = [UIColor whiteColor];
     
     UILabel *label = [[UILabel alloc] initWithFrame:CGRectMake(10, 0, ksrcwidth - 10, 40)];
-    label.text = @"全部粉丝";
+    label.text = section == 0?NSLocalizedString(@"新增粉丝", nil):NSLocalizedString(@"全部粉丝", nil);
     label.font = [UIFont fontWithName:@"PingFang-SC-Bold" size:15];
     label.textColor = [UIColor colorWithRGBHex:@"#333333"];
     [view addSubview:label];

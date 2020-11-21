@@ -112,6 +112,15 @@
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     MessageHomeTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MessageHomeTableViewCell"];
+    if (indexPath.row == 0) {
+        cell.headV.image = [UIImage imageNamed:@"system_msg"];
+        cell.nameLabel.text = NSLocalizedString(@"系统消息", nil);
+    }else if (indexPath.row == 1){
+        cell.headV.image = [UIImage imageNamed:@"order_msg"];
+        cell.nameLabel.text = NSLocalizedString(@"订单消息", nil);
+    }else{
+        cell.nameLabel.text = @"Sara";
+    }
     return cell;
 }
 
@@ -130,6 +139,10 @@
     }
 }
 
+- (BOOL)tableView:(UITableView *)tableView canEditRowAtIndexPath:(NSIndexPath *)indexPath{
+    return indexPath.row>=2;
+}
+    
 - (void)tableView:(UITableView *)tableView willBeginEditingRowAtIndexPath:(NSIndexPath *)indexPath{
     self.editingIndexPath = indexPath;
     [self.view setNeedsLayout];   // 触发-(void)viewDidLayoutSubviews

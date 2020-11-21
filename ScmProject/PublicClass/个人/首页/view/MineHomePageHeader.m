@@ -26,6 +26,7 @@
 #import "MineChangeBackImageVC.h"
 #import "FansFollowListVC.h"
 #import "FillInformationVC.h"
+#import "FindTitleDetailVC.h"
 
 @interface MineHomePageHeader ()<UICollectionViewDataSource,UICollectionViewDelegate>
 
@@ -94,13 +95,21 @@
     [self.navigation pushViewController:setting animated:YES];
 }
 
-- (IBAction)fansClick:(id)sender {
+- (IBAction)fansClick:(UIButton *)sender {
     FansFollowListVC *fans = [[FansFollowListVC alloc] init];
+    if (sender.tag == 10) {
+        fans.titleStr = NSLocalizedString(@"粉丝列表", nil);
+    }else if (sender.tag == 11){
+        fans.titleStr = NSLocalizedString(@"关注列表", nil);
+    }else{
+        fans.titleStr = NSLocalizedString(@"好友列表", nil);
+    }
     [self.navigation pushViewController:fans animated:YES];
 }
 
 - (IBAction)editInfoClick:(id)sender {
     FillInformationVC *fillInfo = [[FillInformationVC alloc] init];
+    fillInfo.fillType = FillInformationMine;
     [self.navigation pushViewController:fillInfo animated:YES];
 }
 
@@ -135,6 +144,10 @@
     }else if (indexPath.item == 5){
         MineInviteFriendVC *friendVC = [[MineInviteFriendVC alloc] init];
         [self.navigation pushViewController:friendVC animated:YES];
+    }else if (indexPath.item == 6){
+        FindTitleDetailVC *titleVC = [[FindTitleDetailVC alloc] init];
+        titleVC.titleStr = NSLocalizedString(@"商家入驻", nil);
+        [self.navigation pushViewController:titleVC animated:YES];
     }
 }
 

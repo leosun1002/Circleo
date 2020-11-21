@@ -12,6 +12,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MerchantHomeTableViewCell : UITableViewCell
 @property (weak, nonatomic) IBOutlet UILabel *tipLabel;
+@property (weak, nonatomic) IBOutlet UIButton *selectBtn;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
 
 @end
 

@@ -11,6 +11,9 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MineDraftsTableViewCell : UITableViewCell
+@property (weak, nonatomic) IBOutlet UIButton *addBtn;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *leadConst;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *trailConst;
 
 @end
 
