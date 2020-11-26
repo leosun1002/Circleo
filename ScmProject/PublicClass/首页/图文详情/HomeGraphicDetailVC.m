@@ -22,7 +22,7 @@
 #define kSTTextviewDefaultHeight 36
 
 
-@interface HomeGraphicDetailVC ()<UITableViewDelegate,UITableViewDataSource>{
+@interface HomeGraphicDetailVC ()<UITableViewDelegate,UITableViewDataSource,UITextViewDelegate>{
     NSArray *_switchKeyboardImages;
 
 }

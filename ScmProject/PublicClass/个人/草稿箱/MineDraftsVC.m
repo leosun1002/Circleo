@@ -14,6 +14,8 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableview;
 @property (weak, nonatomic) IBOutlet UIButton *editBtn;
 @property (assign, nonatomic) BOOL ifEdit;
+@property (weak, nonatomic) IBOutlet UIView *bottomView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
 
 @end
 
@@ -29,6 +31,8 @@
 }
 
 -(void)prepareUi{
+    self.bottomView.hidden = YES;
+    self.heightConst.constant = 0;
     [self.tableview registerNib:[UINib nibWithNibName:@"MineDraftsTableViewCell" bundle:nil] forCellReuseIdentifier:@"MineDraftsTableViewCell"];
     self.tableview.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
     WeakSelf(self);
@@ -36,6 +40,8 @@
         weakself.ifEdit = !weakself.ifEdit;
         [weakself.editBtn setTitle:weakself.ifEdit?NSLocalizedString(@"完成", nil):NSLocalizedString(@"编辑", nil) forState:(UIControlStateNormal)];
         [weakself.tableview reloadData];
+        weakself.bottomView.hidden = !weakself.ifEdit;
+        weakself.heightConst.constant = weakself.ifEdit ? 70:0;
     }];
 }
 

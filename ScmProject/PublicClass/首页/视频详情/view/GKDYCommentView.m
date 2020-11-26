@@ -10,20 +10,57 @@
 #import "HomeGraphicCommentTableViewCell.h"
 #import "HomeGraphicCommentHeader.h"
 
-@interface GKDYCommentView()<UITableViewDataSource, UITableViewDelegate>
+//键盘
+#import "STEmojiKeyboard.h"
 
-@property (nonatomic, weak) UIView                *topView;
-@property (nonatomic, strong) UITableView           *tableView;
-@property (nonatomic, assign) NSInteger             count;
+#define kSTTextviewMaxHeight 120
+#define kSTTextviewDefaultHeight 36
+
+@interface GKDYCommentView()<UITextViewDelegate>{
+    NSArray *_switchKeyboardImages;
+
+}
+
+@property (weak, nonatomic) IBOutlet UIView *topView;
+@property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property (nonatomic, assign) NSInteger count;
+@property (strong, nonatomic) STEmojiKeyboard *keyboard;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomConst;
+
+//输入框高度
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *inputHeight;
+@property (weak, nonatomic) IBOutlet UITextView *inputText;
+
+//评论
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *commentHeigth;
+
+//键盘图标
+@property (weak, nonatomic) IBOutlet UIButton *keyboardBtn;
+
+//占位Label
+@property (weak, nonatomic) IBOutlet UILabel *placeLabel;
+
+//收藏背景
+@property (weak, nonatomic) IBOutlet UIView *sendView;
+//总底部高度
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomViewHeight;
+
 @end
 
 @implementation GKDYCommentView
 
-- (instancetype)init {
-    if (self = [super init]) {
+- (void)dealloc{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+-(instancetype)initWithFrame:(CGRect)frame{
+    self=[[[NSBundle mainBundle] loadNibNamed:@"GKDYCommentView" owner:self options:nil] lastObject];
+    if ([super initWithFrame:frame]) {
+        self.frame=frame;
         self.backgroundColor = [UIColor clearColor];
-        [self addTopView];
-        [self addSubview:self.tableView];
+        [self prepareUi];
+        //注册键盘
+        [self registerKeyboardNotif];
     }
     return self;
 }
@@ -31,22 +68,66 @@
 - (void)requestData {
 }
 
--(void)addTopView{
-    UIView *topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, ksrcwidth, 30)];
-    topView.backgroundColor = [UIColor whiteColor];
-     
-    UILabel *countLabel = [[UILabel alloc] initWithFrame:CGRectMake(15, 10, ksrcwidth - 30, 13)];
-    countLabel.text = @"共 2623 条评论";
-    countLabel.font = [UIFont fontWithName:@"PingFang-SC-Medium" size:14];
-    countLabel.textColor = [UIColor colorWithRGBHex:@"#333333"];
-    [topView addSubview:countLabel];
-    [self addSubview:_topView = topView];
+-(void)prepareUi{
+    self.keyboard = [STEmojiKeyboard keyboard];
     
-    UIBezierPath *path1 = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, ksrcwidth, 30) byRoundingCorners:UIRectCornerTopLeft|UIRectCornerTopRight cornerRadii:CGSizeMake(10, 10)];
+    UIBezierPath *path1 = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, ksrcwidth, 45) byRoundingCorners:UIRectCornerTopLeft|UIRectCornerTopRight cornerRadii:CGSizeMake(10, 10)];
     CAShapeLayer *maskLayer = [[CAShapeLayer alloc] init];
-    maskLayer.frame = topView.bounds;
+    maskLayer.frame = CGRectMake(0, 0, ksrcwidth, 45);
     maskLayer.path = path1.CGPath;
-    topView.layer.mask = maskLayer;
+    self.topView.layer.mask = maskLayer;
+    
+    [self.tableview registerNib:[UINib nibWithNibName:@"HomeGraphicCommentTableViewCell" bundle:nil] forCellReuseIdentifier:@"HomeGraphicCommentTableViewCell"];
+
+    //发送按钮
+    self.sendView.layer.shadowColor = [UIColor colorWithRGBHex:@"#090000"].CGColor;//阴影颜色
+    self.sendView.layer.shadowOffset = CGSizeMake(0, 5);//偏移距离
+    self.sendView.layer.shadowOpacity = 0.2f;//不透明度
+    self.sendView.layer.shadowRadius = 5;//半径
+    
+    _switchKeyboardImages = @[@"btn_expression.png",@"btn_keyboard.png"];
+}
+
+- (void)registerKeyboardNotif{
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillShow:) name:UIKeyboardWillShowNotification object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(keyboardWillHidden:) name:UIKeyboardWillHideNotification object:nil];
+}
+
+-(void)layout{
+    self.placeLabel.hidden = ![@"" isEqualToString:self.inputText.text];
+
+    CGRect textViewFrame = self.inputText.frame;
+    CGSize textSize = [self.inputText sizeThatFits:CGSizeMake(CGRectGetWidth(textViewFrame), 1000.0f)];
+    
+    CGFloat offset = 0;
+    self.inputText.scrollEnabled = (textSize.height > kSTTextviewMaxHeight-offset);
+    CGFloat height = MAX(kSTTextviewDefaultHeight, MIN(kSTTextviewMaxHeight, textSize.height));
+    self.inputHeight.constant = height;
+    self.commentHeigth.constant = height;
+    self.bottomViewHeight.constant = height + 24.5;
+}
+
+#pragma -mark 监听键盘
+- (void)keyboardWillShow:(NSNotification *)notification{
+    self.bottomConst.constant = 400;
+}
+
+- (void)keyboardWillHidden:(NSNotification *)notification {
+    self.inputText.text = @"";
+    [self layout];
+}
+
+- (IBAction)switchClick:(UIButton *)button {
+    if (button.tag == 1){
+        self.inputText.inputView = nil;
+    }
+    else{
+        [_keyboard setTextView:self.inputText];
+    }
+    [self.inputText reloadInputViews];
+    [self.inputText becomeFirstResponder];
+    button.tag = (button.tag+1)%2;
+    [button setImage:[UIImage imageNamed:_switchKeyboardImages[button.tag]] forState:UIControlStateNormal];
 }
 
 #pragma -mark UITableViewDelegate
@@ -88,16 +169,12 @@
     return cell;
 }
 
-- (UITableView *)tableView {
-    if (!_tableView) {
-        _tableView = [[UITableView alloc] initWithFrame:CGRectMake(0, CGRectGetMaxY(self.topView.frame), ksrcwidth, 470 - CGRectGetMaxY(self.topView.frame)) style:UITableViewStyleGrouped];
-        _tableView.dataSource = self;
-        _tableView.delegate = self;
-        _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
-        _tableView.backgroundColor = [UIColor whiteColor];
-        [_tableView registerNib:[UINib nibWithNibName:@"HomeGraphicCommentTableViewCell" bundle:nil] forCellReuseIdentifier:@"HomeGraphicCommentTableViewCell"];
-    }
-    return _tableView;
+#pragma mark - text view delegate
+- (void)textViewDidChange:(UITextView *)textView{
+    [self layout];
 }
 
+- (BOOL)textViewShouldBeginEditing:(UITextView *)textView{
+    return YES;
+}
 @end

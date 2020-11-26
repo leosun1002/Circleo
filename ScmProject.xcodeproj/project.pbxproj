@@ -238,6 +238,9 @@
 		738AD44A252DE91B00806513 /* MerchantOrderHeader.xib in Resources */ = {isa = PBXBuildFile; fileRef = 738AD449252DE91B00806513 /* MerchantOrderHeader.xib */; };
 		738AD44D252DEAD500806513 /* MerchantOrderFooter.m in Sources */ = {isa = PBXBuildFile; fileRef = 738AD44C252DEAD500806513 /* MerchantOrderFooter.m */; };
 		738AD44F252DEADF00806513 /* MerchantOrderFooter.xib in Resources */ = {isa = PBXBuildFile; fileRef = 738AD44E252DEADF00806513 /* MerchantOrderFooter.xib */; };
+		738EF06A256E8E5A0052D006 /* MessageSetVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 738EF068256E8E5A0052D006 /* MessageSetVC.m */; };
+		738EF06B256E8E5A0052D006 /* MessageSetVC.xib in Resources */ = {isa = PBXBuildFile; fileRef = 738EF069256E8E5A0052D006 /* MessageSetVC.xib */; };
+		738EF072256EA1CA0052D006 /* GKDYCommentView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 738EF071256EA1CA0052D006 /* GKDYCommentView.xib */; };
 		7390B31E252576FB0034F5C3 /* STEmojiCollectionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 7390B30A252576FA0034F5C3 /* STEmojiCollectionView.m */; };
 		7390B31F252576FB0034F5C3 /* STEmoji.m in Sources */ = {isa = PBXBuildFile; fileRef = 7390B30B252576FA0034F5C3 /* STEmoji.m */; };
 		7390B320252576FB0034F5C3 /* STEmojiKeyboard.m in Sources */ = {isa = PBXBuildFile; fileRef = 7390B30C252576FA0034F5C3 /* STEmojiKeyboard.m */; };
@@ -795,6 +798,10 @@
 		738AD44B252DEAD500806513 /* MerchantOrderFooter.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MerchantOrderFooter.h; sourceTree = "<group>"; };
 		738AD44C252DEAD500806513 /* MerchantOrderFooter.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MerchantOrderFooter.m; sourceTree = "<group>"; };
 		738AD44E252DEADF00806513 /* MerchantOrderFooter.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MerchantOrderFooter.xib; sourceTree = "<group>"; };
+		738EF067256E8E5A0052D006 /* MessageSetVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MessageSetVC.h; sourceTree = "<group>"; };
+		738EF068256E8E5A0052D006 /* MessageSetVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MessageSetVC.m; sourceTree = "<group>"; };
+		738EF069256E8E5A0052D006 /* MessageSetVC.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MessageSetVC.xib; sourceTree = "<group>"; };
+		738EF071256EA1CA0052D006 /* GKDYCommentView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = GKDYCommentView.xib; sourceTree = "<group>"; };
 		7390B30A252576FA0034F5C3 /* STEmojiCollectionView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STEmojiCollectionView.m; sourceTree = "<group>"; };
 		7390B30B252576FA0034F5C3 /* STEmoji.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STEmoji.m; sourceTree = "<group>"; };
 		7390B30C252576FA0034F5C3 /* STEmojiKeyboard.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = STEmojiKeyboard.m; sourceTree = "<group>"; };
@@ -1376,6 +1383,7 @@
 				735B6549254866940078B2E3 /* HomeVideoDetailView.xib */,
 				739A87822549C119001FF8BB /* GKDYCommentView.h */,
 				739A87832549C119001FF8BB /* GKDYCommentView.m */,
+				738EF071256EA1CA0052D006 /* GKDYCommentView.xib */,
 			);
 			path = view;
 			sourceTree = "<group>";
@@ -1493,6 +1501,7 @@
 		737A791925303CCA006DA787 /* 消息 */ = {
 			isa = PBXGroup;
 			children = (
+				738EF066256E8E3D0052D006 /* 消息设置 */,
 				735E8AA425519F9500663122 /* 消息对话 */,
 				738335B52530696E006721D5 /* 订单消息 */,
 				738335AA253065F8006721D5 /* 系统消息 */,
@@ -2081,6 +2090,16 @@
 				738AD44E252DEADF00806513 /* MerchantOrderFooter.xib */,
 			);
 			path = view;
+			sourceTree = "<group>";
+		};
+		738EF066256E8E3D0052D006 /* 消息设置 */ = {
+			isa = PBXGroup;
+			children = (
+				738EF067256E8E5A0052D006 /* MessageSetVC.h */,
+				738EF068256E8E5A0052D006 /* MessageSetVC.m */,
+				738EF069256E8E5A0052D006 /* MessageSetVC.xib */,
+			);
+			path = "消息设置";
 			sourceTree = "<group>";
 		};
 		7390B308252576DC0034F5C3 /* EmojiKeyBoard */ = {
@@ -3120,6 +3139,7 @@
 				73B027412541BD26001C3F28 /* PublishAddTopicTableViewCell.xib in Resources */,
 				73A629D72539E754007EE15F /* MineChangePayPswChildVC.xib in Resources */,
 				735B91BA2466A47B00CEB6FA /* README.md in Resources */,
+				738EF06B256E8E5A0052D006 /* MessageSetVC.xib in Resources */,
 				7390B324252576FB0034F5C3 /* keyboard_preview_bg@3x.png in Resources */,
 				737A7918253031C1006DA787 /* MerchantAppointOrderVC.xib in Resources */,
 				7390B323252576FB0034F5C3 /* keyboard_preview_bg@2x.png in Resources */,
@@ -3162,6 +3182,7 @@
 				94E7F10C20F6108A009DBE63 /* 说明 in Resources */,
 				738113A72532124A00156BEF /* MineApppointDetailVC.xib in Resources */,
 				7305CD30253B3BC200BF0FBD /* MineChangeNickNameVC.xib in Resources */,
+				738EF072256EA1CA0052D006 /* GKDYCommentView.xib in Resources */,
 				7390B33D2525DB300034F5C3 /* btn_keyboard@3x.png in Resources */,
 				73886C4F25230C28001AA1A9 /* LoginWithCodeVC.xib in Resources */,
 				738113BD2532CDE400156BEF /* MineCollectPostVC.xib in Resources */,
@@ -3427,6 +3448,7 @@
 				7387E7D525287550009BDF13 /* HomeLocationHeader.m in Sources */,
 				730C31E522E177AB0071DFF2 /* UIImage+GIFImage.m in Sources */,
 				7387E7B12528535A009BDF13 /* MerchantHomeHeaderCollectionCell.m in Sources */,
+				738EF06A256E8E5A0052D006 /* MessageSetVC.m in Sources */,
 				735B91BF2466A47B00CEB6FA /* UIButton+AFNetworking.m in Sources */,
 				7387E7EB25299D92009BDF13 /* MerchantDetailVC.m in Sources */,
 				73AA6659252336D800AD5938 /* HomePageVC.m in Sources */,

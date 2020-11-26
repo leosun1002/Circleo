@@ -14,6 +14,7 @@
 #import "MessageSystemVC.h"
 #import "MessageOrderVC.h"
 #import "MessageChatVC.h"
+#import "MessageSetVC.h"
 
 @interface MessageHomeVC ()<UITableViewDelegate,UITableViewDataSource>
 
@@ -104,6 +105,10 @@
     }
 }
 
+- (IBAction)settingClick:(id)sender {
+    MessageSetVC *setVC = [[MessageSetVC alloc] init];
+    [self.navigationController pushViewController:setVC animated:YES];
+}
 
 #pragma -mark UITableViewDelegate
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{

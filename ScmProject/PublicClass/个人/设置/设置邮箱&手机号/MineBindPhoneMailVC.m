@@ -11,6 +11,7 @@
 @interface MineBindPhoneMailVC ()
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UITextField *phoneText;
 
 @end
 
@@ -28,6 +29,7 @@
 -(void)prepareUi{
     self.heightConst.constant = navBarHeight;
     self.titleLabel.text = [NSString stringWithFormat:NSLocalizedString(@"修改%@", nil),self.phoneMail];
+    self.phoneText.placeholder = [self.phoneMail isEqualToString:@"邮箱"]?NSLocalizedString(@"请输入邮箱账号", nil):NSLocalizedString(@"请输入手机号", nil);
 }
 
 @end
