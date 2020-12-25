@@ -14,6 +14,7 @@
 #import "HomeFindVC.h"
 #import "FindClassifyVC.h"
 #import "HomeSearchVC.h"
+#import "HomeFindModel.h"
 
 @interface HomePageVC ()<SGPageTitleViewDelegate,SGPageContentScrollViewDelegate,UITextFieldDelegate>
 
@@ -80,14 +81,16 @@
             HomeFindVC *findVC = [[HomeFindVC alloc] init];
             findVC.subject = [RACSubject subject];
             WeakSelf(self);
-            [findVC.subject subscribeNext:^(id x) {
+            [findVC.subject subscribeNext:^(HomeFindCategorysModel *model) {
                 FindClassifyVC *classify = [[FindClassifyVC alloc] init];
+                classify.category = model;
                 [weakself.navigationController pushViewController:classify animated:YES];
             }];
             [self.vcs addObject:findVC];
         }else{
             HomePageChildVC *childVC = [[HomePageChildVC alloc] init];
             childVC.navigation = self.navigationController;
+            childVC.type = i;
             [self.vcs addObject:childVC];
         }
     }
@@ -101,6 +104,13 @@
 - (void)pageTitleView:(SGPageTitleView *)pageTitleView selectedIndex:(NSInteger)selectedIndex{
     [_mPageContentScrollView setPageContentScrollViewCurrentIndex:selectedIndex];
     self.selectedPage=selectedIndex;
+    if (selectedIndex == 3) {
+        HomeFindVC *findVC = self.vcs[selectedIndex];
+        [findVC refreshData];
+    }else{
+        HomePageChildVC *childVC = self.vcs[selectedIndex];
+        [childVC refreshData];
+    }
 }
 
 //内容区域滚动后调用
@@ -119,6 +129,13 @@
 -(void)pageContentScrollViewDidEndDecelerating:(SGPageContentScrollView *)pageContentScrollView index:(NSInteger)index{
     NSLog(@"滚动%ld",(long)index);
     self.selectedPage=index;
+    if (index == 3) {
+        HomeFindVC *findVC = self.vcs[index];
+        [findVC refreshData];
+    }else{
+        HomePageChildVC *childVC = self.vcs[index];
+        [childVC refreshData];
+    }
 }
 
 #pragma -mark UITextFieldDelegate

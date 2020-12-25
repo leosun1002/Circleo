@@ -46,17 +46,17 @@
 
 -(void)showLoading:(NSString*)msg  allowsOpOperation:(BOOL)allows{    
     [SVProgressHUD setForegroundColor:[UIColor whiteColor]];
-    [SVProgressHUD setBackgroundColor:[UIColor clearColor]];
-    UIImage *image = [UIImage imageWithGIFNamed:@"loading"];
-    [SVProgressHUD setInfoImage:image];
-    [SVProgressHUD setImageViewSize:CGSizeMake(60, 60)];
-    [SVProgressHUD setMinimumDismissTimeInterval:12];
+    [SVProgressHUD setBackgroundColor:[UIColor blackColor]];
+    [SVProgressHUD showWithStatus:NSLocalizedString(@"加载中...", nil)];
+//    UIImage *image = [UIImage imageWithGIFNamed:@"loading"];
+//    [SVProgressHUD setInfoImage:image];
+//    [SVProgressHUD setImageViewSize:CGSizeMake(60, 60)];
+//    [SVProgressHUD setMinimumDismissTimeInterval:12];
     if(allows){
         [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeNone];
     }else{
         [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
     }
-    [SVProgressHUD showInfoWithStatus:@""];
 }
 
 -(void)dismissLoading{
@@ -249,10 +249,8 @@
 }
 
 -(void)loginout{
-    BOOL access = [Manager clearUserTokenkey:access_token];
-    BOOL loguser = [Manager clearUserTokenkey:JYLoginuser];
-    [Manager clearTokenkey:history_Arrays]; //清除搜索记录
-    if (access && loguser) {
+    BOOL loguser = [Manager clearUserTokenkey:Loginuser];
+    if (loguser) {
         CATransition *animation = [CATransition animation];
         [animation setDuration:0.3];
         //设置动画时间

@@ -74,6 +74,7 @@
 -(void)loadVCs{
     for (int i = 0; i<self.titles.count; i++) {
         MineMyAppointChildVC *childVC = [[MineMyAppointChildVC alloc] init];
+        childVC.type = i;
         childVC.navigation = self.navigationController;
         [self.vcs addObject:childVC];
     }
@@ -83,6 +84,8 @@
 - (void)pageTitleView:(SGPageTitleView *)pageTitleView selectedIndex:(NSInteger)selectedIndex{
     [_mPageContentScrollView setPageContentScrollViewCurrentIndex:selectedIndex];
     self.selectedPage=selectedIndex;
+    MineMyAppointChildVC *childVC = self.vcs[selectedIndex];
+    [childVC refreshData];
 }
 
 //内容区域滚动后调用
@@ -101,6 +104,9 @@
 -(void)pageContentScrollViewDidEndDecelerating:(SGPageContentScrollView *)pageContentScrollView index:(NSInteger)index{
     NSLog(@"滚动%ld",(long)index);
     self.selectedPage=index;
+    MineMyAppointChildVC *childVC = self.vcs[index];
+    [childVC refreshData];
+
 }
 
 #pragma -mark getter

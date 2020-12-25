@@ -16,7 +16,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="534" height="168"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="6Ek-Tq-xzm">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="6Ek-Tq-xzm">
                         <rect key="frame" x="10" y="17" width="50" height="50"/>
                         <color key="backgroundColor" red="1" green="0.30980392159999998" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
@@ -101,6 +101,14 @@
                     <constraint firstAttribute="bottom" secondItem="P2d-NM-xNP" secondAttribute="bottom" id="zCp-TN-5es"/>
                 </constraints>
             </tableViewCellContentView>
+            <connections>
+                <outlet property="contentLabel" destination="Jqr-I3-m6H" id="HLD-VG-ptC"/>
+                <outlet property="headV" destination="6Ek-Tq-xzm" id="0Qk-Xm-RId"/>
+                <outlet property="imgV" destination="zbv-1B-SeL" id="eSj-OX-lyE"/>
+                <outlet property="nameLabel" destination="5c6-jj-TAh" id="mA1-6e-JCB"/>
+                <outlet property="timeLabel" destination="YnW-Cg-qgd" id="LjQ-G6-GR1"/>
+                <outlet property="titleLabel" destination="gQB-we-nBn" id="6nW-sf-2x1"/>
+            </connections>
             <point key="canvasLocation" x="73.913043478260875" y="101.11607142857143"/>
         </tableViewCell>
     </objects>

@@ -105,17 +105,6 @@
     return [format stringFromDate:date];
 }
 
--(void)setFontAndColor{
-    NSString *font = [Manager takeoutTokenkey:JYArticleFont];
-    NSString *color = [Manager takeoutTokenkey:JYArticleColor];
-    if ([AssectString(font) isEqualToString:@""]) {
-        [Manager saveToken:@"1" key:JYArticleFont];
-    }
-    if ([AssectString(color) isEqualToString:@""]) {
-        [Manager saveToken:@"0" key:JYArticleColor];
-    }
-}
-
 -(void)setUpNimSDK{
     //配置额外配置信息 （需要在注册 appkey 前完成
     [[NIMSDKConfig sharedConfig] setShouldSyncUnreadCount:YES];

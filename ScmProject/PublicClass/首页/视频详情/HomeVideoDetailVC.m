@@ -184,6 +184,7 @@
 
 -(void)commentsClick{
     GKDYCommentView *commentView = [[GKDYCommentView alloc] initWithFrame:CGRectMake(0, ksrcheight - 470, ksrcwidth, 470)];
+//    [self.view addSubview:commentView]
     GKSlidePopupView *popupView = [GKSlidePopupView popupViewWithFrame:[UIScreen mainScreen].bounds contentView:commentView];
     [popupView showFrom:[UIApplication sharedApplication].keyWindow completion:^{
         [commentView requestData];

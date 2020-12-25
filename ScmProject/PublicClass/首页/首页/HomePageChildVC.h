@@ -12,8 +12,10 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface HomePageChildVC : BaseViewController
 
-
+@property(nonatomic,assign) int type;
 @property(nonatomic,strong) UINavigationController *navigation;
+-(void)refreshData;
+
 @end
 
 NS_ASSUME_NONNULL_END

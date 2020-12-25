@@ -58,4 +58,5 @@
     MineApplyRefundCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"MineApplyRefundCollectionViewCell" forIndexPath:indexPath];
     return cell;
 }
+
 @end

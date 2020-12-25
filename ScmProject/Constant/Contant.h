@@ -52,6 +52,7 @@
 #define ENGLISH @"en"
 
 #define access_token @"access_token"//用户token
+#define UserId @"UserId"//用户token
 
 #define history_Arrays @"history_Arrays"//记录
 
@@ -59,74 +60,7 @@
 
 
 //用户信息
-#define JYLoginuser @"loginuser"
-
-#define JYIp @"ip"
-#define JYCnyMoney @"cny_money"
-#define JYCnyNotMoney @"cny_not_money"
-#define JYCnySevenMoney @"cny_seven_income"
-#define JYUSDTSevenMoney @"usdt_seven_income"
-#define JYUsdtMoney @"usdt_money"
-#define JYUsdtNotMoney @"usdt_not_money"
-#define JYIncomeCnyMoney @"income_cny_money"
-#define JYIncomeCnyNotMoney @"income_not_cny_money"
-#define JYIncomeUsdtMoney @"income_usdt_money"
-#define JYIncomeUsdtNotMoney @"income_not_usdt_money"
-#define JYWechat @"wechat"
-#define JYInvitationCode @"invitation_code"
-#define JYUpdatedAt @"updated_at"
-#define JYParentId @"parent_id"
-#define JYId @"id"
-#define JYActive @"is_active"
-#define JYCodeUsed @"code_is_used"
-#define JYEmail @"email"
-#define JYGrade @"grade"
-#define JYPhone @"phone"
-#define JYArea @"area"
-#define JYEmailVerified @"email_verified_at"
-#define JYCreatedAt @"created_at"
-#define JYCreatedTime @"created_time"
-#define JYIntegral @"integral"
-#define JYAuthentication @"is_authentication"
-#define JYOldUserId @"old_user_id"
-#define JYGarde @"garde"
-#define JYGardeType @"garde_type"
-#define JYGradeLetter @"garde_letter"
-#define JYDirectPhone @"direct_push_phone"
-#define JYDirectCount @"direct_push_count"
-#define JYIndirectCount @"indirect_push_count"
-#define JYTotalRelease @"total_release"
-#define JYWeekTotalRelease @"week_total_release"
-#define JYConsumptionRelease @"consumption_release"
-#define JYAddress @"address"
-#define JYDomainNameCount @"domain_name_count"
-#define JYDomainName @"domain_name"
-#define JYPayPassword @"is_pay_password"
-#define JYUserImage @"avatar"
-#define JYBindBankCard @"is_bink_band_card"
-#define JYUpdateAgentStatus @"upgrade_agent_status"
-#define JYIsPartner @"is_partner"
-#define JYPartnerSharing @"partner_sharing"
-#define JYWalletAddress @"is_user_wallet_address"
-#define JYDomainNumber @"domain_total_number"
-#define JYUserTitle @"user_title"
-#define JYHasKachin @"is_kachin"
-#define JYUserName @"name"
-#define JYIsModified @"is_modified_nickname"
-#define JYNickName @"nick_name"
-#define JYFuel @"fuel"
-#define JYKeyPassword @"key_password"
-#define JYKeyAddress @"key_address"
-#define JYTradePassword @"trade_password"
-
-#define JYTotalAssets @"total_assets"
-
-#define JYArticleFont @"articleFont"
-#define JYArticleColor @"articleColor"
+#define Loginuser @"Loginuser"
 
 
-#pragma -mark 公钥、地址、私钥
-#define ShopWalletAddress @"ShopWalletAddress"
-#define ShopWalletPrivite @"ShopWalletPrivite"
-#define ShopWalletPublic @"ShopWalletPublic"
 @end

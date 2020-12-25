@@ -17,7 +17,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="490" height="172"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="oKi-Bg-W5d">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="oKi-Bg-W5d">
                         <rect key="frame" x="10" y="61" width="50" height="50"/>
                         <color key="backgroundColor" red="1" green="0.30980392159999998" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
@@ -63,7 +63,7 @@
                             <constraint firstAttribute="height" constant="0.5" id="YXo-MY-DE2"/>
                         </constraints>
                     </view>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9ZE-uG-MCw">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="9ZE-uG-MCw">
                         <rect key="frame" x="419" y="55.5" width="61" height="61"/>
                         <color key="backgroundColor" red="1" green="0.30980392159999998" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
@@ -94,6 +94,13 @@
                 </constraints>
             </tableViewCellContentView>
             <viewLayoutGuide key="safeArea" id="aW0-zy-SZf"/>
+            <connections>
+                <outlet property="headV" destination="oKi-Bg-W5d" id="KBy-7c-jxL"/>
+                <outlet property="imgV" destination="9ZE-uG-MCw" id="yNr-Py-SPW"/>
+                <outlet property="nameLabel" destination="IyX-dp-xTJ" id="GmV-eD-NZF"/>
+                <outlet property="sjLabel" destination="4r5-Jm-JkR" id="h5R-j4-lej"/>
+                <outlet property="titleLabeL" destination="fO8-EP-qRq" id="wbb-bF-Go7"/>
+            </connections>
             <point key="canvasLocation" x="-65.217391304347828" y="38.839285714285715"/>
         </tableViewCell>
     </objects>

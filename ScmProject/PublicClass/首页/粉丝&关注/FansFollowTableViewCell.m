@@ -24,4 +24,11 @@
     // Configure the view for the selected state
 }
 
+-(void)setModel:(FansModel *)model{
+    _model = model;
+    self.nameLabel.text = AssectString(model.name);
+    self.fansLabel.text = [NSString stringWithFormat:NSLocalizedString(@"粉丝：%@", nil),model.fansAmount];
+    [self.flowBtn setTitle:model.isAttention == 1?NSLocalizedString(@"互相关注", nil):NSLocalizedString(@"关注", nil) forState:(UIControlStateNormal)];
+    self.flowWidth.constant = model.isAttention == 1?77.5:53.5;
+}
 @end

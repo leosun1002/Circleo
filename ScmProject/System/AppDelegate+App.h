@@ -22,7 +22,5 @@
 
 -(void)selectFPS;
 
--(void)setFontAndColor;
-
 -(void)setUpNimSDK;
 @end

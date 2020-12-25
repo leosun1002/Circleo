@@ -560,6 +560,10 @@
             if (self.resultModelArrayBlock) {
                 self.resultModelArrayBlock([self getResultModelArr]);
             }
+        } else if (self.pickerMode == BRStringPickerComponentLinkage) {
+            if (self.resultModelArrayBlock) {
+                self.resultModelArrayBlock([self getResultModelArr]);
+            }
         }
     };
     

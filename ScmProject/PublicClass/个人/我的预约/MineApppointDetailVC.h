@@ -12,6 +12,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface MineApppointDetailVC : BaseViewController
 
+@property(nonatomic,strong)NSString *appointId;
 @end
 
 NS_ASSUME_NONNULL_END

@@ -25,7 +25,7 @@
     return [self path:url formReq:parameters  loadingTime:time callbackBlock:block imageFun:images];
 }
 
-+(NSURLSessionTask*)path:(NSString*)url formReq:(NSDictionary*)body  loadingTime:(NSInteger)time callbackBlock:(RequestCallBackBlock)block imageFun:(NSArray*)imagelist{
++(NSURLSessionTask*)path:(NSString*)url formReq:(NSDictionary*)body loadingTime:(NSInteger)time callbackBlock:(RequestCallBackBlock)block imageFun:(NSArray*)imagelist{
     
     //设置http head
     AFHTTPSessionManager *sessionManager = [AFHTTPSessionManager manager];
@@ -36,15 +36,7 @@
     [sessionManager.requestSerializer setValue:AppVersion forHTTPHeaderField:@"ver"];
     [sessionManager.requestSerializer setValue:@"ios" forHTTPHeaderField:@"os"];
     [sessionManager.requestSerializer setValue:[[UIDevice currentDevice] systemVersion] forHTTPHeaderField:@"phoneOs"];
-    [sessionManager.requestSerializer setValue:[[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?@"en":@"zh-CN" forHTTPHeaderField:@"language"];
-    [sessionManager.requestSerializer setValue:PlatformCode forHTTPHeaderField:@"platformCode"];
-    NSString *bundVer = [[self getBundleID] isEqualToString:@"com.jieyi.appStore"]?@"1":@"0";
-    [sessionManager.requestSerializer setValue:bundVer forHTTPHeaderField:@"isShop"];
-    
-    NSString *token = [Manager takeoutTokenkey:access_token];
-    if (token && ![token isEqualToString:@""]) {
-        [sessionManager.requestSerializer setValue: [NSString stringWithFormat:@"Bearer %@", token] forHTTPHeaderField:@"Authorization"];
-    }
+
     if(time ==0)
       
         sessionManager.requestSerializer.timeoutInterval = 10.0f;
@@ -52,15 +44,7 @@
         sessionManager.requestSerializer.timeoutInterval = time;
     
     sessionManager.responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json", @"text/html",@"text/json", @"text/javascript", nil];
- /*
-    //设置http body
-    NSMutableDictionary *newBody = [NSMutableDictionary dictionaryWithDictionary:body];
-     [newBody setObject:@"ios" forKey:@"os"];
-     [newBody setObject:kAppVersion forKey:@"ver"];
-     [newBody setObject:@"" forKey:@"uid"];
-    */
-    //创建task
-    //[NSString stringWithFormat:@"%@%@",serviseIP,url]
+ 
     
     AFSecurityPolicy *securityPolicy = [AFSecurityPolicy defaultPolicy];
     securityPolicy.validatesDomainName = NO;
@@ -102,6 +86,46 @@
         }
     }];
     
+    return sessionTask;
+}
+
+/**
+ *  异步POST请求:以body方式,支持数组
+ *
+ *  @param url     请求的url
+ *  @param body    body数据
+ *  @param success 成功回调
+ *  @param failure 失败回调
+ */
++(NSURLSessionTask*)postWithUrl:(NSString *)url body:(NSDictionary *)dict loadingTime:(NSInteger)time showLoading:(BOOL)show success:(void(^)(NSDictionary *response))success failure:(void(^)(NSError *error))failure{
+    NSString *requestUrl = [NSString stringWithFormat:@"%@%@", serviseIP, url];
+    AFURLSessionManager *manager = [[AFURLSessionManager alloc] initWithSessionConfiguration:[NSURLSessionConfiguration defaultSessionConfiguration]];
+
+    NSMutableURLRequest *request = [[AFHTTPRequestSerializer serializer] requestWithMethod:@"POST" URLString:requestUrl parameters:nil error:nil];
+    request.timeoutInterval= time;
+    [request setValue:@"application/json" forHTTPHeaderField:@"Content-Type"];
+    // 设置body
+    [request setHTTPBody:[self returnDataWith:dict]];
+    AFHTTPResponseSerializer *responseSerializer = [AFHTTPResponseSerializer serializer];
+    responseSerializer.acceptableContentTypes = [NSSet setWithObjects:@"application/json",
+                                                                      @"text/html",
+                                                                      @"text/json",
+                                                                      @"text/javascript",
+                                                                      @"text/plain",
+                                                                      nil];
+    manager.responseSerializer = responseSerializer;
+    WeakSelf(self);
+    show?[self showLoading:NSLocalizedString(@"加载中...", nil) allowsOpOperation:YES]:nil;
+    NSURLSessionTask *sessionTask = [manager dataTaskWithRequest:request uploadProgress:^(NSProgress * _Nonnull uploadProgress) {} downloadProgress:^(NSProgress * _Nonnull downloadProgress) {} completionHandler:^(NSURLResponse * _Nonnull response, id  _Nullable responseObject, NSError * _Nullable error) {
+        [weakself dismissLoading];
+        NSDictionary *dictFromData = [NSJSONSerialization JSONObjectWithData:responseObject options:NSJSONReadingAllowFragments error:&error];
+        if (!error) {
+            success(dictFromData);
+        } else {
+            failure(error);
+         }
+    }];
+    [sessionTask resume];
     return sessionTask;
 }
 
@@ -186,14 +210,7 @@
     [sessionManager.requestSerializer setValue:@"ios" forHTTPHeaderField:@"os"];
     [sessionManager.requestSerializer setValue:[[UIDevice currentDevice] systemVersion] forHTTPHeaderField:@"phoneOs"];
     [sessionManager.requestSerializer setValue:[[GDLocalizableController userLanguage] isEqualToString:ENGLISH]?@"en":@"zh-CN" forHTTPHeaderField:@"language"];
-    [sessionManager.requestSerializer setValue:PlatformCode forHTTPHeaderField:@"platformCode"];
-    NSString *bundVer = [[self getBundleID] isEqualToString:@"com.jieyi.appStore"]?@"1":@"0";
-    [sessionManager.requestSerializer setValue:bundVer forHTTPHeaderField:@"isShop"];
 
-    NSString *token = [Manager takeoutTokenkey:access_token];
-    if (token && ![token isEqualToString:@""]) {
-        [sessionManager.requestSerializer setValue: [NSString stringWithFormat:@"Bearer %@", token] forHTTPHeaderField:@"Authorization"];
-    }
     if(time ==0)
         sessionManager.requestSerializer.timeoutInterval = 10.0f;
     else
@@ -219,7 +236,7 @@
     WeakSelf(self);
     NSURLSessionTask *sessionTask = [sessionManager POST:url0 parameters:parameters constructingBodyWithBlock:^(id<AFMultipartFormData>  _Nonnull formData) {
         
-        [formData appendPartWithFileData:UIImagePNGRepresentation(image) name:@"image" fileName:@"image.png" mimeType:@"image/png"];
+        [formData appendPartWithFileData:UIImagePNGRepresentation(image) name:@"file" fileName:@"image.png" mimeType:@"image/png"];
     } progress:^(NSProgress * _Nonnull uploadProgress) {
         
     } success:^(NSURLSessionDataTask * _Nonnull task, id  _Nullable responseObject) {
@@ -305,4 +322,9 @@ static NSData *mCerData;
     return securityPolicy;
 }
 
++(NSData*)returnDataWith:(NSDictionary*)dict
+{
+    NSData *data = [NSJSONSerialization dataWithJSONObject:dict options:NSJSONWritingPrettyPrinted error:nil];
+    return data;
+}
 @end

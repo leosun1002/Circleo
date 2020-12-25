@@ -23,5 +23,6 @@ typedef void (^RequestCallBackBlock)(id result, NSInteger startCode, NSString *e
 //批量上传图片
 +(NSURLSessionTask*)postImageFormReqUrl:(NSString*)url images:(NSArray *)images param:(NSDictionary*)parameters loadingTime:(NSInteger)time callbackBlock:(RequestCallBackBlock)block;
 
-
+//new POST
++ (NSURLSessionTask*)postWithUrl:(NSString *)url body:(NSDictionary *)body loadingTime:(NSInteger)time showLoading:(BOOL)show success:(void(^)(NSDictionary *response))success failure:(void(^)(NSError *error))failure;
 @end

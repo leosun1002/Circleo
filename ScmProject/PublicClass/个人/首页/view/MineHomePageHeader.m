@@ -28,6 +28,8 @@
 #import "FillInformationVC.h"
 #import "FindTitleDetailVC.h"
 
+#import "UserModel.h"
+
 @interface MineHomePageHeader ()<UICollectionViewDataSource,UICollectionViewDelegate>
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *btnTopConst;
@@ -38,6 +40,19 @@
 @property (weak, nonatomic) IBOutlet UICollectionViewFlowLayout *flowLayout;
 @property (copy, nonatomic) NSArray *names;
 @property (copy, nonatomic) NSArray *icons;
+
+@property (strong, nonatomic) UserModel *userModel;
+
+@property (weak, nonatomic) IBOutlet UIImageView *homeImgV;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *generV;
+@property (weak, nonatomic) IBOutlet UILabel *idLabel;
+@property (weak, nonatomic) IBOutlet UILabel *descLabel;
+@property (weak, nonatomic) IBOutlet UILabel *likeLabel;
+@property (weak, nonatomic) IBOutlet UILabel *fansLabel;
+@property (weak, nonatomic) IBOutlet UILabel *flowLabel;
+@property (weak, nonatomic) IBOutlet UILabel *friendsLabel;
 
 @end
 
@@ -50,6 +65,7 @@
         [self prepareUi];
         [self addBeizierPath];
         [self addCollect];
+        [self getUserInfo];
     }
     return self;
 }
@@ -69,6 +85,35 @@
         [weakself.navigation pushViewController:changeImage animated:YES];
     }];
     [self.topView addGestureRecognizer:tap];
+}
+
+-(void)getUserInfo{
+    WeakSelf(self);
+    UserModel *model = [Manager takeoutUserTokenkey:Loginuser];
+    [WebServices postWithUrl:@"user/userInfo/" body:@{@"userId":AssectString(model.userId)} loadingTime:15.f showLoading:YES success:^(NSDictionary *result) {
+        if ([result[resultCode] isEqualToString:@"0"]) {
+            weakself.userModel = [UserModel mj_objectWithKeyValues:result[resultData]];
+            [weakself setData];
+
+        }else{
+            [weakself showMsg:result[resultMessage] location:centre];
+        }
+    } failure:^(NSError *error) {
+        [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+    }];
+}
+
+-(void)setData{
+    [self.headV sd_setImageWithURL:[NSURL URLWithString:AssectString(self.userModel.photo)]];
+    [self.homeImgV sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",photoIp,AssectString(self.userModel.background)]] placeholderImage:[UIImage imageNamed:@"home_bg"]];
+    self.nameLabel.text = AssectString(self.userModel.name);
+    self.generV.image = [AssectString(self.userModel.sex) isEqualToString:@""]?[UIImage imageNamed:@"man"]:([AssectString(self.userModel.sex) isEqualToString:@"1"]?[UIImage imageNamed:@"man"]:[UIImage imageNamed:@"woman"]);
+    self.descLabel.text = [NSString stringWithFormat:NSLocalizedString(@"简介:%@", nil),AssectString(self.userModel.desc)];
+    self.idLabel.text = AssectString(self.userModel.userId);
+    self.likeLabel.text = [AssectString(self.userModel.likeAmount) isEqualToString:@""]?@"0":AssectString(self.userModel.likeAmount);
+    self.fansLabel.text = [AssectString(self.userModel.fansAmount) isEqualToString:@""]?@"0":AssectString(self.userModel.fansAmount);
+    self.flowLabel.text = [AssectString(self.userModel.attentionAmount) isEqualToString:@""]?@"0":AssectString(self.userModel.attentionAmount);
+    self.friendsLabel.text = [AssectString(self.userModel.friendsAmount) isEqualToString:@""]?@"0":AssectString(self.userModel.friendsAmount);
 }
 
 -(void)addBeizierPath{
@@ -96,6 +141,8 @@
 }
 
 - (IBAction)fansClick:(UIButton *)sender {
+    if (sender.tag == 13) return;
+    
     FansFollowListVC *fans = [[FansFollowListVC alloc] init];
     if (sender.tag == 10) {
         fans.titleStr = NSLocalizedString(@"粉丝列表", nil);
@@ -104,6 +151,7 @@
     }else{
         fans.titleStr = NSLocalizedString(@"好友列表", nil);
     }
+    fans.type = sender.tag;
     [self.navigation pushViewController:fans animated:YES];
 }
 

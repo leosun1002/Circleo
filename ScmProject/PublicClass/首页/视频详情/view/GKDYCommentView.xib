@@ -16,14 +16,14 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Xk9-nz-oNq">
                     <rect key="frame" x="0.0" y="835.5" width="414" height="60.5"/>
                     <subviews>
-                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bG7-XW-2jH">
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bG7-XW-2jH">
                             <rect key="frame" x="0.0" y="0.0" width="414" height="0.5"/>
                             <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.93725490199999995" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="0.5" id="7zA-Lk-LNK"/>
                             </constraints>
                         </view>
-                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xAj-qk-fL0">
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xAj-qk-fL0">
                             <rect key="frame" x="10" y="12.5" width="319" height="36"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="对TA说点什么吧..." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="WyU-NK-J5N">
@@ -83,7 +83,7 @@
                                 <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="18"/>
                             </userDefinedRuntimeAttributes>
                         </view>
-                        <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BTq-5x-drb">
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BTq-5x-drb">
                             <rect key="frame" x="339" y="15.5" width="60" height="30"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="发送" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="iZ4-zJ-Jmw">
@@ -125,13 +125,12 @@
                         <constraint firstAttribute="trailing" secondItem="bG7-XW-2jH" secondAttribute="trailing" id="P5z-wb-Rae"/>
                         <constraint firstItem="xAj-qk-fL0" firstAttribute="leading" secondItem="Xk9-nz-oNq" secondAttribute="leading" constant="10" id="X8K-UF-Q2c"/>
                         <constraint firstItem="BTq-5x-drb" firstAttribute="leading" secondItem="xAj-qk-fL0" secondAttribute="trailing" constant="10" id="e7R-0R-pxH"/>
-                        <constraint firstAttribute="bottom" secondItem="xAj-qk-fL0" secondAttribute="bottom" constant="12" id="fO6-YB-HGZ"/>
                         <constraint firstItem="bG7-XW-2jH" firstAttribute="top" secondItem="Xk9-nz-oNq" secondAttribute="top" id="ltG-Sj-ymT"/>
                         <constraint firstItem="xAj-qk-fL0" firstAttribute="top" secondItem="bG7-XW-2jH" secondAttribute="bottom" constant="12" id="n5r-4E-vws"/>
                     </constraints>
                 </view>
                 <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="grouped" separatorStyle="none" rowHeight="-1" estimatedRowHeight="-1" sectionHeaderHeight="18" sectionFooterHeight="18" translatesAutoresizingMaskIntoConstraints="NO" id="3T5-Ge-2Eq">
-                    <rect key="frame" x="0.0" y="45" width="414" height="790.5"/>
+                    <rect key="frame" x="0.0" y="45" width="414" height="791"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                     <connections>
                         <outlet property="dataSource" destination="iN0-l3-epB" id="ijL-Qy-ujF"/>
@@ -167,13 +166,15 @@
                 <constraint firstItem="3T5-Ge-2Eq" firstAttribute="top" secondItem="flG-T6-2fZ" secondAttribute="bottom" id="adT-3v-Noa"/>
                 <constraint firstAttribute="trailing" secondItem="Xk9-nz-oNq" secondAttribute="trailing" id="cHz-Nk-n9i"/>
                 <constraint firstItem="3T5-Ge-2Eq" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="cYD-d4-1y7"/>
+                <constraint firstAttribute="bottom" secondItem="Xk9-nz-oNq" secondAttribute="bottom" id="ckI-5e-6pR"/>
                 <constraint firstAttribute="trailing" secondItem="flG-T6-2fZ" secondAttribute="trailing" id="fdj-El-iAq"/>
                 <constraint firstItem="flG-T6-2fZ" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="gb1-1l-jo7"/>
-                <constraint firstItem="Xk9-nz-oNq" firstAttribute="top" secondItem="3T5-Ge-2Eq" secondAttribute="bottom" id="j42-1M-lYP"/>
-                <constraint firstAttribute="bottom" secondItem="Xk9-nz-oNq" secondAttribute="bottom" id="xjA-5g-ex4"/>
+                <constraint firstAttribute="bottom" secondItem="3T5-Ge-2Eq" secondAttribute="bottom" constant="60" id="ySh-L2-y9O"/>
             </constraints>
             <connections>
-                <outlet property="bottomViewHeight" destination="8Ue-h6-P8L" id="hhk-9W-pua"/>
+                <outlet property="bottomConst" destination="ckI-5e-6pR" id="v9m-zF-DfG"/>
+                <outlet property="bottomView" destination="Xk9-nz-oNq" id="dks-h6-2pC"/>
+                <outlet property="bottomViewHeight" destination="8Ue-h6-P8L" id="joe-6C-O8T"/>
                 <outlet property="commentHeigth" destination="eh9-hq-3FA" id="uej-rC-TWP"/>
                 <outlet property="inputHeight" destination="Aln-0P-SoB" id="F7M-5k-2gE"/>
                 <outlet property="inputText" destination="M8Q-FG-31N" id="1W7-NZ-O4w"/>

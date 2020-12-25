@@ -34,6 +34,12 @@
     self.titleLabel.text = [NSString stringWithFormat:NSLocalizedString(@"修改%@", nil),self.titleStr];
     self.text.placeholder = [NSString stringWithFormat:NSLocalizedString(@"请输入%@", nil),self.titleStr];
     self.maxLabel.hidden = [AssectString(self.titleStr) isEqualToString:@"邮编"];
+    self.text.text = AssectString(self.content);
+}
+
+- (IBAction)checkClick:(id)sender {
+    [self.subject sendNext:AssectString(self.text.text)];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 #pragma -mark UITextFieldDelegate

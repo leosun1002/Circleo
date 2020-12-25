@@ -11,6 +11,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="FillInformationVC">
             <connections>
                 <outlet property="addressText" destination="bRT-iC-1Xr" id="Rn3-Bk-O25"/>
+                <outlet property="checkBtn" destination="DMo-Fs-Mvl" id="gU2-0i-D7B"/>
                 <outlet property="dateText" destination="DJp-Uf-L3L" id="8N5-h8-2bK"/>
                 <outlet property="descHeight" destination="SZN-fJ-HyA" id="LDN-Fn-JFX"/>
                 <outlet property="descView" destination="4qQ-Jj-QCi" id="B9m-oW-no6"/>
@@ -18,6 +19,7 @@
                 <outlet property="generText" destination="0SS-bN-mt3" id="64i-qs-2sn"/>
                 <outlet property="hobbyLead" destination="8d0-Ws-bFs" id="VmG-32-aSj"/>
                 <outlet property="hobbyRed" destination="gHk-jq-y2H" id="6mW-Fe-dwT"/>
+                <outlet property="iconBtn" destination="n6S-at-87A" id="5Pk-uv-xG2"/>
                 <outlet property="idHeight" destination="kmX-RB-gej" id="BDW-0k-FKN"/>
                 <outlet property="idText" destination="SnF-zA-f6h" id="noz-Tr-Rc0"/>
                 <outlet property="idView" destination="Grr-zA-lJT" id="auz-ah-jky"/>
@@ -67,7 +69,7 @@
                         <constraint firstAttribute="bottom" secondItem="0mE-u6-JpZ" secondAttribute="bottom" constant="10" id="X0Q-RD-Xbo"/>
                     </constraints>
                 </view>
-                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DMo-Fs-Mvl">
+                <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DMo-Fs-Mvl">
                     <rect key="frame" x="10" y="807" width="394" height="40"/>
                     <color key="backgroundColor" red="0.75294117650000003" green="0.75294117650000003" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                     <constraints>
@@ -81,6 +83,9 @@
                         <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="20"/>
                         <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                     </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="checkClick:" destination="-1" eventType="touchUpInside" id="N6m-Yk-dYi"/>
+                    </connections>
                 </button>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="QzZ-qb-jdB">
                     <rect key="frame" x="0.0" y="96" width="414" height="703"/>
@@ -262,12 +267,16 @@
                                         <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="10"/>
                                     </userDefinedRuntimeAttributes>
                                 </view>
-                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="n6S-at-87A">
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="n6S-at-87A">
                                     <rect key="frame" x="302" y="10" width="60" height="60"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="60" id="8zA-n0-5jj"/>
                                         <constraint firstAttribute="height" constant="60" id="yne-UJ-PXP"/>
                                     </constraints>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="30"/>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
+                                    </userDefinedRuntimeAttributes>
                                     <connections>
                                         <action selector="imageClick:" destination="-1" eventType="touchUpInside" id="Via-d1-kbf"/>
                                     </connections>

@@ -58,12 +58,6 @@
     #else
     #endif
     
-    [self setFontAndColor];
-    #ifdef DEBUG
-    [[BLStopwatch sharedStopwatch] splitWithDescription:@"设置默认颜色和字体"];
-    #else
-    #endif
-    
     //初始化网易云信
     [self setUpNimSDK];
     #ifdef DEBUG

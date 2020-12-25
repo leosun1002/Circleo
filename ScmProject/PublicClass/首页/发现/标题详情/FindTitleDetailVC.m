@@ -12,6 +12,8 @@
 @interface FindTitleDetailVC ()
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *imgV;
+@property (weak, nonatomic) IBOutlet UILabel *descLabel;
 
 @end
 
@@ -21,10 +23,12 @@
     [super viewDidLoad];
     self.heightConst.constant = navBarHeight;
     self.titleLabel.text = self.titleStr;
+    [self.imgV sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",photoIp,AssectString(self.model.link)]]];
+    self.descLabel.text = AssectString(self.model.desc);
 }
 
 - (IBAction)backClick:(id)sender {
-    [self.navigationController popToRootViewControllerAnimated:YES];
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 @end

@@ -39,6 +39,17 @@
 
 @implementation LoginVC
 
+-(void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self judgeIfLogin];
+}
+
+-(void)judgeIfLogin{
+    UserModel *userModel = [Manager takeoutUserTokenkey:Loginuser];
+    if (!userModel || [AssectString(userModel.userId) isEqualToString:@""]) return;
+    [self loginin];
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.heightConst.constant = navBarHeight;
@@ -94,7 +105,7 @@
         }else if ([code isEqualToString:@"11"]){
             [weakself codeClick];
         }else if ([code isEqualToString:@"12"]){
-            [weakself forgetClick];
+            [weakself forgetClick:0];
         }else if ([code isEqualToString:@"13"]){
             [weakself bindClick];
         }
@@ -109,7 +120,7 @@
         }else if ([code isEqualToString:@"11"]){
             [weakself codeClick];
         }else if ([code isEqualToString:@"12"]){
-            [weakself forgetClick];
+            [weakself forgetClick:1];
         }else if ([code isEqualToString:@"13"]){
             [weakself bindClick];
         }
@@ -127,17 +138,15 @@
     [self.navigationController pushViewController:codeVC animated:YES];
 }
 
--(void)forgetClick{
+-(void)forgetClick:(NSInteger)type{
     ForgetPswVC *forget = [[ForgetPswVC alloc] init];
+    forget.type = type;
     [self.navigationController pushViewController:forget animated:YES];
 }
 
 -(void)bindClick{
-//    BindAccountVC *bind = [[BindAccountVC alloc] init];
-//    [self.navigationController pushViewController:bind animated:YES];
-    
-    FillInformationVC *fillVC = [[FillInformationVC alloc] init];
-    [self.navigationController pushViewController:fillVC animated:YES];
+    BindAccountVC *bind = [[BindAccountVC alloc] init];
+    [self.navigationController pushViewController:bind animated:YES];
 }
 
 //顶部title切换完成调用

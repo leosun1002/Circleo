@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface HomeFindVC : BaseViewController
 
 @property(nonatomic,strong)RACSubject *subject;
+-(void)refreshData;
 @end
 
 NS_ASSUME_NONNULL_END

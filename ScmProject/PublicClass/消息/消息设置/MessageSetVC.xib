@@ -9,7 +9,10 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="MessageSetVC">
             <connections>
+                <outlet property="commandBtn" destination="0rS-no-6Yp" id="8ep-xG-xrH"/>
+                <outlet property="flowBtn" destination="mZ9-el-lsC" id="zKj-4t-geA"/>
                 <outlet property="heightConst" destination="zsM-TY-HMQ" id="egV-85-96Y"/>
+                <outlet property="thumBtn" destination="kiD-iR-7EJ" id="7o4-AH-Fi7"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -74,10 +77,13 @@
                             <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="kiD-iR-7EJ">
+                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="kiD-iR-7EJ">
                             <rect key="frame" x="355" y="9.5" width="51" height="31"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <color key="onTintColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <connections>
+                                <action selector="thumClick:" destination="-1" eventType="valueChanged" id="1IH-D6-hDx"/>
+                            </connections>
                         </switch>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4LT-3g-Rru">
                             <rect key="frame" x="45" y="49" width="359" height="1"/>
@@ -117,9 +123,12 @@
                             <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="0rS-no-6Yp">
+                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="0rS-no-6Yp">
                             <rect key="frame" x="355" y="9.5" width="51" height="31"/>
                             <color key="onTintColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <connections>
+                                <action selector="commandClick:" destination="-1" eventType="valueChanged" id="WnB-Kj-7Nr"/>
+                            </connections>
                         </switch>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Nk7-R3-sUn">
                             <rect key="frame" x="45" y="49" width="359" height="1"/>
@@ -159,9 +168,12 @@
                             <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" on="YES" translatesAutoresizingMaskIntoConstraints="NO" id="mZ9-el-lsC">
+                        <switch opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" contentHorizontalAlignment="center" contentVerticalAlignment="center" translatesAutoresizingMaskIntoConstraints="NO" id="mZ9-el-lsC">
                             <rect key="frame" x="355" y="9.5" width="51" height="31"/>
                             <color key="onTintColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <connections>
+                                <action selector="flowClick:" destination="-1" eventType="valueChanged" id="Rbn-SI-Zuw"/>
+                            </connections>
                         </switch>
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>

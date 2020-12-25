@@ -7,11 +7,13 @@
 //
 
 #import "BaseViewController.h"
+#import "HomeFindModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface FindClassifyVC : BaseViewController
 
+@property(nonatomic,strong)HomeFindCategorysModel *category;
 @end
 
 NS_ASSUME_NONNULL_END

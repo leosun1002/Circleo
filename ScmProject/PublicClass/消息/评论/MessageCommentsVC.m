@@ -8,12 +8,16 @@
 
 #import "MessageCommentsVC.h"
 #import "MsgCommentsTableViewCell.h"
+#import "CommentsModel.h"
 
-@interface MessageCommentsVC ()<UITableViewDataSource,UITableViewDelegate>
+@interface MessageCommentsVC ()<UITableViewDataSource,UITableViewDelegate>{
+    int page;
+}
 
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *heightConst;
 @property(nonatomic,strong)NSIndexPath *editingIndexPath;
 @property (weak, nonatomic) IBOutlet UITableView *tableview;
+@property(nonatomic,strong)NSMutableArray *datas;
 
 @end
 
@@ -22,6 +26,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self prepareUi];
+    [self addRefresh];
+    [self.tableview.mj_header beginRefreshing];
 }
 
 #pragma mark - viewDidLayoutSubviews
@@ -66,7 +72,7 @@
         [deleteButton setImage:[UIImage imageNamed:@"msg_delete"] forState:UIControlStateNormal];
         [deleteButton setImageEdgeInsets:UIEdgeInsetsMake(0, 15, 0, 0)];
         deleteButton.backgroundColor = [UIColor colorWithRGBHex:@"#FF5C5C"];
-//        [deleteButton addTarget:self action:@selector(deleteClickWith10:) forControlEvents:UIControlEventTouchUpInside];
+        [deleteButton addTarget:self action:@selector(delateClick:) forControlEvents:UIControlEventTouchUpInside];
     }
 }
 
@@ -80,9 +86,38 @@
     self.tableview.backgroundColor = [UIColor colorWithRGBHex:@"#F7F5FA"];
 }
 
+-(void)addRefresh{
+    WeakSelf(self);
+    self.tableview.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+        [weakself getFansData:YES];
+    }];
+    self.tableview.mj_footer = [MJRefreshBackNormalFooter footerWithRefreshingBlock:^{
+        [weakself getFansData:NO];
+    }];
+}
+
+-(void)getFansData:(BOOL)ifFresh{
+    ifFresh?(page = 1):page++;
+    WeakSelf(self);
+    NSDictionary *dict = @{
+        @"pageNo": [NSString stringWithFormat:@"%d",page],
+      @"pageSize": PageSize,
+      @"userId": [Manager takeoutUserTokenkey:Loginuser].userId
+    };
+    [WebServices postWithUrl:@"news/newsappraise/" body:dict loadingTime:12.f showLoading:NO success:^(NSDictionary *response) {
+        ifFresh?[weakself.datas removeAllObjects]:nil;
+        NSMutableArray<CommentsModel*> *applicationList = [CommentsModel mj_objectArrayWithKeyValuesArray:response[resultData]];
+        [weakself.datas addObjectsFromArray:applicationList];
+        [weakself.tableview reloadData];
+    } failure:^(NSError *error) {
+    }];
+    [self.tableview.mj_header endRefreshing];
+    [self.tableview.mj_footer endRefreshing];
+}
+
 #pragma -mark UITableViewDelegate
 -(NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 10;
+    return self.datas.count;
 }
 
 -(CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
@@ -91,6 +126,21 @@
 
 -(UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     MsgCommentsTableViewCell *cell = [tableView dequeueReusableCellWithIdentifier:@"MsgCommentsTableViewCell"];
+    CommentsModel *model = self.datas[indexPath.row];
+    [cell.headV sd_setImageWithURL:[NSURL URLWithString:[NSString stringWithFormat:@"%@%@",photoIp,AssectString(model.photo)]]];
+    cell.nameLabel.text = AssectString(model.name);
+    cell.contentLabel.text = AssectString(model.title);
+    //1 评论作品 2回复评论 3作品提及 4评论提及 ,
+    if ([AssectString(model.flag) isEqualToString:@"1"]) {
+        cell.titleLabel.text = NSLocalizedString(@"评论了你的作品", nil);
+    }else if ([AssectString(model.flag) isEqualToString:@"2"]) {
+        cell.titleLabel.text = NSLocalizedString(@"回复了你的评论", nil);
+    }else if ([AssectString(model.flag) isEqualToString:@"3"]) {
+        cell.titleLabel.text = NSLocalizedString(@"提及了你的作品", nil);
+    }else if ([AssectString(model.flag) isEqualToString:@"4"]) {
+        cell.titleLabel.text = NSLocalizedString(@"提及了你的评论", nil);
+    }
+    cell.timeLabel.text = AssectString(model.createDate);
     return cell;
 }
 
@@ -120,6 +170,7 @@
     WeakSelf(self);
     //删除
     UIContextualAction *deleteRowAction = [UIContextualAction contextualActionWithStyle:UIContextualActionStyleDestructive title:@"   " handler:^(UIContextualAction * _Nonnull action, __kindof UIView * _Nonnull sourceView, void (^ _Nonnull completionHandler)(BOOL)) {
+        [weakself delateClick2:indexPath.row];
         completionHandler (YES);
     }];
     deleteRowAction.image = [UIImage imageNamed:@"msg_delete"];
@@ -127,5 +178,57 @@
     
     UISwipeActionsConfiguration *config = [UISwipeActionsConfiguration configurationWithActions:@[deleteRowAction]];
     return config;
+}
+
+-(void)delateClick:(UIButton *)sender{
+    CommentsModel *model = self.datas[sender.tag];
+    [self deletaData:AssectString(model.comid)];
+}
+
+-(void)delateClick2:(NSInteger)row{
+    CommentsModel *model = self.datas[row];
+    [self deletaData:AssectString(model.comid)];
+}
+
+-(void)deletaData:(NSString *)msgid{
+    NSDictionary *dict = @{
+      @"id": msgid
+    };
+    WeakSelf(self);
+    [WebServices postWithUrl:@"news/newsappraisedel/" body:dict loadingTime:12.f showLoading:NO success:^(NSDictionary *result) {
+        if ([result[resultCode] isEqualToString:@"0"]) {
+            [weakself showMsg:result[resultMessage] location:centre];
+            [weakself.tableview.mj_header beginRefreshing];
+        }else{
+            [weakself showMsg:result[resultMessage] location:centre];
+        }
+    } failure:^(NSError *error) {
+        [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+    }];
+}
+
+- (IBAction)clearAllClick:(id)sender {
+    NSDictionary *dict = @{
+      @"userId": [Manager takeoutUserTokenkey:Loginuser].userId
+    };
+    WeakSelf(self);
+    [WebServices postWithUrl:@"news/newsappraiseclear/" body:dict loadingTime:12.f showLoading:NO success:^(NSDictionary *result) {
+        if ([result[resultCode] isEqualToString:@"0"]) {
+            [weakself showMsg:result[resultMessage] location:centre];
+            [weakself.tableview.mj_header beginRefreshing];
+        }else{
+            [weakself showMsg:result[resultMessage] location:centre];
+        }
+    } failure:^(NSError *error) {
+        [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+    }];
+}
+
+#pragma -mark getter
+-(NSMutableArray *)datas{
+    if (!_datas) {
+        _datas = [NSMutableArray array];
+    }
+    return _datas;
 }
 @end

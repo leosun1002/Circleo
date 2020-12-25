@@ -41,6 +41,8 @@
  菜单项标题数组
  */
 @property (nonatomic,copy) NSArray *itemArr;
+@property (nonatomic,copy) NSMutableArray *contentArr;
+
 
 @property (weak, nonatomic) IBOutlet UIView *topView;
 @property (weak, nonatomic) IBOutlet UIView *topBgView;
@@ -125,6 +127,8 @@
 
 - (id<JXPagerViewListViewDelegate>)pagerView:(JXPagerView *)pagerView initListAtIndex:(NSInteger)index {
     HomeUserInfoChildView *childView = [[HomeUserInfoChildView alloc] init];
+    childView.type = index;
+    [childView refreshData];
     return childView;
 }
 
@@ -146,7 +150,6 @@
      }
      */
 }
-
 #pragma mark - JXPagerMainTableViewGestureDelegate
 - (BOOL)mainTableViewGestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
     //禁止categoryView左右滑动的时候，上下和左右都可以滚动
@@ -227,4 +230,12 @@
     }
     return _itemArr;
 }
+
+-(NSMutableArray *)contentArr{
+    if (!_contentArr) {
+        _contentArr = [NSMutableArray arrayWithObjects:[HomeUserInfoChildView new],[HomeUserInfoChildView new], nil];
+    }
+    return _contentArr;
+}
+
 @end

@@ -13,6 +13,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface FansFollowListVC : BaseViewController
 @property (weak, nonatomic) IBOutlet UILabel *titleLabel;
 @property (strong, nonatomic) NSString *titleStr;
+@property (assign, nonatomic) long type;
 
 @end
 

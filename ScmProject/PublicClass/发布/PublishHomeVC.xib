@@ -230,8 +230,8 @@
                                                 <constraint firstAttribute="height" constant="0.5" id="jfq-Nm-AlB"/>
                                             </constraints>
                                         </view>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="不显示位置" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LrY-sz-LRo">
-                                            <rect key="frame" x="10" y="16.5" width="71.5" height="17"/>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="选择所属分类" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="LrY-sz-LRo">
+                                            <rect key="frame" x="10" y="16.5" width="86" height="17"/>
                                             <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
                                             <color key="textColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
@@ -359,85 +359,101 @@
                                             <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0O8-gf-ZvH">
-                                            <rect key="frame" x="10" y="48" width="80" height="30"/>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6X0-bc-3O3">
+                                            <rect key="frame" x="10" y="48" width="374" height="30"/>
+                                            <subviews>
+                                                <button opaque="NO" tag="10" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="h9S-0k-byf">
+                                                    <rect key="frame" x="0.0" y="0.0" width="93.5" height="30"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                    <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                    <inset key="imageEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                                    <state key="normal" title="所有人" image="choose_n">
+                                                        <color key="titleColor" red="0.20392156862745098" green="0.20392156862745098" blue="0.20392156862745098" alpha="1" colorSpace="calibratedRGB"/>
+                                                    </state>
+                                                    <state key="selected" image="choose_y"/>
+                                                    <connections>
+                                                        <action selector="visiClick:" destination="-1" eventType="touchUpInside" id="ZbU-xY-RYR"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" tag="11" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Cem-Oe-5Id">
+                                                    <rect key="frame" x="93.5" y="0.0" width="93.5" height="30"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                    <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                    <inset key="imageEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                                    <state key="normal" title="互关好友" image="choose_n">
+                                                        <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
+                                                    </state>
+                                                    <state key="selected" image="choose_y"/>
+                                                    <connections>
+                                                        <action selector="visiClick:" destination="-1" eventType="touchUpInside" id="D4x-UE-r7g"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" tag="12" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="jHh-wG-kV7">
+                                                    <rect key="frame" x="187" y="0.0" width="93.5" height="30"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                    <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                    <inset key="imageEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                                    <state key="normal" title="仅粉丝" image="choose_n">
+                                                        <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
+                                                    </state>
+                                                    <state key="selected" image="choose_y"/>
+                                                    <connections>
+                                                        <action selector="visiClick:" destination="-1" eventType="touchUpInside" id="Net-P6-12t"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" tag="13" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="m3C-mc-f87">
+                                                    <rect key="frame" x="280.5" y="0.0" width="93.5" height="30"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                    <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                    <inset key="imageEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                                    <state key="normal" title="仅自己" image="choose_n">
+                                                        <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
+                                                    </state>
+                                                    <state key="selected" image="choose_y"/>
+                                                    <connections>
+                                                        <action selector="visiClick:" destination="-1" eventType="touchUpInside" id="uMw-Pj-jpq"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
+                                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                             <constraints>
-                                                <constraint firstAttribute="height" constant="30" id="hKR-jN-ifU"/>
-                                                <constraint firstAttribute="width" constant="80" id="pQY-ng-Y56"/>
+                                                <constraint firstAttribute="bottom" secondItem="Cem-Oe-5Id" secondAttribute="bottom" id="3Cv-qc-0qC"/>
+                                                <constraint firstAttribute="trailing" secondItem="m3C-mc-f87" secondAttribute="trailing" id="56C-3y-GOa"/>
+                                                <constraint firstItem="h9S-0k-byf" firstAttribute="top" secondItem="6X0-bc-3O3" secondAttribute="top" id="7hy-S7-YLR"/>
+                                                <constraint firstItem="h9S-0k-byf" firstAttribute="leading" secondItem="6X0-bc-3O3" secondAttribute="leading" id="8gH-wu-nVj"/>
+                                                <constraint firstItem="jHh-wG-kV7" firstAttribute="top" secondItem="6X0-bc-3O3" secondAttribute="top" id="CGp-fY-rve"/>
+                                                <constraint firstItem="h9S-0k-byf" firstAttribute="width" secondItem="6X0-bc-3O3" secondAttribute="width" multiplier="1:4" id="DYb-1V-11G"/>
+                                                <constraint firstAttribute="bottom" secondItem="jHh-wG-kV7" secondAttribute="bottom" id="FOV-YK-Ehj"/>
+                                                <constraint firstAttribute="height" constant="30" id="GNp-QN-7BA"/>
+                                                <constraint firstItem="Cem-Oe-5Id" firstAttribute="width" secondItem="h9S-0k-byf" secondAttribute="width" id="GZy-p0-vMA"/>
+                                                <constraint firstItem="Cem-Oe-5Id" firstAttribute="leading" secondItem="h9S-0k-byf" secondAttribute="trailing" id="Ofd-AY-czU"/>
+                                                <constraint firstAttribute="bottom" secondItem="m3C-mc-f87" secondAttribute="bottom" id="TCW-bb-OfS"/>
+                                                <constraint firstAttribute="bottom" secondItem="h9S-0k-byf" secondAttribute="bottom" id="UgT-Hd-YSP"/>
+                                                <constraint firstItem="Cem-Oe-5Id" firstAttribute="top" secondItem="6X0-bc-3O3" secondAttribute="top" id="WlP-8l-lG6"/>
+                                                <constraint firstItem="jHh-wG-kV7" firstAttribute="width" secondItem="Cem-Oe-5Id" secondAttribute="width" id="Y0u-wS-zb5"/>
+                                                <constraint firstItem="m3C-mc-f87" firstAttribute="leading" secondItem="jHh-wG-kV7" secondAttribute="trailing" id="Yi7-hR-lFY"/>
+                                                <constraint firstItem="jHh-wG-kV7" firstAttribute="leading" secondItem="Cem-Oe-5Id" secondAttribute="trailing" id="aGy-Uh-rzc"/>
+                                                <constraint firstItem="m3C-mc-f87" firstAttribute="top" secondItem="6X0-bc-3O3" secondAttribute="top" id="uC4-ee-8aF"/>
                                             </constraints>
-                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                            <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <inset key="imageEdgeInsets" minX="-5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <state key="normal" title="所有人" image="choose_n">
-                                                <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
-                                            </state>
-                                            <state key="selected" title="所有人" image="choose_s"/>
-                                        </button>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Lyw-2Q-qxV">
-                                            <rect key="frame" x="100" y="48" width="95" height="30"/>
-                                            <constraints>
-                                                <constraint firstAttribute="width" constant="95" id="VPz-Nq-tzG"/>
-                                                <constraint firstAttribute="height" constant="30" id="rVq-1n-Y8s"/>
-                                            </constraints>
-                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                            <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <inset key="imageEdgeInsets" minX="-5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <state key="normal" title="互关好友" image="choose_n">
-                                                <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
-                                            </state>
-                                            <state key="selected" title="互关好友" image="choose_s"/>
-                                        </button>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="qnj-SA-atq">
-                                            <rect key="frame" x="205" y="48" width="80" height="30"/>
-                                            <constraints>
-                                                <constraint firstAttribute="width" constant="80" id="7u1-SB-cid"/>
-                                                <constraint firstAttribute="height" constant="30" id="sFH-fL-T2R"/>
-                                            </constraints>
-                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                            <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <inset key="imageEdgeInsets" minX="-5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <state key="normal" title="仅粉丝" image="choose_n">
-                                                <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
-                                            </state>
-                                            <state key="selected" title="仅粉丝" image="choose_s"/>
-                                        </button>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rFZ-U8-9k8">
-                                            <rect key="frame" x="295" y="48" width="80" height="30"/>
-                                            <constraints>
-                                                <constraint firstAttribute="width" constant="80" id="PdP-eH-CFI"/>
-                                                <constraint firstAttribute="height" constant="30" id="pop-rH-KhX"/>
-                                            </constraints>
-                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                            <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <inset key="imageEdgeInsets" minX="-5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <state key="normal" title="仅自己" image="choose_n">
-                                                <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
-                                            </state>
-                                            <state key="selected" title="仅自己" image="choose_s"/>
-                                        </button>
+                                        </view>
                                     </subviews>
                                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                     <constraints>
-                                        <constraint firstItem="0O8-gf-ZvH" firstAttribute="leading" secondItem="ERa-22-dRV" secondAttribute="leading" constant="10" id="6p4-9P-p8E"/>
                                         <constraint firstItem="icw-47-Y61" firstAttribute="top" secondItem="ERa-22-dRV" secondAttribute="top" constant="18" id="8pp-z0-Ilm"/>
-                                        <constraint firstItem="qnj-SA-atq" firstAttribute="centerY" secondItem="Lyw-2Q-qxV" secondAttribute="centerY" id="CPq-BD-GOT"/>
-                                        <constraint firstItem="Lyw-2Q-qxV" firstAttribute="centerY" secondItem="0O8-gf-ZvH" secondAttribute="centerY" id="Ezz-qg-elM"/>
-                                        <constraint firstItem="rFZ-U8-9k8" firstAttribute="centerY" secondItem="qnj-SA-atq" secondAttribute="centerY" id="FNk-ow-HOi"/>
                                         <constraint firstAttribute="bottom" secondItem="Yob-aJ-zvb" secondAttribute="bottom" id="Hht-Sp-Qwe"/>
-                                        <constraint firstItem="qnj-SA-atq" firstAttribute="leading" secondItem="Lyw-2Q-qxV" secondAttribute="trailing" constant="10" id="WmD-I2-UmL"/>
-                                        <constraint firstItem="rFZ-U8-9k8" firstAttribute="leading" secondItem="qnj-SA-atq" secondAttribute="trailing" constant="10" id="Y8w-2j-pw4"/>
+                                        <constraint firstItem="6X0-bc-3O3" firstAttribute="top" secondItem="icw-47-Y61" secondAttribute="bottom" constant="15" id="SEu-a8-Axr"/>
                                         <constraint firstAttribute="trailing" secondItem="Yob-aJ-zvb" secondAttribute="trailing" constant="10" id="ZTO-Mj-Dly"/>
-                                        <constraint firstItem="0O8-gf-ZvH" firstAttribute="top" secondItem="icw-47-Y61" secondAttribute="bottom" constant="15" id="b2H-Wz-PHb"/>
+                                        <constraint firstAttribute="trailing" secondItem="6X0-bc-3O3" secondAttribute="trailing" constant="10" id="apW-VD-CAk"/>
                                         <constraint firstItem="Yob-aJ-zvb" firstAttribute="leading" secondItem="ERa-22-dRV" secondAttribute="leading" constant="10" id="ebi-EG-FNb"/>
-                                        <constraint firstItem="Lyw-2Q-qxV" firstAttribute="leading" secondItem="0O8-gf-ZvH" secondAttribute="trailing" constant="10" id="edp-nS-dC6"/>
                                         <constraint firstAttribute="height" constant="88" id="ezh-ke-0YP"/>
+                                        <constraint firstItem="6X0-bc-3O3" firstAttribute="leading" secondItem="ERa-22-dRV" secondAttribute="leading" constant="10" id="vgN-z8-QrM"/>
                                         <constraint firstItem="icw-47-Y61" firstAttribute="leading" secondItem="ERa-22-dRV" secondAttribute="leading" constant="10" id="xGr-JP-8dD"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wgl-mu-7yP">
                                     <rect key="frame" x="0.0" y="275" width="394" height="88"/>
                                     <subviews>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="设置可见权限" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xKJ-UC-bRV">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="设置评论权限" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xKJ-UC-bRV">
                                             <rect key="frame" x="10" y="18" width="92" height="15"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="15" id="tsi-Rd-489"/>
@@ -446,76 +462,92 @@
                                             <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dp4-SO-iGS">
-                                            <rect key="frame" x="10" y="48" width="80" height="30"/>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Cp6-4x-eAy">
+                                            <rect key="frame" x="10" y="48" width="374" height="30"/>
+                                            <subviews>
+                                                <button opaque="NO" tag="20" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ipr-nl-97O">
+                                                    <rect key="frame" x="0.0" y="0.0" width="93.5" height="30"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                    <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                    <inset key="imageEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                                    <state key="normal" title="所有人" image="choose_n">
+                                                        <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
+                                                    </state>
+                                                    <state key="selected" image="choose_y"/>
+                                                    <connections>
+                                                        <action selector="limitClick:" destination="-1" eventType="touchUpInside" id="eS7-eq-FqF"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" tag="21" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="idA-ws-Rpm">
+                                                    <rect key="frame" x="93.5" y="0.0" width="93.5" height="30"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                    <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                    <inset key="imageEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                                    <state key="normal" title="互关好友" image="choose_n">
+                                                        <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
+                                                    </state>
+                                                    <state key="selected" image="choose_y"/>
+                                                    <connections>
+                                                        <action selector="limitClick:" destination="-1" eventType="touchUpInside" id="fzi-Y5-rhQ"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" tag="22" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Gnt-Wr-yiM">
+                                                    <rect key="frame" x="187" y="0.0" width="93.5" height="30"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                    <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                    <inset key="imageEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                                    <state key="normal" title="仅粉丝" image="choose_n">
+                                                        <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
+                                                    </state>
+                                                    <state key="selected" image="choose_y"/>
+                                                    <connections>
+                                                        <action selector="limitClick:" destination="-1" eventType="touchUpInside" id="xoW-xZ-8Dz"/>
+                                                    </connections>
+                                                </button>
+                                                <button opaque="NO" tag="23" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4D4-TS-ubY">
+                                                    <rect key="frame" x="280.5" y="0.0" width="93.5" height="30"/>
+                                                    <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
+                                                    <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                                    <inset key="imageEdgeInsets" minX="5" minY="0.0" maxX="5" maxY="0.0"/>
+                                                    <state key="normal" title="仅自己" image="choose_n">
+                                                        <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
+                                                    </state>
+                                                    <state key="selected" image="choose_y"/>
+                                                    <connections>
+                                                        <action selector="limitClick:" destination="-1" eventType="touchUpInside" id="mEI-fy-HMh"/>
+                                                    </connections>
+                                                </button>
+                                            </subviews>
+                                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                             <constraints>
-                                                <constraint firstAttribute="height" constant="30" id="Otz-l2-RtL"/>
-                                                <constraint firstAttribute="width" constant="80" id="e0Z-gs-HoE"/>
+                                                <constraint firstItem="Gnt-Wr-yiM" firstAttribute="top" secondItem="Cp6-4x-eAy" secondAttribute="top" id="0M3-8b-fG1"/>
+                                                <constraint firstAttribute="height" constant="30" id="4FD-7y-0Jt"/>
+                                                <constraint firstAttribute="bottom" secondItem="Gnt-Wr-yiM" secondAttribute="bottom" id="6yB-k4-Wzc"/>
+                                                <constraint firstItem="ipr-nl-97O" firstAttribute="leading" secondItem="Cp6-4x-eAy" secondAttribute="leading" id="9Vi-kQ-fMJ"/>
+                                                <constraint firstItem="4D4-TS-ubY" firstAttribute="top" secondItem="Cp6-4x-eAy" secondAttribute="top" id="Evj-Ii-weL"/>
+                                                <constraint firstItem="ipr-nl-97O" firstAttribute="width" secondItem="Cp6-4x-eAy" secondAttribute="width" multiplier="1:4" id="EwT-3r-aar"/>
+                                                <constraint firstItem="Gnt-Wr-yiM" firstAttribute="width" secondItem="idA-ws-Rpm" secondAttribute="width" id="IQY-Uh-IpI"/>
+                                                <constraint firstAttribute="bottom" secondItem="idA-ws-Rpm" secondAttribute="bottom" id="JXd-ls-cBs"/>
+                                                <constraint firstAttribute="bottom" secondItem="ipr-nl-97O" secondAttribute="bottom" id="Noq-E5-QsA"/>
+                                                <constraint firstAttribute="trailing" secondItem="4D4-TS-ubY" secondAttribute="trailing" id="NvV-AV-4D5"/>
+                                                <constraint firstItem="Gnt-Wr-yiM" firstAttribute="leading" secondItem="idA-ws-Rpm" secondAttribute="trailing" id="T1N-3P-YFV"/>
+                                                <constraint firstItem="idA-ws-Rpm" firstAttribute="width" secondItem="ipr-nl-97O" secondAttribute="width" id="UPi-a0-4xv"/>
+                                                <constraint firstItem="idA-ws-Rpm" firstAttribute="leading" secondItem="ipr-nl-97O" secondAttribute="trailing" id="aAy-Lp-wkm"/>
+                                                <constraint firstItem="idA-ws-Rpm" firstAttribute="top" secondItem="Cp6-4x-eAy" secondAttribute="top" id="fvY-qT-vFO"/>
+                                                <constraint firstAttribute="bottom" secondItem="4D4-TS-ubY" secondAttribute="bottom" id="gHd-ph-D3m"/>
+                                                <constraint firstItem="4D4-TS-ubY" firstAttribute="leading" secondItem="Gnt-Wr-yiM" secondAttribute="trailing" id="iCy-86-TyH"/>
+                                                <constraint firstItem="ipr-nl-97O" firstAttribute="top" secondItem="Cp6-4x-eAy" secondAttribute="top" id="vIo-Q0-mTk"/>
                                             </constraints>
-                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                            <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <inset key="imageEdgeInsets" minX="-5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <state key="normal" title="所有人" image="choose_n">
-                                                <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
-                                            </state>
-                                            <state key="selected" title="所有人" image="choose_s"/>
-                                        </button>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="DXG-wd-doe">
-                                            <rect key="frame" x="100" y="48" width="95" height="30"/>
-                                            <constraints>
-                                                <constraint firstAttribute="width" constant="95" id="0zs-lj-pl1"/>
-                                                <constraint firstAttribute="height" constant="30" id="ZyM-nX-BIr"/>
-                                            </constraints>
-                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                            <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <inset key="imageEdgeInsets" minX="-5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <state key="normal" title="互关好友" image="choose_n">
-                                                <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
-                                            </state>
-                                            <state key="selected" title="互关好友" image="choose_s"/>
-                                        </button>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="OqX-MI-4p9">
-                                            <rect key="frame" x="205" y="48" width="80" height="30"/>
-                                            <constraints>
-                                                <constraint firstAttribute="height" constant="30" id="BJl-VU-XHb"/>
-                                                <constraint firstAttribute="width" constant="80" id="gMo-af-8I7"/>
-                                            </constraints>
-                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                            <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <inset key="imageEdgeInsets" minX="-5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <state key="normal" title="仅粉丝" image="choose_n">
-                                                <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
-                                            </state>
-                                            <state key="selected" title="仅粉丝" image="choose_s"/>
-                                        </button>
-                                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mif-zX-bvn">
-                                            <rect key="frame" x="295" y="48" width="80" height="30"/>
-                                            <constraints>
-                                                <constraint firstAttribute="width" constant="80" id="Fzr-le-6Wr"/>
-                                                <constraint firstAttribute="height" constant="30" id="vd0-4d-lQb"/>
-                                            </constraints>
-                                            <fontDescription key="fontDescription" type="system" weight="medium" pointSize="14"/>
-                                            <inset key="titleEdgeInsets" minX="5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <inset key="imageEdgeInsets" minX="-5" minY="0.0" maxX="0.0" maxY="0.0"/>
-                                            <state key="normal" title="仅自己" image="choose_n">
-                                                <color key="titleColor" red="0.20392156859999999" green="0.20392156859999999" blue="0.20392156859999999" alpha="1" colorSpace="calibratedRGB"/>
-                                            </state>
-                                            <state key="selected" title="仅自己" image="choose_s"/>
-                                        </button>
+                                        </view>
                                     </subviews>
                                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                     <constraints>
-                                        <constraint firstItem="dp4-SO-iGS" firstAttribute="top" secondItem="xKJ-UC-bRV" secondAttribute="bottom" constant="15" id="4fP-aD-3ty"/>
-                                        <constraint firstItem="dp4-SO-iGS" firstAttribute="leading" secondItem="Wgl-mu-7yP" secondAttribute="leading" constant="10" id="AM1-ik-3eP"/>
-                                        <constraint firstItem="DXG-wd-doe" firstAttribute="centerY" secondItem="dp4-SO-iGS" secondAttribute="centerY" id="UCr-LT-UL0"/>
-                                        <constraint firstItem="DXG-wd-doe" firstAttribute="leading" secondItem="dp4-SO-iGS" secondAttribute="trailing" constant="10" id="UWr-fA-XdF"/>
+                                        <constraint firstItem="Cp6-4x-eAy" firstAttribute="top" secondItem="xKJ-UC-bRV" secondAttribute="bottom" constant="15" id="DrJ-L3-aVu"/>
+                                        <constraint firstItem="Cp6-4x-eAy" firstAttribute="leading" secondItem="Wgl-mu-7yP" secondAttribute="leading" constant="10" id="Zsc-Zf-B26"/>
                                         <constraint firstItem="xKJ-UC-bRV" firstAttribute="top" secondItem="Wgl-mu-7yP" secondAttribute="top" constant="18" id="bkk-ez-7Qm"/>
-                                        <constraint firstItem="mif-zX-bvn" firstAttribute="centerY" secondItem="OqX-MI-4p9" secondAttribute="centerY" id="cnG-tl-OgL"/>
                                         <constraint firstItem="xKJ-UC-bRV" firstAttribute="leading" secondItem="Wgl-mu-7yP" secondAttribute="leading" constant="10" id="egU-YT-6k1"/>
                                         <constraint firstAttribute="height" constant="88" id="fHX-UI-2R8"/>
-                                        <constraint firstItem="mif-zX-bvn" firstAttribute="leading" secondItem="OqX-MI-4p9" secondAttribute="trailing" constant="10" id="kKU-ef-Pvw"/>
-                                        <constraint firstItem="OqX-MI-4p9" firstAttribute="leading" secondItem="DXG-wd-doe" secondAttribute="trailing" constant="10" id="uYm-uM-VkN"/>
-                                        <constraint firstItem="OqX-MI-4p9" firstAttribute="centerY" secondItem="DXG-wd-doe" secondAttribute="centerY" id="zax-W0-cST"/>
+                                        <constraint firstAttribute="trailing" secondItem="Cp6-4x-eAy" secondAttribute="trailing" constant="10" id="v1A-Pp-9cT"/>
                                     </constraints>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="string" keyPath="layer.cornerRadius" value="10"/>
@@ -581,20 +613,30 @@
                                         <constraint firstAttribute="width" constant="16" id="S9b-GU-h2S"/>
                                     </constraints>
                                 </imageView>
+                                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="3fX-kN-Ngi">
+                                    <rect key="frame" x="1" y="1" width="32" height="30"/>
+                                    <connections>
+                                        <action selector="dustClick:" destination="-1" eventType="touchUpInside" id="Ygw-dV-QnY"/>
+                                    </connections>
+                                </button>
                             </subviews>
                             <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                             <constraints>
+                                <constraint firstAttribute="bottom" secondItem="3fX-kN-Ngi" secondAttribute="bottom" constant="1" id="8nP-Ce-LYo"/>
                                 <constraint firstAttribute="trailing" secondItem="4MP-Om-TrA" secondAttribute="trailing" id="I0M-CV-Oh2"/>
                                 <constraint firstItem="TrI-O4-tk3" firstAttribute="centerX" secondItem="DZV-Nj-GIn" secondAttribute="centerX" id="Jd5-GL-3Lm"/>
+                                <constraint firstItem="3fX-kN-Ngi" firstAttribute="top" secondItem="DZV-Nj-GIn" secondAttribute="top" constant="1" id="Jzn-n6-FYa"/>
                                 <constraint firstItem="4MP-Om-TrA" firstAttribute="leading" secondItem="DZV-Nj-GIn" secondAttribute="leading" id="Ofw-LF-QVg"/>
                                 <constraint firstAttribute="bottom" secondItem="4MP-Om-TrA" secondAttribute="bottom" id="QBl-m9-v0f"/>
                                 <constraint firstItem="4MP-Om-TrA" firstAttribute="top" secondItem="TrI-O4-tk3" secondAttribute="bottom" constant="7" id="ckK-cO-Lf5"/>
                                 <constraint firstItem="TrI-O4-tk3" firstAttribute="top" secondItem="DZV-Nj-GIn" secondAttribute="top" id="qUT-Jf-2As"/>
+                                <constraint firstAttribute="trailing" secondItem="3fX-kN-Ngi" secondAttribute="trailing" constant="1" id="vEK-Pn-28H"/>
+                                <constraint firstItem="3fX-kN-Ngi" firstAttribute="leading" secondItem="DZV-Nj-GIn" secondAttribute="leading" constant="1" id="wDn-Xu-4of"/>
                             </constraints>
                         </view>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4q4-UK-DaA">
+                        <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4q4-UK-DaA">
                             <rect key="frame" x="74" y="15" width="320" height="40"/>
-                            <color key="backgroundColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
+                            <color key="backgroundColor" red="0.75294117647058822" green="0.75294117647058822" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="40" id="wH5-nW-jgG"/>
                             </constraints>
@@ -639,7 +681,7 @@
     <resources>
         <image name="cg" width="16" height="14"/>
         <image name="choose_n" width="19" height="19"/>
-        <image name="choose_s" width="19" height="19"/>
+        <image name="choose_y" width="16" height="16"/>
         <image name="dizhi" width="10" height="13"/>
         <image name="icon_more_grey" width="7" height="12"/>
         <image name="pub_add" width="14" height="14"/>

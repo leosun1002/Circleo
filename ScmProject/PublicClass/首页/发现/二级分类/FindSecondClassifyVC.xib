@@ -10,7 +10,11 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="FindSecondClassifyVC">
             <connections>
                 <outlet property="collectView" destination="VwU-Nu-edE" id="IuM-xi-bI6"/>
+                <outlet property="descLabel" destination="Fgu-lf-l1z" id="ySR-wY-tTw"/>
+                <outlet property="headV" destination="Vqv-n7-oMh" id="rcc-fW-qpA"/>
                 <outlet property="heightConst" destination="nme-2C-9vf" id="0bw-IT-8J5"/>
+                <outlet property="nameLabel" destination="ETN-3x-Tas" id="hOH-75-40E"/>
+                <outlet property="titleLabel" destination="r7D-oK-0ES" id="LWJ-mJ-aDk"/>
                 <outlet property="topConst" destination="NbL-mN-7od" id="m7B-vz-afe"/>
                 <outlet property="topView" destination="HK4-O6-qwr" id="smU-6l-P7E"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
@@ -24,7 +28,7 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HK4-O6-qwr">
                     <rect key="frame" x="0.0" y="0.0" width="414" height="266"/>
                     <subviews>
-                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Vqv-n7-oMh">
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="Vqv-n7-oMh">
                             <rect key="frame" x="0.0" y="0.0" width="414" height="266"/>
                             <color key="backgroundColor" red="1" green="0.30980392159999998" blue="0.30980392159999998" alpha="1" colorSpace="calibratedRGB"/>
                         </imageView>
@@ -61,8 +65,8 @@
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="8uG-1Q-B0Z">
                             <rect key="frame" x="10" y="202.5" width="384" height="33.5"/>
                             <subviews>
-                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="简介：盖朗厄尔峡湾(Geirangerfjord)，位于卑尔根北部，长15公里，两岸耸立着海拔1500米以上的群山，是..." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fgu-lf-l1z">
-                                    <rect key="frame" x="0.0" y="0.0" width="384" height="33.5"/>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="奥术大师多按时打算大爱仕达爱仕达爱仕达爱仕达爱仕啊啊a" textAlignment="natural" lineBreakMode="wordWrap" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fgu-lf-l1z">
+                                    <rect key="frame" x="0.0" y="0.0" width="374" height="33.5"/>
                                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <nil key="highlightedColor"/>
@@ -79,7 +83,7 @@
                             <constraints>
                                 <constraint firstAttribute="bottom" secondItem="Fgu-lf-l1z" secondAttribute="bottom" id="4JE-Dt-y1E"/>
                                 <constraint firstAttribute="bottom" secondItem="don-S6-42P" secondAttribute="bottom" id="4ln-KJ-dbS"/>
-                                <constraint firstAttribute="trailing" secondItem="Fgu-lf-l1z" secondAttribute="trailing" id="DmJ-dc-H9w"/>
+                                <constraint firstAttribute="trailing" secondItem="Fgu-lf-l1z" secondAttribute="trailing" constant="10" id="DmJ-dc-H9w"/>
                                 <constraint firstAttribute="trailing" secondItem="don-S6-42P" secondAttribute="trailing" id="WL9-hd-HwD"/>
                                 <constraint firstItem="Fgu-lf-l1z" firstAttribute="leading" secondItem="8uG-1Q-B0Z" secondAttribute="leading" id="d9Z-g4-at9"/>
                                 <constraint firstItem="Fgu-lf-l1z" firstAttribute="top" secondItem="8uG-1Q-B0Z" secondAttribute="top" id="hHz-KA-6d8"/>

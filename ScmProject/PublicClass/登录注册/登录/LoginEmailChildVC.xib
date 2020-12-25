@@ -9,6 +9,10 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LoginEmailChildVC">
             <connections>
+                <outlet property="checkBtn" destination="4RW-F7-Gy2" id="B2x-gf-Tyh"/>
+                <outlet property="emailText" destination="8Jb-eJ-bdk" id="ObQ-ct-AuU"/>
+                <outlet property="pswBtn" destination="s1X-oz-pgX" id="aNH-GW-dcz"/>
+                <outlet property="pswText" destination="Ebj-mK-kSf" id="BgZ-It-FKa"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -106,6 +110,10 @@
                                                 <constraint firstAttribute="height" constant="30" id="RlM-Fc-m5Q"/>
                                             </constraints>
                                             <state key="normal" image="login_look"/>
+                                            <state key="selected" image="login_unlook"/>
+                                            <connections>
+                                                <action selector="pswClick:" destination="-1" eventType="touchUpInside" id="zlY-GG-zUn"/>
+                                            </connections>
                                         </button>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -147,7 +155,7 @@
                                 <action selector="forgetClick:" destination="-1" eventType="touchUpInside" id="YBu-Eb-ipK"/>
                             </connections>
                         </button>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4RW-F7-Gy2">
+                        <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4RW-F7-Gy2">
                             <rect key="frame" x="47.5" y="262.5" width="319" height="40"/>
                             <color key="backgroundColor" red="0.75294117650000003" green="0.75294117650000003" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
@@ -394,6 +402,7 @@
         <image name="fb" width="36" height="36"/>
         <image name="ins" width="36" height="36"/>
         <image name="login_look" width="20" height="15"/>
+        <image name="login_unlook" width="20" height="17.5"/>
         <image name="qq" width="36" height="36"/>
         <image name="tt" width="36" height="36"/>
         <image name="wb" width="36" height="36"/>

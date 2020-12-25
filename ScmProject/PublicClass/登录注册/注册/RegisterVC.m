@@ -72,8 +72,9 @@
 }
 
 -(void)loadVCs{
-    for (int i = 0; i<self.titles.count; i++) {
+    for(int i = 0 ;i<self.titles.count;i++){
         RegisterChildVC *childVC = [[RegisterChildVC alloc] init];
+        childVC.type = i;
         [self.vcs addObject:childVC];
     }
 }

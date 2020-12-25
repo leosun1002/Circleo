@@ -12,16 +12,17 @@
 #import "MineChangeNickNameVC.h"
 #import "MineChangeIDVC.h"
 #import "MineChangeIntroVC.h"
+#import "HobbyModel.h"
 
 @interface FillInformationVC ()<UITextFieldDelegate,UINavigationControllerDelegate,UIImagePickerControllerDelegate>
 
+@property (weak, nonatomic) IBOutlet UIButton *iconBtn;
 @property (weak, nonatomic) IBOutlet UITextField *dateText;
 @property (weak, nonatomic) IBOutlet UITextField *generText;
 
 @property (weak, nonatomic) IBOutlet UITextField *addressText;
 @property (nonatomic, copy) NSArray <NSNumber *> *linkage2SelectIndexs;
 
-@property (assign, nonatomic) NSInteger generIndex;
 @property (weak, nonatomic) IBOutlet UIView *tagBgView;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *tagHeight;
 @property (weak, nonatomic) IBOutlet UITextField *nickText;
@@ -30,6 +31,10 @@
 @property (weak, nonatomic) IBOutlet UITextField *introText;
 
 @property(nonatomic,strong)ZWTagListView *tagView;
+@property(nonatomic,strong)NSMutableArray* hobbyDatas;
+@property(nonatomic,strong)NSMutableArray* hobbyStrArray;
+@property(nonatomic,strong)NSMutableArray* areaDatas;
+@property(nonatomic,strong)NSString* headUrl;
 
 @property (weak, nonatomic) IBOutlet UIView *nickRed;
 @property (weak, nonatomic) IBOutlet UIView *mailRed;
@@ -42,6 +47,10 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *descHeight;
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *idHeight;
 
+@property (weak, nonatomic) IBOutlet UIButton *checkBtn;
+
+@property (strong, nonatomic) UserModel *userModel;
+
 @end
 
 @implementation FillInformationVC
@@ -49,6 +58,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self preapreUi];
+    [self loadHobbyData];
+    [self getUserInfo];
 }
 
 - (IBAction)backClick:(id)sender {
@@ -57,8 +68,6 @@
 
 -(void)preapreUi{
     [self.tagBgView addSubview:self.tagView];
-    [self.tagView setTagWithTagArray:@[@"休闲娱乐",@"旅游摄影",@"美食",@"居家",@"宠物",@"话剧音乐剧",@"运动健身",@"生活分享",@"音乐乐器"]];
-    self.tagHeight.constant = self.tagView.height;
     if(self.fillType == FillInformationMine){
         self.nickRed.hidden = YES;
         self.mailRed.hidden = YES;
@@ -72,6 +81,17 @@
         self.idHeight.constant = 0;
         self.descHeight.constant = 0;
     }
+}
+
+-(void)setData{
+    self.headUrl = AssectString(self.userModel.photo);
+    [self.iconBtn sd_setImageWithURL:[NSURL URLWithString:self.headUrl] forState:(UIControlStateNormal)];
+    self.nickText.text = AssectString(self.userModel.name);
+    self.generText.text = [AssectString(self.userModel.sex) isEqualToString:@""]?@"":([AssectString(self.userModel.sex) isEqualToString:@"1"]?NSLocalizedString(@"男", nil):NSLocalizedString(@"女", nil));
+    self.dateText.text = AssectString(self.userModel.birthday);
+    self.emailText.text = AssectString(self.userModel.postcode);
+    self.addressText.text = [NSString stringWithFormat:@"%@ %@",AssectString(self.userModel.regionName),AssectString(self.userModel.cityName)];
+    [self checkBtnEnable];
 }
 
 - (IBAction)imageClick:(id)sender {
@@ -113,6 +133,7 @@
     //压缩图片
     UIImage *newImg =[self compressImage:image toTargetWidth:120.0];
     [picker dismissViewControllerAnimated:YES completion:nil];
+    [self uploadImage:newImg];
 }
 
 - (UIImage *)compressImage:(UIImage *)sourceImage toTargetWidth:(CGFloat)targetWidth {
@@ -132,44 +153,27 @@
 -(BOOL)textFieldShouldBeginEditing:(UITextField *)textField{
     WeakSelf(self);
     if (textField == self.dateText) {
-        [BRDatePickerView showDatePickerWithMode:(BRDatePickerModeDate) title:NSLocalizedString(@"出生日期", nil) selectValue:self.dateText.text resultBlock:^(NSDate * _Nullable selectDate, NSString * _Nullable selectValue) {
+        [BRDatePickerView showDatePickerWithMode:(BRDatePickerModeDate) title:NSLocalizedString(@"出生日期", nil) selectValue:[AssectString(self.dateText.text) containsString:@"-"]?AssectString(self.dateText.text):@""  resultBlock:^(NSDate * _Nullable selectDate, NSString * _Nullable selectValue) {
             weakself.dateText.text = selectValue;
         }];
         return NO;
     }else if (textField == self.generText){
-        [BRStringPickerView showPickerWithTitle:NSLocalizedString(@"性别", nil) dataSourceArr:@[NSLocalizedString(@"男", nil),NSLocalizedString(@"女", nil)] selectIndex:self.generIndex resultBlock:^(BRResultModel * _Nullable resultModel) {
-            weakself.generIndex = resultModel.index;
+        [BRStringPickerView showPickerWithTitle:NSLocalizedString(@"性别", nil) dataSourceArr:@[NSLocalizedString(@"男", nil),NSLocalizedString(@"女", nil)] selectIndex:[AssectString(self.generText.text) isEqualToString:@"女"]?1:0 resultBlock:^(BRResultModel * _Nullable resultModel) {
             weakself.generText.text = resultModel.value;
         }];
         return NO;
     }else if (textField == self.addressText){
-        BRStringPickerView *stringPickerView = [[BRStringPickerView alloc]init];
-        stringPickerView.pickerMode = BRStringPickerComponentLinkage;
-        stringPickerView.title = NSLocalizedString(@"所在地区", nil);
-        stringPickerView.dataSourceArr = [self getLinkag2DataSource];
-        stringPickerView.selectIndexs = self.linkage2SelectIndexs;
-        stringPickerView.isAutoSelect = YES;
-        stringPickerView.resultModelArrayBlock = ^(NSArray<BRResultModel *> *resultModelArr) {
-            // 1.选择的索引
-            NSMutableArray *selectIndexs = [[NSMutableArray alloc]init];
-            // 2.选择的值
-            NSString *selectValue = @"";
-            for (BRResultModel *model in resultModelArr) {
-                [selectIndexs addObject:@(model.index)];
-                selectValue = [NSString stringWithFormat:@"%@ %@", selectValue, model.value];
-            }
-            if ([selectValue hasPrefix:@" "]) {
-                selectValue = [selectValue substringFromIndex:1];
-            }
-            self.linkage2SelectIndexs = selectIndexs;
-            textField.text = selectValue;
-        };
-        [stringPickerView show];
-
+        [self getAreaData];
         return NO;
     }else if (textField == self.nickText || textField == self.emailText){
         MineChangeNickNameVC *changeNick = [[MineChangeNickNameVC alloc] init];
         changeNick.titleStr = textField == self.emailText ? @"邮编":@"昵称";
+        changeNick.content = textField.text;
+        changeNick.subject = [RACSubject subject];
+        [changeNick.subject subscribeNext:^(NSString *name) {
+            textField.text = name;
+            [weakself checkBtnEnable];
+        }];
         [self.navigationController pushViewController:changeNick animated:YES];
         return NO;
     }else if (textField == self.idText){
@@ -184,66 +188,207 @@
     return YES;
 }
 
-- (NSArray <BRResultModel *>*)getLinkag2DataSource {
-    // 获取本地数据源
-    NSMutableArray *listModelArr = [[NSMutableArray alloc]init];
+-(void)loadHobbyData{
+    WeakSelf(self);
+    [WebServices postWithUrl:@"setting/gettags/" body:@{} loadingTime:15.f showLoading:NO success:^(NSDictionary *result) {
+        if ([result[resultCode] isEqualToString:@"0"]) {
+            weakself.hobbyDatas = [HobbyModel mj_objectArrayWithKeyValuesArray:result[@"resultData"]];
+            [weakself setHobbyView];
+        }else{
+            [weakself showMsg:result[resultMessage] location:centre];
+        }
+    } failure:^(NSError *error) {
+        [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+    }];
+}
 
-    BRResultModel *model = [[BRResultModel alloc]init];
-    model.parentKey = @"-1";
-    model.parentValue = @"";
-    model.key = @"1";
-    model.value = @"文";
-    [listModelArr addObject:model];
-    
-    BRResultModel *model1 = [[BRResultModel alloc]init];
-    model1.parentKey = @"1";
-    model1.parentValue = @"文";
-    model1.key = @"2";
-    model1.value = @"语文";
-    [listModelArr addObject:model1];
-    
-    BRResultModel *model2 = [[BRResultModel alloc]init];
-    model2.parentKey = @"1";
-    model2.parentValue = @"文";
-    model2.key = @"3";
-    model2.value = @"数学";
-    [listModelArr addObject:model2];
-    
-    BRResultModel *model3 = [[BRResultModel alloc]init];
-    model3.parentKey = @"-1";
-    model3.parentValue = @"";
-    model3.key = @"10";
-    model3.value = @"体";
-    [listModelArr addObject:model3];
-    
-    BRResultModel *model4 = [[BRResultModel alloc]init];
-    model4.parentKey = @"10";
-    model4.parentValue = @"体";
-    model4.key = @"11";
-    model4.value = @"体育1";
-    [listModelArr addObject:model4];
-    
-    BRResultModel *model5 = [[BRResultModel alloc]init];
-    model5.parentKey = @"10";
-    model5.parentValue = @"体";
-    model5.key = @"12";
-    model5.value = @"体育2";
-    [listModelArr addObject:model5];
-    
+-(void)getUserInfo{
+    WeakSelf(self);
+    UserModel *model = [Manager takeoutUserTokenkey:Loginuser];
+    [WebServices postWithUrl:@"user/userInfo/" body:@{@"userId":AssectString(model.userId)} loadingTime:15.f showLoading:YES success:^(NSDictionary *result) {
+        if ([result[resultCode] isEqualToString:@"0"]) {
+            weakself.userModel = [UserModel mj_objectWithKeyValues:result[resultData]];
+            [weakself setData];
+            [weakself setHobbyView];
 
-    return [listModelArr copy];
+        }else{
+            [weakself showMsg:result[resultMessage] location:centre];
+        }
+    } failure:^(NSError *error) {
+        [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+    }];
+}
+
+-(void)setHobbyView{
+    if (self.hobbyDatas.count == 0 || self.userModel.tagsList.count == 0)return;
+    [self.hobbyStrArray removeAllObjects];
+    for (NSDictionary *dict in self.userModel.tagsList) {
+        [self.hobbyStrArray addObject:AssectString(dict[@"id"])];
+    }
+    for (HobbyModel *model in self.hobbyDatas) {
+        if ([self.hobbyStrArray containsObject:AssectString(model.name)]) {
+            model.ifSelect = YES;
+        }
+    }
+    [self.tagView setTagWithTagArray:self.hobbyDatas];
+    self.tagHeight.constant = self.tagView.height;
+    [self checkBtnEnable];
+}
+
+-(void)uploadImage:(UIImage *)image{
+    WeakSelf(self);
+    [WebServices postImageFormReqUrl:@"upload/file" image:image param:@{} loadingTime:30.f callbackBlock:^(id result, NSInteger startCode, NSString *error) {
+        if ([result[resultCode] isEqualToString:@"0"]) {
+            NSString *subUrl = AssectString(result[resultData][@"fileUrl"]);
+            weakself.headUrl = [NSString stringWithFormat:@"%@%@",photoIp,subUrl];
+            [weakself.iconBtn sd_setImageWithURL:[NSURL URLWithString:weakself.headUrl] forState:(UIControlStateNormal)];
+        }else{
+            [weakself showMsg:result[resultMessage] location:centre];
+        }
+    }];
+}
+
+-(void)getAreaData{
+    WeakSelf(self);
+    [WebServices postWithUrl:@"setting/area/" body:@{} loadingTime:15.f showLoading:YES success:^(NSDictionary *result) {
+        if ([result[resultCode] isEqualToString:@"0"]) {
+            [weakself.areaDatas removeAllObjects];
+            NSArray *parentData = result[resultData];
+            for (NSDictionary *parrentDict in parentData) {
+                BRResultModel *model = [[BRResultModel alloc]init];
+                model.parentKey = AssectString(parrentDict[@"parentId"]);
+                model.parentValue = @"";
+                model.key = AssectString(parrentDict[@"id"]);
+                model.value = AssectString(parrentDict[@"name"]);
+                model.remark = AssectString(parrentDict[@"englishName"]);
+                [weakself.areaDatas addObject:model];
+                NSArray *childData = parrentDict[@"sonResponseArea"];
+                for (NSDictionary *childDict in childData) {
+                    BRResultModel *childModel = [[BRResultModel alloc]init];
+                    childModel.parentKey = AssectString(childDict[@"parentId"]);
+                    childModel.parentValue = AssectString(parrentDict[@"name"]);
+                    childModel.key = AssectString(childDict[@"id"]);
+                    childModel.value = AssectString(childDict[@"name"]);
+                    childModel.remark = AssectString(childDict[@"englishName"]);
+                    [weakself.areaDatas addObject:childModel];
+                }
+            }
+            [weakself showAreaView];
+        }else{
+            [weakself showMsg:result[resultMessage] location:centre];
+        }
+    } failure:^(NSError *error) {
+        [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+    }];
+}
+
+-(void)showAreaView{
+    WeakSelf(self);
+    BRStringPickerView *stringPickerView = [[BRStringPickerView alloc]init];
+    stringPickerView.pickerMode = BRStringPickerComponentLinkage;
+    stringPickerView.title = NSLocalizedString(@"所在地区", nil);
+    stringPickerView.dataSourceArr = self.areaDatas;
+    stringPickerView.selectIndexs = self.linkage2SelectIndexs;
+    stringPickerView.isAutoSelect = YES;
+    stringPickerView.resultModelArrayBlock = ^(NSArray<BRResultModel *> *resultModelArr) {
+        // 1.选择的索引
+        NSMutableArray *selectIndexs = [[NSMutableArray alloc]init];
+        // 2.选择的值
+        NSString *selectValue = @"";
+        for (BRResultModel *model in resultModelArr) {
+            [selectIndexs addObject:@(model.index)];
+            selectValue = [NSString stringWithFormat:@"%@ %@", selectValue, model.value];
+        }
+        if ([selectValue hasPrefix:@" "]) {
+            selectValue = [selectValue substringFromIndex:1];
+        }
+        weakself.linkage2SelectIndexs = selectIndexs;
+        weakself.addressText.text = selectValue;
+    };
+    stringPickerView.changeModelArrayBlock = ^(NSArray<BRResultModel *> * _Nullable resultModelArr) {
+        NSLog(@"asd");
+    };
+    [stringPickerView show];
+}
+
+- (IBAction)checkClick:(id)sender {
+    NSDictionary *dict = @{
+      @"birthday": AssectString(self.dateText.text),
+      @"cards":  AssectString(self.userModel.cards),
+      @"cityId": self.linkage2SelectIndexs.count < 2?@"":[NSString stringWithFormat:@"%@",self.linkage2SelectIndexs[1]],
+      @"email": AssectString(self.userModel.email),
+      @"id": AssectString(self.userModel.userId),
+      @"name": AssectString(self.nickText.text),
+      @"phone": AssectString(self.userModel.phone),
+      @"photo": AssectString(self.headUrl),
+      @"postcode": AssectString(self.emailText.text),
+      @"regionId": self.linkage2SelectIndexs.count == 0?@"":[NSString stringWithFormat:@"%@",self.linkage2SelectIndexs[0]],
+      @"sex": [AssectString(self.generText.text) isEqualToString:@""]?@"":([AssectString(self.generText.text) isEqualToString:@"男"]?@"1":@"0"),
+      @"tags": self.hobbyStrArray
+    };
+    WeakSelf(self);
+    [WebServices postWithUrl:@"user/modUserInfo/" body:dict loadingTime:15. showLoading:YES success:^(NSDictionary *result) {
+        if ([result[resultCode] isEqualToString:@"0"]) {
+            [weakself showMsg:result[resultMessage] location:centre];
+            weakself.fillType == FillInformationLogin?[weakself loginin]:nil;
+        }else{
+            [weakself showMsg:result[resultMessage] location:centre];
+        }
+    } failure:^(NSError *error) {
+        [weakself showMsg:NSLocalizedString(@"网络异常，请稍后重试", nil) location:centre];
+    }];
+}
+
+
+-(void)checkBtnEnable{
+    NSInteger hobbyCount = self.hobbyStrArray.count;
+    NSString *name = self.nickText.text;
+    NSString *mail = self.emailText.text;
+    if (hobbyCount > 0 && ![name isEqualToString:@""] && ![mail isEqualToString:@""]) {
+        self.checkBtn.userInteractionEnabled = YES;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#333333"];
+    }else{
+        self.checkBtn.userInteractionEnabled = NO;
+        self.checkBtn.backgroundColor = [UIColor colorWithRGBHex:@"#C0C0CC"];
+
+    }
 }
 
 #pragma -mark getter
 -(ZWTagListView *)tagView{
     if (!_tagView) {
         _tagView = [[ZWTagListView alloc]initWithFrame:CGRectMake(0, 0, self.tagBgView.width, 100)];
-        _tagView.signalTagColor = [UIColor colorWithRGBHex:@"#F7F7F9"];
         WeakSelf(self);
-        _tagView.Handle = ^(UILabel *selectLabel) {
-            NSLog(@"ads");
+        _tagView.Handle = ^(NSInteger tag) {
+            HobbyModel *model = weakself.hobbyDatas[tag];
+            model.ifSelect = !model.ifSelect;
+            [weakself.hobbyDatas replaceObjectAtIndex:tag withObject:model];
+            [weakself.hobbyStrArray containsObject:AssectString(model.name)]?[weakself.hobbyStrArray removeObject:AssectString(model.name)]:[weakself.hobbyStrArray addObject:AssectString(model.name)];
+            [weakself.tagView setTagWithTagArray:[weakself.hobbyDatas copy]];
+            [weakself checkBtnEnable];
         };
     }
     return _tagView;
+}
+
+-(NSMutableArray *)hobbyDatas{
+    if (!_hobbyDatas) {
+        _hobbyDatas = [NSMutableArray array];
+    }
+    return _hobbyDatas;
+}
+
+-(NSMutableArray *)hobbyStrArray{
+    if (!_hobbyStrArray) {
+        _hobbyStrArray = [NSMutableArray array];
+    }
+    return _hobbyStrArray;
+}
+
+-(NSMutableArray *)areaDatas{
+    if (!_areaDatas) {
+        _areaDatas = [NSMutableArray array];
+    }
+    return _areaDatas;
 }
 @end

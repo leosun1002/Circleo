@@ -17,6 +17,8 @@
 #import "HomeUserInfoChildView.h"
 #import "HomeUserInfoHeader.h"
 #import "FansFollowListVC.h"
+#import "PopView.h"
+#import "FEexChooseRecordView.h"
 
 @interface HomeUserInfoDetailVC ()<JXPagerViewDelegate, JXCategoryViewDelegate>
 
@@ -36,6 +38,8 @@
  菜单项标题数组
  */
 @property (nonatomic,copy) NSArray *itemArr;
+
+@property (nonatomic, strong) FEexChooseRecordView *popView;
 
 @end
 
@@ -64,6 +68,11 @@
     FansFollowListVC *fans = [[FansFollowListVC alloc] init];
     fans.titleStr = NSLocalizedString(@"粉丝列表", nil);
     [self.navigationController pushViewController:fans animated:YES];
+}
+
+- (IBAction)showPopClick:(id)sender {
+    PopView *popView = [PopView popUpContentView:self.popView direct:PopViewDirection_PopUpBottom onView:sender offset:0 triangleView:nil animation:YES];
+    popView.backgroundColor = [[UIColor blackColor] colorWithAlphaComponent:0.3];
 }
 
 #pragma mark - JXPagingViewDelegate
@@ -217,5 +226,16 @@
         _itemArr=@[NSLocalizedString(@"动态", nil),NSLocalizedString(@"点赞", nil)];
     }
     return _itemArr;
+}
+
+- (FEexChooseRecordView *)popView {
+    if (!_popView) {
+        _popView = [[[NSBundle mainBundle] loadNibNamed:@"FEexChooseRecordView" owner:self options:nil] firstObject];
+        _popView.frame = CGRectMake(0, 0, 90, 88);
+        _popView.clickBlock = ^(NSString *typeStr, NSString *typeName) {
+            [PopView hidenPopView];
+        };
+    }
+    return _popView;
 }
 @end

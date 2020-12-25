@@ -9,6 +9,10 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="LoginChildVC">
             <connections>
+                <outlet property="checkBtn" destination="HPs-Ul-TqQ" id="bOZ-Dk-5nk"/>
+                <outlet property="phoneText" destination="MtY-Dx-ec2" id="8rI-hJ-lY8"/>
+                <outlet property="pswBtn" destination="BUR-a9-Fat" id="H0R-wU-zYg"/>
+                <outlet property="pswText" destination="biI-O4-Qxf" id="uYo-cs-zTn"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
             </connections>
         </placeholder>
@@ -147,6 +151,10 @@
                                                 <constraint firstAttribute="height" constant="30" id="XaR-bu-dcr"/>
                                             </constraints>
                                             <state key="normal" image="login_look"/>
+                                            <state key="selected" image="login_unlook"/>
+                                            <connections>
+                                                <action selector="pswClick:" destination="-1" eventType="touchUpInside" id="s5R-zz-ybl"/>
+                                            </connections>
                                         </button>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -188,7 +196,7 @@
                                 <action selector="forgetClick:" destination="-1" eventType="touchUpInside" id="Egv-V1-48N"/>
                             </connections>
                         </button>
-                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HPs-Ul-TqQ">
+                        <button opaque="NO" userInteractionEnabled="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="HPs-Ul-TqQ">
                             <rect key="frame" x="47.5" y="262.5" width="319" height="40"/>
                             <color key="backgroundColor" red="0.75294117647058822" green="0.75294117647058822" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                             <constraints>
@@ -203,7 +211,7 @@
                                 <userDefinedRuntimeAttribute type="boolean" keyPath="layer.masksToBounds" value="YES"/>
                             </userDefinedRuntimeAttributes>
                             <connections>
-                                <action selector="loginClick:" destination="-1" eventType="touchUpInside" id="Tff-aA-2mf"/>
+                                <action selector="loginClick:" destination="-1" eventType="touchUpInside" id="via-0x-YCQ"/>
                             </connections>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hrz-uS-bc1">
@@ -376,6 +384,7 @@
         <image name="fb" width="36" height="36"/>
         <image name="ins" width="36" height="36"/>
         <image name="login_look" width="20" height="15"/>
+        <image name="login_unlook" width="20" height="17.5"/>
         <image name="qq" width="36" height="36"/>
         <image name="tt" width="36" height="36"/>
         <image name="wb" width="36" height="36"/>

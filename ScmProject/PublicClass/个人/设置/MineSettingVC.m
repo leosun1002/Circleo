@@ -101,5 +101,10 @@
     self.cacheLabel.text = [NSString stringWithFormat:@"%@",[self fileSizeWithInterge:intg]];
 }
 
+- (IBAction)logoutClick:(id)sender {
+    [self loginout];
+}
+
+
 
 @end

@@ -7,12 +7,19 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "FansModel.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface MessageFansTableViewCell : UITableViewCell
 
 @property (weak, nonatomic) IBOutlet UIButton *flowBtn;
+@property(nonatomic,strong)FansModel *model;
+@property (weak, nonatomic) IBOutlet UIImageView *headV;
+@property (weak, nonatomic) IBOutlet UILabel *nameLabel;
+@property (weak, nonatomic) IBOutlet UIImageView *sexImgV;
+@property (weak, nonatomic) IBOutlet UILabel *areaLabel;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *flowWidth;
 
 @end
 

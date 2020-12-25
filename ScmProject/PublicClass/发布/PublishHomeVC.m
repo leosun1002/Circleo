@@ -22,6 +22,8 @@
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *collectHeight;
 @property (weak, nonatomic) IBOutlet UIView *bottomView;
 @property (weak, nonatomic) IBOutlet UIView *locationView;
+@property (nonatomic,copy) NSArray *visiBtnDatas;
+@property (nonatomic,copy) NSArray *limiBtnDatas;
 
 @end
 
@@ -35,9 +37,26 @@
 }
 
 - (IBAction)closeClick:(id)sender {
-    [self dismissViewControllerAnimated:YES completion:^{
-        
+    UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:NSLocalizedString(@"确定保存动态至草稿箱？", nil) message:nil preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            
+        }];
     }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    
+    UIAlertAction*  sheetBtn2=[UIAlertAction actionWithTitle:NSLocalizedString(@"确定", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        [self dismissViewControllerAnimated:YES completion:^{
+            
+        }];
+    }];
+    [sheetVC addAction:sheetBtn2];
+    [sheetBtn2 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    
+    [self presentViewController:sheetVC animated:YES completion:nil];
+    
 }
 
 -(void)prepareUi{
@@ -57,6 +76,36 @@
         [weakself.navigationController pushViewController:location animated:YES];
     }];
     [self.locationView addGestureRecognizer:locaTap];
+}
+
+- (IBAction)visiClick:(UIButton *)selectSender {
+    for (UIButton *sender in self.visiBtnDatas) {
+        sender.selected = NO;
+    }
+    selectSender.selected = YES;
+}
+
+- (IBAction)limitClick:(UIButton *)selectSender {
+    for (UIButton *sender in self.limiBtnDatas) {
+        sender.selected = NO;
+    }
+    selectSender.selected = YES;
+}
+
+- (IBAction)dustClick:(id)sender {
+    UIAlertController*   sheetVC=[UIAlertController alertControllerWithTitle:NSLocalizedString(@"确定保存动态至草稿箱？", nil) message:nil preferredStyle:UIAlertControllerStyleAlert];
+    
+    UIAlertAction*  sheetBtn1=[UIAlertAction actionWithTitle:NSLocalizedString(@"取消", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn1];
+    [sheetBtn1 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    
+    UIAlertAction*  sheetBtn2=[UIAlertAction actionWithTitle:NSLocalizedString(@"确定", nil) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+    }];
+    [sheetVC addAction:sheetBtn2];
+    [sheetBtn2 setValue:[UIColor colorWithRGBHex:@"#323236"] forKey:@"titleTextColor"];
+    
+    [self presentViewController:sheetVC animated:YES completion:nil];
 }
 
 -(void)addCollect{
@@ -96,5 +145,28 @@
 -(UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath{
     PublishHomeCollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"PublishHomeCollectionViewCell" forIndexPath:indexPath];
     return cell;
+}
+
+#pragma -mark
+-(NSArray *)visiBtnDatas{
+    if (!_visiBtnDatas) {
+        UIButton *btn1 = (UIButton *)[self.view viewWithTag:10];
+        UIButton *btn2 = (UIButton *)[self.view viewWithTag:11];
+        UIButton *btn3 = (UIButton *)[self.view viewWithTag:12];
+        UIButton *btn4 = (UIButton *)[self.view viewWithTag:13];
+        _visiBtnDatas = [NSArray arrayWithObjects:btn1,btn2,btn3,btn4, nil];
+    }
+    return _visiBtnDatas;
+}
+
+-(NSArray *)limiBtnDatas{
+    if (!_limiBtnDatas) {
+        UIButton *btn1 = (UIButton *)[self.view viewWithTag:20];
+        UIButton *btn2 = (UIButton *)[self.view viewWithTag:21];
+        UIButton *btn3 = (UIButton *)[self.view viewWithTag:22];
+        UIButton *btn4 = (UIButton *)[self.view viewWithTag:23];
+        _limiBtnDatas = [NSArray arrayWithObjects:btn1,btn2,btn3,btn4, nil];
+    }
+    return _limiBtnDatas;
 }
 @end

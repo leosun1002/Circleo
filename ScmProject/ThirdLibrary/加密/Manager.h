@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "UserModel.h"
 
 @interface Manager : NSObject
 
@@ -19,11 +20,11 @@
 +(void)saveUserToken:(NSDictionary* )userDic key:(NSString* )key;
 +(BOOL)hasUserAvalibleTokenkey:(NSString* )key;
 + (BOOL)clearUserTokenkey:(NSString* )key;
-+(NSDictionary* )takeoutUserTokenkey:(NSString* )key;
++(UserModel *)takeoutUserTokenkey:(NSString* )key;
 
 +(void)saveUserArrays:(NSArray *)arrays key:(NSString* )key;
 +(NSArray *)takeUserArrays:(NSString* )key;
 
-+(void)saveUserInfo:(NSDictionary *)dict;
++(void)saveUserInfo:(UserModel *)model;
 
 @end

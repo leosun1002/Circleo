@@ -9,7 +9,7 @@
 #import <UIKit/UIKit.h>
 
 @class ZWTagListView;
-typedef void(^TapHandle)(UILabel *selectLabel);
+typedef void(^TapHandle)(NSInteger tag);
 @protocol ZWTagListViewDelegate <NSObject>
 
 @optional

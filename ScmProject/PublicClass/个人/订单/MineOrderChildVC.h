@@ -13,6 +13,10 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MineOrderChildVC : BaseViewController
 
 @property(nonatomic,strong)UINavigationController *navigation;
+@property(nonatomic,assign)long type;
+
+-(void)refreshData;
+
 @end
 
 NS_ASSUME_NONNULL_END

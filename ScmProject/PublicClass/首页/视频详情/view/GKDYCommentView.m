@@ -25,7 +25,6 @@
 @property (weak, nonatomic) IBOutlet UITableView *tableview;
 @property (nonatomic, assign) NSInteger count;
 @property (strong, nonatomic) STEmojiKeyboard *keyboard;
-@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomConst;
 
 //输入框高度
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *inputHeight;
@@ -44,6 +43,8 @@
 @property (weak, nonatomic) IBOutlet UIView *sendView;
 //总底部高度
 @property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomViewHeight;
+@property (weak, nonatomic) IBOutlet UIView *bottomView;
+@property (weak, nonatomic) IBOutlet NSLayoutConstraint *bottomConst;
 
 @end
 
@@ -69,6 +70,7 @@
 }
 
 -(void)prepareUi{
+    [self bringSubviewToFront:self.bottomView];
     self.keyboard = [STEmojiKeyboard keyboard];
     
     UIBezierPath *path1 = [UIBezierPath bezierPathWithRoundedRect:CGRectMake(0, 0, ksrcwidth, 45) byRoundingCorners:UIRectCornerTopLeft|UIRectCornerTopRight cornerRadii:CGSizeMake(10, 10)];
@@ -109,12 +111,24 @@
 
 #pragma -mark 监听键盘
 - (void)keyboardWillShow:(NSNotification *)notification{
-    self.bottomConst.constant = 400;
+    //获取键盘的高度
+    NSDictionary *userInfo = [notification userInfo];
+    NSValue *aValue = [userInfo objectForKey:UIKeyboardFrameEndUserInfoKey];
+    CGRect keyboardRect = [aValue CGRectValue];
+    int height = keyboardRect.size.height;   //height 就是键盘的高度
+    self.bottomConst.constant = height;
+    [UIView animateWithDuration:0.25 animations:^{
+        [self layoutIfNeeded];
+    }];
 }
 
 - (void)keyboardWillHidden:(NSNotification *)notification {
     self.inputText.text = @"";
     [self layout];
+    self.bottomConst.constant = 0;
+    [UIView animateWithDuration:0.25 animations:^{
+        [self layoutIfNeeded];
+    }];
 }
 
 - (IBAction)switchClick:(UIButton *)button {

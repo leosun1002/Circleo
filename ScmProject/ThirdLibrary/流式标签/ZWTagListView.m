@@ -7,6 +7,7 @@
 //
 
 #import "ZWTagListView.h"
+#import "HobbyModel.h"
 #define HORIZONTAL_PADDING 15.0
 #define VERTICAL_PADDING   7.5f
 static const CGFloat XMGDefaultColumnMargin = 10;
@@ -62,16 +63,19 @@ static const UIEdgeInsets XMGDefaultEdgeInsets = {10, 10, 10, 10};
 }
 
 -(void)setTagWithTagArray:(NSArray*)arr{
-    
+    for (UIView *view in [self subviews]) {
+        [view removeFromSuperview];
+    }
     previousFrame = CGRectMake(XMGDefaultEdgeInsets.top, XMGDefaultEdgeInsets.left, 0, 0);
-    [arr enumerateObjectsUsingBlock:^(NSString*str, NSUInteger idx, BOOL *stop) {
-        
+    [arr enumerateObjectsUsingBlock:^(HobbyModel *model, NSUInteger idx, BOOL *stop) {
+        NSString *str = model.name;
         UILabel*tag = [[UILabel alloc]initWithFrame:CGRectZero];
         tag.tag = 100+idx;
         tag.textAlignment = NSTextAlignmentCenter;
-        tag.textColor = [UIColor colorWithRGBHex:@"#55555D"];
         tag.font = [UIFont systemFontOfSize:13];
         tag.text = str;
+        tag.layer.cornerRadius = 15.f;
+        tag.layer.masksToBounds = YES;
         NSDictionary *attrs = @{NSFontAttributeName : [UIFont boldSystemFontOfSize:13]};
         CGSize Size_str = [str sizeWithAttributes:attrs];
         
@@ -92,16 +96,17 @@ static const UIEdgeInsets XMGDefaultEdgeInsets = {10, 10, 10, 10};
         self->totalHeight = Size_str.height+newRect.origin.y;
         newRect.size = Size_str;
         [tag setFrame:newRect];
+    
         if(self->_signalTagColor){
             tag.backgroundColor = self->_signalTagColor;
             tag.layer.borderColor = tag.backgroundColor.CGColor;
             tag.layer.borderWidth = 1.f;
-            tag.layer.cornerRadius = 14.f;
-            tag.layer.masksToBounds = YES;
         }else{
-            tag.backgroundColor = [UIColor colorWithRed:random()%255/255.0 green:random()%255/255.0 blue:random()%255/255.0 alpha:1];
+            tag.backgroundColor = !model.ifSelect?[UIColor whiteColor]:[UIColor colorWithRGBHex:@"#333333"];
+            tag.textColor = !model.ifSelect?[UIColor colorWithRGBHex:@"#C0C0CC"]:[UIColor whiteColor];
+            tag.layer.borderColor = (!model.ifSelect?[UIColor colorWithRGBHex:@"#C0C0CC"]:[UIColor colorWithRGBHex:@"#333333"]).CGColor;
+            tag.layer.borderWidth = 1.f;
         }
-        
         self->previousFrame = tag.frame;
         [self setHight:self andHight:self->totalHeight+  XMGDefaultEdgeInsets.bottom];
         
@@ -129,7 +134,7 @@ static const UIEdgeInsets XMGDefaultEdgeInsets = {10, 10, 10, 10};
 -(void)tapTag:(UITapGestureRecognizer *)tap
 {
     UILabel *lab = (UILabel *)tap.view;
-    !self.Handle? :self.Handle(lab);
+    !self.Handle? :self.Handle(lab.tag - 100);
 }
 
 @end
